@@ -378,7 +378,7 @@ function Update_OwnRepo() {
 
 ## 更新所有 Raw 脚本
 function Update_OwnRaw() {
-    local rm_mark format_url repository_platform repository_branch reformat_url repository_url repository_url_tmp
+    local Rm_Mark format_url repository_platform repository_branch reformat_url repository_url repository_url_tmp
     for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
         raw_file_name[$i]=$(echo ${OwnRawFile[i]} | awk -F "/" '{print $NF}')
         ## 判断脚本来源仓库
@@ -407,14 +407,14 @@ function Update_OwnRaw() {
         fi
     done
     for file in $(ls $RawDir | egrep -v "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
-        rm_mark="yes"
+        Rm_Mark="yes"
         for ((i = 0; i < ${#raw_file_name[*]}; i++)); do
             if [[ $file == ${raw_file_name[$i]} ]]; then
-                rm_mark="no"
+                Rm_Mark="no"
                 break
             fi
         done
-        [[ $rm_mark == yes ]] && rm -f $RawDir/$file 2>/dev/null
+        [[ $Rm_Mark == yes ]] && rm -f $RawDir/$file 2>/dev/null
     done
 }
 
@@ -612,7 +612,7 @@ function ExtraShell() {
 }
 
 ## 更新指定路径下的仓库
-function Update_Specify() {
+function Update_Designated() {
     local input=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
@@ -773,7 +773,7 @@ function Combin_Function() {
         *)
             echo $1 | grep "/" -q
             if [ $? -eq 0 ]; then
-                Update_Specify $1
+                Update_Designated $1
             else
                 Output_Command_Error 1
                 exit
