@@ -18,7 +18,7 @@ echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➀ 同步最新源码开始
 cd ${WORK_DIR}
 sleep 1
 git fetch --all
-git reset --hard origin/main
+git reset --hard origin/master
 taskctl check files >/dev/null 2>&1
 bash update.sh
 echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➀ 同步最新源码结束 -----\n"
