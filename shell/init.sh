@@ -8,14 +8,14 @@ ERROR='[\033[31mERROR\033[0m]'
 ContrlCmd="taskctl"
 TIME="+%Y-%m-%d %T"
 
-if [ ! -d $JD_DIR/config ]; then
+if [ ! -d ${WORK_DIR}/config ]; then
   echo -e "$ERROR 没有映射 config 配置文件目录给本容器，请先按教程映射该目录...\n"
   exit 1
 fi
 
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➀ 同步最新源码开始 -----\n"
-cd $JD_DIR
+cd ${WORK_DIR}
 sleep 1
 git fetch --all
 git reset --hard origin/main
@@ -26,7 +26,7 @@ echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➀ 同步最新源码结束
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➁ 挂机程序开始 -----\n"
 if [[ ${ENABLE_HANGUP} == true ]]; then
-  . $JD_DIR/config/config.sh
+  . ${WORK_DIR}/config/config.sh
   if [ -n "${Cookie1}" ]; then
     $ContrlCmd hang up
   else
@@ -45,7 +45,7 @@ if [[ ${ENABLE_TG_BOT} == true ]]; then
     echo -e "您的处理器架构不支持使用此功能\n"
     ;;
   *)
-    if [[ -z $(grep -E "123456789" $JD_DIR/config/bot.json) ]]; then
+    if [[ -z $(grep -E "123456789" ${WORK_DIR}/config/bot.json) ]]; then
       $ContrlCmd jbot start
     else
       echo -e "检测到当前可能是首次部署容器，还没有配置 bot.json 因此不启动 Telegram Bot ...\n"
@@ -60,15 +60,15 @@ echo -e "[\033[34m$(date "${TIME}")\033[0m] ----- ➂ Telegram Bot 结束 -----\
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 echo -e "\n[\033[34m$(date "${TIME}")\033[0m] ----- ➃ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
-  cd $JD_DIR
+  cd ${WORK_DIR}
   export PS1="\u@\h:\w $ "
   pm2 start ttyd --name="ttyd" -- -p 7685 -t fontSize=17 -t disableLeaveAlert=true -t rendererType=webgl bash
   echo -e "\n[\033[34m$(date "${TIME}")\033[0m] 网页终端启动成功 $SUCCESS\n"
 
-  cd $JD_DIR/web
+  cd ${WORK_DIR}/web
   npm install >/dev/null 2>&1
   pm2 start ecosystem.config.js
-  cd $JD_DIR
+  cd ${WORK_DIR}
   echo -e "\n[\033[34m$(date "${TIME}")\033[0m] 控制面板启动成功 $SUCCESS\n"
   echo -e "Tips: 如未修改用户名密码，则初始用户名为：useradmin，初始密码为：supermanito"
   echo -e "      请访问 http://<IP>:5678 登陆控制面板并修改配置，第一次登录会自动修改初始密码"

@@ -3,7 +3,7 @@
 ## Modified: 2021-11-16
 
 ## 目录
-RootDir=${JD_DIR}
+RootDir=${WORK_DIR}
 ShellDir=$RootDir/shell
 ScriptsDir=$RootDir/scripts
 UtilsDir=$RootDir/utils

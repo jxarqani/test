@@ -2,7 +2,7 @@
 ## Author: SuperManito
 ## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}/shell
+ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 匹配脚本，通过各种判断将得到的必要信息传给接下来运行的函数或命令

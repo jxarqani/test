@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ShellDir=${JD_DIR}/shell
+ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 导入配置文件（不检查）

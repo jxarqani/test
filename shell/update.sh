@@ -2,7 +2,7 @@
 ## Author: SuperManito
 ## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}/shell
+ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 定义 Scripts 仓库
@@ -660,7 +660,7 @@ function Update_Specify() {
 
 ## 修复crontab
 function Fix_Crontab() {
-    if [[ $JD_DIR ]]; then
+    if [[ $WORK_DIR ]]; then
         perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
         Update_Crontab
     fi

@@ -2,7 +2,7 @@
 ## Author: SuperManito
 ## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}/shell
+ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 if [[ "$(ls -A $CodeDir)" != "" ]]; then

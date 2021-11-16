@@ -2,7 +2,7 @@
 ## Author: SuperManito
 ## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}/shell
+ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 生成 pm2 list 日志清单，以此判断各服务状态
