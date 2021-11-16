@@ -1,0 +1,25 @@
+.CodeMirror-minimap {
+    width: 10%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+}
+
+.CodeMirror-minimap:hover .CodeMirror-minimap__slider {
+    background: rgba(0, 0, 0, .15);
+}
+
+/*悬停阴影*/
+.CodeMirror-minimap__slider {
+    width: 95%;
+    height: 0px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    background: transparent;
+    transform: translateY(0px);
+    transition: transform .1s, background-color .2s;
+}

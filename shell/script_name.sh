@@ -1,0 +1,149 @@
+#!/bin/bash
+## Update: 2021-11-13
+
+case $1 in
+jd_IndustryLottery.ts)
+    ScriptName="京东工业品抽奖"
+    ;;
+jd_bean_box.ts)
+    ScriptName="领京豆"
+    ;;
+jd_bean_sign.ts)
+    ScriptName="京东多合一签到"
+    ;;
+jd_cfd.ts)
+    ScriptName="京喜财富岛"
+    ;;
+jd_cfd_balloon.ts)
+    ScriptName="京喜财富岛热气球挂机"
+    ;;
+jd_cfd_hb.ts)
+    ScriptName="京喜财富岛红包库存"
+    ;;
+jd_cfd_shell.ts)
+    ScriptName="京喜财富岛捡贝壳挂机"
+    ;;
+jd_cfd_stock.ts)
+    ScriptName="京喜财富岛库存监控"
+    ;;
+jd_cfd_withdraw.ts)
+    ScriptName="京喜财富岛提现"
+    ;;
+jd_checkCookie.ts)
+    ScriptName="检测Cookie是否有效"
+    ;;
+jd_ddWorld.ts)
+    ScriptName="东东世界"
+    ;;
+jd_foodRunning.ts)
+    ScriptName="零食街"
+    ;;
+jd_fruit_moreTask.ts)
+    ScriptName="东东农场额外任务"
+    ;;
+jd_getShareCodes.ts)
+    ScriptName="获取互助码"
+    ;;
+jd_getShareCodes.ts)
+    ScriptName="获取互助码"
+    ;;
+jd_getUp.ts)
+    ScriptName="早起福利"
+    ;;
+jd_ifanli.ts)
+    ScriptName="京东饭粒"
+    ;;
+jd_joy_park.ts)
+    ScriptName="汪汪乐园"
+    ;;
+jd_joy_reward.ts)
+    ScriptName="宠汪汪兑换二代目"
+    ;;
+jd_jxgc.ts)
+    ScriptName="京喜工厂"
+    ;;
+jd_jxgc_stock.ts)
+    ScriptName="京喜工厂可生产商品"
+    ;;
+jd_jxmc.ts)
+    ScriptName="京喜牧场"
+    ;;
+jd_jxmc_stock.ts)
+    ScriptName="京喜牧场兑换新品通知"
+    ;;
+jd_jxmc_getCoin.ts)
+    ScriptName="京喜牧场收牛牛"
+    ;;
+jd_mofang.ts)
+    ScriptName="京东小魔方"
+    ;;
+jd_moneyTree.ts)
+    ScriptName="京东摇钱树"
+    ;;
+jd_qq_pasture.ts)
+    ScriptName="星系牧场"
+    ;;
+jd_speed_redEnvelope.ts)
+    ScriptName="极速版-发财大赢家"
+    ;;
+jd_tewu.ts)
+    ScriptName="特物Z"
+    ;;
+jd_track.ts)
+    ScriptName="京东快递物流信息"
+    ;;
+jd_yili_cow.ts)
+    ScriptName="伊利养牛记"
+    ;;
+jx_nnfls.ts)
+    ScriptName="牛牛福利"
+    ;;
+jx_sign.ts)
+    ScriptName="京喜签到"
+    ;;
+jd_xtg.ts)
+    ScriptName="星推官"
+    ;;
+jd_88hb.ts)
+    ScriptName="京喜88红包"
+    ;;
+jd_OpenCard.py)
+    ScriptName="开卡有礼"
+    ;;
+jd_blueCoin.py)
+    ScriptName="东东超市商品兑换"
+    ;;
+jd_cashHelp.py)
+    ScriptName="签到领现金"
+    ;;
+jd_ccfxj_help.py)
+    ScriptName="城城分现金-助力"
+    ;;
+jd_ddmc_help.py)
+    ScriptName="东东萌宠-助力"
+    ;;
+jd_ddnc_help.py)
+    ScriptName="东东农场-助力"
+    ;;
+jd_getFollowGift.py)
+    ScriptName="关注有礼"
+    ;;
+jd_jxgc_tuan.py)
+    ScriptName="京喜工厂开团"
+    ;;
+jd_qjd.py)
+    ScriptName="抢京豆"
+    ;;
+jd_qmkmb_help.py)
+    ScriptName="全民开红包-助力"
+    ;;
+jd_zjd.py)
+    ScriptName="赚京豆"
+    ;;
+jd_zddd_Help.py)
+    ScriptName="种豆得豆-助力"
+    ;;
+*)
+    ScriptName="<未知>"
+    ;;
+esac

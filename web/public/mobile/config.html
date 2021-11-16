@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>配置文件 · 控制面板移动端</title>
+    <script type="text/javascript" src="../js/third/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/codemirror.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/addons.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/modes.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/keymap/sublime.js"></script>
+
+    <script type="text/javascript" src="../js/third/sweetalert2.js"></script>
+    <script type="text/javascript" src="../js/third/qrcode.min.js"></script>
+    <script type="text/javascript" src="../js/third/prefixfree.min.js"></script>
+    <script type="text/javascript" src="../js/page/mobile/mmenu-light.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/mobile-nav.css" />
+    <link rel="stylesheet" type="text/css" href="../css/codemirror.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/codemirror-theme.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="icon" type="image/x-icon" href="../icon/running_joy.gif" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="diffs">
+            <nav id="mobile-menu"></nav>
+            <div class="new header">
+                <header>
+                    <div class="mobile-nav-button">
+                        <a href="#menu" style="color:white; text-decoration:none;"><span> <i
+                                    class="fa fa-indent"></i></span></a>
+                    </div>
+                    <h1>配置文件</h1>
+                    <div class="multi-button">
+                        <button id="save">
+                            <i class="fa fa-save"></i>
+                            <span class="animate-normal">保存</span>
+                        </button>
+                        <button id="wrap">
+                            <i class="fa fa-exchange"></i>
+                            <span class="animate-normal">切换换行</span>
+                        </button>
+                        <!--
+                        <button id="cookieTools">
+                            <i class="fa fa-qrcode"></i>
+                            <span class="animate-normal">获取账号</span>
+                        </button>
+                        -->
+                    </div>
+                </header>
+            </div>
+            <div class="wrapper">
+                <textarea id="code" name="code"></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="qrcontainer" class="hidden">
+        <div class="qframe">
+            <div id="refresh_qrcode" class="hidden">
+                <div>
+                    <h3>二维码已失效</h3>
+                    <div class="refresh">刷新</div>
+                </div>
+            </div>
+            <div id="qrcode"></div>
+            <div class="auto-replace">
+                <input class="inp-cbx" id="autoReplace" type="checkbox" style="display: none;" checked="checked">
+                <label class="cbx" for="autoReplace">
+                    <span>
+                        <svg width="12px" height="10px">
+                            <use xlink:href="#check"></use>
+                        </svg>
+                    </span>
+                    <span>扫码后自动替换</span>
+                </label>
+                <svg class="inline-svg">
+                    <symbol id="check" viewBox="0 0 12 10">
+                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                    </symbol>
+                </svg>
+            </div>
+            <div class="info">请使用手机京东APP扫码</div>
+            <div class="qframe-close" title="关闭">✖</div>
+        </div>
+    </div>
+    <script type="text/javascript" src="../js/page/mobile/mobile-nav.js"></script>
+    <script type="text/javascript" src="../js/page/common/common.js"></script>
+    <script type="text/javascript" src="../js/page/config.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 ,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <title>修改密码 · 控制面板</title>
+    <script type="text/javascript" src="./js/third/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/third/sweetalert2.js"></script>
+    <script type="text/javascript" src="./js/third/prefixfree.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/login.css">
+    <link rel="stylesheet" type="text/css" href="./css/nav.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="icon" type="image/x-icon" href="./icon/running_joy.gif" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="diffs">
+            <nav id="menu"></nav>
+            <main>
+                <div class="form">
+                    <div class="form__cover">
+                        <div class="form__loader">
+                            <div class="spinner active">
+                                <svg class="spinner__circular" viewBox="25 25 50 50">
+                                    <circle class="spinner__path" cx="50" cy="50" r="20" fill="none" stroke-width="4"
+                                        stroke-miterlimit="10"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form__content">
+                        <h1 class="title">请输入新的用户名和密码</h1>
+                        <div>
+                            <div class="styled-input">
+                                <input id="username" type="username" class="styled-input__input" required />
+                                <div class="styled-input__placeholder">
+                                    <span class="styled-input__placeholder-text">Username</span>
+                                </div>
+                                <div class="styled-input__circle"></div>
+                            </div>
+                            <div class="styled-input">
+                                <input id="password" type="password" class="styled-input__input" required />
+                                <div class="styled-input__placeholder">
+                                    <span class="styled-input__placeholder-text">New&nbsp;Password</span>
+                                </div>
+                                <button id="toggle-password" type="button" class="d-none"
+                                    aria-label="Show password as plain text. Warning: this will display your password on the screen."></button>
+                                <div class="styled-input__circle"></div>
+                                <div class="progress-bar_wrap">
+                                    <div class="progress-bar_item progress-bar_item-1"></div>
+                                    <div class="progress-bar_item progress-bar_item-2"></div>
+                                    <div class="progress-bar_item progress-bar_item-3"></div>
+                                </div>
+                            </div>
+
+                            <div class="styled-input">
+                                <input id="confirm-password" type="password" class="styled-input__input" required />
+                                <div class="styled-input__placeholder">
+                                    <span class="styled-input__placeholder-text">Confirm&nbsp;New&nbsp;Password</span>
+                                </div>
+                                <div class="styled-input__circle"></div>
+                            </div>
+                            <button id="changeBtn" class="styled-button">
+                                <span class="styled-button__real-text-holder">
+                                    <span class="styled-button__real-text">Confirm</span>
+                                    <span class="styled-button__moving-block face">
+                                        <span class="styled-button__text-holder">
+                                            <span class="styled-button__text">Confirm</span>
+                                        </span>
+                                    </span><span class="styled-button__moving-block back">
+                                        <span class="styled-button__text-holder">
+                                            <span class="styled-button__text">Confirm</span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <script type="text/javascript" src="./js/page/common/common.js"></script>
+                    <script type="text/javascript" src="./js/page/login.js"></script>
+                    <script type="text/javascript" src="./js/page/changePwd.js"></script>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>查阅脚本 · 控制面板移动端</title>
+
+    <script type="text/javascript" src="../js/third/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/codemirror.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/addons.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/modes.min.js"></script>
+    <script type="text/javascript" src="../js/third/codemirror/keymap/sublime.js"></script>
+
+    <script type="text/javascript" src="../js/third/prefixfree.min.js"></script>
+    <script type="text/javascript" src="../js/page/mobile/mmenu-light.js"></script>
+    <script type="text/javascript" src="../js/third/sweetalert2.js"></script>
+
+    <link rel="stylesheet" href="../css/metisMenu.min.css"/>
+    <link rel="stylesheet" href="../css/elektron.min.css">
+    <link rel="stylesheet" href="../css/prism.css"/>
+    <link rel="stylesheet" href="../css/onoffcanvas.min.css">
+
+    <link rel="stylesheet" type="text/css" href="../css/mobile-nav.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/codemirror.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/codemirror-theme.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="icon" type="image/x-icon" href="../icon/running_joy.gif"/>
+</head>
+
+<body>
+<div class="container">
+    <div class="elk-app">
+        <div class="elk-wrap diffs">
+            <div class="elk-header">
+                <nav id="mobile-menu"></nav>
+                <div class="new header">
+                    <header>
+                        <div class="mobile-nav-button">
+                            <a href="#menu" style="color:white; text-decoration:none;"><span> <i
+                                    class="fa fa-indent"></i></span></a>
+                        </div>
+                        <div class="more-list">
+                            <a id="toggleIcon" class="onoffcanvas-toggler is-animated" href="#elk-side"
+                               data-toggle="onoffcanvas"></a>
+                        </div>
+                        <h1> 脚本文件</h1>
+                        <div class="multi-button">
+                            <button id="wrap">
+                                <i class="fa fa-exchange"></i>
+                                <span class="animate-normal">切换换行</span>
+                            </button>
+                            <button id="save">
+                                <i class="fa fa-save"></i>
+                                <span class="animate-normal">保存</span>
+                            </button>
+                        </div>
+                    </header>
+                </div>
+            </div>
+            <div class="elk-container">
+                <aside class="elk-side  left-list" id="elk-side">
+                    <div class="elk-side-search">
+                        <input id="searchInput" class="coco-input" name="searchInput" type="text"
+                               placeholder="请输入脚本名称"
+                               required/>
+                        <button id="submitSearch" class="btn btn-primary btn-ghost btn-shine" type="submit"><i
+                                class="	fa fa-search"></i> 搜索
+                        </button>
+                    </div>
+                    <div class="elk-side-content ">
+                        <div class="elk-side-nav">
+                            <ul class="nav flex-column" id="menuTree">
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+                <div class="elk-main">
+                    <div class="wrapper">
+                        <textarea id="code" name="code">  请选择脚本文件</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/third/prismjs.js"></script>
+<script src="../js/third/onoffcanvas.js"></script>
+<script src="../js/third/elektron.js"></script>
+<script src="../js/third/metismenu.js"></script>
+
+
+<script src="../js/page/mobile/mobile-nav.js"></script>
+<script src="../js/page/common/common.js"></script>
+<script src="../js/page/viewScripts.js"></script>
+
+</body>
+
+</html>

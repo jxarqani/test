@@ -1,0 +1,22 @@
+[
+  {
+    "pt_pin": "ptpin的值",
+    "ws_key": "wskey的值",
+    "remarks": "备注内容",
+    "config": {
+      "ep": {}
+    }
+  },
+  {
+    "pt_pin": "",
+    "ws_key": "",
+    "remarks": [
+      "remarks1",
+      "remarks2",
+      "remarks3"
+    ],
+    "config": {
+      "ep": {}
+    }
+  }
+]

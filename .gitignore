@@ -1,0 +1,15 @@
+.idea/
+.env
+scripts/
+own/
+log/
+logs/
+config/
+jbot/
+utils/.sign/
+web/node_modules/
+web/package-lock.json
+web/yarn.lock
+web/sessions/*.json
+send_mark
+bot.session

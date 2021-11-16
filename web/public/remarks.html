@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>账号配置 · 控制面板</title>
+    <script type="text/javascript" src="./js/third/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/codemirror.min.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/addons.min.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/modes.min.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/keymap/sublime.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/searchBox.js"></script>
+    <script type="text/javascript" src="./js/third/codemirror/minimap/codemirror-minimap.js" ></script>
+
+    <script type="text/javascript" src="./js/third/sweetalert2.js"></script>
+    <script type="text/javascript" src="./js/third/prefixfree.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./css/codemirror.min.css">
+    <link rel="stylesheet" href="js/third/codemirror/minimap/minimap.css">
+    <link rel="stylesheet" type="text/css" href="./css/codemirror-theme.css">
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/nav.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="icon" type="image/x-icon" href="./icon/running_joy.gif" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="diffs">
+            <nav id="menu"></nav>
+            <div>
+                <div class="new header">
+                    <header>
+                        <h1>account.json</h1>
+                        <div class="multi-button">
+                            <button id="save">
+                                <i class="fa fa-save"></i>
+                                <span class="animate-normal">保存</span>
+                            </button>
+                            <button id="wrap" style="border-radius: 0;">
+                                <i class="fa fa-exchange"></i>
+                                <span class="animate-normal">切换换行</span>
+                            </button>
+                            <button id="urlDecodeEncode">
+                                <i class="fa fa-retweet"></i>
+                                <span class="animate-normal size-2">URL编码/解码</span>
+                            </button>
+                        </div>
+                    </header>
+
+                </div>
+                <h4>
+                    <font size="2">温馨提示：此配置文件用于 WSKEY 转换和通知备注，注意填的是对应的值不要把格式带进去，后面不用加分号。
+                    </font>
+                </h4>
+            </div>
+
+            <div class="wrapper">
+                <textarea id="code" name="code"></textarea>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="./js/page/common/common.js"></script>
+    <script type="text/javascript" src="./js/page/remarks.js"></script>
+
+</body>
