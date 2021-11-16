@@ -67,6 +67,12 @@ TaskCmd="task"
 ContrlCmd="taskctl"
 UpdateCmd="update"
 TIME_FORMAT="+%Y-%m-%d %T:%N"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+PLAIN='\033[0m'
+BOLD='\033[1m'
 SUCCESS='[\033[32mOK\033[0m]'
 COMPLETE='[\033[32mDone\033[0m]'
 WARN='[\033[33mWARN\033[0m]'
@@ -284,72 +290,73 @@ function Help() {
     case $Arch in
     armv7l | armv6l)
         echo -e "
- ❖  $TaskCmd <name/path/url> now     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：-<p/r/d/c>
- ❖  $TaskCmd <name/path> pkill       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
- ❖  source runall                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
+ ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
+ ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用 WSKEY 更新COOKIE ${BLUE}update${PLAIN}，支持指定账号进行更新
+ ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+
+ ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
+ ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+
+ ❖  ${BLUE}$UpdateCmd | $UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
+                                             \"Raw\" 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
-    <name> 脚本名（仅限 scripts 目录）;  <path> 脚本的相对路径或绝对路径;  <url> 位于远程仓库的脚本链接地址
+    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令参数
 
  ❋ 可选参数注释（加在末尾）： 
-    -p | --proxy   启用下载代理，仅适用于执行位于远程仓库的脚本
-    -r | --rapid   迅速模式，不组合互助码降低脚本执行前耗时
-    -d | --delay   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    -c | --cookie  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
-
- ❖  $TaskCmd list                ✧ 查看本地脚本清单
- ❖  $TaskCmd ps                  ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
- ❖  $TaskCmd exsc                ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  $TaskCmd rmlog               ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): <days> 指定天数
- ❖  $TaskCmd cleanup             ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): <hours> 指定时间
- ❖  $TaskCmd cookie <cmd>        ✧ 检测本地账号是否有效 check、使用 WSKEY 更新COOKIE update，支持指定账号进行更新
- ❖  $TaskCmd env <cmd>           ✧ 管理全局环境变量功能(交互)，添加 add、删除 del、修改 edit、查询 search，支持快捷命令
-
- ❖  $ContrlCmd server status    ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  $ContrlCmd hang <cmd>       ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 up、停止 down、查看日志 logs
- ❖  $ContrlCmd panel <cmd>      ✧ 控制面板和网页终端功能控制，开启或重启 on、关闭 off、登录信息 info、重置密码 respwd
- ❖  $ContrlCmd env <cmd>        ✧ 执行环境软件包相关命令(不支持 TypeSciprt 和 Python )，修复 repairs
- ❖  $ContrlCmd check files      ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
-
- ❖  $UpdateCmd | $UpdateCmd all      ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
- ❖  $UpdateCmd <cmd/path>        ✧ 单独更新，项目源码 shell、\"Scripts\" 仓库 scripts、\"Own\" 仓库 own、所有仓库 repo
-                                         \"Raw\" 脚本 raw、自定义脚本 extra、指定仓库 <path>
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
 "
         ;;
     *)
         echo -e "
- ❖  $TaskCmd <name/path/url> now     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：-<p/r/d/c>
- ❖  $TaskCmd <name/path/url> conc    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：-<p/r/d/c>
- ❖  $TaskCmd <name/path> pkill       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
- ❖  source runall                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
+ ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
+ ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用 WSKEY 更新COOKIE ${BLUE}update${PLAIN}，支持指定账号进行更新
+ ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+
+ ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
+ ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+
+ ❖  ${BLUE}$UpdateCmd | $UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
+                                             \"Raw\" 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
-    <name> 脚本名（仅限 scripts 目录）;  <path> 脚本的相对路径或绝对路径;  <url> 位于远程仓库的脚本链接地址
+    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令参数
 
  ❋ 可选参数注释（加在末尾）： 
-    -p | --proxy   启用下载代理，仅适用于执行位于远程仓库的脚本
-    -r | --rapid   迅速模式，不组合互助码降低脚本执行前耗时
-    -d | --delay   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    -c | --cookie  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
-
- ❖  $TaskCmd list                ✧ 查看本地脚本清单
- ❖  $TaskCmd ps                  ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
- ❖  $TaskCmd exsc                ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  $TaskCmd rmlog               ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): <days> 指定天数
- ❖  $TaskCmd cleanup             ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): <hours> 指定时间
- ❖  $TaskCmd cookie <cmd>        ✧ 检测本地账号是否有效 check、使用 WSKEY 更新COOKIE update，支持指定账号进行更新
- ❖  $TaskCmd env <cmd>           ✧ 管理全局环境变量功能(交互)，添加 add、删除 del、修改 edit、查询 search，支持快捷命令
-
- ❖  $ContrlCmd server status    ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  $ContrlCmd hang <cmd>       ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 up、停止 down、查看日志 logs
- ❖  $ContrlCmd panel <cmd>      ✧ 控制面板和网页终端功能控制，开启或重启 on、关闭 off、登录信息 info、重置密码 respwd
- ❖  $ContrlCmd jbot <cmd>       ✧ Telegram Bot 功能控制，启动或重启 start、停止 stop、查看日志 logs
- ❖  $ContrlCmd env <cmd>        ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 install、修复 repairs
- ❖  $ContrlCmd check files      ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
-
- ❖  $UpdateCmd | $UpdateCmd all      ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
- ❖  $UpdateCmd <cmd/path>        ✧ 单独更新，项目源码 shell、\"Scripts\" 仓库 scripts、\"Own\" 仓库 own、所有仓库 repo
-                                         \"Raw\" 脚本 raw、自定义脚本 extra、指定仓库 <path>
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
 "
         ;;
     esac

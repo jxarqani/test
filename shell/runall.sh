@@ -14,21 +14,21 @@ function ChooseRunMod() {
         local Num=$1
         local Tmp=Cookie$Num
         if [[ -z ${!Tmp} ]]; then
-            echo -e "\n$ERROR 账号 \033[34m$Num\033[0m 不存在，请重新确认！"
+            echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
             Help
             exit
         fi
     }
 
     while true; do
-        read -p "$(echo -e '\n\033[1m└ 是否指定账号 [ Y/n ]：\033[0m')" Input1
+        read -p "$(echo -e '\n${BOLD}└ 是否指定账号 [ Y/n ]：${PLAIN}')" Input1
         [ -z ${Input1} ] && Input1=Y
         case $Input1 in
         [Yy] | [Yy][Ee][Ss])
             ## 导入配置文件
             Import_Config ${FileName}
             while true; do
-                read -p "$(echo -e '\n\033[1m  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：\033[0m')" Input2
+                read -p "$(echo -e '\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}')" Input2
                 echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
                     echo -e "\n$COMMAND_ERROR 无效参数 ，请确认后重新输入！"
@@ -42,7 +42,7 @@ function ChooseRunMod() {
                                     ExistenceJudgment $i
                                 done
                             else
-                                echo -e "\n$ERROR 检测到无效参数，\033[34m${UserNum}\033[0m 不是有效的账号区间，请重新确认！"
+                                echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新确认！"
                                 Help
                                 exit
                             fi
@@ -64,7 +64,7 @@ function ChooseRunMod() {
         echo -e "\n$ERROR 输入错误，请重新执行！\n"
     done
     while true; do
-        read -p "$(echo -e '\n\033[1m└ 是否组合互助码 [ Y/n ]：\033[0m')" Input3
+        read -p "$(echo -e '\n${BOLD}└ 是否组合互助码 [ Y/n ]：${PLAIN}')" Input3
         [ -z ${Input3} ] && Input3=Y
         case $Input3 in
         [Yy] | [Yy][Ee][Ss])
@@ -110,7 +110,7 @@ function Main() {
     echo -e '2)   Scripts 目录下的所有脚本'
     echo -e '3)   指定路径下的所有脚本（非递归）'
     while true; do
-        read -p "$(echo -e '\n\033[1m└ 请选择需要执行的脚本范围 [ 1-3 ]：\033[0m')" Input3
+        read -p "$(echo -e '\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}')" Input3
         case $Input3 in
         1)
             [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$FileTmp
@@ -132,7 +132,7 @@ function Main() {
             fi
             echo -e "\nTips：可以指定任何一个目录并非仅限于上方检测到的仓库。"
             while true; do
-                read -p "$(echo -e '\n\033[1m└ 请输入绝对路径：\033[0m')" Input4
+                read -p "$(echo -e '\n${BOLD}└ 请输入绝对路径：${PLAIN}')" Input4
                 local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
                 if [[ $Input4 ]] && [ -d $AbsolutePath ]; then
                     break
@@ -164,7 +164,7 @@ function Main() {
             echo -e "$(($i + 1)).${Name}：${ListFiles[i]}"
         done
         cd $CurrentDir
-        read -p "$(echo -e '\n\033[1m└ 请确认是否继续 [ Y/n ]：\033[0m')" Input5
+        read -p "$(echo -e '\n${BOLD}└ 请确认是否继续 [ Y/n ]：${PLAIN}')" Input5
         [ -z ${Input5} ] && Input5=Y
         case $Input5 in
         [Yy] | [Yy][Ee][Ss])
@@ -174,13 +174,13 @@ function Main() {
             sed -i "s/$/& ${RunMode}/g" $FileTmp
             sed -i '1i\#!/bin/env bash' $FileTmp
             ## 执行前提示
-            echo -e "\n\033[32mTips\033[0m: \033[34mCtrl + Z\033[0m 跳过执行当前脚本（若中途卡住可尝试跳过），\033[34mCtrl + C\033[0m 终止执行全部任务\n"
+            echo -e "\n\033[32mTips${PLAIN}: ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
             ## 等待动画
             local spin=('.   ' '..  ' '... ' '....')
             local n=0
             while (true); do
                 ((n++))
-                echo -en "\033[?25l$WORKING 倒计时 3 秒后开始${spin[$((n % 4))]}\033[0m" "\r"
+                echo -en "\033[?25l$WORKING 倒计时 3 秒后开始${spin[$((n % 4))]}${PLAIN}" "\r"
                 sleep 0.3
                 [ $n = 10 ] && echo '\n' && break
             done

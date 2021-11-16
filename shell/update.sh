@@ -7,7 +7,11 @@ ShellDir=${WORK_DIR}/shell
 
 ## 定义 Scripts 仓库
 ScriptsBranch="jd_scripts"
-ScriptsUrl="${GithubProxy}https://github.com/Aaron-lv/sync.git"
+if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
+    ScriptsUrl="https://github.com/Aaron-lv/sync.git"
+else
+    ScriptsUrl="${GithubProxy}https://github.com/Aaron-lv/sync.git"
+fi
 
 ## 创建日志文件夹
 Make_Dir $LogDir

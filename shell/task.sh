@@ -293,9 +293,9 @@ function Find_Script() {
             local n=0
             while (true); do
                 ((n++))
-                echo -en "\033[?25l$COMPLETE 下载完成，倒计时 3 秒后开始${RunModJudge}执行${spin[$((n % 4))]}\033[0m" "\r"
+                echo -en "\033[?25l$COMPLETE 下载完成，倒计时 3 秒后开始${RunModJudge}执行${spin[$((n % 4))]}${PLAIN}" "\r"
                 sleep 0.3
-                [ $n = 10 ] && echo -e '\033[?25h\n\033[0m' && break
+                [ $n = 10 ] && echo -e '\033[?25h\n${PLAIN}' && break
             done
             FileName=${FileNameTmp%.*}
             WhichDir=$ScriptsDir
@@ -373,7 +373,7 @@ function ExistenceJudgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
-        echo -e "\n$ERROR 账号 \033[34m$Num\033[0m 不存在，请重新确认！"
+        echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
         Help
         exit
     fi
@@ -411,7 +411,7 @@ function Run_Normal() {
                         Combine_Account $i
                     done
                 else
-                    echo -e "\n$ERROR 检测到无效参数，\033[34m${UserNum}\033[0m 不是有效的账号区间，请重新输入！"
+                    echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
                     Help
                     exit
                 fi
@@ -522,7 +522,7 @@ function Run_Concurrent() {
                         ExistenceJudgment $i
                     done
                 else
-                    echo -e "\n$ERROR 检测到无效参数，\033[34m${UserNum}\033[0m 不是有效的账号区间，请重新输入！"
+                    echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
                     Help
                     exit
                 fi
@@ -571,7 +571,7 @@ function Process_Kill() {
         echo -e "\n检测到下列关于 ${FileName}\.${FileNameSuffix} 脚本的进程："
         ps -axo pid,pcpu,pmem,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill"
         while true; do
-            read -p "$(echo -e '\n\033[1m└ 是否确认终止上述进程 [ Y/n ]：\033[0m')" Input
+            read -p "$(echo -e '\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}')" Input
             [ -z ${Input} ] && Input=Y
             case $Input1 in
             [Yy] | [Yy][Ee][Ss])
@@ -621,7 +621,7 @@ function Process_CleanUp() {
     ## 生成进程清单
     ps -axo pid,time,user,start,command | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
     if [ -s ${FileProcessList} ]; then
-        echo -e "\n$WORKING 开始匹配并清理启动超过 \033[34m${CheckHour}\033[0m 小时的卡死进程...\n"
+        echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
         ProcessArray=($(
             cat ${FileProcessList} | awk -F ' ' '{print$1}'
@@ -692,24 +692,24 @@ function Cookies_Control() {
             local CookieValidityTest="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
             if [ "$ConnectionTest" -eq "302" ]; then
                 if [[ "$CookieValidityTest" ]]; then
-                    echo -e "\033[32m${TRUE_ICON}\033[0m"
+                    echo -e "${GREEN}${TRUE_ICON}${PLAIN}"
                 else
-                    echo -e "\033[31m${FALSE_ICON}\033[0m"
+                    echo -e "${RED}${FALSE_ICON}${PLAIN}"
                 fi
             else
-                echo -e "\033[31m[ API 请求失败 ]\033[0m"
+                echo -e "${RED}[ API 请求失败 ]${PLAIN}"
             fi
         }
 
         ## 汇总输出以及计算时间
         function Print_Info() {
             local CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3
-            echo -e "\n检测到本地共有 \033[34m$UserSum\033[0m 个账号，当前状态信息如下（${TRUE_ICON}为有效，${FALSE_ICON}为无效）："
+            echo -e "\n检测到本地共有 ${BLUE}$UserSum${PLAIN} 个账号，当前状态信息如下（${TRUE_ICON}为有效，${FALSE_ICON}为无效）："
             for ((m = 0; m < $UserSum; m++)); do
                 ## 查询上次更新时间
                 CookieUpdatedDate=$(grep "上次更新：" $FileConfUser | grep ${pt_pin[m]} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
-                    UpdateTimes="更新日期：[\033[34m${CookieUpdatedDate}\033[0m]"
+                    UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                     Tmp2=$(($Tmp1 / 86400))
                     Tmp3=$((30 - $Tmp2))
@@ -719,7 +719,7 @@ function Cookies_Control() {
                         echo -e "账号$((m + 1))：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
                     fi
                 else
-                    UpdateTimes="更新日期：[\033[34mUnknow\033[0m]"
+                    UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
                 fi
                 num=$((m + 1))
                 echo -e "$num：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${pt_pin[m]} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
@@ -774,7 +774,7 @@ function Cookies_Control() {
 
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
-                echo -e "\n$WORKING 检测到 \033[34m${#pt_pin_array[@]}\033[0m 个账号，开始更新...\n"
+                echo -e "\n$WORKING 检测到 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
                 ## 记录执行开始时间
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                 for ((i = 1; i <= ${#pt_pin_array[@]}; i++)); do
@@ -813,18 +813,18 @@ function Cookies_Control() {
                         if [[ $(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser) ]]; then
                             if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
                                 if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
-                                    echo -e "${EscapePin} 有效 \033[32m${TRUE_ICON}\033[0m"
+                                    echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
                                     echo -e "${EscapePin} 更新后的 Cookie 有效 ${TRUE_ICON}" >>$FileSendMark
                                 else
-                                    echo -e "${EscapePin} 无效 \033[31m${FALSE_ICON}\033[0m"
+                                    echo -e "${EscapePin} 无效 ${RED}${FALSE_ICON}${PLAIN}"
                                     echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
                                 fi
                             else
-                                echo -e "${EscapePin} 检测出错 \033[31m[ API 请求失败 ]\033[0m"
+                                echo -e "${EscapePin} 检测出错 ${RED}[ API 请求失败 ]${PLAIN}"
                                 echo -e "${EscapePin} 更新后检测出错 [ API 请求失败 ]" >>$FileSendMark
                             fi
                         else
-                            echo -e "${EscapePin} 的 Cookie 不存在 \033[31m${FALSE_ICON}\033[0m"
+                            echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
                             echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
                         fi
                         ## 打印 Cookie
@@ -851,7 +851,7 @@ function Cookies_Control() {
             grep ${FormatPin} -q $FileAccountConf
             if [ $? -eq 0 ]; then
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
-                echo -e "\n$WORKING 开始更新账号 \033[34m$UserNum\033[0m ...\n"
+                echo -e "\n$WORKING 开始更新账号 ${BLUE}$UserNum${PLAIN} ...\n"
                 ## 声明变量
                 export JD_PT_PIN=${Pt_Pin}
                 ## 记录执行开始时间
@@ -882,18 +882,18 @@ function Cookies_Control() {
                         if [[ $(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser) ]]; then
                             if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
                                 if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
-                                    echo -e "${EscapePin} 有效 \033[32m${TRUE_ICON}\033[0m"
+                                    echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
                                     echo -e "${EscapePin} 更新后的 Cookie 有效 ${TRUE_ICON}" >>$FileSendMark
                                 else
-                                    echo -e "${EscapePin} 无效 \033[31m${FALSE_ICON}\033[0m"
+                                    echo -e "${EscapePin} 无效 ${RED}${FALSE_ICON}${PLAIN}"
                                     echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
                                 fi
                             else
-                                echo -e "${EscapePin} 检测出错 \033[31m[ API 请求失败 ]\033[0m"
+                                echo -e "${EscapePin} 检测出错 ${RED}[ API 请求失败 ]${PLAIN}"
                                 echo -e "${EscapePin} 更新后检测出错 [ API 请求失败 ]" >>$FileSendMark
                             fi
                         else
-                            echo -e "${EscapePin} 的 Cookie 不存在 \033[31m${FALSE_ICON}\033[0m"
+                            echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
                             echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
                         fi
                     ## 打印 Cookie
@@ -991,7 +991,7 @@ function Manage_Env() {
         1)
             if [[ $ExitStatus -eq 0 ]]; then
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 检测到该变量已禁用，是否启用 [ Y/n ]：\033[0m')" InputA
+                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量已禁用，是否启用 [ Y/n ]：${PLAIN}')" InputA
                     [ -z ${InputA} ] && InputA=Y
                     case ${InputA} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1002,13 +1002,13 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
             else
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 检测到该变量已启用，是否禁用 [ Y/n ]：\033[0m')" InputB
+                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量已启用，是否禁用 [ Y/n ]：${PLAIN}')" InputB
                     [ -z ${InputB} ] && InputB=Y
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1019,7 +1019,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
@@ -1060,7 +1060,7 @@ function Manage_Env() {
 
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n\033[41;37m${OldContent}\033[0m \033[31m-\033[0m\n\033[42m${NewContent}\033[0m \033[32m+\033[0m"
+        echo -e "\n\033[41;37m${OldContent}${PLAIN} ${RED}-${PLAIN}\n\033[42m${NewContent}${PLAIN} ${GREEN}+${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
             echo -e "\n$ERROR 修改失败\n"
@@ -1076,16 +1076,16 @@ function Manage_Env() {
         Remarks=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$NF}')
         case $# in
         1)
-            read -p "$(echo -e "\n\033[1m└ 请输入环境变量 \033[34m${VariableTmp}\033[0m \033[1m新的值：\033[0m")" InputA
+            read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${VariableTmp}${PLAIN} ${BOLD}新的值：${PLAIN}")" InputA
             local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 检测到该变量存在备注内容，是否修改 [ Y/n ]：\033[0m')" InputB
+                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量存在备注内容，是否修改 [ Y/n ]：${PLAIN}')" InputB
                     [ -z ${InputB} ] && InputB=B
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
-                        read -p "$(echo -e "\n\033[1m└ 请输入环境变量 \033[34m${Variable}\033[0m \033[1m新的备注内容：\033[0m")" InputC
+                        read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}新的备注内容：${PLAIN}")" InputC
                         Remarks=" # ${InputC}"
                         break
                         ;;
@@ -1093,7 +1093,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
@@ -1112,7 +1112,7 @@ function Manage_Env() {
         sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n\033[41;37m${OldContent}\033[0m \033[31m-\033[0m\n\033[42m${NewContent}\033[0m \033[32m+\033[0m"
+        echo -e "\n\033[41;37m${OldContent}${PLAIN} ${RED}-${PLAIN}\n\033[42m${NewContent}${PLAIN} ${GREEN}+${PLAIN}"
         ## 结果判定
         grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
         local ExitStatus=$?
@@ -1128,14 +1128,14 @@ function Manage_Env() {
     add)
         case $# in
         1)
-            read -p "$(echo -e '\n\033[1m└ 请输入需要添加的环境变量名称：\033[0m')" Variable
+            read -p "$(echo -e '\n${BOLD}└ 请输入需要添加的环境变量名称：${PLAIN}')" Variable
             ## 检测是否已存在该变量
             grep ".*export ${Variable}=" -q $FileConfUser
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n\033[34m检测到已存在该环境变量：\033[0m\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 是否继续修改 [ Y/n ]：\033[0m')" Input1
+                    read -p "$(echo -e '\n${BOLD}└ 是否继续修改 [ Y/n ]：${PLAIN}')" Input1
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1147,19 +1147,19 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
             else
-                read -p "$(echo -e "\n\033[1m└ 请输入环境变量 \033[34m${Variable}\033[0m \033[1m的值：\033[0m")" Value
+                read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的值：${PLAIN}")" Value
                 ## 插入备注
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 是否添加备注 [ Y/n ]：\033[0m')" Input2
+                    read -p "$(echo -e '\n${BOLD}└ 是否添加备注 [ Y/n ]：${PLAIN}')" Input2
                     [ -z ${Input2} ] && Input2=Y
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
-                        read -p "$(echo -e "\n\033[1m└ 请输入环境变量 \033[34m${Variable}\033[0m \033[1m的备注内容：\033[0m")" Remarks
+                        read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
                         FullContent="export ${Variable}=\"${Value}\" # ${Remarks}"
                         break
                         ;;
@@ -1168,12 +1168,12 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n\033[42m${FullContent}\033[0m \033[32m+\033[0m"
+                echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
                 echo -e "\n$COMPLETE 已添加\n"
             fi
             ;;
@@ -1184,13 +1184,13 @@ function Manage_Env() {
             grep ".*export ${Variable}=" -q $FileConfUser
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n\033[34m检测到已存在该环境变量：\033[0m\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 echo -e "\n$ERROR 该变量已经存在，无需任何操作！\n"
                 exit
             else
                 FullContent="export ${Variable}=\"${Value}\""
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n\033[42m${FullContent}\033[0m \033[32m+\033[0m"
+                echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
                 echo -e "\n$COMPLETE 已添加\n"
             fi
             ;;
@@ -1200,26 +1200,26 @@ function Manage_Env() {
     del)
         case $# in
         1)
-            read -p "$(echo -e '\n\033[1m└ 请输入需要删除的环境变量名称：\033[0m')" Input1
+            read -p "$(echo -e '\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}')" Input1
             VariableNums=$(grep -c ".*export ${Input1}=" $FileConfUser | head -n 1)
             Variable=$(grep -n ".*export ${Input1}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行: |g;}')
             if [[ ${VariableNums} -ne "0" ]]; then
                 if [[ ${VariableNums} -gt "1" ]]; then
-                    echo -e "\n\033[34m检测到多个环境变量：\033[0m\n${Variable}"
+                    echo -e "\n${BLUE}检测到多个环境变量：${PLAIN}\n${Variable}"
                 elif [[ ${VariableNums} -eq "1" ]]; then
-                    echo -e "\n\033[34m检测到环境变量：\033[0m\n${Variable}"
+                    echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${Variable}"
                 fi
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 是否确认删除 [ Y/n ]：\033[0m')" Input2
+                    read -p "$(echo -e '\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}')" Input2
                     [ -z ${Input2} ] && Input2=Y
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         FullContent="$(grep ".*export ${Input1}=" $FileConfUser)"
                         sed -i "/export ${Input1}=/d" $FileConfUser
                         if [[ ${VariableNums} -gt "1" ]]; then
-                            echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
+                            echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|${PLAIN}|g;}' | sed '$d')"
                         elif [[ ${VariableNums} -eq "1" ]]; then
-                            echo -e "\n\033[41;37m${FullContent}\033[0m \033[31m-\033[0m"
+                            echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                         fi
                         echo -e "\n$COMPLETE 已删除\n"
                         break
@@ -1229,7 +1229,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n\033[33m----- 输入错误 -----\033[0m'
+                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
                         ;;
                     esac
                 done
@@ -1245,9 +1245,9 @@ function Manage_Env() {
                 FullContent="$(grep ".*export ${Variable}=" $FileConfUser)"
                 sed -i "/export ${Variable}=/d" $FileConfUser
                 if [[ ${VariableNums} -gt "1" ]]; then
-                    echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
+                    echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|${PLAIN}|g;}' | sed '$d')"
                 elif [[ ${VariableNums} -eq "1" ]]; then
-                    echo -e "\n\033[41;37m${FullContent}\033[0m \033[31m-\033[0m"
+                    echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                 fi
                 echo -e "\n$COMPLETE 已删除\n"
             else
@@ -1261,16 +1261,16 @@ function Manage_Env() {
     edit)
         case $# in
         1)
-            read -p "$(echo -e '\n\033[1m└ 请输入需要修改的环境变量名称：\033[0m')" Variable
+            read -p "$(echo -e '\n${BOLD}└ 请输入需要修改的环境变量名称：${PLAIN}')" Variable
             ## 检测是否存在该变量
             grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n\033[34m当前环境变量：\033[0m\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')\n"
+                echo -e "\n${BLUE}当前环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')\n"
                 echo -e '1)   启用或禁用'
                 echo -e '2)   修改变量的值'
                 while true; do
-                    read -p "$(echo -e '\n\033[1m└ 请选择操作模式 [ 1-2 ]：\033[0m')" Input1
+                    read -p "$(echo -e '\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}')" Input1
                     case $Input1 in
                     1)
                         ControlEnv "${Variable}"
@@ -1317,7 +1317,7 @@ function Manage_Env() {
     search)
         case $# in
         1)
-            read -p "$(echo -e '\n\033[1m└ 请输入需要查询的关键词：\033[0m')" Keys
+            read -p "$(echo -e '\n${BOLD}└ 请输入需要查询的关键词：${PLAIN}')" Keys
             ;;
         2)
             Keys=$2
@@ -1327,8 +1327,8 @@ function Manage_Env() {
         grep ".*export.*=" $FileConfUser | grep "${Keys}" -q
         local ExitStatus=$?
         if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n\033[34m检测到的环境变量：\033[0m"
-            grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | perl -pe "{s|^|第|g; s|:|行：|g; s|${Keys}|\033[31m${Keys}\033[0m|g;}"
+            echo -e "\n${BLUE}检测到的环境变量：${PLAIN}"
+            grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | perl -pe "{s|^|第|g; s|:|行：|g; s|${Keys}|${RED}${Keys}${PLAIN}|g;}"
             echo -e "\n$COMPLETE 查询完毕\n"
         else
             echo -e "\n$ERROR 未查询到包含 ${Keys} 的相关环境变量！\n"
@@ -1410,7 +1410,7 @@ function Remove_LogFiles() {
     }
     ## 汇总
     if [ -n "${RmDays}" ]; then
-        echo -e "\n$WORKING 开始检索并删除超过 \033[34m${RmDays}\033[0m 天的日志文件...\n"
+        echo -e "\n$WORKING 开始检索并删除超过 ${BLUE}${RmDays}${PLAIN} 天的日志文件...\n"
         Rm_JsLog
         Rm_UpdateLog
         Rm_BotLog
@@ -1429,7 +1429,7 @@ function Process_Monitor() {
     MemoryUsage=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsed'/'$MemoryTotal')*100}')
     CPUUsage=$(busybox top -n 1 | grep CPU | head -1 | awk -F ' ' '{print$2}')
     LogFilesSpace=$(du -sh $LogDir | awk -F ' ' '{print$1}')
-    echo -e "\n\033[34m[性能监控]\033[0m  CPU：\033[33m${CPUUsage}\033[0m   Memory：\033[33m${MemoryUsage}\033[0m   可用内存：\033[33m${MemoryAvailable}MB\033[0m   空闲内存：\033[33m${MemoryFree}MB\033[0m   日志文件大小：\033[33m${LogFilesSpace}MB\033[0m"
+    echo -e "\nCPU：${YELLOW}${CPUUsage}${PLAIN}   Memory：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   日志文件大小：${YELLOW}${LogFilesSpace}B${PLAIN}"
     ## 检测占用过高后释放内存
     if [[ $(echo ${MemoryUsage} | awk -F '.' '{print$1}') -gt "89" ]]; then
         sync >/dev/null 2>&1
@@ -1438,10 +1438,10 @@ function Process_Monitor() {
         MemoryAvailableNew=$(free -m | grep Mem | awk -F ' ' '{print$4}')
         MemoryUsageNew=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsedNew'/'$MemoryTotal')*100}')
         echo -e "\n$WORKING 检测到内存占用过高，开始尝试释放内存..."
-        echo -e "\033[34m[释放后]\033[0m  Memory：\033[33m${MemoryUsageNew}\033[0m   可用内存：\033[33m${MemoryAvailableNew}MB\033[0m   日志文件大小：\033[33m${LogFilesSpace}B\033[0m"
+        echo -e "${BLUE}[释放后]${PLAIN}  Memory：${YELLOW}${MemoryUsageNew}${PLAIN}   可用内存：${YELLOW}${MemoryAvailableNew}MB${PLAIN}   日志文件大小：${YELLOW}${LogFilesSpace}B${PLAIN}"
     fi
     ## 列出进程
-    echo -e "\n\033[34m[运行时长]  [CPU]    [内存]    [脚本名称]\033[0m"
+    echo -e "\n${BLUE}[运行时长]  [CPU]    [内存]    [脚本名称]${PLAIN}"
     ps -axo user,time,pcpu,user,pmem,user,command --sort -pmem | less | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "\/jd\/web\/server\.js|pm2 |egrep |perl |sed |bash |wget |\<defunct\>" |
         perl -pe '{s| root     |% |g; s|\/usr\/bin\/ts-node-transpile-only ||g; s|\/usr\/bin\/ts-node ||g; s|\/usr\/bin\/python3 ||g; s|python3 -u ||g; s|\/usr\/bin\/python ||g; s|\/usr\/bin\/node ||g; s|node -r global-agent/bootstrap |(代理)|g; s|node ||g;  s|root     |#|g; s|#[0-9][0-9]:|#|g;  s|  | |g; s| |     |g; s|#|•  |g; s|/jd/scripts/jd_cfd_loop\.js|jd_cfd_loop\.js|g; s|\./utils/||g;}'
     echo ''

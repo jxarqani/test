@@ -85,7 +85,7 @@ function Hang_Control() {
             if [[ $ExitStatus -eq 0 ]]; then
                 pm2 stop $ServiceName
                 LastRunTime=$(date --date "$(pm2 describe $ServiceName | grep "created at" | awk '{print $5}')")
-                echo -e "\n$COMPLETE $ServiceName 已终止\n\033[34m[上次启动]\033[0m: ${LastRunTime}\n"
+                echo -e "\n$COMPLETE $ServiceName 已终止\n${BLUE}[上次启动]${PLAIN}: ${LastRunTime}\n"
             else
                 echo -e "\n$ERROR $ServiceName 不存在！\n"
             fi
@@ -94,7 +94,7 @@ function Hang_Control() {
         ;;
     ## 查看日志
     logs)
-        echo -e "\n\033[32mTips\033[0m: 默认查看日志倒数 50 行的内容，日志会持续输出，Ctrl + C 退出查看，若想查看更多请执行 pm2 logs jd_cfd_loop --lines <行数> \n" && sleep 2
+        echo -e "\n${GREEN}Tips${PLAIN}: 默认查看日志倒数 50 行的内容，日志会持续输出，Ctrl + C 退出查看，若想查看更多请执行 pm2 logs jd_cfd_loop --lines <行数> \n" && sleep 2
         pm2 logs jd_cfd_loop --lines 50
         ;;
     esac
@@ -222,8 +222,8 @@ function Panel_Control() {
 function Install_TTYD() {
     [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
     ## 增加环境变量
-    export PS1="\u@\h:\w $ "
-    pm2 start ttyd --name="ttyd" -- -p 7685 -t fontSize=17 -t disableLeaveAlert=true -t rendererType=webgl bash
+    export PS1="\u@\h:\w# "
+    pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t disableLeaveAlert=true -t rendererType=webgl bash
 }
 
 ## Telegram Bot
@@ -403,9 +403,9 @@ function Check_Files() {
 ## 列出各服务状态
 function Server_Status() {
     local Services ServiceName StatusJudge Status CreateTime CPUOccupancy MemoryOccupancy RunTime
-    local SERVICE_ONLINE="\033[32m正在运行\033[0m"
-    local SERVICE_STOPPED="\033[33m未在运行\033[0m"
-    local SERVICE_ERRORED="\033[31m服务异常\033[0m"
+    local SERVICE_ONLINE="${GREEN}正在运行${PLAIN}"
+    local SERVICE_STOPPED="${YELLOW}未在运行${PLAIN}"
+    local SERVICE_ERRORED="${RED}服务异常${PLAIN}"
     echo ''
     pm2 list
     echo ''
@@ -433,16 +433,16 @@ function Server_Status() {
                 Status=$SERVICE_ERRORED
                 ;;
             esac
-            CreateTime="\033[34m$(date --date "$(pm2 describe $p | grep "created at" | awk '{print $5}')")\033[0m"
-            CPUOccupancy="\033[34m$(cat $FilePm2List | grep $p | awk -F '|' '{print $11}')\033[0m"
-            MemoryOccupancy="\033[34m$(cat $FilePm2List | grep $p | awk -F '|' '{print $12}')\033[0m"
-            RunTime="\033[34m$(cat $FilePm2List | grep $p | awk -F '|' '{print $8}')\033[0m"
+            CreateTime="${BLUE}$(date --date "$(pm2 describe $p | grep "created at" | awk '{print $5}')")${PLAIN}"
+            CPUOccupancy="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $11}')${PLAIN}"
+            MemoryOccupancy="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $12}')${PLAIN}"
+            RunTime="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $8}')${PLAIN}"
         else
             Status=$SERVICE_STOPPED
-            CreateTime="\033[34m          No Data           \033[0m"
-            CPUOccupancy="\033[34mNo Data\033[0m"
-            MemoryOccupancy="\033[34mNo Data\033[0m"
-            RunTime="\033[34mNo Data\033[0m"
+            CreateTime="${BLUE}          No Data           ${PLAIN}"
+            CPUOccupancy="${BLUE}No Data${PLAIN}"
+            MemoryOccupancy="${BLUE}No Data${PLAIN}"
+            RunTime="${BLUE}No Data${PLAIN}"
         fi
         case $p in
         server)
@@ -468,8 +468,15 @@ function Server_Status() {
 function Environment_Deployment() {
     case $1 in
     install)
-        echo -e "[\033[34m*\033[0m] 开始安装 Python 和 TypeScript 运行环境以及常用模块...\n"
-        echo -e '\n\033[32mTips:\033[0m 忽略 \033[33m[WARN]\033[0m 警告类输出内容，如有 \033[31m[ERR!]\033[0m 类报错，90% 都是由网络原因所导致的，自行解读日志。\n'
+        case $Arch in
+        armv7l | armv6l)
+            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
+            ;;
+        *)
+            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
+            ;;
+        esac
+        echo -e '${GREEN}Tips:${PLAIN} 忽略 ${YELLOW}[WARN]${PLAIN} 警告类输出内容，如有 ${RED}[ERR!]${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n'
         npm install -g npm npm-install-peers
         case $Arch in
         armv7l | armv6l)
