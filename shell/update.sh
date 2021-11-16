@@ -1,8 +1,8 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-15
+## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}
+ShellDir=${JD_DIR}/shell
 . $ShellDir/share.sh
 
 ## 定义 Scripts 仓库
@@ -426,7 +426,7 @@ function Update_Shell() {
     ## 随机更新任务的定时
     Random_Update_Cron
     ## 更新仓库
-    cd $ShellDir
+    cd $RootDir
     echo -e "\n$WORKING 开始更新源码：/jd\n"
     git fetch --all
     git pull
@@ -616,7 +616,7 @@ function Update_Specify() {
     local input=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
-    echo $input | grep $ShellDir -q
+    echo $input | grep $RootDir -q
     if [ $? -eq 0 ]; then
         AbsolutePath=$input
     else
@@ -626,7 +626,7 @@ function Update_Specify() {
             AbsolutePath=$(echo "$input" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
             if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$ShellDir/|;}")
+                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
             else
                 AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
             fi
@@ -699,7 +699,7 @@ function Title() {
     echo -e ''
     echo -e "                系统时间：$(date "+%Y-%m-%d %T")"
     echo -e ''
-    echo -e "         更新模式：$Mod     脚本根目录：$ShellDir"
+    echo -e "         更新模式：$Mod     脚本根目录：$RootDir"
     echo -e ''
     echo -e "    Scripts仓库目录：$ScriptsDir     Own仓库目录：$OwnDir"
     echo -e ''

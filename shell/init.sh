@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ## Author: SuperManito
-## Modified: 2021-11-13
+## Modified: 2021-11-16
 
 set -e
 SUCCESS='[\033[32mOK\033[0m]'

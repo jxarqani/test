@@ -1,8 +1,8 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-13
+## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}
+ShellDir=${JD_DIR}/shell
 . $ShellDir/share.sh
 
 ## 选择执行模式
@@ -85,7 +85,7 @@ function Main() {
     [ -f $FileTmp ] && rm -rf $FileTmp
     local CurrentDir=$(pwd)
     local Input3 Input4 Input5 ScriptType Tmp1 Tmp2
-    local FileTmp=$ShellDir/.runall_tmp.sh
+    local FileTmp=$RootDir/.runall_tmp.sh
     case $Arch in
     armv7l | armv6l)
         ScriptType=".js\b"
@@ -133,7 +133,7 @@ function Main() {
             echo -e "\nTips：可以指定任何一个目录并非仅限于上方检测到的仓库。"
             while true; do
                 read -p "$(echo -e '\n\033[1m└ 请输入绝对路径：\033[0m')" Input4
-                local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$ShellDir/|;}")
+                local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
                 if [[ $Input4 ]] && [ -d $AbsolutePath ]; then
                     break
                 else

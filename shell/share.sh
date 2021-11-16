@@ -3,24 +3,25 @@
 ## Modified: 2021-11-16
 
 ## 目录
-ShellDir=${JD_DIR}
-ScriptsDir=$ShellDir/scripts
-UtilsDir=$ShellDir/utils
-PanelDir=$ShellDir/web
-ConfigDir=$ShellDir/config
-SampleDir=$ShellDir/sample
-LogDir=$ShellDir/log
-logDir=$ShellDir/log
-logdir=$ShellDir/log
+RootDir=${JD_DIR}
+ShellDir=$RootDir/shell
+ScriptsDir=$RootDir/scripts
+UtilsDir=$RootDir/utils
+PanelDir=$RootDir/web
+ConfigDir=$RootDir/config
+SampleDir=$RootDir/sample
+LogDir=$RootDir/log
+logDir=$RootDir/log
+logdir=$RootDir/log
 LogTmpDir=$LogDir/.tmp
 SignDir=$UtilsDir/.sign
 CodeDir=$LogDir/ShareCodes
-OwnDir=$ShellDir/own
+OwnDir=$RootDir/own
 RawDir=$OwnDir/raw
-BotDir=$ShellDir/jbot
+BotDir=$RootDir/jbot
 BotLogDir=$LogDir/bot
-BotRepositoryDir=$UtilsDir/dockerbot
-ShellDir_NodeModules=$ShellDir/node_modules
+BotRepoDir=$UtilsDir/dockerbot
+ShellDir_NodeModules=$RootDir/node_modules
 ScriptsDir_NodeModules=$ScriptsDir/node_modules
 
 ## 文件
@@ -36,10 +37,10 @@ FileExtra=$ConfigDir/extra.sh
 FileNotify=$UtilsDir/notify.js
 FileSendNotify=$UtilsDir/sendNotify.js
 FileSendNotifyScripts=$ScriptsDir/sendNotify.js
-FileSendMark=$ShellDir/send_mark
-FilePm2List=$ShellDir/.pm2_list.log
-FileProcessList=$ShellDir/.process_list.log
-FileUpdateCookie=$PanelDir/updateCookies.js
+FileSendMark=$RootDir/send_mark
+FilePm2List=$RootDir/.pm2_list.log
+FileProcessList=$RootDir/.process_list.log
+FileUpdateCookie=$PanelDir/UpdateCookies.js
 FileScriptDictionary=$UtilsDir/script_name.sh
 
 ## 清单

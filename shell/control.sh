@@ -2,7 +2,7 @@
 ## Author: SuperManito
 ## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}
+ShellDir=${JD_DIR}/shell
 . $ShellDir/share.sh
 
 ## 生成 pm2 list 日志清单，以此判断各服务状态
@@ -13,7 +13,7 @@ function PM2_List_All_Services() {
 ## 更新源码
 function Update_Shell() {
     local CurrentDir=$(pwd)
-    cd $ShellDir
+    cd $RootDir
     git fetch --all >/dev/null 2>&1
     git pull >/dev/null 2>&1
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}') >/dev/null 2>&1
@@ -164,7 +164,7 @@ function Panel_Control() {
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete ttyd
-                Update_Shell && cd $ShellDir
+                Update_Shell && cd $RootDir
                 Install_TTYD && sleep 3
                 PM2_List_All_Services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
@@ -176,7 +176,7 @@ function Panel_Control() {
                 ;;
             esac
         else
-            Update_Shell && cd $ShellDir
+            Update_Shell && cd $RootDir
             Install_TTYD && sleep 1
             PM2_List_All_Services
             local ServiceStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
@@ -269,9 +269,9 @@ function Bot_Control() {
                     errored)
                         echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                         pm2 delete jbot >/dev/null 2>&1
-                        rm -rf $BotRepositoryDir $BotDir $ShellDir/bot.session
+                        rm -rf $BotRepoDir $BotDir $RootDir/bot.session
                         Install_Bot
-                        cp -rf $BotRepositoryDir/jbot $ShellDir
+                        cp -rf $BotRepoDir/jbot $RootDir
                         [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                         PM2_List_All_Services
@@ -284,9 +284,9 @@ function Bot_Control() {
                         ;;
                     esac
                 else
-                    rm -rf $BotRepositoryDir
+                    rm -rf $BotRepoDir
                     Install_Bot
-                    cp -rf $BotRepositoryDir/jbot $ShellDir
+                    cp -rf $BotRepoDir/jbot $RootDir
                     [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe jbot | grep status | awk '{print $4}')
@@ -337,8 +337,8 @@ function Install_Bot() {
         echo -e "\n$ERROR 依赖安装失败，请检查原因后重试！\n"
     fi
     ## 拉取组件
-    if [ -d $BotRepositoryDir/.git ]; then
-        cd $BotRepositoryDir
+    if [ -d $BotRepoDir/.git ]; then
+        cd $BotRepoDir
         echo -e "$WORKING 开始更新仓库\n"
         git remote set-url origin ${BotRepositoryUrl} >/dev/null
         git reset --hard origin/main >/dev/null
@@ -348,24 +348,24 @@ function Install_Bot() {
         git pull
     else
         echo -e "$WORKING 开始克隆仓库...\n"
-        rm -rf $BotRepositoryDir
-        git clone -b main ${BotRepositoryUrl} $BotRepositoryDir
+        rm -rf $BotRepoDir
+        git clone -b main ${BotRepositoryUrl} $BotRepoDir
         local ExitStatusBot=$?
     fi
     if [[ ${ExitStatusBot} -eq 0 ]]; then
         echo -e "\n$SUCCESS 仓库更新完成\n"
-        sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepositoryDir/jbot/ecosystem.config.js
+        sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
     else
         echo -e "\n$ERROR 仓库更新失败，请检查原因后重试！\n"
     fi
 
     if [ ! -s $ConfigDir/bot.json ]; then
-        cp -fv $ShellDir/sample/bot.json $ConfigDir/bot.json
+        cp -fv $SampleDir/bot.json $ConfigDir/bot.json
     fi
     ## 安装模块
     echo -e "$WORKING 开始安装模块...\n"
-    cp -rf $BotRepositoryDir/jbot $ShellDir
-    cd $ShellDir/jbot
+    cp -rf $BotRepoDir/jbot $RootDir
+    cd $RootDir/jbot
     pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
     pip3 --default-timeout=100 install -r requirements.txt --no-cache-dir
     pip3 install aiohttp
@@ -473,7 +473,7 @@ function Environment_Deployment() {
         npm install -g npm npm-install-peers
         case $Arch in
         armv7l | armv6l)
-            npm install -g tough-cookie got global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
+            npm install -g global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
             ;;
         *)
             apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev jq

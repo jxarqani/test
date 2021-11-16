@@ -48,7 +48,7 @@
           update  或  update all
 
     - #### 单独更新部分内容：
-          update <cmd>
+          update <cmd/path>
 
         - ##### 固定可选参数：
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-15
+## Modified: 2021-11-16
 
-ShellDir=${JD_DIR}
+ShellDir=${JD_DIR}/shell
 . $ShellDir/share.sh
 
 ## 匹配脚本，通过各种判断将得到的必要信息传给接下来运行的函数或命令
@@ -18,7 +18,7 @@ function Find_Script() {
     function MatchingPathFile() {
         local AbsolutePath PwdTmp FileNameTmp WhichDirTmp
         ## 判定传入的是绝对路径还是相对路径
-        echo ${InputContent} | grep "$ShellDir/" -q
+        echo ${InputContent} | grep "$RootDir/" -q
         if [ $? -eq 0 ]; then
             AbsolutePath=${InputContent}
         else
@@ -28,7 +28,7 @@ function Find_Script() {
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
                 if [[ $(pwd) == "/root" ]]; then
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$ShellDir/|;}")
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
                 else
                     AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
                 fi
@@ -740,7 +740,7 @@ function Cookies_Control() {
         echo ''
         ;;
     update)
-        Import_Config_Not_Check "updateCookies"
+        Import_Config_Not_Check "UpdateCookies"
         local ExitStatus LogPath LogFile
         [ -f $FileSendMark ] && rm -rf $FileSendMark
 
