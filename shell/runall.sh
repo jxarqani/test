@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-16
+## Modified: 2021-11-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -21,14 +21,14 @@ function ChooseRunMod() {
     }
 
     while true; do
-        read -p "$(echo -e '\n${BOLD}└ 是否指定账号 [ Y/n ]：${PLAIN}')" Input1
+        read -p "$(echo -e "\n${BOLD}└ 是否指定账号 [ Y/n ]：${PLAIN}")" Input1
         [ -z ${Input1} ] && Input1=Y
         case $Input1 in
         [Yy] | [Yy][Ee][Ss])
             ## 导入配置文件
             Import_Config ${FileName}
             while true; do
-                read -p "$(echo -e '\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}')" Input2
+                read -p "$(echo -e "\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}")" Input2
                 echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
                     echo -e "\n$COMMAND_ERROR 无效参数 ，请确认后重新输入！"
@@ -64,7 +64,7 @@ function ChooseRunMod() {
         echo -e "\n$ERROR 输入错误，请重新执行！\n"
     done
     while true; do
-        read -p "$(echo -e '\n${BOLD}└ 是否组合互助码 [ Y/n ]：${PLAIN}')" Input3
+        read -p "$(echo -e "\n${BOLD}└ 是否组合互助码 [ Y/n ]：${PLAIN}")" Input3
         [ -z ${Input3} ] && Input3=Y
         case $Input3 in
         [Yy] | [Yy][Ee][Ss])
@@ -110,7 +110,7 @@ function Main() {
     echo -e '2)   Scripts 目录下的所有脚本'
     echo -e '3)   指定路径下的所有脚本（非递归）'
     while true; do
-        read -p "$(echo -e '\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}')" Input3
+        read -p "$(echo -e "\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
             [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$FileTmp
@@ -132,7 +132,7 @@ function Main() {
             fi
             echo -e "\nTips：可以指定任何一个目录并非仅限于上方检测到的仓库。"
             while true; do
-                read -p "$(echo -e '\n${BOLD}└ 请输入绝对路径：${PLAIN}')" Input4
+                read -p "$(echo -e "\n${BOLD}└ 请输入绝对路径：${PLAIN}")" Input4
                 local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
                 if [[ $Input4 ]] && [ -d $AbsolutePath ]; then
                     break
@@ -164,7 +164,7 @@ function Main() {
             echo -e "$(($i + 1)).${Name}：${ListFiles[i]}"
         done
         cd $CurrentDir
-        read -p "$(echo -e '\n${BOLD}└ 请确认是否继续 [ Y/n ]：${PLAIN}')" Input5
+        read -p "$(echo -e "\n${BOLD}└ 请确认是否继续 [ Y/n ]：${PLAIN}")" Input5
         [ -z ${Input5} ] && Input5=Y
         case $Input5 in
         [Yy] | [Yy][Ee][Ss])
@@ -182,7 +182,7 @@ function Main() {
                 ((n++))
                 echo -en "\033[?25l$WORKING 倒计时 3 秒后开始${spin[$((n % 4))]}${PLAIN}" "\r"
                 sleep 0.3
-                [ $n = 10 ] && echo '\n' && break
+                [ $n = 10 ] && echo -e "\033[?25h\n${PLAIN}" && break
             done
             ## 开始执行
             echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行开始\n"

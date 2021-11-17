@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-16
+## Modified: 2021-11-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -295,7 +295,7 @@ function Find_Script() {
                 ((n++))
                 echo -en "\033[?25l$COMPLETE 下载完成，倒计时 3 秒后开始${RunModJudge}执行${spin[$((n % 4))]}${PLAIN}" "\r"
                 sleep 0.3
-                [ $n = 10 ] && echo -e '\033[?25h\n${PLAIN}' && break
+                [ $n = 10 ] && echo -e "\033[?25h\n${PLAIN}" && break
             done
             FileName=${FileNameTmp%.*}
             WhichDir=$ScriptsDir
@@ -571,7 +571,7 @@ function Process_Kill() {
         echo -e "\n检测到下列关于 ${FileName}\.${FileNameSuffix} 脚本的进程："
         ps -axo pid,pcpu,pmem,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill"
         while true; do
-            read -p "$(echo -e '\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}')" Input
+            read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
             [ -z ${Input} ] && Input=Y
             case $Input1 in
             [Yy] | [Yy][Ee][Ss])
@@ -991,7 +991,7 @@ function Manage_Env() {
         1)
             if [[ $ExitStatus -eq 0 ]]; then
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量已禁用，是否启用 [ Y/n ]：${PLAIN}')" InputA
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已禁用，是否启用 [ Y/n ]：${PLAIN}")" InputA
                     [ -z ${InputA} ] && InputA=Y
                     case ${InputA} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1002,13 +1002,13 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
             else
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量已启用，是否禁用 [ Y/n ]：${PLAIN}')" InputB
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已启用，是否禁用 [ Y/n ]：${PLAIN}")" InputB
                     [ -z ${InputB} ] && InputB=Y
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1019,7 +1019,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
@@ -1081,7 +1081,7 @@ function Manage_Env() {
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 检测到该变量存在备注内容，是否修改 [ Y/n ]：${PLAIN}')" InputB
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改 [ Y/n ]：${PLAIN}")" InputB
                     [ -z ${InputB} ] && InputB=B
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1093,7 +1093,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
@@ -1128,14 +1128,14 @@ function Manage_Env() {
     add)
         case $# in
         1)
-            read -p "$(echo -e '\n${BOLD}└ 请输入需要添加的环境变量名称：${PLAIN}')" Variable
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要添加的环境变量名称：${PLAIN}")" Variable
             ## 检测是否已存在该变量
             grep ".*export ${Variable}=" -q $FileConfUser
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 是否继续修改 [ Y/n ]：${PLAIN}')" Input1
+                    read -p "$(echo -e "\n${BOLD}└ 是否继续修改 [ Y/n ]：${PLAIN}")" Input1
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1147,7 +1147,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
@@ -1155,7 +1155,7 @@ function Manage_Env() {
                 read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的值：${PLAIN}")" Value
                 ## 插入备注
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 是否添加备注 [ Y/n ]：${PLAIN}')" Input2
+                    read -p "$(echo -e "\n${BOLD}└ 是否添加备注 [ Y/n ]：${PLAIN}")" Input2
                     [ -z ${Input2} ] && Input2=Y
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1168,7 +1168,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
@@ -1200,7 +1200,7 @@ function Manage_Env() {
     del)
         case $# in
         1)
-            read -p "$(echo -e '\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}')" Input1
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Input1
             VariableNums=$(grep -c ".*export ${Input1}=" $FileConfUser | head -n 1)
             Variable=$(grep -n ".*export ${Input1}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行: |g;}')
             if [[ ${VariableNums} -ne "0" ]]; then
@@ -1210,14 +1210,14 @@ function Manage_Env() {
                     echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${Variable}"
                 fi
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}')" Input2
+                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}")" Input2
                     [ -z ${Input2} ] && Input2=Y
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         FullContent="$(grep ".*export ${Input1}=" $FileConfUser)"
                         sed -i "/export ${Input1}=/d" $FileConfUser
                         if [[ ${VariableNums} -gt "1" ]]; then
-                            echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|${PLAIN}|g;}' | sed '$d')"
+                            echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
                         elif [[ ${VariableNums} -eq "1" ]]; then
                             echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                         fi
@@ -1229,7 +1229,7 @@ function Manage_Env() {
                         break
                         ;;
                     *)
-                        echo -e '\n${YELLOW}----- 输入错误 -----${PLAIN}'
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
                         ;;
                     esac
                 done
@@ -1245,7 +1245,7 @@ function Manage_Env() {
                 FullContent="$(grep ".*export ${Variable}=" $FileConfUser)"
                 sed -i "/export ${Variable}=/d" $FileConfUser
                 if [[ ${VariableNums} -gt "1" ]]; then
-                    echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|${PLAIN}|g;}' | sed '$d')"
+                    echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
                 elif [[ ${VariableNums} -eq "1" ]]; then
                     echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                 fi
@@ -1261,7 +1261,7 @@ function Manage_Env() {
     edit)
         case $# in
         1)
-            read -p "$(echo -e '\n${BOLD}└ 请输入需要修改的环境变量名称：${PLAIN}')" Variable
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要修改的环境变量名称：${PLAIN}")" Variable
             ## 检测是否存在该变量
             grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
             local ExitStatus=$?
@@ -1270,7 +1270,7 @@ function Manage_Env() {
                 echo -e '1)   启用或禁用'
                 echo -e '2)   修改变量的值'
                 while true; do
-                    read -p "$(echo -e '\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}')" Input1
+                    read -p "$(echo -e "\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}")" Input1
                     case $Input1 in
                     1)
                         ControlEnv "${Variable}"
@@ -1317,7 +1317,7 @@ function Manage_Env() {
     search)
         case $# in
         1)
-            read -p "$(echo -e '\n${BOLD}└ 请输入需要查询的关键词：${PLAIN}')" Keys
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要查询的关键词：${PLAIN}")" Keys
             ;;
         2)
             Keys=$2
