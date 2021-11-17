@@ -40,7 +40,7 @@ FileSendNotifyScripts=$ScriptsDir/sendNotify.js
 FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
 FileProcessList=$RootDir/.process_list.log
-FileUpdateCookie=$PanelDir/UpdateCookies.js
+FileUpdateCookie=$UtilsDir/UpdateCookies.js
 FileScriptDictionary=$UtilsDir/script_name.sh
 
 ## 清单
