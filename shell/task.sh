@@ -138,7 +138,7 @@ function Find_Script() {
             esac
             for dir in ${SeekDir}; do
                 if [ -f $ScriptsDir/${InputContent} ]; then
-                    FileName=${FileNameTmp%.*}
+                    FileName=${InputContent%.*}
                     WhichDir=${dir}
                     break
                 fi
