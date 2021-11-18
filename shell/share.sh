@@ -41,7 +41,7 @@ FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
 FileProcessList=$RootDir/.process_list.log
 FileUpdateCookie=$UtilsDir/UpdateCookies.js
-FileScriptDictionary=$UtilsDir/script_name.sh
+FileScriptDictionary=$ShellDir/script_name.sh
 
 ## 清单
 ListCronScripts=$ScriptsDir/docker/crontab_list.sh
