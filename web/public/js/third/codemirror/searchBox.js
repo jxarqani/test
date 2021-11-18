@@ -399,8 +399,8 @@
                     'height: 22px;',
                     'outline: 0;',
                     'padding: 0 8px;',
-                    'width: 266.3px;',
-                    'margin: 0;',
+                    'width: 264.5px;',
+                    'margin: 0 1px 0 1px;',
                     'background-color: whitesmoke;',
                     '}',
 
