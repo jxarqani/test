@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-17
+## Modified: 2021-11-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -52,7 +52,7 @@ function Hang_Control() {
             esac
             if [ ! -f "$ScriptsDir/$ScriptFiles" ]; then
                 echo -e "\n$ERROR $ScriptFiles 脚本不存在！\n"
-                exit 1
+                exit
             fi
             ## 删除原有
             pm2 stop $ServiceName >/dev/null 2>&1
@@ -230,9 +230,8 @@ function Install_TTYD() {
 function Bot_Control() {
     case $Arch in
     armv7l | armv6l)
-        echo -e "\n$ERROR 您的处理器架构不支持使用此功能，建议更换运行环境！"
-        Help
-        exit 1
+        echo -e "\n$ERROR 宿主机的处理器架构不支持使用此功能，建议更换运行环境！"
+        Help && exit ## 终止退出
         ;;
     *)
         if [[ -z $(grep -E "123456789" $ConfigDir/bot.json) ]]; then
@@ -319,8 +318,7 @@ function Bot_Control() {
             [ -f $FilePm2List ] && rm -rf $FilePm2List
         else
             echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Bot ！"
-            Help
-            exit 1
+            Help && exit ## 终止退出
         fi
         ;;
     esac
@@ -340,7 +338,7 @@ function Install_Bot() {
     if [ -d $BotRepoDir/.git ]; then
         cd $BotRepoDir
         echo -e "$WORKING 开始更新仓库\n"
-        git remote set-url origin ${BotRepositoryUrl} >/dev/null
+        git remote set-url origin ${BotRepoGitUrl} >/dev/null
         git reset --hard origin/main >/dev/null
         git fetch --all
         local ExitStatusBot=$?
@@ -349,7 +347,7 @@ function Install_Bot() {
     else
         echo -e "$WORKING 开始克隆仓库...\n"
         rm -rf $BotRepoDir
-        git clone -b main ${BotRepositoryUrl} $BotRepoDir
+        git clone -b main ${BotRepoGitUrl} $BotRepoDir
         local ExitStatusBot=$?
     fi
     if [[ ${ExitStatusBot} -eq 0 ]]; then
@@ -473,7 +471,7 @@ function Environment_Deployment() {
             echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
             ;;
         *)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
+            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python & TypeScript 运行环境...\n"
             ;;
         esac
         echo -e "${GREEN}Tips:${PLAIN} 忽略 ${YELLOW}[WARN]${PLAIN} 警告类输出内容，如有 ${RED}[ERR!]${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
@@ -490,7 +488,7 @@ function Environment_Deployment() {
             npm install -g got tough-cookie global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
             ;;
         esac
-        echo ''
+        echo -e "\n$SUCCESS 安装完成\n"
         ;;
     repairs)
         echo -e "\n$WORKING 开始暴力修复 npm ...\n"

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-17
+## Modified: 2021-11-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -57,8 +57,7 @@ function Find_Script() {
                     ;;
                 *)
                     echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                     ;;
                 esac
                 FileName=${FileNameTmp%.*}
@@ -86,7 +85,7 @@ function Find_Script() {
 
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
-            [[ ${FileFormat} == "JavaScript" && ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
+            [[ ${FileFormat} == "JavaScript" ]] && [[ ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
@@ -96,8 +95,7 @@ function Find_Script() {
             Make_Dir ${LogPath}
         else
             echo -e "\n$ERROR 在 ${AbsolutePath%/*} 目录未检测到 ${AbsolutePath##*/} 脚本的存在，请重新确认！"
-            Help
-            exit
+            Help && exit ## 终止退出
         fi
     }
 
@@ -132,8 +130,7 @@ function Find_Script() {
                 ;;
             *)
                 echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             esac
             for dir in ${SeekDir}; do
@@ -188,8 +185,7 @@ function Find_Script() {
             Make_Dir ${LogPath}
         else
             echo -e "\n$ERROR 在 $ScriptsDir、$ScriptsDir/activity、$ScriptsDir/backUp、$ScriptsDir/utils 四个目录下均未检测到 ${InputContent} 脚本的存在，请重新确认！"
-            Help
-            exit
+            Help && exit ## 终止退出
         fi
     }
 
@@ -215,13 +211,11 @@ function Find_Script() {
             ;;
         "")
             echo -e "\n$ERROR 未能识别脚本类型，请检查后重新输入！"
-            Help
-            exit
+            Help && exit ## 终止退出
             ;;
         *)
             echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
-            Help
-            exit
+            Help && exit ## 终止退出
             ;;
         esac
 
@@ -242,7 +236,7 @@ function Find_Script() {
             ;;
         esac
 
-        ## 纠正链接地址（转换为raw原始文件链接地址）
+        ## 纠正链接地址（转换为对应托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
             if [[ ${RepositoryJudge} == " Github " ]]; then
@@ -302,12 +296,11 @@ function Find_Script() {
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
-            RUN_REMOTE=true
+            RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
             echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查目标 URL 地址是否正确或网络连通性问题..."
-            Help
-            exit
+            Help && exit ## 终止退出
         fi
     }
 
@@ -340,15 +333,13 @@ function Find_Script() {
     case $Arch in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
-            echo -e "\n$ERROR 您当前使用的是32位处理器，考虑到性能不佳已禁用并发执行功能！"
-            Help
-            exit
+            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！"
+            Help && exit ## 终止退出
         fi
         case ${FileFormat} in
         Python | TypeScript)
-            echo -e "\n$ERROR 您的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！"
-            Help
-            exit
+            echo -e "\n$ERROR 宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！"
+            Help && exit ## 终止退出
             ;;
         esac
         ;;
@@ -374,12 +365,11 @@ function ExistenceJudgment() {
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
         echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
-        Help
-        exit
+        Help && exit ## 终止退出
     fi
 }
 
-## 依次执行
+## 普通执行
 function Run_Normal() {
     local InputContent=$1
     local Accounts UserNum LogFile
@@ -412,8 +402,7 @@ function Run_Normal() {
                     done
                 else
                     echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
             else
                 ExistenceJudgment $UserNum
@@ -427,7 +416,10 @@ function Run_Normal() {
     fi
 
     ## 处理其它参数
-    [[ ${RUN_RAPID} == true ]] || Update_Crontab && Combin_ShareCodes
+    if [[ ${RUN_RAPID} != true ]]; then
+        Update_Crontab
+        Combin_ShareCodes
+    fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
@@ -459,7 +451,7 @@ function Run_Normal() {
     echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == true ]] && [[ ${AutoDelRawFiles} == true ]]; then
+    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
         rm -rf "${WhichDir}/${FileName}.${FileNameSuffix}"
     fi
 }
@@ -505,7 +497,10 @@ function Run_Concurrent() {
     }
 
     ## 处理其它参数
-    [[ ${RUN_RAPID} == true ]] || Update_Crontab && Combin_ShareCodes
+    if [[ ${RUN_RAPID} != true ]]; then
+        Update_Crontab
+        Combin_ShareCodes
+    fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
@@ -523,8 +518,7 @@ function Run_Concurrent() {
                     done
                 else
                     echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
             else
                 ExistenceJudgment $UserNum
@@ -552,7 +546,7 @@ function Run_Concurrent() {
     echo -e "\n$COMPLETE 已在后台部署并发任务，如需查询脚本输出内容请直接查看 ${LogPath} 目录下的相关日志\n"
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == true ]] && [[ ${AutoDelRawFiles} == true ]]; then
+    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
         rm -rf "${WhichDir}/${FileName}.${FileNameSuffix}"
     fi
 }
@@ -601,8 +595,7 @@ function Process_Kill() {
         fi
     else
         echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，请重新确认！"
-        Help
-        exit
+        Help && exit ## 终止退出
     fi
 }
 
@@ -635,11 +628,7 @@ function Process_CleanUp() {
             if [[ ${StartTime} = [0-9][0-9]:[0-9][0-9]:[0-9][0-9] ]]; then
                 ## 定义实际时间戳
                 Tmp=$(date +%s -d "$(date "+%Y-%m-%d") ${StartTime}")
-                if [[ ${Tmp} -gt ${FormatCurrentTime} ]]; then
-                    FormatStartTime=$((${Tmp} - 86400))
-                else
-                    FormatStartTime=${Tmp}
-                fi
+                [[ ${Tmp} -gt ${FormatCurrentTime} ]] && FormatStartTime=$((${Tmp} - 86400)) || FormatStartTime=${Tmp}
                 ## 比较时间
                 FormatDiffTime=$((${FormatCurrentTime} - 3600 * ${CheckHour}))
                 if [[ ${FormatDiffTime} -gt ${FormatStartTime} ]]; then
@@ -674,7 +663,7 @@ function Cookies_Control() {
         [ -f $FileSendMark ] && rm -rf $FileSendMark
 
         ## 生成 pt_pin 数组
-        function Gen_pt_pin_array() {
+        function Gen_pt_pin_Array() {
             local Tmp1 Tmp2 i pt_pin_temp
             for ((user_num = 1; user_num <= $UserSum; user_num++)); do
                 Tmp1=Cookie$user_num
@@ -726,7 +715,7 @@ function Cookies_Control() {
             done
         }
 
-        Gen_pt_pin_array
+        Gen_pt_pin_Array
         Print_Info
 
         ## 过期提醒推送通知
@@ -748,13 +737,13 @@ function Cookies_Control() {
         function UpdateSign() {
             Make_Dir $SignDir
             if [ ! -d $SignDir/.git ]; then
-                git clone -b master ${SignsRepositoryUrl} $SignDir >/dev/null
+                git clone -b master ${SignsRepoGitUrl} $SignDir >/dev/null
                 ExitStatus=$?
             else
                 cd $SignDir
-                if [ $(date "+%H") -eq 9 -o $(date "+%H") -eq 21 ] && [ $(date "+%S") -eq 00 ]; then
+                if [[ $(date "+%H") -eq "9" || $(date "+%H") -eq "21" ]] && [[ $(date "+%S") -eq "00" ]]; then
                     local Tmp=$((${RANDOM} % 10))
-                    echo -en "\n检测到当前处于整点，已随机延迟，$Tmp 秒后开始执行..."
+                    echo -en "\n检测到当前处于整点，已启用随机延迟，此任务将在 $Tmp 秒后开始执行..."
                     sleep $Tmp
                     echo ''
                 fi
@@ -832,7 +821,7 @@ function Cookies_Control() {
                     done
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查您的网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好您的 pt_pin ！\n"
@@ -901,7 +890,7 @@ function Cookies_Control() {
                     fi
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查您的网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好该账号的 pt_pin ！\n"
@@ -1588,7 +1577,7 @@ case $# in
         SwitchBranch
         ;;
     *)
-        RUN_DELAY=true
+        RUN_DELAY="true"
         RUN_MODE=normal
         Run_Normal $1
         ;;
@@ -1662,28 +1651,25 @@ case $# in
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY=true
+                    DOWNLOAD_PROXY="true"
                 else
                     echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
-                RUN_RAPID=true
+                RUN_RAPID="true"
                 ;;
             -d | --delay)
-                RUN_DELAY=true
+                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 echo -e "\n$COMMAND_ERROR 请在参数 $4 后指定账号！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             *)
                 echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             esac
             shift
@@ -1697,28 +1683,25 @@ case $# in
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY=true
+                    DOWNLOAD_PROXY="true"
                 else
                     echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
-                RUN_RAPID=true
+                RUN_RAPID="true"
                 ;;
             -d | --delay)
-                RUN_DELAY=true
+                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 echo -e "\n$COMMAND_ERROR 请在参数 $4 后指定账号！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             *)
                 echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             esac
             shift
@@ -1789,35 +1772,32 @@ case $# in
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY=true
+                    DOWNLOAD_PROXY="true"
                 else
                     echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
-                RUN_RAPID=true
+                RUN_RAPID="true"
                 ;;
             -d | --delay)
-                RUN_DELAY=true
+                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
                     echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 else
-                    RUN_DESIGNATED=true
+                    RUN_DESIGNATED="true"
                     DESIGNATED_NUMS="$4"
                     shift
                 fi
                 ;;
             *)
                 echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             esac
             shift
@@ -1831,35 +1811,32 @@ case $# in
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY=true
+                    DOWNLOAD_PROXY="true"
                 else
                     echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
-                RUN_RAPID=true
+                RUN_RAPID="true"
                 ;;
             -d | --delay)
-                RUN_DELAY=true
+                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
                     echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                    Help
-                    exit
+                    Help && exit ## 终止退出
                 else
-                    RUN_DESIGNATED=true
+                    RUN_DESIGNATED="true"
                     DESIGNATED_NUMS="$4"
                     shift
                 fi
                 ;;
             *)
                 echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help
-                exit
+                Help && exit ## 终止退出
                 ;;
             esac
             shift

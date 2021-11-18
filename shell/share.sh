@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-16
+## Modified: 2021-11-18
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -21,7 +21,7 @@ RawDir=$OwnDir/raw
 BotDir=$RootDir/jbot
 BotLogDir=$LogDir/bot
 BotRepoDir=$UtilsDir/dockerbot
-ShellDir_NodeModules=$RootDir/node_modules
+RootDir_NodeModules=$RootDir/node_modules
 ScriptsDir_NodeModules=$ScriptsDir/node_modules
 
 ## 文件
@@ -85,8 +85,8 @@ ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|JDJR|validat
 
 ## URL
 GithubProxy="https://ghproxy.com/"
-BotRepositoryUrl="${GithubProxy}https://github.com/SuMaiKaDe/bot.git"
-SignsRepositoryUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
+BotRepoGitUrl="${GithubProxy}https://github.com/SuMaiKaDe/bot.git"
+SignsRepoGitUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
 
 ## 用于组合互助码的数组（保留部分限时活动变量）
 ## 脚本日志所在的文件夹名称

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-16
+## Modified: 2021-11-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -10,7 +10,7 @@ if [[ "$(ls -A $CodeDir)" != "" ]]; then
 fi
 
 ## 生成 pt_pin 数组
-function Gen_pt_pin_array() {
+function Gen_pt_pin_Array() {
     Import_Config
     Count_UserSum
     local Tmp1 Tmp2 i pt_pin_temp
@@ -210,7 +210,7 @@ function Export_Codes_All() {
 }
 
 ## 生成 pt_pin 数组
-Gen_pt_pin_array
+Gen_pt_pin_Array
 ## 执行并写入日志
 LogTime=$(date "+%Y-%m-%d-%H-%M-%S")
 LogPath="$CodeDir/${LogTime}.log"

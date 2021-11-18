@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-16
+## Modified: 2021-11-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -131,7 +131,7 @@ function Gen_Own_Dir_And_Path() {
     fi
 }
 
-## 生成 Scripts仓库 task 清单，仅有去掉后缀的文件名
+## 生成 Scripts仓库的定时任务清单，内容为去掉后缀的脚本名
 function Gen_ListTask() {
     Make_Dir $LogTmpDir
     grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort -u >$ListTaskScripts
@@ -522,8 +522,7 @@ function Update_Own() {
         if [[ ${#OwnRawFile[*]} -eq 0 ]]; then
             clear
             echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！"
-            Help
-            exit
+            Help && exit ## 终止退出
         fi
         ;;
     esac
@@ -733,7 +732,7 @@ function Combin_Function() {
         ExtraShell
         Fix_Crontab
         Notice
-        exit 0
+        exit
         ;;
     1)
         case $1 in
@@ -786,7 +785,7 @@ function Combin_Function() {
         esac
         Fix_Crontab
         Notice
-        exit 0
+        exit
         ;;
     *)
         Output_Command_Error 2

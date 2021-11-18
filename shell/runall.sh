@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-17
+## Modified: 2021-11-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -15,8 +15,7 @@ function ChooseRunMod() {
         local Tmp=Cookie$Num
         if [[ -z ${!Tmp} ]]; then
             echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
-            Help
-            exit
+            Help && exit ## 终止退出
         fi
     }
 
@@ -43,8 +42,7 @@ function ChooseRunMod() {
                                 done
                             else
                                 echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新确认！"
-                                Help
-                                exit
+                                Help && exit ## 终止退出
                             fi
                         else
                             ExistenceJudgment $UserNum
@@ -82,10 +80,10 @@ function ChooseRunMod() {
 }
 
 function Main() {
-    [ -f $FileTmp ] && rm -rf $FileTmp
     local CurrentDir=$(pwd)
     local Input3 Input4 Input5 ScriptType Tmp1 Tmp2
-    local FileTmp=$RootDir/.runall_tmp.sh
+    local RunFile=$RootDir/.runall_tmp.sh
+    [ -f $RunFile ] && rm -rf $RunFile
     case $Arch in
     armv7l | armv6l)
         ScriptType=".js\b"
@@ -113,13 +111,13 @@ function Main() {
         read -p "$(echo -e "\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
-            [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$FileTmp
+            [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$RunFile
             local WorkDir=$ScriptsDir
             cd $CurrentDir
             break
             ;;
         2)
-            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$FileTmp
+            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
             local WorkDir=$ScriptsDir
             break
             ;;
@@ -140,23 +138,23 @@ function Main() {
                     echo -e "\n$ERROR 目录不存在或输入有误！"
                 fi
             done
-            ls $AbsolutePath | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$AbsolutePath/|g; s|//|/|;}" | sort -u >$FileTmp
+            ls $AbsolutePath | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$AbsolutePath/|g; s|//|/|;}" | sort -u >$RunFile
             local WorkDir=$AbsolutePath
             break
             ;;
         esac
         echo -e "\n$ERROR 输入错误！"
     done
-    if [ -s $FileTmp ]; then
+    if [ -s $RunFile ]; then
         ## 去除不适合在此执行的活动脚本
         local ExcludeScripts="bean_change joy_reward blueCoin jd_delCoupon jd_family jd_crazy_joy jd_try jd_cfdtx"
         for del in ${ExcludeScripts}; do
-            sed -i "/$del/d" $FileTmp
+            sed -i "/$del/d" $RunFile
         done
         ## 输出脚本清单
         cd $WorkDir
         local ListFiles=($(
-            cat $FileTmp | perl -pe '{s|^.*/||g;}'
+            cat $RunFile | perl -pe '{s|^.*/||g;}'
         ))
         echo -e "\n❖ 当前选择的脚本："
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
@@ -170,9 +168,9 @@ function Main() {
         [Yy] | [Yy][Ee][Ss])
             ChooseRunMod
             ## 补全命令
-            sed -i "s/^/$TaskCmd &/g" $FileTmp
-            sed -i "s/$/& ${RunMode}/g" $FileTmp
-            sed -i '1i\#!/bin/env bash' $FileTmp
+            sed -i "s/^/$TaskCmd &/g" $RunFile
+            sed -i "s/$/& ${RunMode}/g" $RunFile
+            sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
             echo -e "\n\033[32mTips${PLAIN}: ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
             ## 等待动画
@@ -186,7 +184,7 @@ function Main() {
             done
             ## 开始执行
             echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行开始\n"
-            . $FileTmp
+            . $RunFile
             echo -e "\n[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行结束\n"
             ;;
         [Nn] | [Nn][Oo])
@@ -199,7 +197,7 @@ function Main() {
     else
         echo -e "\n$ERROR 该路径下未检测到任何脚本，请检查原因后重试！\n"
     fi
-    rm -rf $FileTmp
+    rm -rf $RunFile
 }
 
 Main
