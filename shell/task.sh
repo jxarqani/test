@@ -915,7 +915,7 @@ function Cookies_Control() {
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
                     Make_Dir ${LogPath}
-                    cd $PanelDir
+                    cd $UtilsDir
                     case $# in
                     1)
                         UpdateNormal
