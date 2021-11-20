@@ -57,11 +57,11 @@
 
 /*选中内容背景*/
 .cm-s-panda-syntax .CodeMirror-selected {
-  background: rgb(87, 87, 87);
+  background: #f00;
 }
 
 .cm-s-juejin .CodeMirror-selected {
-  background: rgb(222, 219, 219);
+  background: #ff0;
 }
 
 
