@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-11-22
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -104,6 +104,8 @@ function Find_Script() {
         local FileNameTmp1 FileNameTmp2 FileNameTmp3 SeekDir
         ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/activity > /jd/scripts/utils > /jd/scripts/backUp
         SeekDir="$ScriptsDir $ScriptsDir/activity $ScriptsDir/utils $ScriptsDir/backUp"
+        ## 定义后缀格式
+        SeekFileExtension="js py ts sh"
 
         ## 判定传入是否含有后缀格式
         ## 如果存在后缀格式则为精确查找，否则为模糊查找，仅限关于脚本名称的定位目录除外
@@ -146,35 +148,45 @@ function Find_Script() {
             FileNameTmp2=$(echo ${FileNameTmp1} | perl -pe "{s|jd_||; s|^|jd_|}")
             FileNameTmp3=$(echo ${FileNameTmp1} | perl -pe "{s|jx_||; s|^|jx_|}")
             for dir in ${SeekDir}; do
-                ## 第一种名称类型
-                if [ -f ${dir}/${FileNameTmp1}\.* ]; then
-                    FileName=${FileNameTmp1}
-                    WhichDir=${dir}
-                    break
-                ## 第二种名称类型
-                elif [ -f ${dir}/${FileNameTmp2}\.* ]; then
-                    FileName=${FileNameTmp2}
-                    WhichDir=${dir}
-                    break
-                ## 第三种名称类型
-                elif [ -f ${dir}/${FileNameTmp3}\.* ]; then
-                    FileName=${FileNameTmp3}
-                    WhichDir=${dir}
-                    break
-                fi
+                for ext in ${SeekFileExtension}; do
+                    ## 第一种名称类型
+                    if [ -f ${dir}/${FileNameTmp1}\.${ext} ]; then
+                        FileName=${FileNameTmp1}
+                        WhichDir=${dir}
+                        FileNameSuffix=${ext}
+                        break 2
+                    ## 第二种名称类型
+                    elif [ -f ${dir}/${FileNameTmp2}\.${ext} ]; then
+                        FileName=${FileNameTmp2}
+                        WhichDir=${dir}
+                        FileNameSuffix=${ext}
+                        break 2
+                    ## 第三种名称类型
+                    elif [ -f ${dir}/${FileNameTmp3}\.${ext} ]; then
+                        FileName=${FileNameTmp3}
+                        WhichDir=${dir}
+                        FileNameSuffix=${ext}
+                        break 2
+                    fi
+                done
             done
 
             ## 判断并定义脚本类型
             if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
-                if [ -f ${dir}/${FileName}.js ]; then
+                case ${FileNameSuffix} in
+                js)
                     FileFormat="JavaScript"
-                elif [ -f ${dir}/${FileName}.py ]; then
+                    ;;
+                py)
                     FileFormat="Python"
-                elif [ -f ${dir}/${FileName}.ts ]; then
+                    ;;
+                ts)
                     FileFormat="TypeScript"
-                elif [ -f ${dir}/${FileName}.sh ]; then
+                    ;;
+                sh)
                     FileFormat="Shell"
-                fi
+                    ;;
+                esac
             fi
         fi
 
