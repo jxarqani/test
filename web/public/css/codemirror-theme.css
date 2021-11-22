@@ -1,139 +1,139 @@
 .cm-s-panda-syntax {
-  background: #292A2B;
-  color: #ffffff;
-  font-size: 14px;
-  font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    background: #292A2B;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
 }
 
 @media screen and (max-width: 640px) {
 
-  .cm-s-panda-syntax {
-    background: #292A2B;
-    color: #ffffff;
-    font-size: 11px;
-    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
-  }
+    .cm-s-panda-syntax {
+        background: #292A2B;
+        color: #ffffff;
+        font-size: 11px;
+        font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    }
 
 }
 
 .cm-s-juejin {
-  background: #ffffff;
-  color: #000000;
-  font-size: 14px;
-  font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    background: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
 }
 
 @media screen and (max-width: 640px) {
 
-  .cm-s-juejin {
-    background: #ffffff;
-    color: #000000;
-    font-size: 11px;
-    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
-  }
+    .cm-s-juejin {
+        background: #ffffff;
+        color: #000000;
+        font-size: 11px;
+        font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    }
 
 }
 
 
 /*光标*/
 .cm-s-panda-syntax .CodeMirror-cursor {
-  border-color: #ffffff;
+    border-color: #ffffff;
 }
 
 .cm-s-juejin .CodeMirror-cursor {
-  border-color: #000000;
+    border-color: #000000;
 }
 
 
 /*选中行背景*/
 .cm-s-panda-syntax .CodeMirror-activeline-background {
-  background: rgba(73, 73, 73, 0.6);
+    background: rgba(73, 73, 73, 0.6);
 }
 
 .cm-s-juejin .CodeMirror-activeline-background {
-  background: rgba(235, 235, 235, 0.6);
+    background: rgba(235, 235, 235, 0.6);
 }
 
 
 /*选中内容背景*/
 .cm-s-panda-syntax .CodeMirror-selected {
-  background: rgb(177, 9, 9);
+    background: rgb(177, 9, 9);
 }
 
 .cm-s-juejin .CodeMirror-selected {
-  background: rgb(197, 197, 5);
+    background: rgb(197, 197, 5);
 }
 
 
 /*行号和边栏*/
 .cm-s-panda-syntax .CodeMirror-gutters {
-  background: #292A2B;
-  border-right-color: transparent;
+    background: #292A2B;
+    border-right-color: transparent;
 }
 
 .cm-s-panda-syntax .CodeMirror-linenumber {
-  color: #e6e6e6;
-  opacity: 0.6;
+    color: #e6e6e6;
+    opacity: 0.6;
 }
 
 .cm-s-juejin .CodeMirror-gutters {
-  background: #ffffff;
-  border-right-color: transparent;
+    background: #ffffff;
+    border-right-color: transparent;
 }
 
 .cm-s-juejin .CodeMirror-linenumber {
-  color: #292a2b;
-  opacity: 0.6;
+    color: #292a2b;
+    opacity: 0.6;
 }
 
 
 /*注释内容*/
 .cm-s-panda-syntax .cm-comment {
-  color: #a5a5a5;
+    color: #a5a5a5;
 }
 
 .cm-s-juejin .cm-comment {
-  color: #5c5c5c;
+    color: #5c5c5c;
 }
 
 
 /*Linux命令*/
 .cm-s-panda-syntax .cm-keyword {
-  color: #0a97f5;
+    color: #0a97f5;
 }
 
 .cm-s-juejin .cm-keyword {
-  color: #bb51b8;
+    color: #bb51b8;
 }
 
 
 /*符号*/
 .cm-s-panda-syntax .cm-operator {
-  color: #f3f3f3;
+    color: #f3f3f3;
 }
 
 .cm-s-juejin .cm-operator {
-  color: #000000;
+    color: #000000;
 }
 
 
 /*数字*/
 .cm-s-panda-syntax .cm-number {
-  color: #FFB86C;
+    color: #FFB86C;
 }
 
 .cm-s-juejin .cm-number {
-  color: #62b613;
+    color: #62b613;
 }
 
 
 /*变量*/
 .cm-s-panda-syntax span.cm-def {
-  color: #dac96f;
+    color: #dac96f;
 }
 
 .cm-s-juejin span.cm-def {
-  color: #1ba2f0;
+    color: #1ba2f0;
 }
 
 
@@ -141,43 +141,43 @@
 .cm-s-panda-syntax .cm-string,
 .cm-s-panda-syntax span.cm-string,
 .cm-s-panda-syntax span.cm-string-2 {
-  color: #91ca70;
+    color: #91ca70;
 }
 
 .cm-s-juejin .cm-string,
 .cm-s-juejin span.cm-string,
 .cm-s-juejin span.cm-string-2 {
-  color: #009e9d;
+    color: #009e9d;
 }
 
 
 /*标签*/
 .cm-s-panda-syntax .cm-tag {
-  color: #ff2c6d;
+    color: #ff2c6d;
 }
 
 .cm-s-juejin .cm-tag {
-  color: #ff2c6d;
+    color: #ff2c6d;
 }
 
 
 /**/
 .cm-s-panda-syntax .cm-meta {
-  color: #8c70b3;
+    color: #8c70b3;
 }
 
 .cm-s-juejin .cm-meta {
-  color: #8c70b3;
+    color: #8c70b3;
 }
 
 
 /**/
 .cm-s-panda-syntax .cm-atom {
-  color: #ff2c6d;
+    color: #ff2c6d;
 }
 
 .cm-s-juejin .cm-atom {
-  color: #ff2c6d;
+    color: #ff2c6d;
 }
 
 
@@ -191,7 +191,7 @@
 .cm-s-panda-syntax .cm-attribute,
 .cm-s-panda-syntax .cm-unit,
 .cm-s-panda-syntax .cm-type {
-  color: #ffb86c;
+    color: #ffb86c;
 }
 
 .cm-s-juejin .cm-variable,
@@ -200,44 +200,44 @@
 .cm-s-juejin .cm-attribute,
 .cm-s-juejin .cm-unit,
 .cm-s-juejin .cm-type {
-  color: #ffb86c;
+    color: #ffb86c;
 }
 
 
 /**/
 .cm-s-panda-syntax .cm-def {
-  color: #e6e6e6;
+    color: #e6e6e6;
 }
 
 .cm-s-juejin .cm-def {
-  color: #e6e6e6;
+    color: #e6e6e6;
 }
 
 
 /**/
 .cm-s-panda-syntax .cm-property {
-  color: #f3f3f3;
+    color: #f3f3f3;
 }
 
 .cm-s-juejin .cm-property {
-  color: #f3f3f3;
+    color: #f3f3f3;
 }
 
 .light .cm-s-juejin .cm-property {
-  color: #f27474;
+    color: #f27474;
 }
 
 /*匹配括号*/
 .cm-s-panda-syntax .CodeMirror-matchingbracket {
-  border-bottom: 1px dotted #19F9D8;
-  padding-bottom: 2px;
-  color: #e6e6e6;
+    border-bottom: 1px dotted #19F9D8;
+    padding-bottom: 2px;
+    color: #e6e6e6;
 }
 
 .cm-s-juejin .CodeMirror-matchingbracket {
-  border-bottom: 1px dotted #19F9D8;
-  padding-bottom: 2px;
-  color: #e6e6e6;
+    border-bottom: 1px dotted #19F9D8;
+    padding-bottom: 2px;
+    color: #e6e6e6;
 }
 
 
@@ -248,197 +248,410 @@ diff页面
 */
 
 .CodeMirror-merge {
-  flex: 1;
-  width: 100%;
-  height: auto;
-  display: flex;
-  overflow: hidden;
+    flex: 1;
+    width: 100%;
+    height: auto;
+    display: flex;
+    overflow: hidden;
 }
 
 .CodeMirror-merge .CodeMirror {
-  height: 100%;
+    height: 100%;
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-pane {
-  width: calc(50% - 15px);
+    width: calc(50% - 15px);
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-gap {
-  width: 30px;
+    width: 30px;
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-scrolllock {
-  display: none;
+    display: none;
 }
 
 .CodeMirror-merge-pane-rightmost {
-  position: static;
+    position: static;
 }
 
 /* 对比工具差异处颜色 */
 .dark .CodeMirror-merge-gap {
-  background-color: #817f7f;
+    background-color: #817f7f;
 }
 
 .cm-s-juejin .CodeMirror-merge-r-chunk {
-  background: #ffffe0
+    background: #ffffe0
 }
 
 .cm-s-panda-syntax .CodeMirror-merge-r-chunk {
-  background: #9d2933e5
+    background: #9d2933e5
 }
 
 .CodeMirror-merge-r-chunk-start {
-  border-top: 1px solid #9D2932;
+    border-top: 1px solid #9D2932;
 }
 
 .CodeMirror-merge-r-chunk-end {
-  border-bottom: 1px solid #9D2932;
+    border-bottom: 1px solid #9D2932;
 }
 
 .CodeMirror-merge-r-connect {
-  fill: #e0bb3e;
-  stroke: #61a19c;
-  stroke-width: 2px;
+    fill: #e0bb3e;
+    stroke: #61a19c;
+    stroke-width: 2px;
 }
 
 .cm-s-twilight.CodeMirror {
-  background: #141414;
-  color: #f7f7f7;
+    background: #141414;
+    color: #f7f7f7;
 }
 
 .cm-s-twilight div.CodeMirror-selected {
-  background: rgba(206, 206, 206, 0.5);
+    background: rgba(206, 206, 206, 0.5);
 }
 
 .cm-s-twilight .CodeMirror-line::selection,
-.cm-s-twilight .CodeMirror-line>span::selection,
-.cm-s-twilight .CodeMirror-line>span>span::selection {
-  background: rgba(50, 50, 50, 0.99);
+.cm-s-twilight .CodeMirror-line > span::selection,
+.cm-s-twilight .CodeMirror-line > span > span::selection {
+    background: rgba(50, 50, 50, 0.99);
 }
 
 .cm-s-twilight .CodeMirror-line::-moz-selection,
-.cm-s-twilight .CodeMirror-line>span::-moz-selection,
-.cm-s-twilight .CodeMirror-line>span>span::-moz-selection {
-  background: rgba(50, 50, 50, 0.99);
+.cm-s-twilight .CodeMirror-line > span::-moz-selection,
+.cm-s-twilight .CodeMirror-line > span > span::-moz-selection {
+    background: rgba(50, 50, 50, 0.99);
 }
 
 .cm-s-twilight .CodeMirror-gutters {
-  background: #222;
-  border-right: 1px solid #aaa;
+    background: #222;
+    border-right: 1px solid #aaa;
 }
 
 .cm-s-twilight .CodeMirror-guttermarker {
-  color: white;
+    color: white;
 }
 
 .cm-s-twilight .CodeMirror-guttermarker-subtle {
-  color: #aaa;
+    color: #aaa;
 }
 
 .cm-s-twilight .CodeMirror-linenumber {
-  color: #aaa;
+    color: #aaa;
 }
 
 .cm-s-twilight .CodeMirror-cursor {
-  border-left: 1px solid white;
+    border-left: 1px solid white;
 }
 
 .cm-s-twilight .cm-keyword {
-  color: #f9ee98;
+    color: #f9ee98;
 }
 
 .cm-s-twilight .cm-atom {
-  color: #FC0;
+    color: #FC0;
 }
 
 .cm-s-twilight .cm-number {
-  color: #ca7841;
+    color: #ca7841;
 }
 
 .cm-s-twilight .cm-def {
-  color: #8DA6CE;
+    color: #8DA6CE;
 }
 
 .cm-s-twilight span.cm-variable-2,
 .cm-s-twilight span.cm-tag {
-  color: #607392;
+    color: #607392;
 }
 
 .cm-s-twilight span.cm-variable-3,
 .cm-s-twilight span.cm-def,
 .cm-s-twilight span.cm-type {
-  color: #607392;
+    color: #607392;
 }
 
 .cm-s-twilight .cm-operator {
-  color: #cda869;
+    color: #cda869;
 }
 
 .cm-s-twilight .cm-comment {
-  color: #777;
-  font-style: italic;
-  font-weight: normal;
+    color: #777;
+    font-style: italic;
+    font-weight: normal;
 }
 
 .cm-s-twilight .cm-string {
-  color: #8f9d6a;
-  font-style: italic;
+    color: #8f9d6a;
+    font-style: italic;
 }
 
 .cm-s-twilight .cm-string-2 {
-  color: #bd6b18;
+    color: #bd6b18;
 }
 
 .cm-s-twilight .cm-meta {
-  background-color: #141414;
-  color: #f7f7f7;
+    background-color: #141414;
+    color: #f7f7f7;
 }
 
 .cm-s-twilight .cm-builtin {
-  color: #cda869;
+    color: #cda869;
 }
 
 .cm-s-twilight .cm-tag {
-  color: #997643;
+    color: #997643;
 }
 
 .cm-s-twilight .cm-attribute {
-  color: #d6bb6d;
+    color: #d6bb6d;
 }
 
 .cm-s-twilight .cm-header {
-  color: #FF6400;
+    color: #FF6400;
 }
 
 .cm-s-twilight .cm-hr {
-  color: #AEAEAE;
+    color: #AEAEAE;
 }
 
 .cm-s-twilight .cm-link {
-  color: #ad9361;
-  font-style: italic;
-  text-decoration: none;
+    color: #ad9361;
+    font-style: italic;
+    text-decoration: none;
 }
 
 .cm-s-twilight .cm-error {
-  border-bottom: 1px solid red;
+    border-bottom: 1px solid red;
 }
 
 .cm-s-twilight .CodeMirror-activeline-background {
-  background: #27282E;
+    background: #27282E;
 }
 
 .cm-s-twilight .CodeMirror-matchingbracket {
-  outline: 1px solid grey;
-  color: white !important;
+    outline: 1px solid grey;
+    color: white !important;
 }
 
 /*css 自定义*/
 .CodeMirror-sizer {
-  position: relative;
-  padding-right: 0 !important;
-  border-right: 30px solid transparent !important;
+    position: relative;
+    padding-right: 0 !important;
+    border-right: 30px solid transparent !important;
 }
 
-.cm-s-panda-syntax .CodeMirror pre {}
+.cm-s-panda-syntax .CodeMirror pre {
+}
+
+
+/*查找替换*/
+.ace_search {
+    font-family: "微软雅黑", Arial;
+    background-color: #252526;
+    border-top: 0 none;
+    max-width: 400px;
+    margin: 0;
+    padding: 4px;
+    position: absolute;
+    top: 0px;
+    z-index: 99;
+    white-space: normal;
+    display: inline-block;
+    max-height: 68px;
+}
+
+.light .ace_search {
+    background-color: #f3f3f3;
+}
+
+.ace_search.left {
+    border-left: 0 none;
+    border-radius: 0px 0px 5px 0px;
+    left: 0;
+}
+
+.ace_search.right {
+    border-right: 0 none;
+    right: 0;
+    margin-top: 1%;
+    margin-right: 11%;
+    box-shadow: 0 2px 8px #000000;
+}
+
+.ace_search.button, .ace_search.replace {
+    border-radius: 3px 3px 3px 3px;
+    border-right: 0 none;
+    right: 0;
+    height: 18px;
+    font-size: 0;
+    background: transparent;
+    position: inherit;
+    padding: 3px 1px;
+}
+
+.ace_search.button .ace_searchbtn_prev, .ace_search.button .ace_searchbtn_next, .ace_search.button .ace_searchbtn_close, .ace_search.replace .ace_replacebtn {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: 0 none;
+    color: #d4d4d4;
+    cursor: pointer;
+    font: 20px/20px Arial;
+    height: 20px;
+    font-size: 0;
+    width: 20px;
+    padding: 0;
+    margin: 0 2px;
+    line-height: 1;
+}
+
+.light .ace_button, .light .ace_search.button .ace_searchbtn_prev, .light .ace_search.button .ace_searchbtn_next, .light .ace_search.button .ace_searchbtn_close, .light .ace_search.replace .ace_replacebtn {
+    color: #000;
+}
+
+.ace_search.button .ace_searchbtn_prev:hover, .ace_search.button .ace_searchbtn_next:hover, .ace_search.button .ace_searchbtn_close:hover, .ace_search.replace .ace_replacebtn:hover {
+    border-radius: 3px;
+    background-color: #7f7f7f30;
+    transition: 0.2s;
+}
+
+.light .ace_search.button .ace_searchbtn_prev:hover, .light .ace_search.button .ace_searchbtn_next:hover, .light .ace_search.button .ace_searchbtn_close:hover, .light .ace_search.replace .ace_replacebtn:hover {
+    background-color: #7f7f7f30;
+}
+
+.ace_replace_form {
+    margin-top: 4px;
+}
+
+.ace_search_form, .ace_replace_form {
+    line-height: 1;
+    height: 26px;
+    display: flex;
+}
+
+.ace_search_form.ace_nomatch {
+    outline: 1px solid red;
+}
+
+.ace_search_form.ace_nomatch .ace_search_field:focus {
+    border: transparent;
+}
+
+.ace_replace_form .ace_search_field {
+    width: 252px;
+}
+
+.ace_replace_form .ace_search.replace {
+    margin-left: 6px;
+}
+
+.ace_search_field {
+    border: 1px solid transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    float: left;
+    height: 26px;
+    outline: 0;
+    padding: 3px 4px;
+    width: 160px;
+    background-color: rgb(60, 60, 60);
+    text-align: left;
+    margin: 0;
+    color: white;
+    border-radius: 3px;
+    margin-right: 2px;
+}
+
+.light .ace_search_field {
+    background-color: rgb(255, 255, 255);
+    color: rgb(97, 97, 97);
+}
+
+.ace_search_field:focus {
+    border: 1px solid rgba(48, 176, 226, 0.8);
+}
+
+
+.ace_replacebtn.single {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PGcgZmlsbD0iI0M1QzVDNSI+PHBhdGggZD0iTTExIDNWMWgtMXY2aDRWM2gtM3ptMiAzaC0yVjRoMnYyek0yIDE1aDdWOUgydjZ6bTItNWgzdjFINXYyaDJ2MUg0di00eiIvPjwvZz48cGF0aCBmaWxsPSIjNzVCRUZGIiBkPSJNMy45NzkgMy41TDQgNiAzIDV2MS41TDQuNSA4IDYgNi41VjVMNSA2bC0uMDIxLTIuNWMwLS4yNzUuMjI1LS41LjUtLjVIOVYySDUuNDc5Yy0uODI4IDAtMS41LjY3My0xLjUgMS41eiIvPjwvc3ZnPg==");
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.ace_replacebtn.all {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZmlsbD0iI0M1QzVDNSIgZD0iTTExIDE1VjlIMXY2aDEwem0tOS0xdi0yaDF2LTFIMnYtMWgzdjRIMnptOC0zSDh2MmgydjFIN3YtNGgzdjF6bS03IDJ2LTFoMXYxSDN6bTEwLTZ2NmgtMVY4SDVWN2g4em0wLTVWMWgtMXY1aDNWMmgtMnptMSAzaC0xVjNoMXYyem0tMy0zdjRIOFY0aDF2MWgxVjRIOVYzSDhWMmgzeiIvPjxwYXRoIGZpbGw9IiM3NUJFRkYiIGQ9Ik0xLjk3OSAzLjVMMiA2IDEgNXYxLjVMMi41IDggNCA2LjVWNUwzIDZsLS4wMjEtMi41YzAtLjI3NS4yMjUtLjUuNS0uNUg3VjJIMy40NzljLS44MjggMC0xLjUuNjczLTEuNSAxLjV6Ii8+PC9zdmc+");
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.light .ace_replacebtn.single {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PGcgZmlsbD0iIzQyNDI0MiI+PHBhdGggZD0iTTExIDNWMWgtMXY2aDRWM2gtM3ptMiAzaC0yVjRoMnYyek0yIDE1aDdWOUgydjZ6bTItNWgzdjFINXYyaDJ2MUg0di00eiIvPjwvZz48cGF0aCBmaWxsPSIjMDA1MzlDIiBkPSJNMy45NzkgMy41TDQgNiAzIDV2MS41TDQuNSA4IDYgNi41VjVMNSA2bC0uMDIxLTIuNWMwLS4yNzUuMjI1LS41LjUtLjVIOVYySDUuNDc5Yy0uODI4IDAtMS41LjY3My0xLjUgMS41eiIvPjwvc3ZnPg==");
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.light .ace_replacebtn.all {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZmlsbD0iIzQyNDI0MiIgZD0iTTExIDE1VjlIMXY2aDEwem0tOS0xdi0yaDF2LTFIMnYtMWgzdjRIMnptOC0zSDh2MmgydjFIN3YtNGgzdjF6bS03IDJ2LTFoMXYxSDN6bTEwLTZ2NmgtMVY4SDVWN2g4em0wLTVWMWgtMXY1aDNWMmgtMnptMSAzaC0xVjNoMXYyem0tMy0zdjRIOFY0aDF2MWgxVjRIOVYzSDhWMmgzeiIvPjxwYXRoIGZpbGw9IiMwMDUzOUMiIGQ9Ik0xLjk3OSAzLjVMMiA2IDEgNXYxLjVMMi41IDggNCA2LjVWNUwzIDZsLS4wMjEtMi41YzAtLjI3NS4yMjUtLjUuNS0uNUg3VjJIMy40NzljLS44MjggMC0xLjUuNjczLTEuNSAxLjV6Ii8+PC9zdmc+");
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.ace_replacebtn:hover {
+    border-radius: 3px;
+    background-color: #7f7f7f30;
+    transition: 0.3s;
+    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.3);
+}
+
+.ace_replacebtn:active {
+    transition: 0.2s;
+    color: white;
+}
+
+
+.ace_button {
+    border-radius: 2px;
+    margin: 0 2px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    opacity: 0.7;
+    font-size: 16px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    line-height: 20px;
+    color: #d4d4d4;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+.ace_button:hover {
+    opacity: 1;
+    color: white;
+    transition: 0.3s;
+}
+
+.light .ace_button:hover {
+    color: #333;
+}
+
+.ace_button:active {
+    background-color: transparent;
+}
+
+.ace_button.checked {
+    background-color: #585858a6;
+    opacity: 1;
+    color: white;
+}
+
+
+
+
