@@ -490,6 +490,23 @@ diff页面
     padding: 3px 1px;
 }
 
+.ace_replacebtn.btn-disabled:hover, .ace_search.button .btn-disabled:hover {
+    background-color: transparent !important;
+    box-shadow: none;
+}
+
+.ace_search.button .btn-disabled i {
+    color: #504e4e;
+}
+
+.ace_replacebtn.btn-disabled {
+    opacity: .3;
+}
+
+.light .ace_search.button .btn-disabled i {
+    color: #afacac;
+}
+
 .ace_search.button .ace_searchbtn_prev, .ace_search.button .ace_searchbtn_next, .ace_search.button .ace_searchbtn_close, .ace_search.replace .ace_replacebtn {
     background-color: transparent;
     background-repeat: no-repeat;

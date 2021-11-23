@@ -54,12 +54,19 @@
             self.replaceBox = el.querySelector('.ace_replace_form');
             self.searchOptions = el.querySelector('.ace_search_options');
 
+            self.searchPrevBtn = el.querySelector('.ace_searchbtn_prev');
+            self.searchNextBtn = el.querySelector('.ace_searchbtn_next');
+            self.searchReplaceBtn = el.querySelector('.ace_replacebtn.single');
+            self.searchReplaceAllBtn = el.querySelector('.ace_replacebtn.all');
+
             self.regExpOption = el.querySelector('[action=toggleRegexpMode]');
             self.caseSensitiveOption = el.querySelector('[action=toggleCaseSensitive]');
             self.wholeWordOption = el.querySelector('[action=toggleWholeWords]');
 
             self.searchInput = self.searchBox.querySelector('.ace_search_field');
             self.replaceInput = self.replaceBox.querySelector('.ace_search_field');
+
+            self.btnDisabledClass = "btn-disabled"
         }
 
         function init() {
@@ -79,15 +86,28 @@
             el.addEventListener('click', function (e) {
                 var t = e.target || e.srcElement;
                 var action = t.getAttribute('action');
-                if (action && self[action])
-                    self[action]();
-                else if (self.commands[action])
-                    self.commands[action]();
-
+                if(action && (t.classList.contains(self.btnDisabledClass) || t.parentNode &&t.parentNode.classList.contains(self.btnDisabledClass))){
+                    if (self[action])
+                        self[action]();
+                    else if (self.commands[action])
+                        self.commands[action]();
+                }
                 e.stopPropagation();
             });
 
             self.searchInput.addEventListener('input', function () {
+                let searchVal = self.searchInput.value;
+                if(searchVal && searchVal !== ""){
+                    setCssClass(self.searchNextBtn,self.btnDisabledClass ,false)
+                    setCssClass(self.searchPrevBtn,self.btnDisabledClass  ,false)
+                    setCssClass(self.searchReplaceBtn,self.btnDisabledClass  ,false)
+                    setCssClass(self.searchReplaceAllBtn,self.btnDisabledClass  ,false)
+                }else {
+                    setCssClass(self.searchNextBtn,self.btnDisabledClass ,true)
+                    setCssClass(self.searchPrevBtn,self.btnDisabledClass  ,true)
+                    setCssClass(self.searchReplaceBtn,self.btnDisabledClass  ,true)
+                    setCssClass(self.searchReplaceAllBtn,self.btnDisabledClass  ,true)
+                }
                 self.$onChange.schedule(20);
             });
 
@@ -292,7 +312,7 @@
 
         this.replaceAndFindNext = function () {
             if (!cm.getOption('readOnly')) {
-                cm.replaceSelection(this.replaceInput.value, 'start');
+                this.replace();
                 this.findNext();
             }
         };
@@ -358,16 +378,16 @@
                     '<span action="toggleRegexpMode" class="ace_button" title="使用正则表达式">.*</span>',
                     '</div>',
                     '<div class="ace_search button">',
-                    '<button type="button" action="findPrev" class="ace_searchbtn_prev" title="上一个匹配项"><i action="findPrev" class="fa fa-chevron-left" style="font-size:15px;"></i></button>',
-                    '<button type="button" action="findNext" class="ace_searchbtn_next" title="下一个匹配项"><i action="findNext" class="fa fa-chevron-right" style="font-size:15px;"></i></button>',
+                    '<button type="button" action="findPrev" class="ace_searchbtn_prev btn-disabled" title="上一个匹配项"><i action="findPrev" class="fa fa-chevron-left" style="font-size:15px;"></i></button>',
+                    '<button type="button" action="findNext" class="ace_searchbtn_next btn-disabled" title="下一个匹配项"><i action="findNext" class="fa fa-chevron-right" style="font-size:15px;"></i></button>',
                     '<button type="button" action="hide" class="ace_searchbtn_close" title="关闭"><i action="hide" class="fa fa-close" style="font-size:17px;"></i></button>',
                     '</div>',
                     '</div>',
                     '<div class="ace_replace_form">',
                     '<input class="ace_search_field" placeholder="替换" spellcheck="false"></input>',
                     '<div class="ace_search replace">',
-                    '<button type="button" action="replaceAndFindNext" class="ace_replacebtn single" title="单处替换">⠀</button>',
-                    '<button type="button" action="replaceAll" class="ace_replacebtn all" title="全部替换">⠀</button>',
+                    '<button type="button" action="replaceAndFindNext" class="ace_replacebtn single btn-disabled" title="单处替换">⠀</button>',
+                    '<button type="button" action="replaceAll" class="ace_replacebtn all btn-disabled" title="全部替换">⠀</button>',
                     '</div>',
                     '</div>',
                     '</div>',
