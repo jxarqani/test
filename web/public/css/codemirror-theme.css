@@ -312,14 +312,14 @@ diff页面
 }
 
 .cm-s-twilight .CodeMirror-line::selection,
-.cm-s-twilight .CodeMirror-line > span::selection,
-.cm-s-twilight .CodeMirror-line > span > span::selection {
+.cm-s-twilight .CodeMirror-line>span::selection,
+.cm-s-twilight .CodeMirror-line>span>span::selection {
     background: rgba(50, 50, 50, 0.99);
 }
 
 .cm-s-twilight .CodeMirror-line::-moz-selection,
-.cm-s-twilight .CodeMirror-line > span::-moz-selection,
-.cm-s-twilight .CodeMirror-line > span > span::-moz-selection {
+.cm-s-twilight .CodeMirror-line>span::-moz-selection,
+.cm-s-twilight .CodeMirror-line>span>span::-moz-selection {
     background: rgba(50, 50, 50, 0.99);
 }
 
@@ -441,8 +441,7 @@ diff页面
     border-right: 30px solid transparent !important;
 }
 
-.cm-s-panda-syntax .CodeMirror pre {
-}
+.cm-s-panda-syntax .CodeMirror pre {}
 
 
 /*查找替换*/
@@ -479,7 +478,12 @@ diff页面
     box-shadow: 0 2px 8px #000000;
 }
 
-.ace_search.button, .ace_search.replace {
+.light .ace_search.right {
+    box-shadow: 0 2px 8px #ffffff;
+}
+
+.ace_search.button,
+.ace_search.replace {
     border-radius: 3px 3px 3px 3px;
     border-right: 0 none;
     right: 0;
@@ -490,7 +494,8 @@ diff页面
     padding: 3px 1px;
 }
 
-.ace_replacebtn.btn-disabled:hover, .ace_search.button .btn-disabled:hover {
+.ace_replacebtn.btn-disabled:hover,
+.ace_search.button .btn-disabled:hover {
     background-color: transparent !important;
     box-shadow: none;
 }
@@ -507,7 +512,10 @@ diff页面
     color: #afacac;
 }
 
-.ace_search.button .ace_searchbtn_prev, .ace_search.button .ace_searchbtn_next, .ace_search.button .ace_searchbtn_close, .ace_search.replace .ace_replacebtn {
+.ace_search.button .ace_searchbtn_prev,
+.ace_search.button .ace_searchbtn_next,
+.ace_search.button .ace_searchbtn_close,
+.ace_search.replace .ace_replacebtn {
     background-color: transparent;
     background-repeat: no-repeat;
     border: 0 none;
@@ -522,17 +530,27 @@ diff页面
     line-height: 1;
 }
 
-.light .ace_button, .light .ace_search.button .ace_searchbtn_prev, .light .ace_search.button .ace_searchbtn_next, .light .ace_search.button .ace_searchbtn_close, .light .ace_search.replace .ace_replacebtn {
-    color: #000;
+.light .ace_button,
+.light .ace_search.button .ace_searchbtn_prev,
+.light .ace_search.button .ace_searchbtn_next,
+.light .ace_search.button .ace_searchbtn_close,
+.light .ace_search.replace .ace_replacebtn {
+    color: #656565;
 }
 
-.ace_search.button .ace_searchbtn_prev:hover, .ace_search.button .ace_searchbtn_next:hover, .ace_search.button .ace_searchbtn_close:hover, .ace_search.replace .ace_replacebtn:hover {
+.ace_search.button .ace_searchbtn_prev:hover,
+.ace_search.button .ace_searchbtn_next:hover,
+.ace_search.button .ace_searchbtn_close:hover,
+.ace_search.replace .ace_replacebtn:hover {
     border-radius: 3px;
-    background-color: #7f7f7f30;
+    background-color: #b9b9b9bf;
     transition: 0.2s;
 }
 
-.light .ace_search.button .ace_searchbtn_prev:hover, .light .ace_search.button .ace_searchbtn_next:hover, .light .ace_search.button .ace_searchbtn_close:hover, .light .ace_search.replace .ace_replacebtn:hover {
+.light .ace_search.button .ace_searchbtn_prev:hover,
+.light .ace_search.button .ace_searchbtn_next:hover,
+.light .ace_search.button .ace_searchbtn_close:hover,
+.light .ace_search.replace .ace_replacebtn:hover {
     background-color: #7f7f7f30;
 }
 
@@ -540,7 +558,8 @@ diff页面
     margin-top: 4px;
 }
 
-.ace_search_form, .ace_replace_form {
+.ace_search_form,
+.ace_replace_form {
     line-height: 1;
     height: 26px;
     display: flex;
@@ -575,8 +594,7 @@ diff页面
     background-color: rgb(60, 60, 60);
     text-align: left;
     margin: 0;
-    color: white;
-    border-radius: 3px;
+    color: rgb(231, 231, 231);
     margin-right: 2px;
 }
 
@@ -649,6 +667,10 @@ diff页面
     text-align: center;
 }
 
+.light .ace_button {
+    color: #585858;
+}
+
 .ace_button:hover {
     opacity: 1;
     color: white;
@@ -656,7 +678,7 @@ diff页面
 }
 
 .light .ace_button:hover {
-    color: #333;
+    color: black;
 }
 
 .ace_button:active {
@@ -669,6 +691,7 @@ diff页面
     color: white;
 }
 
-
-
-
+.light .ace_button.checked {
+    background-color: #7f7f7f30;
+    color: black;
+}
