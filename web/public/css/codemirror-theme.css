@@ -76,14 +76,26 @@
     opacity: 0.6;
 }
 
+.cm-s-panda-syntax .CodeMirror-activeline .CodeMirror-linenumber {
+    font-weight: 700;
+    color: #fff;
+    opacity: 1;
+}
+
 .cm-s-juejin .CodeMirror-gutters {
-    background: #ffffff;
+    background: #fff;
     border-right-color: transparent;
 }
 
 .cm-s-juejin .CodeMirror-linenumber {
     color: #292a2b;
     opacity: 0.6;
+}
+
+.cm-s-juejin .CodeMirror-activeline .CodeMirror-linenumber {
+    font-weight: 700;
+    color: #000;
+    opacity: 1;
 }
 
 
