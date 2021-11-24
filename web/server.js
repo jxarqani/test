@@ -1186,7 +1186,9 @@ function updateAccount(body, response) {
         })
     }
     saveNewConf("account.json", JSON.stringify(accounts, null, 2))
-    updateCookie(`pt_key=${ptKey};pt_pin=${ptPin};`, remarks, response);
+    if(ptKey && ptKey !== ''){
+        updateCookie(`pt_key=${ptKey};pt_pin=${ptPin};`, remarks, response);
+    }
     console.log(`ptPin：${ptPin} 更新完成`)
 
 }
