@@ -17,7 +17,7 @@
 }
 
 .cm-s-juejin {
-    background: #ffffff;
+    background: #fcfcfc;
     color: #000000;
     font-size: 14px;
     font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
@@ -26,7 +26,7 @@
 @media screen and (max-width: 640px) {
 
     .cm-s-juejin {
-        background: #ffffff;
+        background: #fcfcfc;
         color: #000000;
         font-size: 11px;
         font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
@@ -65,26 +65,22 @@
 }
 
 
-/*行号和边栏*/
+/*行号边栏*/
 .cm-s-panda-syntax .CodeMirror-gutters {
     background: #292A2B;
     border-right-color: transparent;
 }
 
+.cm-s-juejin .CodeMirror-gutters {
+    background: #fcfcfc;
+    border-right-color: transparent;
+}
+
+
+/*行号*/
 .cm-s-panda-syntax .CodeMirror-linenumber {
     color: #e6e6e6;
     opacity: 0.6;
-}
-
-.cm-s-panda-syntax .CodeMirror-activeline .CodeMirror-linenumber {
-    font-weight: 700;
-    color: #fff;
-    opacity: 1;
-}
-
-.cm-s-juejin .CodeMirror-gutters {
-    background: #fff;
-    border-right-color: transparent;
 }
 
 .cm-s-juejin .CodeMirror-linenumber {
@@ -92,9 +88,15 @@
     opacity: 0.6;
 }
 
+
+/*选中行行号*/
+.cm-s-panda-syntax .CodeMirror-activeline .CodeMirror-linenumber {
+    color: #ffffff;
+    opacity: 1;
+}
+
 .cm-s-juejin .CodeMirror-activeline .CodeMirror-linenumber {
-    font-weight: 700;
-    color: #000;
+    color: #000000;
     opacity: 1;
 }
 
@@ -276,6 +278,7 @@ diff页面
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-gap {
+    background: #fcfcfc;
     width: 30px;
 }
 
@@ -289,7 +292,7 @@ diff页面
 
 /* 对比工具差异处颜色 */
 .dark .CodeMirror-merge-gap {
-    background-color: #817f7f;
+    background-color: #292A2B;
 }
 
 .cm-s-juejin .CodeMirror-merge-r-chunk {

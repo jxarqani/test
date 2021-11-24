@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-24
+## Modified: 2021-11-25
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -574,17 +574,18 @@ function Process_Kill() {
     local ExitStatus=$?
     if [[ ${ExitStatus} == 0 ]]; then
         ## 列出进程到的相关进程
-        echo -e "\n检测到下列关于 ${FileName}\.${FileNameSuffix} 脚本的进程："
-        ps -axo pid,pcpu,pmem,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill"
+        echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileNameSuffix}${PLAIN} 脚本的进程："
+        echo -e "\n${BLUE}[进程号] [脚本名称]${PLAIN}"
+        ps -axo pid,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin"
         while true; do
             read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
             [ -z ${Input} ] && Input=Y
-            case $Input1 in
+            case $Input in
             [Yy] | [Yy][Ee][Ss])
                 break
                 ;;
             [Nn] | [Nn][Oo])
-                echo -e "\n$ERROR 中途退出！\n"
+                echo -e "\n$COMPLETE 已退出，没有进行任何操作\n"
                 exit
                 ;;
             esac
@@ -592,16 +593,15 @@ function Process_Kill() {
         done
 
         ## 杀死进程
-        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
-        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
 
         ## 验证
         ps -ef | grep -Ev "grep|pkill" | grep "\.${FileNameSuffix}\b" -wq
         if [ $? -eq 0 ]; then
+            ps -axo pid,command | less | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin"
             echo -e "\n$ERROR 进程终止失败，请尝试手动终止 kill -9 <pid>\n"
-            ps -axo pid,pcpu,pmem,command --sort -pmem | less | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill"
-            echo ''
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
