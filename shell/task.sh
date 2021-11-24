@@ -566,9 +566,11 @@ function Run_Concurrent() {
 ## 终止执行
 function Process_Kill() {
     local InputContent=$1
+    local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
     local Input
     ## 匹配脚本
     Find_Script ${InputContent}
+    local ProcessKeywords="${FileName}\.${FileNameSuffix}\b"
     ## 判定对应脚本是否存在相关进程
     ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileNameSuffix}\b" -wq
     local ExitStatus=$?
@@ -576,7 +578,7 @@ function Process_Kill() {
         ## 列出进程到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileNameSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程号] [脚本名称]${PLAIN}"
-        ps -axo pid,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin"
+        ps -axo pid,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "${ProcessShielding}"
         while true; do
             read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
             [ -z ${Input} ] && Input=Y
@@ -593,21 +595,20 @@ function Process_Kill() {
         done
 
         ## 杀死进程
-        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
-        kill -9 $(ps -ef | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
 
         ## 验证
         ps -ef | grep -Ev "grep|pkill" | grep "\.${FileNameSuffix}\b" -wq
         if [ $? -eq 0 ]; then
-            ps -axo pid,command | less | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "grep|pkill|/bin/bash /usr/local/bin"
+            ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
             echo -e "\n$ERROR 进程终止失败，请尝试手动终止 kill -9 <pid>\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
     else
-        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，请重新确认！"
-        Help && exit ## 终止退出
+        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！"
     fi
 }
 
@@ -1429,8 +1430,12 @@ function Process_Monitor() {
     MemoryAvailable=$(free -m | grep Mem | awk -F ' ' '{print$7}')
     MemoryUsage=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsed'/'$MemoryTotal')*100}')
     CPUUsage=$(busybox top -n 1 | grep CPU | head -1 | awk -F ' ' '{print$2}')
-    LogFilesSpace=$(du -sh $LogDir | awk -F ' ' '{print$1}')
-    echo -e "\n处理器占用：${YELLOW}${CPUUsage}${PLAIN}   内存占用：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   日志占用空间：${YELLOW}${LogFilesSpace}B${PLAIN}"
+    ConfigSpaceUsage=$(du -sm $ConfigDir | awk -F ' ' '{print$1}')
+    LogFilesSpaceUsage=$(du -sm $LogDir | awk -F ' ' '{print$1}')
+    ScriptsRepoSpaceUsage=$(du -sm $ScriptsDir | awk -F ' ' '{print$1}')
+    OwnReposSpaceUsage=$(du -sm $OwnDir | awk -F ' ' '{print$1}')
+    ReposSpaceUsage=$((${ScriptsRepoSpaceUsage} + ${OwnReposSpaceUsage}))
+    echo -e "\n❖  处理器占用：${YELLOW}${CPUUsage}${PLAIN}   内存占用：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   \n\n❖  配置文件占用空间：${YELLOW}${ConfigSpaceUsage}MB${PLAIN}    日志占用空间：${YELLOW}${LogFilesSpaceUsage}MB${PLAIN}    脚本占用空间：${YELLOW}${ReposSpaceUsage}MB${PLAIN}"
     ## 检测占用过高后释放内存
     if [[ $(echo ${MemoryUsage} | awk -F '.' '{print$1}') -gt "89" ]]; then
         sync >/dev/null 2>&1
