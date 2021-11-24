@@ -175,7 +175,8 @@ body>.ember-view {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-direction: column;
-    flex-direction: column
+    flex-direction: column;
+    height: 100vh;
 }
 
 .elk-side-nav .metismenu li {

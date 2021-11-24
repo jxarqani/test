@@ -1,17 +1,16 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-24
+## Modified: 2021-11-25
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 定义 Scripts 仓库
-ScriptsBranch="jd_scripts"
-ScriptsRepo="https://github.com/Aaron-lv/sync.git"
+ScriptsBranch=${ScriptsRepoBranch}
 if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
-    ScriptsUrl=${ScriptsRepo}
+    ScriptsUrl=${ScriptsRepoGitUrl}
 else
-    ScriptsUrl="${GithubProxy}${ScriptsRepo}"
+    ScriptsUrl="${GithubProxy}${ScriptsRepoGitUrl}"
 fi
 
 ## 创建日志文件夹

@@ -1,5 +1,5 @@
 .CodeMirror-minimap {
-    width: 10%;
+    width: 8%;
     position: absolute;
     top: 0;
     right: 0;
@@ -8,12 +8,16 @@
 }
 
 .CodeMirror-minimap:hover .CodeMirror-minimap__slider {
-    background: rgba(0, 0, 0, .15);
+    background: rgba(0, 0, 0, .2);
+}
+
+.light .CodeMirror-minimap:hover .CodeMirror-minimap__slider {
+    background: rgba(0, 0, 0, .1);
 }
 
 /*悬停阴影*/
 .CodeMirror-minimap__slider {
-    width: 95%;
+    width: calc((100% - 10px));
     height: 0px;
     position: absolute;
     top: 0;

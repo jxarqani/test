@@ -180,7 +180,7 @@ let MenuTools = {
             title: "快速执行",
             faIcon: "fa-play-circle",
             titleFaIcon: "fa-arrow-right",
-            subText: "一键执行相关命令和特定脚本",
+            subText: "执行相关命令或运行指定脚本",
             customClass: 'gb i',
             path: "/run"
         }, {

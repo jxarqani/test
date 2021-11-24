@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-24
+## Modified: 2021-11-25
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -85,6 +85,8 @@ ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|JDJR|validat
 
 ## URL
 GithubProxy="https://ghproxy.com/"
+ScriptsRepoBranch="jd_scripts"
+ScriptsRepoGitUrl="https://github.com/Aaron-lv/sync.git"
 BotRepoGitUrl="${GithubProxy}https://github.com/SuMaiKaDe/bot.git"
 SignsRepoGitUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
 
