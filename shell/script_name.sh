@@ -53,11 +53,14 @@ jd_getUp.ts)
 jd_ifanli.ts)
     ScriptName="京东饭粒"
     ;;
+jd_joy_new.ts)
+    ScriptName="宠汪汪三代目"
+    ;;
 jd_joy_park.ts)
     ScriptName="汪汪乐园"
     ;;
 jd_joy_reward.ts)
-    ScriptName="宠汪汪兑换二代目"
+    ScriptName="宠汪汪兑换三代目"
     ;;
 jd_jxgc.ts)
     ScriptName="京喜工厂"

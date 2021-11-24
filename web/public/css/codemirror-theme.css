@@ -479,7 +479,7 @@ diff页面
 }
 
 .light .ace_search.right {
-    box-shadow: 0 2px 8px #ffffff;
+    box-shadow: 0 2px 8px #adadad;
 }
 
 .ace_search.button,
@@ -519,7 +519,7 @@ diff页面
     background-color: transparent;
     background-repeat: no-repeat;
     border: 0 none;
-    color: #d4d4d4;
+    color: #c5c5c5;
     cursor: pointer;
     font: 20px/20px Arial;
     height: 20px;
@@ -543,7 +543,7 @@ diff页面
 .ace_search.button .ace_searchbtn_close:hover,
 .ace_search.replace .ace_replacebtn:hover {
     border-radius: 3px;
-    background-color: #b9b9b9bf;
+    background-color: #aaaaaa30;
     transition: 0.2s;
 }
 
@@ -552,6 +552,57 @@ diff页面
 .light .ace_search.button .ace_searchbtn_close:hover,
 .light .ace_search.replace .ace_replacebtn:hover {
     background-color: #7f7f7f30;
+}
+
+.ace_button {
+    border-radius: 2px;
+    margin: 0 2px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    opacity: 0.7;
+    font-size: 14px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    line-height: 20px;
+    color: #d4d4d4;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+.light .ace_button {
+    color: #585858;
+}
+
+.ace_button:hover {
+    opacity: 1;
+    color: white;
+    transition: 0.3s;
+}
+
+.light .ace_button:hover {
+    color: black;
+}
+
+.ace_button:active {
+    background-color: transparent;
+}
+
+.ace_button.checked {
+    background-color: #585858a6;
+    opacity: 1;
+    color: white;
+}
+
+.light .ace_button.checked {
+    background-color: #7f7f7f30;
+    color: black;
 }
 
 .ace_replace_form {
@@ -594,12 +645,12 @@ diff页面
     background-color: rgb(60, 60, 60);
     text-align: left;
     margin: 0;
-    color: rgb(231, 231, 231);
+    color: #d4d4d4;
     margin-right: 2px;
 }
 
 .light .ace_search_field {
-    background-color: rgb(255, 255, 255);
+    background-color: rgb(231 231 231);
     color: rgb(97, 97, 97);
 }
 
@@ -635,63 +686,10 @@ diff页面
 .ace_replacebtn:hover {
     border-radius: 3px;
     background-color: #7f7f7f30;
-    transition: 0.3s;
-    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.3);
-}
-
-.ace_replacebtn:active {
     transition: 0.2s;
-    color: white;
+    box-shadow: 0 0px 5px rgba(155, 155, 155, 0.3);
 }
 
-
-.ace_button {
-    border-radius: 2px;
-    margin: 0 2px;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    overflow: hidden;
-    opacity: 0.7;
-    font-size: 16px;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    line-height: 20px;
-    color: #d4d4d4;
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-}
-
-.light .ace_button {
-    color: #585858;
-}
-
-.ace_button:hover {
-    opacity: 1;
-    color: white;
-    transition: 0.3s;
-}
-
-.light .ace_button:hover {
-    color: black;
-}
-
-.ace_button:active {
-    background-color: transparent;
-}
-
-.ace_button.checked {
-    background-color: #585858a6;
-    opacity: 1;
-    color: white;
-}
-
-.light .ace_button.checked {
-    background-color: #7f7f7f30;
-    color: black;
+.light .ace_replacebtn:hover {
+    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.3);
 }
