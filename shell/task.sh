@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-22
+## Modified: 2021-11-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1430,7 +1430,7 @@ function Process_Monitor() {
     MemoryUsage=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsed'/'$MemoryTotal')*100}')
     CPUUsage=$(busybox top -n 1 | grep CPU | head -1 | awk -F ' ' '{print$2}')
     LogFilesSpace=$(du -sh $LogDir | awk -F ' ' '{print$1}')
-    echo -e "\nCPU：${YELLOW}${CPUUsage}${PLAIN}   Memory：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   日志文件大小：${YELLOW}${LogFilesSpace}B${PLAIN}"
+    echo -e "\n处理器占用：${YELLOW}${CPUUsage}${PLAIN}   内存占用：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   日志占用空间：${YELLOW}${LogFilesSpace}B${PLAIN}"
     ## 检测占用过高后释放内存
     if [[ $(echo ${MemoryUsage} | awk -F '.' '{print$1}') -gt "89" ]]; then
         sync >/dev/null 2>&1
@@ -1439,7 +1439,7 @@ function Process_Monitor() {
         MemoryAvailableNew=$(free -m | grep Mem | awk -F ' ' '{print$4}')
         MemoryUsageNew=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsedNew'/'$MemoryTotal')*100}')
         echo -e "\n$WORKING 检测到内存占用过高，开始尝试释放内存..."
-        echo -e "${BLUE}[释放后]${PLAIN}  Memory：${YELLOW}${MemoryUsageNew}${PLAIN}   可用内存：${YELLOW}${MemoryAvailableNew}MB${PLAIN}   日志文件大小：${YELLOW}${LogFilesSpace}B${PLAIN}"
+        echo -e "${BLUE}[释放后]${PLAIN}  内存占用：${YELLOW}${MemoryUsageNew}${PLAIN}   可用内存：${YELLOW}${MemoryAvailableNew}MB${PLAIN}"
     fi
     ## 列出进程
     echo -e "\n${BLUE}[运行时长]  [CPU]    [内存]    [脚本名称]${PLAIN}"

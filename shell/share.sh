@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-11-24
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -318,9 +318,9 @@ function Help() {
 
  ❋ 可选参数注释（加在末尾）： 
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码降低脚本执行前耗时
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     *)
@@ -354,9 +354,9 @@ function Help() {
 
  ❋ 可选参数注释（加在末尾）： 
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码降低脚本执行前耗时
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 "," 隔开，支持账号区间，用 "-" 连接
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     esac
