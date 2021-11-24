@@ -86,7 +86,7 @@
             el.addEventListener('click', function (e) {
                 var t = e.target || e.srcElement;
                 var action = t.getAttribute('action');
-                if(action && (t.classList.contains(self.btnDisabledClass) || t.parentNode &&t.parentNode.classList.contains(self.btnDisabledClass))){
+                if(action && (!t.classList.contains(self.btnDisabledClass) ||( t.parentNode && !t.parentNode.classList.contains(self.btnDisabledClass)))){
                     if (self[action])
                         self[action]();
                     else if (self.commands[action])
