@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-25
+## Modified: 2021-11-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -511,7 +511,7 @@ function Update_Own() {
         EnableRepoUpdate="true"
         EnableRawUpdate="false"
         if [[ $OwnRepoSum -eq 0 ]]; then
-            Fix_Crontab
+            Handle_Crontab
             Notice
             exit
         fi
@@ -616,22 +616,22 @@ function ExtraShell() {
 
 ## 更新指定路径下的仓库
 function Update_Designated() {
-    local input=${1%*/}
+    local InputContent=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
-    echo $input | grep $RootDir -q
+    echo ${InputContent} | grep $RootDir -q
     if [ $? -eq 0 ]; then
-        AbsolutePath=$input
+        AbsolutePath=${InputContent}
     else
-        echo $input | grep "\.\./" -q
+        echo ${InputContent} | grep "\.\./" -q
         if [ $? -eq 0 ]; then
             PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
-            AbsolutePath=$(echo "$input" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
+            AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
             if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
             else
-                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
             fi
         fi
     fi
@@ -661,12 +661,12 @@ function Update_Designated() {
     fi
 }
 
-## 修复crontab
-function Fix_Crontab() {
-    if [[ $WORK_DIR ]]; then
-        perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
-        Update_Crontab
-    fi
+## 处理 Crontab
+function Handle_Crontab() {
+    ## 规范 crontab.list 中的命令
+    perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
+    ## 同步定时清单
+    Synchronize_Crontab
 }
 
 function Title() {
@@ -708,17 +708,17 @@ function Title() {
     echo -e ''
 }
 function Notice() {
-    echo -e "+----------------------- 郑 重 提 醒 -----------------------+"
-    echo -e ""
-    echo -e "  本项目为非营利性的公益闭源项目，脚本免费使用仅供用于学习！"
-    echo -e ""
-    echo -e "  圈内资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！"
-    echo -e ""
-    echo -e "  我们始终致力于打击使用本项目进行违法贩卖行为的个人或组织！"
-    echo -e ""
-    echo -e "  我们不会放纵某些行为，不保证不采取非常手段，请勿挑战底线！"
-    echo -e ""
-    echo -e "+-----------------------------------------------------------+\n"
+    echo -e "+----------------------- 郑 重 提 醒 -----------------------+
+
+  本项目为非营利性的公益闭源项目，脚本免费使用仅供用于学习！
+
+  圈内资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！
+
+  我们始终致力于打击使用本项目进行违法贩卖行为的个人或组织！
+
+  我们不会放纵某些行为，不保证不采取非常手段，请勿挑战底线！
+
++-----------------------------------------------------------+\n"
 }
 
 ## 组合函数
@@ -730,7 +730,7 @@ function Combin_Function() {
         Update_Scripts
         Update_Own "all"
         ExtraShell
-        Fix_Crontab
+        Handle_Crontab
         Notice
         exit
         ;;
@@ -783,7 +783,7 @@ function Combin_Function() {
             fi
             ;;
         esac
-        Fix_Crontab
+        Handle_Crontab
         Notice
         exit
         ;;

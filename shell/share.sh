@@ -62,7 +62,7 @@ ListOwnRawDrop=$LogTmpDir/own_raw_drop.list
 ListOwnAll=$LogTmpDir/own_all.list
 
 ## 字符串
-Arch=$(uname -m)
+ARCH=$(uname -m)
 TaskCmd="task"
 ContrlCmd="taskctl"
 UpdateCmd="update"
@@ -166,16 +166,16 @@ function Import_Config() {
         . $FileConfUser
         if [ -z "${Cookie1}" ]; then
             echo -e "\n$ERROR 请先在 $FileConfUser 配置文件中配置好 Cookie ！\n"
-            exit 1
+            exit
         fi
     else
         echo -e "\n$ERROR 配置文件 $FileConfUser 不存在，请检查是否移动过该文件！\n"
-        exit 1
+        exit
     fi
 }
 function Import_Config_Not_Check() {
     if [ -f $FileConfUser ]; then
-        . $FileConfUser
+        . $FileConfUser >/dev/null 2>&1
     fi
 }
 
@@ -264,7 +264,7 @@ function Make_Dir() {
 }
 
 ## 同步定时清单
-function Update_Crontab() {
+function Synchronize_Crontab() {
     if [[ $(cat $ListCrontabUser) != $(crontab -l) ]]; then
         crontab $ListCrontabUser
     fi
@@ -289,7 +289,7 @@ function Query_Name() {
 
 ## 命令帮助
 function Help() {
-    case $Arch in
+    case ${ARCH} in
     armv7l | armv6l)
         echo -e "
  ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
