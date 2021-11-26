@@ -773,7 +773,7 @@ function Cookies_Control() {
             local UserNum FormatPin CookieTmp LogFile
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(cat $FileAccountConf | jq '.[] | {pt_pin:.pt_pin,}' | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | sed '/^$/d')
+                $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | sed '/^$/d')
             )
 
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
@@ -914,7 +914,7 @@ function Cookies_Control() {
 
         ## 汇总
         if [ -f $FileUpdateCookie ]; then
-            if [[ $(cat $FileAccountConf | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | sed '/^$/d') ]]; then
+            if [[ $(jq '.[] | {ws_key:.ws_key,}' $FileAccountConf | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | sed '/^$/d') ]]; then
                 UpdateSign
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"

@@ -424,9 +424,10 @@ function Update_OwnRaw() {
 
 ## 更新项目源码
 function Update_Shell() {
+    local PanelDependOld PanelDependNew
     echo -e "-------------------------------------------------------------"
-    ## 更新前先存储package.json
-    [ -f $PanelDir/package.json ] && local PanelDependOld=$(cat $PanelDir/package.json)
+    ## 更新前先存储 package.json
+    [ -f $PanelDir/package.json ] && PanelDependOld=$(cat $PanelDir/package.json)
     ## 随机更新任务的定时
     Random_Update_Cron
     ## 更新仓库
@@ -441,7 +442,7 @@ function Update_Shell() {
         echo -e "\n$ERROR 源码更新失败，请检查原因...\n"
     fi
     ## 检测面板模块变动
-    [ -f $PanelDir/package.json ] && local PanelDependNew=$(cat $PanelDir/package.json)
+    [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)
     if [[ "$PanelDependOld" != "$PanelDependNew" ]]; then
         if [[ $ENABLE_WEB_PANEL = true ]]; then
             pm2 delete server >/dev/null 2>&1
@@ -456,9 +457,10 @@ function Update_Shell() {
 
 ## 更新 Scripts 仓库
 function Update_Scripts() {
+    local ScriptsDependOld ScriptsDependNew
     echo -e "-------------------------------------------------------------"
-    ## 更新前先存储package.json
-    [ -f $ScriptsDir/package.json ] && local ScriptsDependOld=$(cat $ScriptsDir/package.json)
+    ## 更新前先存储 package.json
+    [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
     ## 更新仓库
     if [ -d $ScriptsDir/.git ]; then
         Git_Pull $ScriptsDir $ScriptsBranch
@@ -468,7 +470,7 @@ function Update_Scripts() {
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
-        [ -f $ScriptsDir/package.json ] && local ScriptsDependNew=$(cat $ScriptsDir/package.json)
+        [ -f $ScriptsDir/package.json ] && ScriptsDependNew=$(cat $ScriptsDir/package.json)
         [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
         ## 检测定时清单
         if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
@@ -671,40 +673,40 @@ function Handle_Crontab() {
 
 function Title() {
     local p=$1
-    local Mod
+    local RunMod
     case $1 in
     all)
-        Mod="    全 部    "
+        RunMod="    全 部    "
         ;;
     shell)
-        Mod="    源 码    "
+        RunMod="    源 码    "
         ;;
     scripts)
-        Mod=" Scripts 仓库"
+        RunMod=" Scripts 仓库"
         ;;
     own)
-        Mod=" 仅 Own 仓库 "
+        RunMod=" 仅 Own 仓库 "
         ;;
     repo)
-        Mod=" 所 有 仓 库 "
+        RunMod=" 所 有 仓 库 "
         ;;
     raw)
-        Mod=" 仅 Raw 脚本 "
+        RunMod=" 仅 Raw 脚本 "
         ;;
     extra)
-        Mod="仅 Extra 脚本"
+        RunMod="仅 Extra 脚本"
         ;;
     specify)
-        Mod=" 指 定 仓 库 "
+        RunMod=" 指 定 仓 库 "
         ;;
     esac
     echo -e "\n+----------------- 开 始 执 行 更 新 脚 本 -----------------+"
     echo -e ''
-    echo -e "                系统时间：$(date "+%Y-%m-%d %T")"
+    echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
     echo -e ''
-    echo -e "         更新模式：$Mod     脚本根目录：$RootDir"
+    echo -e "         更新模式：${BLUE}${RunMod}${PLAIN}     脚本根目录：${BLUE}$RootDir${PLAIN}"
     echo -e ''
-    echo -e "    Scripts仓库目录：$ScriptsDir     Own仓库目录：$OwnDir"
+    echo -e "    Scripts仓库目录：${BLUE}$ScriptsDir${PLAIN}     Own仓库目录：${BLUE}$OwnDir${PLAIN}"
     echo -e ''
 }
 function Notice() {

@@ -217,7 +217,7 @@ function Panel_Control() {
             cp -f $FileAuthSample $FileAuth
         fi
         echo ''
-        cat $FileAuth | jq '.' | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[更新接口Token]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
+        jq '.' $FileAuth | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[更新接口Token]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
         echo -e '\n'
         ;;
     ## 重置密码
@@ -488,7 +488,7 @@ function Environment_Deployment() {
             npm install -g global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
             ;;
         *)
-            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev jq
+            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests
