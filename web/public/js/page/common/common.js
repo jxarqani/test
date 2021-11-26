@@ -480,7 +480,7 @@ let panelRequest = {
 
 // codeMirror指定当前滚动到视图中内容上方和下方要渲染的行数，pc端适当调大，便于文本搜索
 var viewportMargin = userAgentTools.mobile(navigator.userAgent) ? 10 : 1000;
-
+let minimapVal = !userAgentTools.mobile(navigator.userAgent) ? {scale: 2 }: false;
 // window.onresize = function(){
 //     window.location.reload();
 // }

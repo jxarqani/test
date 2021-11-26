@@ -1,6 +1,6 @@
 $(document).ready(function () {
     editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        minimap: !userAgentTools.mobile(navigator.userAgent),
+        minimap: minimapVal,
         lineNumbers: true,
         lineWrapping: true,
         styleActiveLine: true,

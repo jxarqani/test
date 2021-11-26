@@ -1,7 +1,7 @@
 var qrcode, userCookie, curPath;
 $(document).ready(function () {
     editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        minimap: !userAgentTools.mobile(navigator.userAgent),
+        minimap: minimapVal,
         lineNumbers: true,
         lineWrapping: true,
         styleActiveLine: true,
@@ -66,7 +66,7 @@ $(document).ready(function () {
             content: editor.getValue(),
             name: curPath
         }, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc);
+            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc,false);
         });
     });
 
