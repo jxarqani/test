@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-26
+## Modified: 2021-11-28
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -756,7 +756,7 @@ function Cookies_Control() {
                 ExitStatus=$?
             else
                 cd $SignDir
-                if [[ $(date "+%H") -eq "9" || $(date "+%H") -eq "21" ]] && [[ $(date "+%S") -eq "00" ]]; then
+                if [[ $(date "+%H") -eq "09" || $(date "+%H") -eq "21" ]] && [[ $(date "+%S") -eq "00" ]]; then
                     local Tmp=$((${RANDOM} % 10))
                     echo -en "\n检测到当前处于整点，已启用随机延迟，此任务将在 $Tmp 秒后开始执行..."
                     sleep $Tmp
