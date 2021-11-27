@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-26
+## Modified: 2021-11-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -151,24 +151,24 @@ function Gen_ListOwn() {
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | egrep ".js\b|.py\b|.ts\b" | egrep -v "jdCookie.js|USER_AGENTS.js|sendNotify.js" 2>/dev/null) ]]; then
-                for file in $(ls | egrep ".js\b|.py\b|.ts\b" | egrep -v "jdCookie.js|USER_AGENTS.js|sendNotify.js"); do
+            if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js" 2>/dev/null) ]]; then
+                for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js"); do
                     if [ -f $file ]; then
                         echo "$RawDir/$file" >>$ListOwnScripts
                     fi
                 done
             fi
         else
-            if [[ -z $OwnRepoCronShielding ]]; then
-                local Matching=$(ls *.js)
+            if [[ -z ${OwnRepoCronShielding} ]]; then
+                local Matching=$(ls *.js 2>/dev/null)
             else
-                local ShieldTmp=$(echo $OwnRepoCronShielding | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
-                local Matching=$(ls *.js | egrep -v ${ShieldTmp})
+                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
             fi
             if [[ $(ls *.js 2>/dev/null) ]]; then
                 ls | grep "\.js\b" -q
                 if [ $? -eq 0 ]; then
-                    for file in $Matching; do
+                    for file in ${Matching}; do
                         if [ -f $file ]; then
                             perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*\/?$file/" $file |
                                 perl -pe "s|.*(([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$file.*|${array_own_scripts_path[i]}/$file|g" |
@@ -187,7 +187,7 @@ function Gen_ListOwn() {
     [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
 
     if [[ $ExitStatus -eq 0 ]]; then
-        grep -E " $TaskCmd $OwnDir" $ListCrontabUser | egrep -v "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+        grep -E " $TaskCmd $OwnDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
         cat $ListCrontabOwnTmp >>$ListOwnUser
     else
         grep -E " $TaskCmd $OwnDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
@@ -388,7 +388,7 @@ function Update_OwnRaw() {
         ## 判断脚本来源仓库
         repository_url_tmp=$(echo ${OwnRawFile[i]} | perl -pe "{s|${raw_file_name[$i]}||g;}")
         format_url=$(echo $repository_url_tmp | awk -F '.com' '{print$NF}' | sed 's/.$//')
-        case $(echo $repository_url_tmp | egrep -o "github|gitee") in
+        case $(echo $repository_url_tmp | grep -Eo "github|gitee") in
         github)
             repository_platform="https://github.com"
             repository_branch=$(echo $format_url | awk -F '/' '{print$4}')
@@ -410,7 +410,7 @@ function Update_OwnRaw() {
             [ -f "$RawDir/${raw_file_name[$i]}.new" ] && rm -f "$RawDir/${raw_file_name[$i]}.new"
         fi
     done
-    for file in $(ls $RawDir | egrep -v "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
+    for file in $(ls $RawDir | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
         Rm_Mark="yes"
         for ((i = 0; i < ${#raw_file_name[*]}; i++)); do
             if [[ $file == ${raw_file_name[$i]} ]]; then
