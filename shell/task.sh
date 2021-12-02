@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-28
+## Modified: 2021-11-29
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -836,7 +836,7 @@ function Cookies_Control() {
                     done
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好您的 pt_pin ！\n"
@@ -905,7 +905,7 @@ function Cookies_Control() {
                     fi
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好该账号的 pt_pin ！\n"

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-26
+## Modified: 2021-12-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -137,7 +137,7 @@ function Panel_Control() {
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete server
                 Update_Shell
-                cd ${Name}anelDir
+                cd $PanelDir
                 npm install
                 pm2 start ecosystem.config.js && sleep 3
                 PM2_List_All_Services
@@ -150,7 +150,8 @@ function Panel_Control() {
                 ;;
             esac
         else
-            Update_Shell && cd ${Name}anelDir
+            Update_Shell
+            cd $PanelDir
             npm install
             pm2 start ecosystem.config.js && sleep 1
             PM2_List_All_Services
@@ -175,7 +176,8 @@ function Panel_Control() {
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete ttyd
-                Update_Shell && cd $RootDir
+                Update_Shell
+                cd $RootDir
                 Install_TTYD && sleep 3
                 PM2_List_All_Services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
@@ -187,7 +189,8 @@ function Panel_Control() {
                 ;;
             esac
         else
-            Update_Shell && cd $RootDir
+            Update_Shell
+            cd $RootDir
             Install_TTYD && sleep 1
             PM2_List_All_Services
             local ServiceStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')

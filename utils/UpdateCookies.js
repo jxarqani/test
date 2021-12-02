@@ -66,7 +66,7 @@ globalOptions.curEp = defaultEps[random(0, defaultEps.length - 1)];
 const globalConfig = {
     configShPath: "../config/config.sh",
     accountPath: "../config/account.json",
-    signPath: "../utils/.sign/",
+    signPath: "./.sign/",
 }
 const getUa = () => {
     return `okhttp/3.12.1;jdmall;android;version/${globalOptions.clientVersion};build/91077;screen/${globalOptions.screen.width}x${globalOptions.screen.height};os/${globalOptions.osVersion};network/wifi;`
