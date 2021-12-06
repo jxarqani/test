@@ -98,9 +98,9 @@ for author in $author_list; do
       if [ -z "${script_cron}" ]; then
         cron_min=$(rand 1 59)
         cron_hour=$(rand 1 23)
-        [ $(grep -c "$croname" $ListCrontabUser) -eq 0 ] && sed -i "/hang up/a${cron_min} ${cron_hour} * * * $TaskCmd $croname" $ListCrontabUser
+        [ $(grep -c " $TaskCmd $croname" $ListCrontabUser) -eq 0 ] && sed -i "/hang up/a${cron_min} ${cron_hour} * * * $TaskCmd $croname" $ListCrontabUser
       else
-        [ $(grep -c "$croname" $ListCrontabUser) -eq 0 ] && sed -i "/hang up/a${script_cron} $TaskCmd $croname" $ListCrontabUser
+        [ $(grep -c " $TaskCmd $croname" $ListCrontabUser) -eq 0 ] && sed -i "/hang up/a${script_cron} $TaskCmd $croname" $ListCrontabUser
       fi
     else
       [ -f scripts/$name.new ] && rm -f scripts/$name.new

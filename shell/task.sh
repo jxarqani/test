@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-29
+## Modified: 2021-12-06
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -711,7 +711,8 @@ function Cookies_Control() {
             echo -e "\n检测到本地共有 ${BLUE}$UserSum${PLAIN} 个账号，当前状态信息如下（${TRUE_ICON}为有效，${FALSE_ICON}为无效）："
             for ((m = 0; m < $UserSum; m++)); do
                 ## 查询上次更新时间
-                CookieUpdatedDate=$(grep "上次更新：" $FileConfUser | grep ${pt_pin[m]} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
@@ -720,13 +721,13 @@ function Cookies_Control() {
                     [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
                     if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
                         [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                        echo -e "账号$((m + 1))：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
+                        echo -e "账号$((m + 1))：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
                     fi
                 else
                     UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
                 fi
                 num=$((m + 1))
-                echo -e "$num：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${pt_pin[m]} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
+                echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${FormatPin} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
             done
         }
 
