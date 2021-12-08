@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-06
+## Modified: 2021-12-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -610,7 +610,7 @@ function Process_Kill() {
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
     else
-        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！"
+        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！\n"
     fi
 }
 
@@ -1625,6 +1625,9 @@ case $# in
         cleanup)
             Process_CleanUp $2
             ;;
+        *)
+            Output_Command_Error 1
+            ;;
         esac
         ;;
     pkill)
@@ -1652,7 +1655,7 @@ case $# in
         ;;
     *)
         case $1 in
-        list | exsc | rmlog | ps)
+        list | ps | exsc)
             Output_Command_Error 2
             ;;
         *)
@@ -1767,9 +1770,6 @@ case $# in
             Output_Command_Error 1
             ;;
         esac
-        ;;
-    pkill | check)
-        Output_Command_Error 1
         ;;
     *)
         case $1 in
