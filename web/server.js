@@ -70,10 +70,11 @@ const API_STATUS_CODE = {
         return this.ok('success', data)
     },
 
-    fail(msg = 'fail', code = 0) {
+    fail(msg = 'fail', code = 0, desc) {
         return {
             code: code,
             msg: msg,
+            desc: desc
         }
     },
     failData(msg = 'fail', data) {
@@ -93,7 +94,7 @@ const API_STATUS_CODE = {
         AUTH_FAIL: {
             code: 4403,
             msg: "认证失败!",
-            desc:"注意，新版本将'cookieApiToken'改名为'openApiToken',请及时重置修改密码重置此token"
+            desc: "注意，新版本将'cookieApiToken'改名为'openApiToken',请及时重置修改密码重置此token"
         }
     }
 }
@@ -271,7 +272,7 @@ function panelSendNotify(title, content) {
 }
 
 /**
- * 备份 config.sh 文件
+ * 备份 config.sh 文件 并返回旧的文件内容
  */
 function bakConfFile(file) {
     mkdirConfigBakDir();
@@ -316,17 +317,27 @@ function bakConfFile(file) {
         default:
             break;
     }
+    return oldConfContent;
 }
 
 /**
  * 将 post 提交内容写入 config.sh 文件（同时备份旧的 config.sh 文件到 bak 目录）
+ * @param file
  * @param content
  */
 function saveNewConf(file, content) {
-    bakConfFile(file);
+    let oldContent = bakConfFile(file);
     switch (file) {
         case 'config.sh':
             fs.writeFileSync(confFile, content);
+            try {
+                execSync("bash /jd/config/config.sh", {encoding: 'utf8'});
+            } catch (e) {
+                fs.writeFileSync(confFile, oldContent);
+                throw new Error(e);
+            }
+
+            //判断格式是否正确
             break;
         case 'crontab.list':
             fs.writeFileSync(crontabFile, content);
@@ -543,7 +554,7 @@ app.all('/*', function (req, res, next) {
             // 根目录
             next();
         } else if (arr.length >= 2) {
-             if (arr[1] === "openApi") {
+            if (arr[1] === "openApi") {
                 // openApi
                 let authFile = fs.readFileSync(authConfigFile, 'utf8');
                 let authFileJson = JSON.parse(authFile);
@@ -921,8 +932,13 @@ app.post('/api/changePwd', function (request, response) {
 app.post('/api/save', function (request, response) {
     let postContent = request.body.content;
     let postfile = request.body.name;
-    saveNewConf(postfile, postContent);
-    response.send(API_STATUS_CODE.ok("保存成功", {}, `将自动刷新页面查看修改后的 ${postfile} 文件<br>每次保存都会生成备份`));
+    try {
+        saveNewConf(postfile, postContent);
+        response.send(API_STATUS_CODE.ok("保存成功", {}, `将自动刷新页面查看修改后的 ${postfile} 文件<br>每次保存都会生成备份`));
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
+    }
+
 });
 
 
@@ -1186,7 +1202,7 @@ function updateAccount(body, response) {
         })
     }
     saveNewConf("account.json", JSON.stringify(accounts, null, 2))
-    if(ptKey && ptKey !== ''){
+    if (ptKey && ptKey !== '') {
         updateCookie(`pt_key=${ptKey};pt_pin=${ptPin};`, remarks, response);
     }
     console.log(`ptPin：${ptPin} 更新完成`)

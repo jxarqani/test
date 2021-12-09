@@ -384,7 +384,7 @@ let panelUtils = {
             reload && window.location.reload(true);
         })
     },
-    showError(title, text) {
+    showError(title, text, desc) {
         let options = {
             text: title,
             icon: 'error'
@@ -392,6 +392,10 @@ let panelUtils = {
         if (text) {
             options.text = text;
             options.title = title
+        }
+        if (desc) {
+            options.title = text
+            options['html'] = desc;
         }
         this.showAlert(options)
     },
