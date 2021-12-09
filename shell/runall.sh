@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-11-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -84,7 +84,7 @@ function Main() {
     local Input3 Input4 Input5 ScriptType Tmp1 Tmp2
     local RunFile=$RootDir/.runall_tmp.sh
     [ -f $RunFile ] && rm -rf $RunFile
-    case $Arch in
+    case ${ARCH} in
     armv7l | armv6l)
         ScriptType=".js\b"
         ;;

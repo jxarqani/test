@@ -1,12 +1,12 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-25
+## Modified: 2021-12-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 匹配脚本，通过各种判断将得到的必要信息传给接下来运行的函数或命令
-## 最终得到的信息："FileName" 脚本名称（去后缀）、"FileFormat" 脚本类型（后缀格式）、"WhichDir" 脚本所在目录（绝对路径）
+## 最终得到的信息："FileName" 脚本名称（去后缀）、"FileSuffix" 脚本后缀、"FileFormat" 脚本类型、"WhichDir" 脚本所在目录（绝对路径）
 ## 不论何种匹配方式或查找方式当未指定脚本类型但存在同名脚本时，执行优先级为 JavaScript > Python > TypeScript > Shell
 function Find_Script() {
     local InputContent=$1
@@ -40,9 +40,9 @@ function Find_Script() {
         echo ${FileNameTmp} | grep "\." -q
         if [ $? -eq 0 ]; then
             if [ -f ${AbsolutePath} ]; then
-                FileNameSuffix=${FileNameTmp##*.}
+                FileSuffix=${FileNameTmp##*.}
                 ## 判断并定义脚本类型
-                case ${FileNameSuffix} in
+                case ${FileSuffix} in
                 js)
                     FileFormat="JavaScript"
                     ;;
@@ -56,7 +56,7 @@ function Find_Script() {
                     FileFormat="Shell"
                     ;;
                 *)
-                    echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
+                    echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！"
                     Help && exit ## 终止退出
                     ;;
                 esac
@@ -101,11 +101,11 @@ function Find_Script() {
 
     ## 匹配 Scripts 目录下的脚本
     function MatchingScriptsFile() {
-        local FileNameTmp1 FileNameTmp2 FileNameTmp3 SeekDir
+        local FileNameTmp1 FileNameTmp2 FileNameTmp3 SeekDir SeekExtension
         ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/activity > /jd/scripts/utils > /jd/scripts/backUp
         SeekDir="$ScriptsDir $ScriptsDir/activity $ScriptsDir/utils $ScriptsDir/backUp"
         ## 定义后缀格式
-        SeekFileExtension="js py ts sh"
+        SeekExtension="js py ts sh"
 
         ## 判定传入是否含有后缀格式
         ## 如果存在后缀格式则为精确查找，否则为模糊查找，仅限关于脚本名称的定位目录除外
@@ -116,8 +116,8 @@ function Find_Script() {
         ## 精确查找
         if [ $? -eq 0 ]; then
             ## 判断并定义脚本类型
-            FileNameSuffix=${InputContent##*.}
-            case ${FileNameSuffix} in
+            FileSuffix=${InputContent##*.}
+            case ${FileSuffix} in
             js)
                 FileFormat="JavaScript"
                 ;;
@@ -131,7 +131,7 @@ function Find_Script() {
                 FileFormat="Shell"
                 ;;
             *)
-                echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
+                echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！"
                 Help && exit ## 终止退出
                 ;;
             esac
@@ -148,24 +148,24 @@ function Find_Script() {
             FileNameTmp2=$(echo ${FileNameTmp1} | perl -pe "{s|jd_||; s|^|jd_|}")
             FileNameTmp3=$(echo ${FileNameTmp1} | perl -pe "{s|jx_||; s|^|jx_|}")
             for dir in ${SeekDir}; do
-                for ext in ${SeekFileExtension}; do
+                for ext in ${SeekExtension}; do
                     ## 第一种名称类型
                     if [ -f ${dir}/${FileNameTmp1}\.${ext} ]; then
                         FileName=${FileNameTmp1}
                         WhichDir=${dir}
-                        FileNameSuffix=${ext}
+                        FileSuffix=${ext}
                         break 2
                     ## 第二种名称类型
                     elif [ -f ${dir}/${FileNameTmp2}\.${ext} ]; then
                         FileName=${FileNameTmp2}
                         WhichDir=${dir}
-                        FileNameSuffix=${ext}
+                        FileSuffix=${ext}
                         break 2
                     ## 第三种名称类型
                     elif [ -f ${dir}/${FileNameTmp3}\.${ext} ]; then
                         FileName=${FileNameTmp3}
                         WhichDir=${dir}
-                        FileNameSuffix=${ext}
+                        FileSuffix=${ext}
                         break 2
                     fi
                 done
@@ -173,7 +173,7 @@ function Find_Script() {
 
             ## 判断并定义脚本类型
             if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
-                case ${FileNameSuffix} in
+                case ${FileSuffix} in
                 js)
                     FileFormat="JavaScript"
                     ;;
@@ -205,10 +205,10 @@ function Find_Script() {
     function MatchingRemoteFile() {
         local DownloadJudge RepositoryJudge ProxyJudge RepositoryName InputContentFormat
         local FileNameTmp=${InputContent##*/}
-        FileNameSuffix=$(echo ${FileNameTmp} | awk -F "\." '{print$NF}')
 
         ## 判断并定义脚本类型
-        case ${FileNameSuffix} in
+        FileSuffix=${FileNameTmp##*.}
+        case ${FileSuffix} in
         js)
             FileFormat="JavaScript"
             ;;
@@ -222,11 +222,11 @@ function Find_Script() {
             FileFormat="Shell"
             ;;
         "")
-            echo -e "\n$ERROR 未能识别脚本类型，请检查后重新输入！"
+            echo -e "\n$ERROR 未能识别脚本类型，请检查链接是否正确！"
             Help && exit ## 终止退出
             ;;
         *)
-            echo -e "\n$ERROR 项目不支持运行 .${FileNameSuffix} 类型的脚本！"
+            echo -e "\n$ERROR 项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！"
             Help && exit ## 终止退出
             ;;
         esac
@@ -277,7 +277,7 @@ function Find_Script() {
         fi
 
         ## 拉取脚本
-        echo -en "\n$WORKING 正在从${RepositoryJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本... "
+        echo -en "\n$WORKING 正在从${RepositoryJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
         wget -q --no-check-certificate "${DownloadJudge}${InputContentFormat}" -O "$ScriptsDir/${FileNameTmp}.new" -T 8
         local ExitStatus=$?
         echo ''
@@ -342,7 +342,7 @@ function Find_Script() {
     fi
 
     ## 针对较旧的处理器架构进行一些处理
-    case $Arch in
+    case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
             echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！"
@@ -429,7 +429,8 @@ function Run_Normal() {
 
     ## 处理其它参数
     if [[ ${RUN_RAPID} != true ]]; then
-        Update_Crontab
+        ## 同步定时清单
+        Synchronize_Crontab
         Combin_ShareCodes
     fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
@@ -464,7 +465,7 @@ function Run_Normal() {
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
-        rm -rf "${WhichDir}/${FileName}.${FileNameSuffix}"
+        rm -rf "${WhichDir}/${FileName}.${FileSuffix}"
     fi
 }
 
@@ -510,7 +511,8 @@ function Run_Concurrent() {
 
     ## 处理其它参数
     if [[ ${RUN_RAPID} != true ]]; then
-        Update_Crontab
+        ## 同步定时清单
+        Synchronize_Crontab
         Combin_ShareCodes
     fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
@@ -559,7 +561,7 @@ function Run_Concurrent() {
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
-        rm -rf "${WhichDir}/${FileName}.${FileNameSuffix}"
+        rm -rf "${WhichDir}/${FileName}.${FileSuffix}"
     fi
 }
 
@@ -570,19 +572,19 @@ function Process_Kill() {
     local Input
     ## 匹配脚本
     Find_Script ${InputContent}
-    local ProcessKeywords="${FileName}\.${FileNameSuffix}\b"
+    local ProcessKeywords="${FileName}\.${FileSuffix}\b"
     ## 判定对应脚本是否存在相关进程
-    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileNameSuffix}\b" -wq
+    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}\b" -wq
     local ExitStatus=$?
     if [[ ${ExitStatus} == 0 ]]; then
         ## 列出进程到的相关进程
-        echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileNameSuffix}${PLAIN} 脚本的进程："
+        echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程号] [脚本名称]${PLAIN}"
-        ps -axo pid,command | grep -E "${FileName}\.${FileNameSuffix}\b" | grep -Ev "${ProcessShielding}"
+        ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
         while true; do
             read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
             [ -z ${Input} ] && Input=Y
-            case $Input in
+            case ${Input} in
             [Yy] | [Yy][Ee][Ss])
                 break
                 ;;
@@ -600,7 +602,7 @@ function Process_Kill() {
         kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
 
         ## 验证
-        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileNameSuffix}\b" -wq
+        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
         if [ $? -eq 0 ]; then
             ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
             echo -e "\n$ERROR 进程终止失败，请尝试手动终止 kill -9 <pid>\n"
@@ -608,7 +610,7 @@ function Process_Kill() {
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
     else
-        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！"
+        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！\n"
     fi
 }
 
@@ -709,7 +711,8 @@ function Cookies_Control() {
             echo -e "\n检测到本地共有 ${BLUE}$UserSum${PLAIN} 个账号，当前状态信息如下（${TRUE_ICON}为有效，${FALSE_ICON}为无效）："
             for ((m = 0; m < $UserSum; m++)); do
                 ## 查询上次更新时间
-                CookieUpdatedDate=$(grep "上次更新：" $FileConfUser | grep ${pt_pin[m]} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
@@ -718,13 +721,13 @@ function Cookies_Control() {
                     [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
                     if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
                         [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                        echo -e "账号$((m + 1))：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
+                        echo -e "账号$((m + 1))：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
                     fi
                 else
                     UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
                 fi
                 num=$((m + 1))
-                echo -e "$num：$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${pt_pin[m]} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
+                echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${FormatPin} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
             done
         }
 
@@ -754,7 +757,7 @@ function Cookies_Control() {
                 ExitStatus=$?
             else
                 cd $SignDir
-                if [[ $(date "+%H") -eq "9" || $(date "+%H") -eq "21" ]] && [[ $(date "+%S") -eq "00" ]]; then
+                if [[ $(date "+%-H") -eq 9 || $(date "+%-H") -eq 21 ]] && [[ $(date "+%-S") -eq 0 ]]; then
                     local Tmp=$((${RANDOM} % 10))
                     echo -en "\n检测到当前处于整点，已启用随机延迟，此任务将在 $Tmp 秒后开始执行..."
                     sleep $Tmp
@@ -771,7 +774,7 @@ function Cookies_Control() {
             local UserNum FormatPin CookieTmp LogFile
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(cat $FileAccountConf | jq '.[] | {pt_pin:.pt_pin,}' | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | sed '/^$/d')
+                $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | sed '/^$/d')
             )
 
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
@@ -834,7 +837,7 @@ function Cookies_Control() {
                     done
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好您的 pt_pin ！\n"
@@ -903,7 +906,7 @@ function Cookies_Control() {
                     fi
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好该账号的 pt_pin ！\n"
@@ -912,7 +915,7 @@ function Cookies_Control() {
 
         ## 汇总
         if [ -f $FileUpdateCookie ]; then
-            if [[ $(cat $FileAccountConf | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | sed '/^$/d') ]]; then
+            if [[ $(jq '.[] | {ws_key:.ws_key,}' $FileAccountConf | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | sed '/^$/d') ]]; then
                 UpdateSign
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
@@ -968,10 +971,11 @@ function Add_Raws() {
 
 ## 管理全局环境变量功能
 function Manage_Env() {
-    local Variable Value VariableTmp ValueTmp Remarks FullContent OldContent NewContent InputA InputB InputC Input1 Input2 Keys
+    local Variable Value Remarks FullContent Input1 Input2 Keys
+
     ## 控制变量启用与禁用
     function ControlEnv() {
-        local VariableTmp Mod
+        local VariableTmp Mod OldContent NewContent InputA InputB
         case $# in
         1)
             VariableTmp=$1
@@ -1074,6 +1078,7 @@ function Manage_Env() {
     ## 修改变量
     function ModifyValue() {
         local VariableTmp=$1
+        local OldContent NewContent Remarks InputA InputB InputC
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
         Remarks=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$NF}')
         case $# in
@@ -1273,7 +1278,7 @@ function Manage_Env() {
                 echo -e '2)   修改变量的值'
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}")" Input1
-                    case $Input1 in
+                    case ${Input1} in
                     1)
                         ControlEnv "${Variable}"
                         break
@@ -1456,7 +1461,7 @@ function Process_Monitor() {
 ## 列出本地脚本清单功能
 function List_Local_Scripts() {
     local ScriptType Tmp1 Tmp2
-    case $Arch in
+    case ${ARCH} in
     armv7l | armv6l)
         ScriptType="\.js\b"
         ;;
@@ -1537,7 +1542,7 @@ function List_Local_Scripts() {
         fi
     }
 
-    ## 列出非 Scripts 仓库的第三方脚本
+    ## 列出 scripts 目录下的第三方脚本
     function List_Other() {
         local Name
         cd $ScriptsDir
@@ -1555,7 +1560,7 @@ function List_Local_Scripts() {
 
     echo -e "#################################### 本  地  脚  本  清  单 ####################################"
     echo -e "自行导入的脚本不会随更新而自动删除，Python 和 TypeScript 类型的脚本只有在安装了相关环境后才会列出"
-    case $Arch in
+    case ${ARCH} in
     armv7l | armv6l) ;;
     *)
         echo -e "TypeScript 脚本如遇报错可使用 tsc 命令转换成 js 脚本后执行，转换命令格式：tsc <含有路径的脚本名>"
@@ -1620,6 +1625,9 @@ case $# in
         cleanup)
             Process_CleanUp $2
             ;;
+        *)
+            Output_Command_Error 1
+            ;;
         esac
         ;;
     pkill)
@@ -1647,7 +1655,7 @@ case $# in
         ;;
     *)
         case $1 in
-        list | exsc | rmlog | ps)
+        list | ps | exsc)
             Output_Command_Error 2
             ;;
         *)
@@ -1762,9 +1770,6 @@ case $# in
             Output_Command_Error 1
             ;;
         esac
-        ;;
-    pkill | check)
-        Output_Command_Error 1
         ;;
     *)
         case $1 in

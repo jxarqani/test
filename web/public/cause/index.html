@@ -77,7 +77,7 @@
 <li>在下方提到的命令中 <code>&lt;cmd&gt;</code> 表示固定的可选命令参数，每个参数表示对应功能的不同用法，注意看注释内容
 <h2 id="-">一、基础内容</h2>
 </li>
-<li><h3 id="-">执行脚本</h3>
+<li><h3 id="1-">1. 执行脚本</h3>
 <ul>
 <li><h4 id="-">普通执行</h4>
 <pre><code>task &lt;name/path/url&gt; now
@@ -118,7 +118,7 @@
 </li>
 </ul>
 </li>
-<li><h3 id="-">更新脚本</h3>
+<li><h3 id="2-">2. 更新脚本</h3>
 <ul>
 <li><h4 id="-">全部更新</h4>
 <pre><code>update  或  update all
@@ -126,7 +126,7 @@
 <li><h4 id="-">单独更新部分内容</h4>
 <pre><code>update &lt;cmd/path&gt;
 </code></pre><ul>
-<li><h5 id="-">固定可选参数：</h5>
+<li><h5 id="-">固定可选参数</h5>
 <blockquote>
 <p><code>shell</code>ㅤ项目源码，在未特别说明的情况下更新项目不需要重新部署新的容器<br>
 <code>scripts</code>ㅤScripts 仓库，项目预装的脚本库<br>
@@ -148,9 +148,12 @@
 </li>
 </ul>
 </li>
-<li><h3 id="3-">3. 查看本地有哪些可以运行的脚本</h3>
+<li><h3 id="3-">3. 列出脚本</h3>
 <pre><code>task list
-</code></pre></li>
+</code></pre><blockquote>
+<p>注：查看本地有哪些可以运行的脚本。</p>
+</blockquote>
+</li>
 <li><h3 id="4-">4. 查看命令帮助</h3>
 <pre><code>task 或 taskctl
 </code></pre><blockquote>
@@ -162,10 +165,10 @@
 <p>ㅤ</p>
 <h2 id="-">二、高阶内容</h2>
 <ul>
-<li><h3 id="1-">1. 终止运行中的脚本</h3>
+<li><h3 id="1-">1. 终止执行</h3>
 <pre><code>task &lt;name/path&gt; pkill
 </code></pre><blockquote>
-<p>注：根据脚本名称搜索对应的进程并立即杀死，当脚本报错死循环时可使用此功能。</p>
+<p>注：终止运行中的脚本，根据脚本名称搜索对应的进程并立即杀死，当脚本报错死循环时可使用此功能。</p>
 </blockquote>
 </li>
 </ul>
@@ -208,7 +211,7 @@
 <li><h4 id="-">固定可选参数</h4>
 <blockquote>
 <p><code>check</code>ㅤ检测账号是否有效 ，更新日期从配置文件中的备注获取，同时判断账号过期时间<br>
-<code>update</code>ㅤ使用 <code>WSKEY</code> 更新CK ，需要在 account.json 中正确配置您的信息，注意格式，ep为设备信息，可不填会随机项目一些内置的参数<br>
+<code>update</code>ㅤ使用 <code>WSKEY</code> 更新CK ，需要在 <code>account.json</code> 中正确配置您的信息，<code>ep</code> 为设备信息（非必填），若不填会从项目内置的参数中随机<br>
 <code>&lt;num&gt;</code>ㅤ支持指定账号进行更新，num为某 Cookie 账号在配置文件中的具体编号即可，与指定执行类似</p>
 </blockquote>
 </li>

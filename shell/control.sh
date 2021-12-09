@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-12-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -73,6 +73,7 @@ function Hang_Control() {
                 echo -e "\n$SUCCESS $ServiceName 启动成功\n"
             fi
         done
+        ## 删除 PM2 进程日志清单
         [ -f $FilePm2List ] && rm -rf $FilePm2List
         ;;
     ## 关闭服务
@@ -90,6 +91,7 @@ function Hang_Control() {
                 echo -e "\n$ERROR $ServiceName 不存在！\n"
             fi
         done
+        ## 删除 PM2 进程日志清单
         [ -f $FilePm2List ] && rm -rf $FilePm2List
         ;;
     ## 查看日志
@@ -100,8 +102,17 @@ function Hang_Control() {
     esac
 }
 
-## 控制面板和网页终端
+## 控制面板和网页终端功能
 function Panel_Control() {
+
+    ## 安装网页终端
+    function Install_TTYD() {
+        [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
+        ## 增加环境变量
+        export PS1="\u@\h:\w# "
+        pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t disableLeaveAlert=true -t rendererType=webgl bash
+    }
+
     local ServiceStatus
     PM2_List_All_Services
     cat $FilePm2List | awk -F '|' '{print$3}' | grep "server" -wq
@@ -139,7 +150,8 @@ function Panel_Control() {
                 ;;
             esac
         else
-            Update_Shell && cd $PanelDir
+            Update_Shell
+            cd $PanelDir
             npm install
             pm2 start ecosystem.config.js && sleep 1
             PM2_List_All_Services
@@ -164,7 +176,8 @@ function Panel_Control() {
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete ttyd
-                Update_Shell && cd $RootDir
+                Update_Shell
+                cd $RootDir
                 Install_TTYD && sleep 3
                 PM2_List_All_Services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
@@ -176,7 +189,8 @@ function Panel_Control() {
                 ;;
             esac
         else
-            Update_Shell && cd $RootDir
+            Update_Shell
+            cd $RootDir
             Install_TTYD && sleep 1
             PM2_List_All_Services
             local ServiceStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
@@ -206,7 +220,7 @@ function Panel_Control() {
             cp -f $FileAuthSample $FileAuth
         fi
         echo ''
-        cat $FileAuth | jq '.' | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[更新接口Token]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
+        jq '.' $FileAuth | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[更新接口Token]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
         echo -e '\n'
         ;;
     ## 重置密码
@@ -215,20 +229,64 @@ function Panel_Control() {
         echo -e "\n$COMPLETE 已重置控制面板的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： supermanito\n"
         ;;
     esac
+    ## 删除 PM2 进程日志清单
     [ -f $FilePm2List ] && rm -rf $FilePm2List
 }
 
-## 安装网页终端
-function Install_TTYD() {
-    [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
-    ## 增加环境变量
-    export PS1="\u@\h:\w# "
-    pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t disableLeaveAlert=true -t rendererType=webgl bash
-}
-
-## Telegram Bot
+## Telegram Bot 功能
 function Bot_Control() {
-    case $Arch in
+
+    ## 安装 Telegram Bot
+    function Install_Bot() {
+        ## 安装依赖
+        echo -e "\n$WORKING 开始安装依赖\n"
+        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
+        if [ $? -eq 0 ]; then
+            echo -e "\n$SUCCESS 依赖安装完成\n"
+        else
+            echo -e "\n$ERROR 依赖安装失败，请检查原因后重试！\n"
+        fi
+        ## 拉取组件
+        if [ -d $BotRepoDir/.git ]; then
+            cd $BotRepoDir
+            echo -e "$WORKING 开始更新仓库\n"
+            git remote set-url origin ${BotRepoGitUrl} >/dev/null
+            git reset --hard origin/main >/dev/null
+            git fetch --all
+            local ExitStatusBot=$?
+            git reset --hard origin/main
+            git pull
+        else
+            echo -e "$WORKING 开始克隆仓库...\n"
+            rm -rf $BotRepoDir
+            git clone -b main ${BotRepoGitUrl} $BotRepoDir
+            local ExitStatusBot=$?
+        fi
+        if [[ ${ExitStatusBot} -eq 0 ]]; then
+            echo -e "\n$SUCCESS 仓库更新完成\n"
+            sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
+        else
+            echo -e "\n$ERROR 仓库更新失败，请检查原因后重试！\n"
+        fi
+
+        if [ ! -s $ConfigDir/bot.json ]; then
+            cp -fv $SampleDir/bot.json $ConfigDir/bot.json
+        fi
+        ## 安装模块
+        echo -e "$WORKING 开始安装模块...\n"
+        cp -rf $BotRepoDir/jbot $RootDir
+        cd $RootDir/jbot
+        pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+        pip3 --default-timeout=100 install -r requirements.txt --no-cache-dir
+        pip3 install aiohttp
+        if [[ $? -eq 0 ]]; then
+            echo -e "\n$SUCCESS 模块安装完成\n"
+        else
+            echo -e "\n$ERROR 模块安装失败，请检查原因后重试！\n"
+        fi
+    }
+
+    case ${ARCH} in
     armv7l | armv6l)
         echo -e "\n$ERROR 宿主机的处理器架构不支持使用此功能，建议更换运行环境！"
         Help && exit ## 终止退出
@@ -315,6 +373,7 @@ function Bot_Control() {
                 fi
                 ;;
             esac
+            ## 删除 PM2 进程日志清单
             [ -f $FilePm2List ] && rm -rf $FilePm2List
         else
             echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Bot ！"
@@ -322,56 +381,6 @@ function Bot_Control() {
         fi
         ;;
     esac
-}
-
-## 安装 Telegram Bot
-function Install_Bot() {
-    ## 安装依赖
-    echo -e "\n$WORKING 开始安装依赖\n"
-    apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
-    if [ $? -eq 0 ]; then
-        echo -e "\n$SUCCESS 依赖安装完成\n"
-    else
-        echo -e "\n$ERROR 依赖安装失败，请检查原因后重试！\n"
-    fi
-    ## 拉取组件
-    if [ -d $BotRepoDir/.git ]; then
-        cd $BotRepoDir
-        echo -e "$WORKING 开始更新仓库\n"
-        git remote set-url origin ${BotRepoGitUrl} >/dev/null
-        git reset --hard origin/main >/dev/null
-        git fetch --all
-        local ExitStatusBot=$?
-        git reset --hard origin/main
-        git pull
-    else
-        echo -e "$WORKING 开始克隆仓库...\n"
-        rm -rf $BotRepoDir
-        git clone -b main ${BotRepoGitUrl} $BotRepoDir
-        local ExitStatusBot=$?
-    fi
-    if [[ ${ExitStatusBot} -eq 0 ]]; then
-        echo -e "\n$SUCCESS 仓库更新完成\n"
-        sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
-    else
-        echo -e "\n$ERROR 仓库更新失败，请检查原因后重试！\n"
-    fi
-
-    if [ ! -s $ConfigDir/bot.json ]; then
-        cp -fv $SampleDir/bot.json $ConfigDir/bot.json
-    fi
-    ## 安装模块
-    echo -e "$WORKING 开始安装模块...\n"
-    cp -rf $BotRepoDir/jbot $RootDir
-    cd $RootDir/jbot
-    pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-    pip3 --default-timeout=100 install -r requirements.txt --no-cache-dir
-    pip3 install aiohttp
-    if [[ $? -eq 0 ]]; then
-        echo -e "\n$SUCCESS 模块安装完成\n"
-    else
-        echo -e "\n$ERROR 模块安装失败，请检查原因后重试！\n"
-    fi
 }
 
 ## 检测项目配置文件完整性
@@ -409,7 +418,7 @@ function Server_Status() {
     echo ''
     PM2_List_All_Services
     Services="server ttyd jd_cfd_loop jbot"
-    for p in $Services; do
+    for Name in ${Services}; do
         ServiceName=''
         StatusJudge=''
         Status=''
@@ -417,9 +426,9 @@ function Server_Status() {
         CPUOccupancy=''
         MemoryOccupancy=''
         RunTime=''
-        cat $FilePm2List | awk -F '|' '{print$3}' | grep $p -wq
+        cat $FilePm2List | awk -F '|' '{print$3}' | grep ${Name} -wq
         if [ $? -eq 0 ]; then
-            StatusJudge=$(cat $FilePm2List | grep $p | awk -F '|' '{print $10}')
+            StatusJudge=$(cat $FilePm2List | grep ${Name} | awk -F '|' '{print $10}')
             case $StatusJudge in
             online)
                 Status=$SERVICE_ONLINE
@@ -431,10 +440,10 @@ function Server_Status() {
                 Status=$SERVICE_ERRORED
                 ;;
             esac
-            CreateTime="${BLUE}$(date --date "$(pm2 describe $p | grep "created at" | awk '{print $5}')")${PLAIN}"
-            CPUOccupancy="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $11}')${PLAIN}"
-            MemoryOccupancy="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $12}')${PLAIN}"
-            RunTime="${BLUE}$(cat $FilePm2List | grep $p | awk -F '|' '{print $8}')${PLAIN}"
+            CreateTime="${BLUE}$(date --date "$(pm2 describe ${Name} | grep "created at" | awk '{print $5}')")${PLAIN}"
+            CPUOccupancy="${BLUE}$(cat $FilePm2List | grep ${Name} | awk -F '|' '{print $11}')${PLAIN}"
+            MemoryOccupancy="${BLUE}$(cat $FilePm2List | grep ${Name} | awk -F '|' '{print $12}')${PLAIN}"
+            RunTime="${BLUE}$(cat $FilePm2List | grep ${Name} | awk -F '|' '{print $8}')${PLAIN}"
         else
             Status=$SERVICE_STOPPED
             CreateTime="${BLUE}          No Data           ${PLAIN}"
@@ -442,7 +451,7 @@ function Server_Status() {
             MemoryOccupancy="${BLUE}No Data${PLAIN}"
             RunTime="${BLUE}No Data${PLAIN}"
         fi
-        case $p in
+        case ${Name} in
         server)
             ServiceName="[控ㅤ制ㅤ面ㅤ板]"
             ;;
@@ -458,6 +467,7 @@ function Server_Status() {
         esac
         echo -e " $ServiceName：$Status       [创建时间]：$CreateTime       [资源占用]：$CPUOccupancy / $MemoryOccupancy / $RunTime"
     done
+    ## 删除 PM2 进程日志清单
     [ -f $FilePm2List ] && rm -rf $FilePm2List
     echo ''
 }
@@ -466,7 +476,7 @@ function Server_Status() {
 function Environment_Deployment() {
     case $1 in
     install)
-        case $Arch in
+        case ${ARCH} in
         armv7l | armv6l)
             echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
             ;;
@@ -476,12 +486,12 @@ function Environment_Deployment() {
         esac
         echo -e "${GREEN}Tips:${PLAIN} 忽略 ${YELLOW}[WARN]${PLAIN} 警告类输出内容，如有 ${RED}[ERR!]${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
         npm install -g npm npm-install-peers
-        case $Arch in
+        case ${ARCH} in
         armv7l | armv6l)
             npm install -g global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
             ;;
         *)
-            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev jq
+            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests

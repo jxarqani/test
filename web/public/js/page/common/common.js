@@ -459,7 +459,7 @@ let panelRequest = {
                 location.href = "/auth";
             })
         } else {
-            panelUtils.showError("请求出错", result.msg, result.desc)
+            panelUtils.showError("请求出错", result.msg)
             fail && fail(result);
         }
     },
@@ -484,7 +484,7 @@ let panelRequest = {
 
 // codeMirror指定当前滚动到视图中内容上方和下方要渲染的行数，pc端适当调大，便于文本搜索
 var viewportMargin = userAgentTools.mobile(navigator.userAgent) ? 10 : 1000;
-let minimapVal = !userAgentTools.mobile(navigator.userAgent) ? {scale: 2} : false;
+let minimapVal = !userAgentTools.mobile(navigator.userAgent) ? {scale: 5 }: false;
 // window.onresize = function(){
 //     window.location.reload();
 // }

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-25
+## Modified: 2021-11-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -151,24 +151,24 @@ function Gen_ListOwn() {
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | egrep ".js\b|.py\b|.ts\b" | egrep -v "jdCookie.js|USER_AGENTS.js|sendNotify.js" 2>/dev/null) ]]; then
-                for file in $(ls | egrep ".js\b|.py\b|.ts\b" | egrep -v "jdCookie.js|USER_AGENTS.js|sendNotify.js"); do
+            if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js" 2>/dev/null) ]]; then
+                for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js"); do
                     if [ -f $file ]; then
                         echo "$RawDir/$file" >>$ListOwnScripts
                     fi
                 done
             fi
         else
-            if [[ -z $OwnRepoCronShielding ]]; then
-                local Matching=$(ls *.js)
+            if [[ -z ${OwnRepoCronShielding} ]]; then
+                local Matching=$(ls *.js 2>/dev/null)
             else
-                local ShieldTmp=$(echo $OwnRepoCronShielding | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
-                local Matching=$(ls *.js | egrep -v ${ShieldTmp})
+                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
             fi
             if [[ $(ls *.js 2>/dev/null) ]]; then
                 ls | grep "\.js\b" -q
                 if [ $? -eq 0 ]; then
-                    for file in $Matching; do
+                    for file in ${Matching}; do
                         if [ -f $file ]; then
                             perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*\/?$file/" $file |
                                 perl -pe "s|.*(([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$file.*|${array_own_scripts_path[i]}/$file|g" |
@@ -187,7 +187,7 @@ function Gen_ListOwn() {
     [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
 
     if [[ $ExitStatus -eq 0 ]]; then
-        grep -E " $TaskCmd $OwnDir" $ListCrontabUser | egrep -v "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+        grep -E " $TaskCmd $OwnDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
         cat $ListCrontabOwnTmp >>$ListOwnUser
     else
         grep -E " $TaskCmd $OwnDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
@@ -388,7 +388,7 @@ function Update_OwnRaw() {
         ## 判断脚本来源仓库
         repository_url_tmp=$(echo ${OwnRawFile[i]} | perl -pe "{s|${raw_file_name[$i]}||g;}")
         format_url=$(echo $repository_url_tmp | awk -F '.com' '{print$NF}' | sed 's/.$//')
-        case $(echo $repository_url_tmp | egrep -o "github|gitee") in
+        case $(echo $repository_url_tmp | grep -Eo "github|gitee") in
         github)
             repository_platform="https://github.com"
             repository_branch=$(echo $format_url | awk -F '/' '{print$4}')
@@ -410,7 +410,7 @@ function Update_OwnRaw() {
             [ -f "$RawDir/${raw_file_name[$i]}.new" ] && rm -f "$RawDir/${raw_file_name[$i]}.new"
         fi
     done
-    for file in $(ls $RawDir | egrep -v "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
+    for file in $(ls $RawDir | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
         Rm_Mark="yes"
         for ((i = 0; i < ${#raw_file_name[*]}; i++)); do
             if [[ $file == ${raw_file_name[$i]} ]]; then
@@ -424,9 +424,10 @@ function Update_OwnRaw() {
 
 ## 更新项目源码
 function Update_Shell() {
+    local PanelDependOld PanelDependNew
     echo -e "-------------------------------------------------------------"
-    ## 更新前先存储package.json
-    [ -f $PanelDir/package.json ] && local PanelDependOld=$(cat $PanelDir/package.json)
+    ## 更新前先存储 package.json
+    [ -f $PanelDir/package.json ] && PanelDependOld=$(cat $PanelDir/package.json)
     ## 随机更新任务的定时
     Random_Update_Cron
     ## 更新仓库
@@ -441,7 +442,7 @@ function Update_Shell() {
         echo -e "\n$ERROR 源码更新失败，请检查原因...\n"
     fi
     ## 检测面板模块变动
-    [ -f $PanelDir/package.json ] && local PanelDependNew=$(cat $PanelDir/package.json)
+    [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)
     if [[ "$PanelDependOld" != "$PanelDependNew" ]]; then
         if [[ $ENABLE_WEB_PANEL = true ]]; then
             pm2 delete server >/dev/null 2>&1
@@ -456,9 +457,10 @@ function Update_Shell() {
 
 ## 更新 Scripts 仓库
 function Update_Scripts() {
+    local ScriptsDependOld ScriptsDependNew
     echo -e "-------------------------------------------------------------"
-    ## 更新前先存储package.json
-    [ -f $ScriptsDir/package.json ] && local ScriptsDependOld=$(cat $ScriptsDir/package.json)
+    ## 更新前先存储 package.json
+    [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
     ## 更新仓库
     if [ -d $ScriptsDir/.git ]; then
         Git_Pull $ScriptsDir $ScriptsBranch
@@ -468,7 +470,7 @@ function Update_Scripts() {
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
-        [ -f $ScriptsDir/package.json ] && local ScriptsDependNew=$(cat $ScriptsDir/package.json)
+        [ -f $ScriptsDir/package.json ] && ScriptsDependNew=$(cat $ScriptsDir/package.json)
         [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
         ## 检测定时清单
         if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
@@ -511,7 +513,7 @@ function Update_Own() {
         EnableRepoUpdate="true"
         EnableRawUpdate="false"
         if [[ $OwnRepoSum -eq 0 ]]; then
-            Fix_Crontab
+            Handle_Crontab
             Notice
             exit
         fi
@@ -616,22 +618,22 @@ function ExtraShell() {
 
 ## 更新指定路径下的仓库
 function Update_Designated() {
-    local input=${1%*/}
+    local InputContent=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
-    echo $input | grep $RootDir -q
+    echo ${InputContent} | grep $RootDir -q
     if [ $? -eq 0 ]; then
-        AbsolutePath=$input
+        AbsolutePath=${InputContent}
     else
-        echo $input | grep "\.\./" -q
+        echo ${InputContent} | grep "\.\./" -q
         if [ $? -eq 0 ]; then
             PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
-            AbsolutePath=$(echo "$input" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
+            AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
             if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
             else
-                AbsolutePath=$(echo "$input" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
             fi
         fi
     fi
@@ -661,64 +663,64 @@ function Update_Designated() {
     fi
 }
 
-## 修复crontab
-function Fix_Crontab() {
-    if [[ $WORK_DIR ]]; then
-        perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
-        Update_Crontab
-    fi
+## 处理 Crontab
+function Handle_Crontab() {
+    ## 规范 crontab.list 中的命令
+    perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
+    ## 同步定时清单
+    Synchronize_Crontab
 }
 
 function Title() {
     local p=$1
-    local Mod
+    local RunMod
     case $1 in
     all)
-        Mod="    全 部    "
+        RunMod="    全 部    "
         ;;
     shell)
-        Mod="    源 码    "
+        RunMod="    源 码    "
         ;;
     scripts)
-        Mod=" Scripts 仓库"
+        RunMod=" Scripts 仓库"
         ;;
     own)
-        Mod=" 仅 Own 仓库 "
+        RunMod=" 仅 Own 仓库 "
         ;;
     repo)
-        Mod=" 所 有 仓 库 "
+        RunMod=" 所 有 仓 库 "
         ;;
     raw)
-        Mod=" 仅 Raw 脚本 "
+        RunMod=" 仅 Raw 脚本 "
         ;;
     extra)
-        Mod="仅 Extra 脚本"
+        RunMod="仅 Extra 脚本"
         ;;
     specify)
-        Mod=" 指 定 仓 库 "
+        RunMod=" 指 定 仓 库 "
         ;;
     esac
     echo -e "\n+----------------- 开 始 执 行 更 新 脚 本 -----------------+"
     echo -e ''
-    echo -e "                系统时间：$(date "+%Y-%m-%d %T")"
+    echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
     echo -e ''
-    echo -e "         更新模式：$Mod     脚本根目录：$RootDir"
+    echo -e "         更新模式：${BLUE}${RunMod}${PLAIN}     脚本根目录：${BLUE}$RootDir${PLAIN}"
     echo -e ''
-    echo -e "    Scripts仓库目录：$ScriptsDir     Own仓库目录：$OwnDir"
+    echo -e "    Scripts仓库目录：${BLUE}$ScriptsDir${PLAIN}     Own仓库目录：${BLUE}$OwnDir${PLAIN}"
     echo -e ''
 }
 function Notice() {
-    echo -e "+----------------------- 郑 重 提 醒 -----------------------+"
-    echo -e ""
-    echo -e "  本项目为非营利性的公益闭源项目，脚本免费使用仅供用于学习！"
-    echo -e ""
-    echo -e "  圈内资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！"
-    echo -e ""
-    echo -e "  我们始终致力于打击使用本项目进行违法贩卖行为的个人或组织！"
-    echo -e ""
-    echo -e "  我们不会放纵某些行为，不保证不采取非常手段，请勿挑战底线！"
-    echo -e ""
-    echo -e "+-----------------------------------------------------------+\n"
+    echo -e "+----------------------- 郑 重 提 醒 -----------------------+
+
+  本项目为非营利性的公益闭源项目，脚本免费使用仅供用于学习！
+
+  圈内资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！
+
+  我们始终致力于打击使用本项目进行违法贩卖行为的个人或组织！
+
+  我们不会放纵某些行为，不保证不采取非常手段，请勿挑战底线！
+
++-----------------------------------------------------------+\n"
 }
 
 ## 组合函数
@@ -730,7 +732,7 @@ function Combin_Function() {
         Update_Scripts
         Update_Own "all"
         ExtraShell
-        Fix_Crontab
+        Handle_Crontab
         Notice
         exit
         ;;
@@ -783,7 +785,7 @@ function Combin_Function() {
             fi
             ;;
         esac
-        Fix_Crontab
+        Handle_Crontab
         Notice
         exit
         ;;

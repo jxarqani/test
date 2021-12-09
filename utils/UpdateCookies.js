@@ -66,7 +66,7 @@ globalOptions.curEp = defaultEps[random(0, defaultEps.length - 1)];
 const globalConfig = {
     configShPath: "../config/config.sh",
     accountPath: "../config/account.json",
-    signPath: "../utils/.sign/",
+    signPath: "./.sign/",
 }
 const getUa = () => {
     return `okhttp/3.12.1;jdmall;android;version/${globalOptions.clientVersion};build/91077;screen/${globalOptions.screen.width}x${globalOptions.screen.height};os/${globalOptions.osVersion};network/wifi;`
@@ -191,7 +191,7 @@ const updateCookies = async (pt_pin) => {
                         globalOptions.message += `${headerMsg} 生成的cookie已失效\n`;
                     }
                 } else {
-                    globalOptions.message += `${headerMsg} 更新失败,请检查ws_key是否正确}\n`;
+                    globalOptions.message += `${headerMsg} 更新失败，请检查ws_key是否有效，也有可能是IP黑了\n`;
                 }
             } else {
                 globalOptions.message += `${headerMsg} 未设置ws_key不更新\n`;
