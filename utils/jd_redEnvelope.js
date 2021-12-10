@@ -1,8 +1,10 @@
 /*
-京享红包
+暖暖红包
+默认使用作者提供的京粉链接，如需使用自己的请定义环境变量 export JX_CODE="你的code"
+变量一键添加： task env add JX_CODE <你的code>
 0 0,12,18,20 * * * jd_redEnvelope.js
 */
-const $ = new Env("京享红包");
+const $ = new Env("暖暖红包");
 const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 let cookiesArr = [];
 if ($.isNode()) {
@@ -15,7 +17,7 @@ if ($.isNode()) {
     cookiesArr = [$.getdata("CookieJD"), $.getdata("CookieJD2"), ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let cookie = "";
-$.code = "nw0sFmV";
+const code = $.isNode() ? process.env.JX_CODE ? process.env.JX_CODE : 'nw0sFmV' : $.getdata("JX_CODE") ? $.getdata("JX_CODE") : ''
 !(async () => {
     if (!cookiesArr[0]) {
         $.msg($.name, "【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取", "https://bean.m.jd.com/bean/signIndex.action", { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -211,7 +213,7 @@ async function getInfo2() {
 async function getInfo1(cookie) {
     return new Promise((resolve) => {
         const options = {
-            url: `https://u.jd.com/${$.code}`,
+            url: `https://u.jd.com/${code}`,
             followRedirect: false,
             headers: {
                 Cookie: cookie,
