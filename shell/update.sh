@@ -461,6 +461,9 @@ function Update_Scripts() {
     echo -e "-------------------------------------------------------------"
     ## 更新前先存储 package.json
     [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
+
+    [ -f $ScriptsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
+
     ## 更新仓库
     if [ -d $ScriptsDir/.git ]; then
         Git_Pull $ScriptsDir $ScriptsBranch
