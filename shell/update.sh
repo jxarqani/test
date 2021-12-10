@@ -461,15 +461,15 @@ function Update_Scripts() {
     echo -e "-------------------------------------------------------------"
     ## 更新前先存储 package.json
     [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
-
-    [ -f $ScriptsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
-
     ## 更新仓库
     if [ -d $ScriptsDir/.git ]; then
         Git_Pull $ScriptsDir $ScriptsBranch
     else
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
+
+    [ -f $ScriptsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
+
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
