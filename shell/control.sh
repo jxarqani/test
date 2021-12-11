@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-02
+## Modified: 2021-12-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -488,14 +488,14 @@ function Environment_Deployment() {
         npm install -g npm npm-install-peers
         case ${ARCH} in
         armv7l | armv6l)
-            npm install -g global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
+            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
             ;;
         *)
             apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests
-            npm install -g got tough-cookie global-agent date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
+            npm install -g got@11.8.3 date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
             ;;
         esac
         echo -e "\n$SUCCESS 安装完成\n"
