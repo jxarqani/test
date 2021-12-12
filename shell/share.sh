@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-26
+## Modified: 2021-12-12
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -292,7 +292,7 @@ function Help() {
     case ${ARCH} in
     armv7l | armv6l)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
@@ -319,15 +319,16 @@ function Help() {
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
  ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     *)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
@@ -355,10 +356,11 @@ function Help() {
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
  ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     esac

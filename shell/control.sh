@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-11
+## Modified: 2021-12-12
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -52,7 +52,7 @@ function Hang_Control() {
             esac
             if [ ! -f "$ScriptsDir/$ScriptFiles" ]; then
                 echo -e "\n$ERROR $ScriptFiles 脚本不存在！\n"
-                exit
+                exit ## 终止退出
             fi
             ## 删除原有
             pm2 stop $ServiceName >/dev/null 2>&1
@@ -288,8 +288,8 @@ function Bot_Control() {
 
     case ${ARCH} in
     armv7l | armv6l)
-        echo -e "\n$ERROR 宿主机的处理器架构不支持使用此功能，建议更换运行环境！"
-        Help && exit ## 终止退出
+        echo -e "\n$ERROR 宿主机的处理器架构不支持使用此功能，建议更换运行环境！\n"
+        exit ## 终止退出
         ;;
     *)
         if [[ -z $(grep -E "123456789" $ConfigDir/bot.json) ]]; then
@@ -376,8 +376,8 @@ function Bot_Control() {
             ## 删除 PM2 进程日志清单
             [ -f $FilePm2List ] && rm -rf $FilePm2List
         else
-            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Bot ！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Bot ！\n"
+            exit ## 终止退出
         fi
         ;;
     esac

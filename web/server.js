@@ -1,10 +1,3 @@
-/*
- * @Author: Jerrykuku https://github.com/jerrykuku
- * @Date: 2021-1-8
- * @Version: v0.0.2
- * @thanks: FanchangWang https://github.com/FanchangWang
- */
-
 var express = require('express');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);

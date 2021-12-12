@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-08
+## Modified: 2021-12-12
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -56,8 +56,8 @@ function Find_Script() {
                     FileFormat="Shell"
                     ;;
                 *)
-                    echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！"
-                    Help && exit ## 终止退出
+                    echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！\n"
+                    exit ## 终止退出
                     ;;
                 esac
                 FileName=${FileNameTmp%.*}
@@ -85,6 +85,7 @@ function Find_Script() {
 
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
+            ## 添加依赖文件
             [[ ${FileFormat} == "JavaScript" ]] && [[ ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
@@ -94,8 +95,8 @@ function Find_Script() {
             fi
             Make_Dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 ${AbsolutePath%/*} 目录未检测到 ${AbsolutePath##*/} 脚本的存在，请重新确认！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 在 ${BLUE}${AbsolutePath%/*}${PLAIN} 目录未检测到 ${BLUE}${AbsolutePath##*/}${PLAIN} 脚本的存在，请重新确认！\n"
+            exit ## 终止退出
         fi
     }
 
@@ -131,8 +132,8 @@ function Find_Script() {
                 FileFormat="Shell"
                 ;;
             *)
-                echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！"
-                Help && exit ## 终止退出
+                echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！\n"
+                exit ## 终止退出
                 ;;
             esac
             for dir in ${SeekDir}; do
@@ -192,12 +193,14 @@ function Find_Script() {
 
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
+            ## 添加依赖文件
+            [[ ${FileFormat} == "JavaScript" ]] && [[ ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 $ScriptsDir、$ScriptsDir/activity、$ScriptsDir/backUp、$ScriptsDir/utils 四个目录下均未检测到 ${InputContent} 脚本的存在，请重新确认！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 目录下的根目录以及 ${BLUE}./activity${PLAIN} ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 三个子目录范围内均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
+            exit ## 终止退出
         fi
     }
 
@@ -222,12 +225,12 @@ function Find_Script() {
             FileFormat="Shell"
             ;;
         "")
-            echo -e "\n$ERROR 未能识别脚本类型，请检查链接是否正确！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 未能识别脚本类型，请检查链接是否正确！\n"
+            exit ## 终止退出
             ;;
         *)
-            echo -e "\n$ERROR 项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！\n"
+            exit ## 终止退出
             ;;
         esac
 
@@ -248,7 +251,7 @@ function Find_Script() {
             ;;
         esac
 
-        ## 纠正链接地址（转换为对应托管仓库的raw原始文件链接地址）
+        ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
             if [[ ${RepositoryJudge} == " Github " ]]; then
@@ -311,12 +314,12 @@ function Find_Script() {
             RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
-            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查目标 URL 地址是否正确或网络连通性问题..."
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查目标 URL 地址是否正确或网络连通性问题...\n"
+            exit ## 终止退出
         fi
     }
 
-    ## 检测环境
+    ## 检测环境，添加依赖文件
     function Check_Moudules() {
         local CurrentDir=$(pwd)
         local WorkDir=$1
@@ -345,13 +348,13 @@ function Find_Script() {
     case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
-            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！\n"
+            exit ## 终止退出
         fi
         case ${FileFormat} in
         Python | TypeScript)
-            echo -e "\n$ERROR 宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！"
-            Help && exit ## 终止退出
+            echo -e "\n$ERROR 宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！\n"
+            exit ## 终止退出
             ;;
         esac
         ;;
@@ -367,6 +370,8 @@ function Random_Delay() {
             CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
             echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
             sleep ${CurDelay}
+        else
+            echo -e "\n$WORKING 检测到当前处于整点，为了适配定时任务随机延迟在此时间段内不会生效，开始执行任务...\n"
         fi
     fi
 }
@@ -376,8 +381,8 @@ function ExistenceJudgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
-        echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
-        Help && exit ## 终止退出
+        echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
+        exit ## 终止退出
     fi
 }
 
@@ -413,8 +418,9 @@ function Run_Normal() {
                         Combine_Account $i
                     done
                 else
-                    echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
+                    exit ## 终止退出
                 fi
             else
                 ExistenceJudgment $UserNum
@@ -439,29 +445,53 @@ function Run_Normal() {
     cd ${WhichDir}
     ## 定义日志文件
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
-    ## 记录执行开始时间
-    echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
     ## 执行脚本
-    case ${FileFormat} in
-    JavaScript)
-        if [[ ${EnableGlobalProxy} == true ]]; then
-            node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
-        else
-            node ${FileName}.js 2>&1 | tee -a ${LogFile}
-        fi
-        ;;
-    Python)
-        python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
-        ;;
-    TypeScript)
-        ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
-        ;;
-    Shell)
-        bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
-        ;;
-    esac
-    ## 记录执行结束时间
-    echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+    if [[ ${RUN_BACKGROUND} == true ]]; then
+        ## 记录执行开始时间
+        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
+        case ${FileFormat} in
+        JavaScript)
+            if [[ ${EnableGlobalProxy} == true ]]; then
+                node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
+            else
+                node ${FileName}.js 2>&1 &>>${LogFile} &
+            fi
+            ;;
+        Python)
+            python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+            ;;
+        TypeScript)
+            ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+            ;;
+        Shell)
+            bash ${FileName}.sh 2>&1 &>>${LogFile} &
+            ;;
+        esac
+        echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath}${PLAIN} 目录查看相关日志\n"
+    else
+        ## 记录执行开始时间
+        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
+        case ${FileFormat} in
+        JavaScript)
+            if [[ ${EnableGlobalProxy} == true ]]; then
+                node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
+            else
+                node ${FileName}.js 2>&1 | tee -a ${LogFile}
+            fi
+            ;;
+        Python)
+            python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
+            ;;
+        TypeScript)
+            ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
+            ;;
+        Shell)
+            bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
+            ;;
+        esac
+        ## 记录执行结束时间
+        echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+    fi
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
@@ -487,7 +517,7 @@ function Run_Concurrent() {
         ## 定义日志文件
         LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_${Num}.log"
         ## 记录执行开始时间
-        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，不记录结束时间\n" >>${LogFile}
+        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
         ## 执行脚本
         case ${FileFormat} in
         JavaScript)
@@ -531,8 +561,9 @@ function Run_Concurrent() {
                         ExistenceJudgment $i
                     done
                 else
-                    echo -e "\n$ERROR 检测到无效参数，${BLUE}${UserNum}${PLAIN} 不是有效的账号区间，请重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
+                    exit ## 终止退出
                 fi
             else
                 ExistenceJudgment $UserNum
@@ -557,7 +588,7 @@ function Run_Concurrent() {
             Main ${UserNum}
         done
     fi
-    echo -e "\n$COMPLETE 已在后台部署并发任务，如需查询脚本输出内容请直接查看 ${LogPath} 目录下的相关日志\n"
+    echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath}${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
@@ -590,7 +621,7 @@ function Process_Kill() {
                 ;;
             [Nn] | [Nn][Oo])
                 echo -e "\n$COMPLETE 已退出，没有进行任何操作\n"
-                exit
+                exit ## 终止退出
                 ;;
             esac
             echo -e "\n$ERROR 输入错误，请重新输入！\n"
@@ -605,12 +636,12 @@ function Process_Kill() {
         ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
         if [ $? -eq 0 ]; then
             ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
-            echo -e "\n$ERROR 进程终止失败，请尝试手动终止 kill -9 <pid>\n"
+            echo -e "\n$ERROR 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
     else
-        echo -e "\n$ERROR 未检测到与 ${FileName} 脚本相关的进程，可能此时没有正在运行，请确认！\n"
+        echo -e "\n$ERROR 未检测到与 ${BLUE}${FileName}${PLAIN} 脚本相关的进程，可能此时没有正在运行，请确认！\n"
     fi
 }
 
@@ -694,14 +725,25 @@ function Cookies_Control() {
             local InputContent=$1
             local ConnectionTest="$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)"
             local CookieValidityTest="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
-            if [ "$ConnectionTest" -eq "302" ]; then
-                if [[ "$CookieValidityTest" ]]; then
+            if [[ ${ConnectionTest} == 302 ]]; then
+                if [[ ${CookieValidityTest} ]]; then
                     echo -e "${GREEN}${TRUE_ICON}${PLAIN}"
                 else
                     echo -e "${RED}${FALSE_ICON}${PLAIN}"
                 fi
             else
-                echo -e "${RED}[ API 请求失败 ]${PLAIN}"
+                sleep 2
+                local ConnectionTestAgain="$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)"
+                local CookieValidityTestAgain="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
+                if [[ ${ConnectionTestAgain} == 302 ]]; then
+                    if [[ ${CookieValidityTestAgain} ]]; then
+                        echo -e "${GREEN}${TRUE_ICON}${PLAIN}"
+                    else
+                        echo -e "${RED}${FALSE_ICON}${PLAIN}"
+                    fi
+                else
+                    echo -e "${RED}[ API 请求失败 ]${PLAIN}"
+                fi
             fi
         }
 
@@ -726,6 +768,7 @@ function Cookies_Control() {
                 else
                     UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
                 fi
+                sleep 1 ## 降低频率减少出现因查询太快导致API请求失败的情况
                 num=$((m + 1))
                 echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${FormatPin} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
             done
@@ -736,7 +779,7 @@ function Cookies_Control() {
 
         ## 过期提醒推送通知
         if [ -f $FileSendMark ]; then
-            echo -e "\n检测到下面的账号将在近期失效，请注意即时更新！"
+            echo -e "\n${YELLOW}检测到下面的账号将在近期失效，请注意即时更新！${PLAIN}\n"
             cat $FileSendMark
             sed -i 's/$/&\\n/g' $FileSendMark
             Notify "账号过期提醒" "$(cat $FileSendMark)"
@@ -774,7 +817,7 @@ function Cookies_Control() {
             local UserNum FormatPin CookieTmp LogFile
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | sed '/^$/d')
+                $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | grep -v '^$')
             )
 
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
@@ -810,6 +853,7 @@ function Cookies_Control() {
                 if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
                     echo -e "\n$WORKING 更新后 Cookie 检测：\n"
                     for ((i = 1; i <= ${#pt_pin_array[@]}; i++)); do
+                        sleep 1 ## 降低频率减少出现因查询太快导致API请求失败的情况
                         UserNum=$((i - 1))
                         FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
                         EscapePin=$(printf $(echo ${pt_pin_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
@@ -915,7 +959,7 @@ function Cookies_Control() {
 
         ## 汇总
         if [ -f $FileUpdateCookie ]; then
-            if [[ $(jq '.[] | {ws_key:.ws_key,}' $FileAccountConf | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | sed '/^$/d') ]]; then
+            if [[ $(jq '.[] | {ws_key:.ws_key,}' $FileAccountConf | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
                 UpdateSign
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
@@ -986,7 +1030,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1
-            exit
+            exit ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1039,25 +1083,25 @@ function Manage_Env() {
                     ;;
                 disable)
                     echo -e "\n$ERROR 该变量已经禁用，无需任何操作！\n"
-                    exit
+                    exit ## 终止退出
                     ;;
                 *)
                     Output_Command_Error 1
-                    exit
+                    exit ## 终止退出
                     ;;
                 esac
             else
                 case ${Mod} in
                 enable)
                     echo -e "\n$ERROR 该变量已经启用，无需任何操作！\n"
-                    exit
+                    exit ## 终止退出
                     ;;
                 disable)
                     sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
                     ;;
                 *)
                     Output_Command_Error 1
-                    exit
+                    exit ## 终止退出
                     ;;
                 esac
             fi
@@ -1111,7 +1155,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1
-            exit
+            exit ## 终止退出
             ;;
         esac
 
@@ -1193,7 +1237,7 @@ function Manage_Env() {
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 echo -e "\n$ERROR 该变量已经存在，无需任何操作！\n"
-                exit
+                exit ## 终止退出
             else
                 FullContent="export ${Variable}=\"${Value}\""
                 sed -i "9 i ${FullContent}" $FileConfUser
@@ -1207,22 +1251,22 @@ function Manage_Env() {
     del)
         case $# in
         1)
-            read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Input1
-            VariableNums=$(grep -c ".*export ${Input1}=" $FileConfUser | head -n 1)
-            Variable=$(grep -n ".*export ${Input1}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行: |g;}')
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Variable
+            VariableNums=$(grep -c ".*export ${Variable}=" $FileConfUser | head -n 1)
+            local VariableTmp=$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行: |g;}')
             if [[ ${VariableNums} -ne "0" ]]; then
                 if [[ ${VariableNums} -gt "1" ]]; then
-                    echo -e "\n${BLUE}检测到多个环境变量：${PLAIN}\n${Variable}"
+                    echo -e "\n${BLUE}检测到多个环境变量：${PLAIN}\n${VariableTmp}"
                 elif [[ ${VariableNums} -eq "1" ]]; then
-                    echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${Variable}"
+                    echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${VariableTmp}"
                 fi
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}")" Input2
-                    [ -z ${Input2} ] && Input2=Y
-                    case ${Input2} in
+                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}")" Input1
+                    [ -z ${Input1} ] && Input1=Y
+                    case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
-                        FullContent="$(grep ".*export ${Input1}=" $FileConfUser)"
-                        sed -i "/export ${Input1}=/d" $FileConfUser
+                        FullContent="$(grep ".*export ${Variable}=" $FileConfUser)"
+                        sed -i "/export ${Variable}=/d" $FileConfUser
                         if [[ ${VariableNums} -gt "1" ]]; then
                             echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
                         elif [[ ${VariableNums} -eq "1" ]]; then
@@ -1241,7 +1285,7 @@ function Manage_Env() {
                     esac
                 done
             else
-                echo -e "\n$ERROR 未查询到相关环境变量！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
             ;;
         2)
@@ -1258,7 +1302,7 @@ function Manage_Env() {
                 fi
                 echo -e "\n$COMPLETE 已删除\n"
             else
-                echo -e "\n$ERROR 未查询到相关环境变量！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
 
             ;;
@@ -1291,7 +1335,7 @@ function Manage_Env() {
                     echo -e "\n$ERROR 输入错误！"
                 done
             else
-                echo -e "\n$ERROR 未查询到相关环境变量！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
             ;;
         3)
@@ -1315,7 +1359,7 @@ function Manage_Env() {
                     ;;
                 esac
             else
-                echo -e "\n$ERROR 未查询到相关环境变量！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
             ;;
         esac
@@ -1353,7 +1397,7 @@ function SendNotify() {
 ## 切换分支功能
 function SwitchBranch() {
     local CurrentBranch=$(git status | head -n 1 | awk -F ' ' '{print$NF}')
-    if [[ ${CurrentBranch} == "main" ]]; then
+    if [[ ${CurrentBranch} == "master" ]]; then
         echo ''
         git reset --hard
         git checkout dev
@@ -1573,7 +1617,7 @@ function List_Local_Scripts() {
     echo ''
 }
 
-## 判定命令
+## 判断传入命令
 case $# in
 0)
     Help
@@ -1673,13 +1717,17 @@ case $# in
     now)
         while [ $# -gt 2 ]; do
             case $3 in
+            -b | --background)
+                RUN_BACKGROUND="true"
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
@@ -1689,12 +1737,14 @@ case $# in
                 RUN_DELAY="true"
                 ;;
             -c | --cookie)
-                echo -e "\n$COMMAND_ERROR 请在参数 $4 后指定账号！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
+                exit ## 终止退出
                 ;;
             *)
-                echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                exit ## 终止退出
                 ;;
             esac
             shift
@@ -1705,13 +1755,19 @@ case $# in
     conc)
         while [ $# -gt 2 ]; do
             case $3 in
+            -b | --background)
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
+                exit ## 终止退出
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
@@ -1721,12 +1777,14 @@ case $# in
                 RUN_DELAY="true"
                 ;;
             -c | --cookie)
-                echo -e "\n$COMMAND_ERROR 请在参数 $4 后指定账号！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
+                exit ## 终止退出
                 ;;
             *)
-                echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                exit ## 终止退出
                 ;;
             esac
             shift
@@ -1791,13 +1849,17 @@ case $# in
     now)
         while [ $# -gt 2 ]; do
             case $3 in
+            -b | --background)
+                RUN_BACKGROUND="true"
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
@@ -1809,8 +1871,9 @@ case $# in
             -c | --cookie)
                 echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
-                    echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                    exit ## 终止退出
                 else
                     RUN_DESIGNATED="true"
                     DESIGNATED_NUMS="$4"
@@ -1818,8 +1881,9 @@ case $# in
                 fi
                 ;;
             *)
-                echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                exit ## 终止退出
                 ;;
             esac
             shift
@@ -1830,13 +1894,19 @@ case $# in
     conc)
         while [ $# -gt 2 ]; do
             case $3 in
+            -b | --background)
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
+                exit ## 终止退出
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    echo -e "\n$COMMAND_ERROR 该参数 $3 仅适用于执行位于远程仓库的脚本，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    exit ## 终止退出
                 fi
                 ;;
             -r | --rapid)
@@ -1848,8 +1918,9 @@ case $# in
             -c | --cookie)
                 echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
-                    echo -e "\n$COMMAND_ERROR 检测到无效参数 $4 ，请确认后重新输入！"
-                    Help && exit ## 终止退出
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                    exit ## 终止退出
                 else
                     RUN_DESIGNATED="true"
                     DESIGNATED_NUMS="$4"
@@ -1857,8 +1928,9 @@ case $# in
                 fi
                 ;;
             *)
-                echo -e "\n$COMMAND_ERROR 检测到无效参数 $3 ，请确认后重新输入！"
-                Help && exit ## 终止退出
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                exit ## 终止退出
                 ;;
             esac
             shift
