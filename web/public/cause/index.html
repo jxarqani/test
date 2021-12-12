@@ -68,7 +68,7 @@
           	<article class='markdown-body'>
             	<h1 id="-">《使用说明》</h1>
 <ul>
-<li><strong>修订日期：2021 年 11 月 15 日</strong></li>
+<li><strong>修订日期：2021 年 12 月 12 日</strong></li>
 </ul>
 <h2 id="-">&emsp;前言</h2>
 <ul>
@@ -88,7 +88,7 @@
 <li><h4 id="-">并发执行</h4>
 <pre><code>task &lt;name/path/url&gt; conc
 </code></pre><blockquote>
-<p>含义：为每个账号单独在后台启动一个进程运行脚本，由于是后台运行故不在命令行输出进度直接记录到日志中<br>
+<p>含义：为每个账号作为单独的进程在后台运行脚本，由于是后台运行故不在命令行输出进度直接记录到日志中<br>
 注意：并发执行非常消耗资源，不要盲目使用尤其是0点，否则资源占满导致终端连不上后只能强制关机重启。</p>
 </blockquote>
 </li>
@@ -96,7 +96,7 @@
 <blockquote>
 <p><code>&lt;name&gt;</code> 脚本名，<strong>仅限 scripts 目录</strong> 的脚本<br>
 <code>&lt;path&gt;</code> 脚本的 <strong>相对路径</strong> 或 <strong>绝对路径</strong>，注意在定时配置清单中编写时需使用绝对路径<br>
-<code>&lt;url&gt;</code> 位于远程仓库的 <strong>脚本链接地址</strong> ，自带地址纠正可自动转换为 raw 原始文件链接，执行后脚本默认保存在 scripts 目录</p>
+<code>&lt;url&gt;</code> 位于远程仓库的 <strong>脚本链接地址</strong>，自带地址纠正可自动转换为 raw 原始文件链接，执行后脚本默认保存在 scripts 目录</p>
 </blockquote>
 </li>
 <li><h4 id="-">注意事项</h4>
@@ -110,6 +110,7 @@
 <li><h4 id="-">可选参数</h4>
 <blockquote>
 <p>使用方法：追加在命令的末尾，请认真阅读各参数的用法<br>
+<code>--background</code>ㅤ（简写 <code>-b</code>），后台运行脚本，不在前台输出日志<br>
 <code>--proxy</code>ㅤ（简写 <code>-p</code>），作用为启用下载代理，该代理固定为 <a href="https://ghproxy.com">GHProxy</a>，仅适用于执行位于远程仓库的脚本<br>
 <code>--rapid</code>ㅤ（简写 <code>-r</code>），作用为启用迅速模式，不组合互助码降低脚本执行前耗时<br>
 <code>--delay</code>ㅤ（简写 <code>-d</code>），作用为随机延迟一定秒数后再执行脚本，当时间处于每小时的 <code>0~3,30,58~59</code> 分时该参数无效<br>
@@ -514,7 +515,6 @@ ForOtherPet6=&quot;${MyPet1}@${MyPet2}@${MyPet3}@${MyPet4}@${MyPet5}@${MyPet6}&q
 <script type="text/javascript" src="toc_conf.js"></script>
 
 <SCRIPT type="text/javascript" >
-<!--
 $(document).ready(function(){
     var css_conf = eval(markdown_panel_style);
     $('#readme').css(css_conf)
@@ -522,5 +522,4 @@ $(document).ready(function(){
     var conf = eval(jquery_ztree_toc_opts);
 		$('#tree').ztree_toc(conf);
 });
-//-->
 </SCRIPT>
