@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-15
+## Modified: 2021-12-16
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1406,7 +1406,7 @@ function SwitchBranch() {
     elif [[ ${CurrentBranch} == "dev" ]]; then
         echo ''
         git reset --hard
-        git checkout main
+        git checkout master
         echo -e "\n$COMPLETE 已切换回用户分支\n"
     fi
 }
