@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-26
+## Modified: 2021-12-15
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -67,10 +67,10 @@ TaskCmd="task"
 ContrlCmd="taskctl"
 UpdateCmd="update"
 TIME_FORMAT="+%Y-%m-%d %T:%N"
-RED="\033[31m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-BLUE="\033[34m"
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
 SUCCESS='[\033[32mOK\033[0m]'
@@ -103,7 +103,6 @@ name_script=(
     jd_sgmh
     jd_cfd
     jd_health
-    jd_jxnc
     jd_global
     jd_carnivalcity
     jd_city
@@ -120,7 +119,6 @@ name_config=(
     Sgmh
     Cfd
     Health
-    Jxnc
     Global
     Carni
     City
@@ -137,7 +135,6 @@ name_chinese=(
     闪购盲盒
     京喜财富岛
     东东健康社区
-    京喜农场
     环球挑战赛
     京东手机狂欢城
     城城领现金
@@ -154,7 +151,6 @@ bot_command=(
     sgmh
     cfd
     health
-    jxnc
     global
     carnivalcity
     city
@@ -237,7 +233,6 @@ function Combin_ShareCodes() {
     export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
     export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
     export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
-    export JXNC_SHARECODES=$(Combin_Sub ForOtherJxnc)                   ## 京喜农场 - (jd_jxnc.js)
     export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
     export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
     export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
@@ -292,7 +287,7 @@ function Help() {
     case ${ARCH} in
     armv7l | armv6l)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
@@ -319,15 +314,16 @@ function Help() {
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
  ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     *)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
@@ -355,10 +351,11 @@ function Help() {
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
  ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}   启用下载代理，仅适用于执行位于远程仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}   迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}   随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30,58~59 分时该参数无效
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}  指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
 "
         ;;
     esac

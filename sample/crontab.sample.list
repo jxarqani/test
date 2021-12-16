@@ -4,7 +4,7 @@
 35 */2 * * * sleep $((${RANDOM} % 56)) && update >> /jd/log/update.log 2>&1
 
 ## 更新账号（WSKEY）
-# 30 9,21 * * * sleep $((${RANDOM} % 56)) && task cookie update >/dev/null 2>&1
+# 15 1,9,17 * * * sleep $((${RANDOM} % 56)) && task cookie update >/dev/null 2>&1
 
 ## 清理日志
 57 13 * * * task rmlog >/dev/null 2>&1
