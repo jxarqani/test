@@ -3406,8 +3406,4 @@ function getCodeList(url) {
         })
 
     })
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 9585430815eada345a708c7cec6af8d47d3fd8f1
