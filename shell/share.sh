@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-12
+## Modified: 2021-12-15
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -67,10 +67,10 @@ TaskCmd="task"
 ContrlCmd="taskctl"
 UpdateCmd="update"
 TIME_FORMAT="+%Y-%m-%d %T:%N"
-RED="\033[31m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-BLUE="\033[34m"
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
 SUCCESS='[\033[32mOK\033[0m]'
@@ -103,7 +103,6 @@ name_script=(
     jd_sgmh
     jd_cfd
     jd_health
-    jd_jxnc
     jd_global
     jd_carnivalcity
     jd_city
@@ -120,7 +119,6 @@ name_config=(
     Sgmh
     Cfd
     Health
-    Jxnc
     Global
     Carni
     City
@@ -137,7 +135,6 @@ name_chinese=(
     闪购盲盒
     京喜财富岛
     东东健康社区
-    京喜农场
     环球挑战赛
     京东手机狂欢城
     城城领现金
@@ -154,7 +151,6 @@ bot_command=(
     sgmh
     cfd
     health
-    jxnc
     global
     carnivalcity
     city
@@ -237,7 +233,6 @@ function Combin_ShareCodes() {
     export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
     export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
     export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
-    export JXNC_SHARECODES=$(Combin_Sub ForOtherJxnc)                   ## 京喜农场 - (jd_jxnc.js)
     export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
     export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
     export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)

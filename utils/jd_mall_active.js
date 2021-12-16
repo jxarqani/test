@@ -1,47 +1,66 @@
 /*
-暖暖红包
-默认使用作者提供的京粉链接，如需使用自己的请定义环境变量 export JX_CODE="你的code"
-变量一键添加： task env add JX_CODE <你的code>
-0 0,12,18,20 * * * jd_redEnvelope.js
+逛京东会场
+自定义环境变量 ACT_URL 为json地址，格式参考默认
+0 0 * * * jd_mall_active.js
 */
-const $ = new Env("暖暖红包");
+const $ = new Env("逛京东会场");
 const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
-let cookiesArr = [];
+let cookiesArr = [], cookie;
+let actURL = '', mallActiveList = {}, defaultMallActiveList = {
+    "pro": ["vdYb6aj,vwYZIy7", "vtYCwVN,vIYWdSA", "vKYIeOm,vtY2oP2", "vdYqJeN,vdYyNmp", "vCYuyQf,vMYp1az", "vtYdSA3,vMYJRNh", "vCYMueF,vtYZxph", "vLYQkee,vCYZE8x"],
+    "prodev": ["vIYM4GJ,vdYN0y7"]
+};
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item]);
     });
-    if (process.env.JD_DEBUG && process.env.JD_DEBUG === "false")
-        console.log = () => {};
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === "false") console.log = () => {
+    };
+    actURL = process.env.ACT_URL || "";
 } else {
     cookiesArr = [$.getdata("CookieJD"), $.getdata("CookieJD2"), ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
-let cookie = "";
-const code = $.isNode() ? process.env.JX_CODE ? process.env.JX_CODE : 'nw0sFmV' : $.getdata("JX_CODE") ? $.getdata("JX_CODE") : ''
 !(async () => {
     if (!cookiesArr[0]) {
-        $.msg($.name, "【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取", "https://bean.m.jd.com/bean/signIndex.action", { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
+        $.msg($.name, "【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取", "https://bean.m.jd.com/bean/signIndex.action", {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
-    for (let i = 0; i < cookiesArr.length; i++) {
-        if (cookiesArr[i]) {
-            cookie = cookiesArr[i];
-            $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-            $.index = i + 1;
-            $.isLogin = true;
-            $.nickName = "";
-            //await TotalBean();
-            console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
-            if (!$.isLogin) {
-                $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-                if ($.isNode()) {
-                    await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-                }
-                continue;
-            }
-            await main();
-        }
+    $.getCodeListerr = false;
+    if (actURL && actURL !== "") {
+        mallActiveList = await getCodeList(actURL)
+    }else {
+        $.getCodeListerr === true
+        mallActiveList = defaultMallActiveList;
     }
+    if ($.getCodeListerr === true) {
+        for (let i = 0; i < cookiesArr.length; i++) {
+            if (cookiesArr[i]) {
+                cookie = cookiesArr[i];
+                $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+                $.index = i + 1;
+                $.isLogin = true;
+                $.nickName = "";
+                //await TotalBean();
+                console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
+                if (!$.isLogin) {
+                    $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+                    if ($.isNode()) {
+                        await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
+                    }
+                    continue;
+                }
+                for (let vo in mallActiveList) {
+                    for (let index = 0; index < mallActiveList[vo].length; index++) {
+                        await main(vo, mallActiveList[vo][index].split(',')[random(0, mallActiveList[vo][index].split(',').length)]);
+                    }
+
+                }
+            }
+        }
+    } else {
+        console.log('请正确配置自定义环境变量 ACT_URL 为json地址 格式参考默认')
+    }
+
 })()
     .catch((e) => {
         $.log("", `❌ ${$.name}, 失败! 原因: ${e}!`, "");
@@ -50,11 +69,12 @@ const code = $.isNode() ? process.env.JX_CODE ? process.env.JX_CODE : 'nw0sFmV' 
         $.done();
     });
 
-async function main() {
+async function main(urlID, code) {
     let userName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1]);
     $.UA = `jdapp;iPhone;10.2.0;13.1.2;${randomString(40)};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460622;appBuild/167853;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`;
     $.max = false;
     $.hotFlag = false;
+    $.code = code;
     for (let i = 0; i < 1 && !$.max; i++) {
         $.newCookie = "";
         $.url1 = "";
@@ -66,21 +86,17 @@ async function main() {
             $.hotFlag = true;
             break;
         }
-        await getInfo2();
+        await getInfo2(urlID);
         if (!$.url2) {
             console.log(`${userName},初始化2失败,可能黑号`);
             $.hotFlag = true;
             break;
         }
-        $.actId = ($.url2.match(/mall\/active\/([^/]+)\/index\.html/) && $.url2.match(/mall\/active\/([^/]+)\/index\.html/)[1]) || "3nJaTysLg4QmXejNy3R8uWwNR1x8";
+        $.actId = ($.url2.match(/mall\/active\/([^/]+)\/index\.html/) && $.url2.match(/mall\/active\/([^/]+)\/index\.html/)[1]);
         let arr = getBody($.UA, $.url2);
         await getEid(arr);
         console.log(`$.actId:` + $.actId);
-
-        if ($.eid) {
-            await getCoupons("");
-        }
-        await $.wait(2000);
+        await $.wait(500);
     }
 }
 
@@ -115,6 +131,7 @@ function getEid(arr) {
         });
     });
 }
+
 function randomString(e) {
     e = e || 32;
     let t = "abcdef0123456789",
@@ -127,7 +144,10 @@ function randomString(e) {
 async function getCoupons() {
     return new Promise((resolve) => {
         let opts = {
-            url: `https://api.m.jd.com/api?functionId=getUnionFreeCoupon&appid=u&loginType=2&_=${Date.now()}&body={%22couponUrl%22:%22RhdnEUlBFEc8FBpAEUBoRUsaFBBrRR5BQhBtQhMRFhBpERtHFkA4FgYbHBNnHwYRCB1mEBMa%22,%22source%22:20118}`,
+            url: `https://api.m.jd.com/api?functionId=getUnionFreeCoupon&appid=u&loginType=2&_=${Date.now()}&body=${encodeURIComponent(JSON.stringify({
+                "couponUrl": $.couponUrl,
+                "source": 20118
+            }))}`,
             headers: {
                 "Host": "api.m.jd.com",
                 "Accept": "application/json, text/plain, */*",
@@ -172,7 +192,7 @@ async function getCoupons() {
     });
 }
 
-async function getInfo2() {
+async function getInfo2(urlID) {
     return new Promise((resolve) => {
         const options = {
             url: $.url1,
@@ -200,7 +220,17 @@ async function getInfo2() {
                 }
                 $.url2 = (resp && resp["headers"] && (resp["headers"]["location"] || resp["headers"]["Location"] || "")) || "";
                 $.url2 = decodeURIComponent($.url2);
-                $.url2 = ($.url2.match(/(https:\/\/prodev\.m\.jd\.com\/mall[^'"]+)/) && $.url2.match(/(https:\/\/prodev\.m\.jd\.com\/mall[^'"]+)/)[1]) || "";
+                switch (urlID) {
+                    case 'prodev':
+                        $.url2 = ($.url2.match(/(https:\/\/prodev\.m\.jd\.com\/mall[^'"]+)/) && $.url2.match(/(https:\/\/prodev\.m\.jd\.com\/mall[^'"]+)/)[1]) || "";
+                        break;
+                    case 'pro':
+                        $.url2 = ($.url2.match(/(https:\/\/pro\.m\.jd\.com\/mall[^'"]+)/) && $.url2.match(/(https:\/\/pro\.m\.jd\.com\/mall[^'"]+)/)[1]) || "";
+                        break;
+                    default:
+                        break;
+                }
+
             } catch (e) {
                 $.logErr(e, resp);
             } finally {
@@ -213,7 +243,7 @@ async function getInfo2() {
 async function getInfo1(cookie) {
     return new Promise((resolve) => {
         const options = {
-            url: `https://u.jd.com/${code}`,
+            url: `https://u.jd.com/${$.code}`,
             followRedirect: false,
             headers: {
                 Cookie: cookie,
@@ -248,7 +278,7 @@ async function getInfo1(cookie) {
 
 const navigator = {
     userAgent: $.isNode() ? require("./USER_AGENTS").USER_AGENT : $.UA,
-    plugins: { length: 0 },
+    plugins: {length: 0},
     language: "zh-CN",
 };
 const screen = {
@@ -466,7 +496,8 @@ try {
     -1 != f.indexOf("freebsd") && (r = "FreeBSD"),
     -1 != f.indexOf("symbianos") &&
     ((r = "SymbianOS"), (k = f.substring(f.indexOf("SymbianOS/") + 10, 3)));
-} catch (a) {}
+} catch (a) {
+}
 _fingerprint_step = 3;
 var g = "NA",
     m = "NA";
@@ -502,7 +533,8 @@ try {
     -1 != f.indexOf("the world") &&
     (g = "\u4e16\u754c\u4e4b\u7a97\u6d4f\u89c8\u5668");
     -1 != f.indexOf("maxthon") && (g = "\u9068\u6e38\u6d4f\u89c8\u5668");
-} catch (a) {}
+} catch (a) {
+}
 
 class JdJrTdRiskFinger {
     f = {
@@ -568,7 +600,7 @@ class JdJrTdRiskFinger {
             return a;
         },
         replaceAll: function (a, b, c) {
-            for (; 0 <= a.indexOf(b); ) a = a.replace(b, c);
+            for (; 0 <= a.indexOf(b);) a = a.replace(b, c);
             return a;
         },
         browserRedirect: function (a) {
@@ -895,7 +927,8 @@ class JdJrTdRiskFinger {
                 C &&
                 (c.push("wuv:" + b.getParameter(C.UNMASKED_VENDOR_WEBGL)),
                     c.push("wur:" + b.getParameter(C.UNMASKED_RENDERER_WEBGL)));
-            } catch (D) {}
+            } catch (D) {
+            }
             return c.join("\u00a7");
         },
         isCanvasSupported: function () {
@@ -920,7 +953,8 @@ class JdJrTdRiskFinger {
                 ((0 < c.indexOf("jdjr-app") || 0 <= c.indexOf("jdapp")) &&
                     (0 < c.indexOf("iphone") || 0 < c.indexOf("ipad"))) ||
                 (b = a.getContext("webgl") || a.getContext("experimental-webgl"));
-            } catch (l) {}
+            } catch (l) {
+            }
             b || (b = null);
             return b;
         },
@@ -933,7 +967,7 @@ class JdJrTdRiskFinger {
                         var l = 0, h = a.length;
                         l < h && b.call(c, a[l], l, a) !== {};
                         l++
-                    );
+                    ) ;
                 else
                     for (l in a)
                         if (a.hasOwnProperty(l) && b.call(c, a[l], l, a) === {}) break;
@@ -1138,7 +1172,8 @@ var JDDSecCryptoJS =
         var v = {},
             x = (v.lib = {}),
             w = (x.Base = (function () {
-                function g() {}
+                function g() {
+                }
 
                 return {
                     extend: function (m) {
@@ -1158,7 +1193,8 @@ var JDDSecCryptoJS =
                         m.init.apply(m, arguments);
                         return m;
                     },
-                    init: function () {},
+                    init: function () {
+                    },
                     mixIn: function (m) {
                         for (var a in m) m.hasOwnProperty(a) && (this[a] = m[a]);
                         m.hasOwnProperty("toString") && (this.toString = m.toString);
@@ -1824,7 +1860,7 @@ JDDSecCryptoJS.lib.Cipher ||
                 ];
                 for (e = 0; 8 > e && y + 0.625 * e < w; e++) v.push(A.charAt(n[e]));
             }
-            if ((x = A.charAt(32))) for (; v.length % 8; ) v.push(x);
+            if ((x = A.charAt(32))) for (; v.length % 8;) v.push(x);
             return v.join("");
         },
         parse: function (v) {
@@ -1878,7 +1914,8 @@ var _CurrentPageProtocol =
                 /^https?:\/\/(?:\w+\.)*?(\w*\.(?:com\.cn|cn|com|net|id))[\\\/]*/.exec(
                     t
                 )[1];
-        } catch (v) {}
+        } catch (v) {
+        }
         var u = t.indexOf("?");
         0 < u &&
         ((_url_query_str = t.substring(u + 1)),
@@ -1931,7 +1968,8 @@ var td_collect = new (function () {
                         var b = a[1];
                         void 0 === f[b] && w.push(b);
                         f[b] = !0;
-                    } catch (c) {}
+                    } catch (c) {
+                    }
                 },
                 f = {};
             try {
@@ -1942,19 +1980,22 @@ var td_collect = new (function () {
                         },
                     ],
                 });
-            } catch (k) {}
+            } catch (k) {
+            }
             try {
                 void 0 === r &&
                 (r = new n({
                     iceServers: [],
                 }));
-            } catch (k) {}
+            } catch (k) {
+            }
             if (r || window.mozRTCPeerConnection)
                 try {
                     r.createDataChannel("chat", {
                         reliable: !1,
                     });
-                } catch (k) {}
+                } catch (k) {
+                }
             r &&
             ((r.onicecandidate = function (k) {
                 k.candidate && e(k.candidate.candidate);
@@ -1963,18 +2004,22 @@ var td_collect = new (function () {
                     function (k) {
                         r.setLocalDescription(
                             k,
-                            function () {},
-                            function () {}
+                            function () {
+                            },
+                            function () {
+                            }
                         );
                     },
-                    function () {}
+                    function () {
+                    }
                 ),
                 setTimeout(function () {
                     try {
                         r.localDescription.sdp.split("\n").forEach(function (k) {
                             0 === k.indexOf("a=candidate:") && e(k);
                         });
-                    } catch (k) {}
+                    } catch (k) {
+                    }
                 }, 800));
         }
     }
@@ -2060,36 +2105,43 @@ var td_collect = new (function () {
                 "$1"
             );
             0 !== f.length && (e.cookie = f);
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             window.localStorage &&
             null !== window.localStorage &&
             0 !== window.localStorage.length &&
             (e.localStorage = window.localStorage.getItem("3AB9D23F7A4B3C9B"));
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             window.sessionStorage &&
             null !== window.sessionStorage &&
             (e.sessionStorage = window.sessionStorage["3AB9D23F7A4B3C9B"]);
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             p.globalStorage &&
             (e.globalStorage =
                 window.globalStorage[".localdomain"]["3AB9D23F7A4B3C9B"]);
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             d &&
             "function" == typeof d.load &&
             "function" == typeof d.getAttribute &&
             (d.load("jdgia_user_data"),
                 (e.userData = d.getAttribute("3AB9D23F7A4B3C9B")));
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             E.indexedDbId && (e.indexedDb = E.indexedDbId);
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             E.webDbId && (e.webDb = E.webDbId);
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             for (var r in e)
                 if (32 < e[r].length) {
@@ -2097,14 +2149,16 @@ var td_collect = new (function () {
                     n || (_eidFlag = !0);
                     break;
                 }
-        } catch (k) {}
+        } catch (k) {
+        }
         try {
             ("undefined" === typeof _JdEid || 0 >= _JdEid.length) &&
             this.db("3AB9D23F7A4B3C9B");
             if ("undefined" === typeof _JdEid || 0 >= _JdEid.length)
                 _JdEid = u("3AB9D23F7A4B3C9B");
             if ("undefined" === typeof _JdEid || 0 >= _JdEid.length) _eidFlag = !0;
-        } catch (k) {}
+        } catch (k) {
+        }
         return _JdEid;
     };
     var w = [],
@@ -2156,7 +2210,8 @@ var td_collect = new (function () {
             this.deviceInfo.userAgent = navigator.userAgent;
             this.deviceInfo.isAndroid = e;
             this.createWorker();
-        } catch (f) {}
+        } catch (f) {
+        }
     };
     this.db = function (n, e) {
         try {
@@ -2173,14 +2228,18 @@ var td_collect = new (function () {
                         r.executeSql(
                             "CREATE TABLE IF NOT EXISTS cache(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL, UNIQUE (name))",
                             [],
-                            function (k, g) {},
-                            function (k, g) {}
+                            function (k, g) {
+                            },
+                            function (k, g) {
+                            }
                         );
                         r.executeSql(
                             "INSERT OR REPLACE INTO cache(name, value) VALUES(?, ?)",
                             [n, e],
-                            function (k, g) {},
-                            function (k, g) {}
+                            function (k, g) {
+                            },
+                            function (k, g) {
+                            }
                         );
                     })
                     : f.transaction(function (r) {
@@ -2190,12 +2249,14 @@ var td_collect = new (function () {
                             function (k, g) {
                                 1 <= g.rows.length && (_JdEid = g.rows.item(0).value);
                             },
-                            function (k, g) {}
+                            function (k, g) {
+                            }
                         );
                     });
             }
             _fingerprint_step = "n";
-        } catch (r) {}
+        } catch (r) {
+        }
     };
     this.setCookie = function (n, e) {
         void 0 !== e &&
@@ -2253,7 +2314,8 @@ var td_collect = new (function () {
                         (e.style.color = r[k]),
                         (f[r[k]] = window.getComputedStyle(e).getPropertyValue("color")),
                         document.body.removeChild(e);
-        } catch (D) {}
+        } catch (D) {
+        }
         e = {
             ca: {},
             ts: {},
@@ -2283,7 +2345,8 @@ var td_collect = new (function () {
                     })) &&
                     c &&
                     ((b = c), a.push(m[k]));
-                } catch (D) {}
+                } catch (D) {
+                }
             a.length &&
             (g = {
                 name: a,
@@ -2300,13 +2363,15 @@ var td_collect = new (function () {
             b = [];
             try {
                 (b = k.getSupportedExtensions()), (r.extensions = b);
-            } catch (D) {}
+            } catch (D) {
+            }
             try {
                 var l = k.getExtension("WEBGL_debug_renderer_info");
                 l &&
                 ((r.wuv = k.getParameter(l.UNMASKED_VENDOR_WEBGL)),
                     (r.wur = k.getParameter(l.UNMASKED_RENDERER_WEBGL)));
-            } catch (D) {}
+            } catch (D) {
+            }
         }
         e.m.documentMode = document.documentMode;
         e.m.compatMode = document.compatMode;
@@ -2322,7 +2387,8 @@ var td_collect = new (function () {
         k.javaEnabled = false;
         try {
             k.taintEnabled = navigator.taintEnabled();
-        } catch (D) {}
+        } catch (D) {
+        }
         e.n = k;
         k = navigator.userAgent.toLowerCase();
         if ((h = k.match(/rv:([\d.]+)\) like gecko/))) var q = h[1];
@@ -2345,13 +2411,16 @@ var td_collect = new (function () {
                     l.name = z;
                     try {
                         l.version = C.GetVariable("$version");
-                    } catch (D) {}
+                    } catch (D) {
+                    }
                     try {
                         l.version = C.GetVersions();
-                    } catch (D) {}
+                    } catch (D) {
+                    }
                     (l.version && 0 < l.version.length) || (l.version = "");
                     h.push(l);
-                } catch (D) {}
+                } catch (D) {
+                }
             }
         else {
             q = navigator.plugins;
@@ -2385,7 +2454,8 @@ var td_collect = new (function () {
                 (f.sessionStorage = !!window.sessionStorage),
                 (f.globalStorage = !!window.globalStorage),
                 (f.indexedDB = !!window.indexedDB);
-        } catch (D) {}
+        } catch (D) {
+        }
         e.ss = f;
         e.ts.deviceTime = n.getTime();
         e.ts.deviceEndTime = new Date().getTime();
@@ -2413,7 +2483,8 @@ var td_collect = new (function () {
                         null != k.tk &&
                         "" != k.tk &&
                         (e.deviceInfo.sdkToken = k.tk));
-                } catch (m) {}
+                } catch (m) {
+                }
             r = !1;
             e.deviceInfo.isJdApp
                 ? ((e.deviceInfo.clientVersion = navigator.userAgent.split(";")[2]),
@@ -2436,7 +2507,8 @@ var td_collect = new (function () {
                     e.getJdJrBioToken(n);
                 }));
             "function" == typeof n && n(e.deviceInfo);
-        } catch (m) {}
+        } catch (m) {
+        }
     };
     this.compareVersion = function (n, e) {
         try {
@@ -2450,7 +2522,8 @@ var td_collect = new (function () {
                 if (k < g) break;
                 if (k > g) return 1;
             }
-        } catch (m) {}
+        } catch (m) {
+        }
         return -1;
     };
     this.isWKWebView = function () {
@@ -2465,7 +2538,8 @@ var td_collect = new (function () {
                 var e = (n + "").match(/"token":"(.*?)"/);
                 if (e && 1 < e.length) return e[1];
             }
-        } catch (f) {}
+        } catch (f) {
+        }
         return "";
     };
     this.getJdJrBioToken = function (n) {
@@ -2540,7 +2614,8 @@ var td_collect = new (function () {
                         e.store("BATQW722QTLYVCRD", JSON.stringify(f))));
                 }
             );
-        } catch (f) {}
+        } catch (f) {
+        }
     };
     this.getJdBioToken = function (n) {
         var e = this;
@@ -2642,25 +2717,31 @@ var td_collect = new (function () {
                 }),
                     e.store("BATQW722QTLYVCRD", JSON.stringify(r))));
             };
-        } catch (r) {}
+        } catch (r) {
+        }
     };
     this.store = function (n, e) {
         try {
             this.setCookie(n, e);
-        } catch (f) {}
+        } catch (f) {
+        }
         try {
             window.localStorage && window.localStorage.setItem(n, e);
-        } catch (f) {}
+        } catch (f) {
+        }
         try {
             window.sessionStorage && window.sessionStorage.setItem(n, e);
-        } catch (f) {}
+        } catch (f) {
+        }
         try {
             window.globalStorage &&
             window.globalStorage[".localdomain"].setItem(n, e);
-        } catch (f) {}
+        } catch (f) {
+        }
         try {
             this.db(n, _JdEid);
-        } catch (f) {}
+        } catch (f) {
+        }
     };
     this.getLocal = function (n) {
         var e = {},
@@ -2671,44 +2752,53 @@ var td_collect = new (function () {
                 "$1"
             );
             0 !== r.length && (e.cookie = r);
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             window.localStorage &&
             null !== window.localStorage &&
             0 !== window.localStorage.length &&
             (e.localStorage = window.localStorage.getItem(n));
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             window.sessionStorage &&
             null !== window.sessionStorage &&
             (e.sessionStorage = window.sessionStorage[n]);
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             p.globalStorage &&
             (e.globalStorage = window.globalStorage[".localdomain"][n]);
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             d &&
             "function" == typeof d.load &&
             "function" == typeof d.getAttribute &&
             (d.load("jdgia_user_data"), (e.userData = d.getAttribute(n)));
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             E.indexedDbId && (e.indexedDb = E.indexedDbId);
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             E.webDbId && (e.webDb = E.webDbId);
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             for (var k in e)
                 if (32 < e[k].length) {
                     f = e[k];
                     break;
                 }
-        } catch (g) {}
+        } catch (g) {
+        }
         try {
             if (null == f || "undefined" === typeof f || 0 >= f.length) f = u(n);
-        } catch (g) {}
+        } catch (g) {
+        }
         return f;
     };
     this.createWorker = function () {
@@ -2735,7 +2825,8 @@ var td_collect = new (function () {
             }
             try {
                 this.worker = new Worker(URL.createObjectURL(n));
-            } catch (e) {}
+            } catch (e) {
+            }
         }
     };
     this.reportWorker = function (n, e, f, r) {
@@ -2749,8 +2840,10 @@ var td_collect = new (function () {
                     async: !1,
                 })
             ),
-                (this.worker.onmessage = function (k) {}));
-        } catch (k) {}
+                (this.worker.onmessage = function (k) {
+                }));
+        } catch (k) {
+        }
     };
 })();
 
@@ -2771,14 +2864,16 @@ function td_collect_exe() {
     };
     try {
         (u.o = _CurrentPageUrl), (u.qs = _url_query_str);
-    } catch (w) {}
+    } catch (w) {
+    }
     _fingerprint_step = 9;
     0 >= _JdEid.length &&
     ((_JdEid = td_collect.obtainLocal()), 0 < _JdEid.length && (_eidFlag = !0));
     u.fc = _JdEid;
     try {
         u.t = jd_risk_token_id;
-    } catch (w) {}
+    } catch (w) {
+    }
     try {
         if ("undefined" != typeof gia_fp_qd_uuid && 0 <= gia_fp_qd_uuid.length)
             u.qi = gia_fp_qd_uuid;
@@ -2786,7 +2881,8 @@ function td_collect_exe() {
             var x = _JdJrRiskClientStorage.jdtdstorage_cookie("qd_uid");
             u.qi = void 0 == x ? "" : x;
         }
-    } catch (w) {}
+    } catch (w) {
+    }
     "undefined" != typeof jd_shadow__ &&
     0 < jd_shadow__.length &&
     (u.jtb = jd_shadow__);
@@ -2802,7 +2898,7 @@ function td_collect_exe() {
     }
     x = td_collect.tdencrypt(u);
     // console.log(u)
-    return { a: x, d: t };
+    return {a: x, d: t};
 }
 
 function _jdJrTdCommonsObtainPin(t) {
@@ -2833,7 +2929,7 @@ function getBody(userAgent, url = document.location.href) {
         return t;
     });
     let arr = td_collect_exe();
-    return { fp, ...arr };
+    return {fp, ...arr};
 }
 
 function Env(t, e) {
@@ -2847,7 +2943,7 @@ function Env(t, e) {
         }
 
         send(t, e = "GET") {
-            t = "string" == typeof t ? { url: t } : t;
+            t = "string" == typeof t ? {url: t} : t;
             let s = this.get;
             return (
                 "POST" === e && (s = this.post),
@@ -2921,7 +3017,8 @@ function Env(t, e) {
             if (i)
                 try {
                     s = JSON.parse(this.getdata(t));
-                } catch {}
+                } catch {
+                }
             return s;
         }
 
@@ -2935,7 +3032,7 @@ function Env(t, e) {
 
         getScript(t) {
             return new Promise((e) => {
-                this.get({ url: t }, (t, s, i) => e(i));
+                this.get({url: t}, (t, s, i) => e(i));
             });
         }
 
@@ -2948,8 +3045,8 @@ function Env(t, e) {
                 const [o, h] = i.split("@"),
                     n = {
                         url: `http://${h}/v1/scripting/evaluate`,
-                        body: { script_text: t, mock_type: "cron", timeout: r },
-                        headers: { "X-Key": o, Accept: "*/*" },
+                        body: {script_text: t, mock_type: "cron", timeout: r},
+                        headers: {"X-Key": o, Accept: "*/*"},
                     };
                 this.post(n, (t, e, i) => s(i));
             }).catch((t) => this.logErr(t));
@@ -3083,24 +3180,25 @@ function Env(t, e) {
             (t.cookieJar = this.ckjar));
         }
 
-        get(t, e = () => {}) {
+        get(t, e = () => {
+        }) {
             t.headers &&
             (delete t.headers["Content-Type"], delete t.headers["Content-Length"]),
                 this.isSurge() || this.isLoon()
                     ? (this.isSurge() &&
                     this.isNeedRewrite &&
                     ((t.headers = t.headers || {}),
-                        Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
+                        Object.assign(t.headers, {"X-Surge-Skip-Scripting": !1})),
                         $httpClient.get(t, (t, s, i) => {
                             !t && s && ((s.body = i), (s.statusCode = s.status)), e(t, s, i);
                         }))
                     : this.isQuanX()
                     ? (this.isNeedRewrite &&
-                    ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
+                    ((t.opts = t.opts || {}), Object.assign(t.opts, {hints: !1})),
                         $task.fetch(t).then(
                             (t) => {
-                                const { statusCode: s, statusCode: i, headers: r, body: o } = t;
-                                e(null, { status: s, statusCode: i, headers: r, body: o }, o);
+                                const {statusCode: s, statusCode: i, headers: r, body: o} = t;
+                                e(null, {status: s, statusCode: i, headers: r, body: o}, o);
                             },
                             (t) => e(t)
                         ))
@@ -3128,16 +3226,17 @@ function Env(t, e) {
                                         headers: r,
                                         body: o,
                                     } = t;
-                                    e(null, { status: s, statusCode: i, headers: r, body: o }, o);
+                                    e(null, {status: s, statusCode: i, headers: r, body: o}, o);
                                 },
                                 (t) => {
-                                    const { message: s, response: i } = t;
+                                    const {message: s, response: i} = t;
                                     e(s, i, i && i.body);
                                 }
                             ));
         }
 
-        post(t, e = () => {}) {
+        post(t, e = () => {
+        }) {
             if (
                 (t.body &&
                 t.headers &&
@@ -3149,31 +3248,31 @@ function Env(t, e) {
                 this.isSurge() &&
                 this.isNeedRewrite &&
                 ((t.headers = t.headers || {}),
-                    Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
+                    Object.assign(t.headers, {"X-Surge-Skip-Scripting": !1})),
                     $httpClient.post(t, (t, s, i) => {
                         !t && s && ((s.body = i), (s.statusCode = s.status)), e(t, s, i);
                     });
             else if (this.isQuanX())
                 (t.method = "POST"),
                 this.isNeedRewrite &&
-                ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
+                ((t.opts = t.opts || {}), Object.assign(t.opts, {hints: !1})),
                     $task.fetch(t).then(
                         (t) => {
-                            const { statusCode: s, statusCode: i, headers: r, body: o } = t;
-                            e(null, { status: s, statusCode: i, headers: r, body: o }, o);
+                            const {statusCode: s, statusCode: i, headers: r, body: o} = t;
+                            e(null, {status: s, statusCode: i, headers: r, body: o}, o);
                         },
                         (t) => e(t)
                     );
             else if (this.isNode()) {
                 this.initGotEnv(t);
-                const { url: s, ...i } = t;
+                const {url: s, ...i} = t;
                 this.got.post(s, i).then(
                     (t) => {
-                        const { statusCode: s, statusCode: i, headers: r, body: o } = t;
-                        e(null, { status: s, statusCode: i, headers: r, body: o }, o);
+                        const {statusCode: s, statusCode: i, headers: r, body: o} = t;
+                        e(null, {status: s, statusCode: i, headers: r, body: o}, o);
                     },
                     (t) => {
-                        const { message: s, response: i } = t;
+                        const {message: s, response: i} = t;
                         e(s, i, i && i.body);
                     }
                 );
@@ -3214,24 +3313,24 @@ function Env(t, e) {
                     return this.isLoon()
                         ? t
                         : this.isQuanX()
-                            ? { "open-url": t }
+                            ? {"open-url": t}
                             : this.isSurge()
-                                ? { url: t }
+                                ? {url: t}
                                 : void 0;
                 if ("object" == typeof t) {
                     if (this.isLoon()) {
                         let e = t.openUrl || t.url || t["open-url"],
                             s = t.mediaUrl || t["media-url"];
-                        return { openUrl: e, mediaUrl: s };
+                        return {openUrl: e, mediaUrl: s};
                     }
                     if (this.isQuanX()) {
                         let e = t["open-url"] || t.url || t.openUrl,
                             s = t["media-url"] || t.mediaUrl;
-                        return { "open-url": e, "media-url": s };
+                        return {"open-url": e, "media-url": s};
                     }
                     if (this.isSurge()) {
                         let e = t.url || t.openUrl || t["open-url"];
-                        return { url: e };
+                        return {url: e};
                     }
                 }
             };
@@ -3275,4 +3374,36 @@ function Env(t, e) {
             (this.isSurge() || this.isQuanX() || this.isLoon()) && $done(t);
         }
     })(t, e);
+}
+
+function random(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getCodeList(url) {
+    return new Promise(resolve => {
+        const options = {
+            url: `${url}?${new Date()}`, "timeout": 10000, headers: {
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
+            }
+        };
+        $.get(options, async (err, resp, data) => {
+            try {
+                if (err) {
+                    // $.log(err)
+                    data = defaultMallActiveList;
+                    $.getCodeListerr = false
+                } else {
+                    if (data) data = JSON.parse(data)
+                    $.getCodeListerr = true
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+                data = null;
+            } finally {
+                resolve(data);
+            }
+        })
+
+    })
 }

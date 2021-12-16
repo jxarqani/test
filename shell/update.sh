@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-12
+## Modified: 2021-12-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -468,8 +468,8 @@ function Update_Scripts() {
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
 
-    [ -f $ScriptsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
-
+    [ -f $ScriptsDir/jd_mall_active.js ] && cp -rf $UtilsDir/jd_mall_active.js $ScriptsDir
+    
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
@@ -525,8 +525,7 @@ function Update_Own() {
         EnableRepoUpdate="false"
         EnableRawUpdate="true"
         if [[ ${#OwnRawFile[*]} -eq 0 ]]; then
-            clear
-            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！"
+            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！\n"
             exit ## 终止退出
         fi
         ;;
@@ -774,7 +773,7 @@ function Combin_Function() {
                 Title $1
                 ExtraShell
             else
-                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！"
+                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
             fi
             ;;
         *)

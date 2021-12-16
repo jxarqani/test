@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-12
+## Modified: 2021-12-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -782,6 +782,7 @@ function Cookies_Control() {
             echo -e "\n${YELLOW}检测到下面的账号将在近期失效，请注意即时更新！${PLAIN}\n"
             cat $FileSendMark
             sed -i 's/$/&\\n/g' $FileSendMark
+            echo ''
             Notify "账号过期提醒" "$(cat $FileSendMark)"
             rm -rf $FileSendMark
         fi
