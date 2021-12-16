@@ -468,14 +468,8 @@ function Update_Scripts() {
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
 
-<<<<<<< HEAD
-    [ -f $ScriptsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
     [ -f $ScriptsDir/jd_mall_active.js ] && cp -rf $UtilsDir/jd_mall_active.js $ScriptsDir
 
-=======
-    [ -f $ScriptsDir/jd_mall_active.js ] && cp -rf $UtilsDir/jd_mall_active.js $ScriptsDir
-    
->>>>>>> 9585430815eada345a708c7cec6af8d47d3fd8f1
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
