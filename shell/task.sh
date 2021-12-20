@@ -1,22 +1,30 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-16
+## Modified: 2021-12-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
-## 匹配脚本，通过各种判断将得到的必要信息传给接下来运行的函数或命令
-## 最终得到的信息："FileName" 脚本名称（去后缀）、"FileSuffix" 脚本后缀、"FileFormat" 脚本类型、"WhichDir" 脚本所在目录（绝对路径）
-## 不论何种匹配方式或查找方式当未指定脚本类型但存在同名脚本时，执行优先级为 JavaScript > Python > TypeScript > Shell
+## 查找脚本
 function Find_Script() {
+
+    ## 通过各种判断将得到的必要信息传给接下来运行的函数或命令
+
+    ##   "FileName" 脚本名称（去后缀）
+    ##   "FileSuffix" 脚本后缀名
+    ##   "FileFormat" 脚本类型
+    ##   "FileDir" 脚本所在目录（绝对路径）
+
+    ## 不论何种匹配方式或查找方式，当未指定脚本类型但存在同名脚本时，执行优先级为 JavaScript > Python > TypeScript > Shell
+
     local InputContent=$1
     FileName=""
-    WhichDir=""
+    FileDir=""
     FileFormat=""
 
     ## 匹配指定路径下的脚本
     function MatchingPathFile() {
-        local AbsolutePath PwdTmp FileNameTmp WhichDirTmp
+        local AbsolutePath PwdTmp FileNameTmp FileDirTmp
         ## 判定传入的是绝对路径还是相对路径
         echo ${InputContent} | grep "$RootDir/" -q
         if [ $? -eq 0 ]; then
@@ -36,7 +44,7 @@ function Find_Script() {
         fi
         ## 判定传入是否含有后缀格式
         FileNameTmp=${AbsolutePath##*/}
-        WhichDirTmp=${AbsolutePath%/*}
+        FileDirTmp=${AbsolutePath%/*}
         echo ${FileNameTmp} | grep "\." -q
         if [ $? -eq 0 ]; then
             if [ -f ${AbsolutePath} ]; then
@@ -61,32 +69,32 @@ function Find_Script() {
                     ;;
                 esac
                 FileName=${FileNameTmp%.*}
-                WhichDir=${WhichDirTmp}
+                FileDir=${FileDirTmp}
             fi
         else
-            if [ -f ${WhichDirTmp}/${FileNameTmp}.js ]; then
+            if [ -f ${FileDirTmp}/${FileNameTmp}.js ]; then
                 FileName=${FileNameTmp}
                 FileFormat="JavaScript"
-                WhichDir=${WhichDirTmp}
-            elif [ -f ${WhichDirTmp}/${FileNameTmp}.py ]; then
+                FileDir=${FileDirTmp}
+            elif [ -f ${FileDirTmp}/${FileNameTmp}.py ]; then
                 FileName=${FileNameTmp}
                 FileFormat="Python"
-                WhichDir=${WhichDirTmp}
-            elif [ -f ${WhichDirTmp}/${FileNameTmp}.ts ]; then
+                FileDir=${FileDirTmp}
+            elif [ -f ${FileDirTmp}/${FileNameTmp}.ts ]; then
                 FileName=${FileNameTmp}
                 FileFormat="TypeScript"
-                WhichDir=${WhichDirTmp}
-            elif [ -f ${WhichDirTmp}/${FileNameTmp}.sh ]; then
+                FileDir=${FileDirTmp}
+            elif [ -f ${FileDirTmp}/${FileNameTmp}.sh ]; then
                 FileName=${FileNameTmp}
                 FileFormat="Shell"
-                WhichDir=${WhichDirTmp}
+                FileDir=${FileDirTmp}
             fi
         fi
 
         ## 判定变量是否存在否则报错终止退出
-        if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
+        if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
+            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
@@ -139,7 +147,7 @@ function Find_Script() {
             for dir in ${SeekDir}; do
                 if [ -f ${dir}/${InputContent} ]; then
                     FileName=${InputContent%.*}
-                    WhichDir=${dir}
+                    FileDir=${dir}
                     break
                 fi
             done
@@ -153,19 +161,19 @@ function Find_Script() {
                     ## 第一种名称类型
                     if [ -f ${dir}/${FileNameTmp1}\.${ext} ]; then
                         FileName=${FileNameTmp1}
-                        WhichDir=${dir}
+                        FileDir=${dir}
                         FileSuffix=${ext}
                         break 2
                     ## 第二种名称类型
                     elif [ -f ${dir}/${FileNameTmp2}\.${ext} ]; then
                         FileName=${FileNameTmp2}
-                        WhichDir=${dir}
+                        FileDir=${dir}
                         FileSuffix=${ext}
                         break 2
                     ## 第三种名称类型
                     elif [ -f ${dir}/${FileNameTmp3}\.${ext} ]; then
                         FileName=${FileNameTmp3}
-                        WhichDir=${dir}
+                        FileDir=${dir}
                         FileSuffix=${ext}
                         break 2
                     fi
@@ -173,7 +181,7 @@ function Find_Script() {
             done
 
             ## 判断并定义脚本类型
-            if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
+            if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
                 case ${FileSuffix} in
                 js)
                     FileFormat="JavaScript"
@@ -192,9 +200,9 @@ function Find_Script() {
         fi
 
         ## 判定变量是否存在否则报错终止退出
-        if [ -n "${FileName}" ] && [ -n "${WhichDir}" ]; then
+        if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${WhichDir} != $ScriptsDir ]] && Check_Moudules $WhichDir
+            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
@@ -307,7 +315,7 @@ function Find_Script() {
                 [ $n = 10 ] && echo -e "\033[?25h\n${PLAIN}" && break
             done
             FileName=${FileNameTmp%.*}
-            WhichDir=$ScriptsDir
+            FileDir=$ScriptsDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
@@ -442,7 +450,7 @@ function Run_Normal() {
     [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
-    cd ${WhichDir}
+    cd ${FileDir}
     ## 定义日志文件
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
     ## 执行脚本
@@ -495,7 +503,7 @@ function Run_Normal() {
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
-        rm -rf "${WhichDir}/${FileName}.${FileSuffix}"
+        rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
 
@@ -548,7 +556,7 @@ function Run_Concurrent() {
     [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
-    cd ${WhichDir}
+    cd ${FileDir}
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
@@ -592,7 +600,7 @@ function Run_Concurrent() {
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
-        rm -rf "${WhichDir}/${FileName}.${FileSuffix}"
+        rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
 
@@ -870,8 +878,8 @@ function Cookies_Control() {
                                     echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
                                 fi
                             else
-                                echo -e "${EscapePin} 检测出错 ${RED}[ API 请求失败 ]${PLAIN}"
-                                echo -e "${EscapePin} 更新后检测出错 [ API 请求失败 ]" >>$FileSendMark
+                                echo -e "${EscapePin} 检测超时 ${RED}[ API 请求失败 ]${PLAIN}"
+                                echo -e "${EscapePin} 更新后检测超时 [ API 请求失败 ]" >>$FileSendMark
                             fi
                         else
                             echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
@@ -939,8 +947,8 @@ function Cookies_Control() {
                                     echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
                                 fi
                             else
-                                echo -e "${EscapePin} 检测出错 ${RED}[ API 请求失败 ]${PLAIN}"
-                                echo -e "${EscapePin} 更新后检测出错 [ API 请求失败 ]" >>$FileSendMark
+                                echo -e "${EscapePin} 检测超时 ${RED}[ API 请求失败 ]${PLAIN}"
+                                echo -e "${EscapePin} 更新后检测超时 [ API 请求失败 ]" >>$FileSendMark
                             fi
                         else
                             echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
@@ -1541,7 +1549,7 @@ function List_Local_Scripts() {
 
     ## 列出本地其它仓库中的脚本
     function List_Own() {
-        local Name FileName WhichDir Tmp1 Tmp2 Tmp3 repo_num
+        local Name FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
         Import_Config_Not_Check
 
         if [[ ${OwnRepoUrl1} ]]; then
@@ -1579,8 +1587,8 @@ function List_Local_Scripts() {
             echo -e "\n❖ Own 仓库的脚本："
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 FileName=${ListFiles[i]##*/}
-                WhichDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
-                cd $WhichDir
+                FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
+                cd $FileDir
                 Query_Name $FileName
                 echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
             done
