@@ -3,6 +3,7 @@
     color: #ffffff;
     font-size: 14px;
     font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    line-height: 150%;
 }
 
 @media screen and (max-width: 640px) {
@@ -21,6 +22,7 @@
     color: #000000;
     font-size: 14px;
     font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    line-height: 150%;
 }
 
 @media screen and (max-width: 640px) {

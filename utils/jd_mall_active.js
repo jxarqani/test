@@ -7,7 +7,7 @@ const $ = new Env("逛京东会场");
 const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 let cookiesArr = [], cookie;
 let actURL = '', mallActiveList = {}, defaultMallActiveList = {
-    "pro": ["vdYb6aj,vwYZIy7", "vtYCwVN,vIYWdSA", "vKYIeOm,vtY2oP2", "vdYqJeN,vdYyNmp", "vCYuyQf,vMYp1az", "vtYdSA3,vMYJRNh", "vCYMueF,vtYZxph", "vLYQkee,vCYZE8x"],
+    "pro": ["vtYCwVN,vIYWdSA", "vKYIeOm,vtY2oP2", "vdYqJeN,vdYyNmp", "vCYuyQf,vMYp1az", "vtYdSA3,vMYJRNh", "vCYMueF,vtYZxph", "vLYQkee,vCYZE8x"],
     "prodev": ["vIYM4GJ,vdYN0y7"]
 };
 if ($.isNode()) {

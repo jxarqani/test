@@ -81,6 +81,9 @@ $(document).ready(function () {
         editor.setOption('lineWrapping', !lineWrapping);
     });
 
+    $('#move-bottom').click(function () {
+        editor.execCommand('goDocEnd');
+    })
 
     //自动触发事件
     function dispatch(ele, type) {

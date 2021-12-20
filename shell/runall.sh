@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-12
+## Modified: 2021-12-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -107,22 +107,30 @@ function Main() {
     echo -e ''
     echo -e '1)   Scripts 仓库的脚本'
     echo -e '2)   Scripts 目录下的所有脚本'
-    echo -e '3)   指定路径下的所有脚本（非递归）'
+    echo -e '3)   Scripts 目录下的第三方脚本'
+    echo -e '4)   指定路径下的所有脚本（非递归）'
     while true; do
         read -p "$(echo -e "\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
-            [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$RunFile
             local WorkDir=$ScriptsDir
+            [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$RunFile
             cd $CurrentDir
             break
             ;;
         2)
-            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
             local WorkDir=$ScriptsDir
+            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
             break
             ;;
         3)
+            local WorkDir=$ScriptsDir
+            cd $ScriptsDir
+            ls | egrep "${ScriptType}" | grep -Ev "$(git ls-files)|/|${ShieldingKeywords}" | sort -u >$RunFile
+            cd $CurrentDir
+            break
+            ;;
+        4)
             Import_Config_Not_Check
             echo -e "\n❖ 检测到的仓库："
             echo -e "$ScriptsDir"
@@ -133,14 +141,14 @@ function Main() {
             while true; do
                 read -p "$(echo -e "\n${BOLD}└ 请输入绝对路径：${PLAIN}")" Input4
                 local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
-                if [[ $Input4 ]] && [ -d $AbsolutePath ]; then
+                if [[ $Input4 ]] && [ -d ${AbsolutePath} ]; then
                     break
                 else
                     echo -e "\n$ERROR 目录不存在或输入有误！"
                 fi
             done
-            ls $AbsolutePath | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$AbsolutePath/|g; s|//|/|;}" | sort -u >$RunFile
-            local WorkDir=$AbsolutePath
+            ls ${AbsolutePath} | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${AbsolutePath}/|g; s|//|/|;}" | sort -u >$RunFile
+            local WorkDir=${AbsolutePath}
             break
             ;;
         esac
@@ -152,7 +160,7 @@ function Main() {
         for del in ${ExcludeScripts}; do
             sed -i "/$del/d" $RunFile
         done
-        ## 输出脚本清单
+        ## 列出选中脚本清单
         cd $WorkDir
         local ListFiles=($(
             cat $RunFile | perl -pe '{s|^.*/||g;}'
@@ -160,7 +168,7 @@ function Main() {
         echo -e "\n❖ 当前选择的脚本："
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
             Query_Name ${ListFiles[i]}
-            echo -e "$(($i + 1)).${Name}：${ListFiles[i]}"
+            echo -e "$(($i + 1)).${ScriptName}：${ListFiles[i]}"
         done
         cd $CurrentDir
         read -p "$(echo -e "\n${BOLD}└ 请确认是否继续 [ Y/n ]：${PLAIN}")" Input5
