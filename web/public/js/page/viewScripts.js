@@ -11,7 +11,7 @@ $(document).ready(function () {
         mode: 'javascript',
         theme: themeChange.getAndUpdateEditorTheme(),
     });
-    let metisMenu, $menuTree = $('#menuTree'), $scriptsSaveBtn = $('#save');
+    var $menuTree = $('#menuTree'), $scriptsSaveBtn = $('#save');
     $scriptsSaveBtn.hide();
 
     function createFileTree(dirs) {
@@ -36,7 +36,7 @@ $(document).ready(function () {
             let navHtml = createFileTree(res.data);
             $menuTree.metisMenu('dispose')
             $menuTree.html(navHtml);
-            metisMenu = $menuTree.metisMenu();
+            $menuTree.metisMenu();
         });
     }
 
@@ -83,7 +83,11 @@ $(document).ready(function () {
 
     $('#move-bottom').click(function () {
         editor.execCommand('goDocEnd');
-    })
+    });
+
+    setTimeout(function () {
+        userAgentTools.mobile(navigator.userAgent) && dispatch(document.getElementById('toggleIcon'), 'click');
+    }, 100);
 
     //自动触发事件
     function dispatch(ele, type) {

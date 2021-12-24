@@ -12,7 +12,7 @@ $(document).ready(function () {
         mode: 'shell',
         theme: themeChange.getAndUpdateEditorTheme(),
     });
-    let metisMenu, $menuTree = $('#menuTree');
+    var $menuTree = $('#menuTree');
 
     function loadData(keywords = '') {
         panelRequest.get('/api/logs', {keywords}, function (res) {
@@ -49,7 +49,7 @@ $(document).ready(function () {
 
             $menuTree.metisMenu('dispose')
             $menuTree.html(navHtml);
-            metisMenu = $menuTree.metisMenu();
+            $menuTree.metisMenu();
         });
     }
 
@@ -95,6 +95,10 @@ $(document).ready(function () {
         var lineWrapping = editor.getOption('lineWrapping');
         editor.setOption('lineWrapping', !lineWrapping);
     });
+
+    setTimeout(function () {
+        userAgentTools.mobile(navigator.userAgent) && dispatch(document.getElementById('toggleIcon'), 'click');
+    }, 100);
 
 
     //自动触发事件
