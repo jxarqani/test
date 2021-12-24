@@ -113,7 +113,7 @@ nav .menu-item:nth-of-type(4):hover~#sub-menu-container #sub-menu-holder {
 .menu-item .sub-menu {
     position: absolute;
     /* 下拉菜单内容高度 */
-    top: 4.5em;
+    top: 4.25em;
     color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     min-width: 22.125em;

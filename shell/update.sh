@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-24
+## Modified: 2021-12-25
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -338,11 +338,11 @@ function Add_Cron_Own() {
         echo -e "$WORKING 开始添加 own 脚本的定时任务...\n"
         local Detail=$(cat $ListAdd)
         for FilePath in $Detail; do
-            local FileName=$(echo $FilePath | awk -F "/" '{print $NF}')
-            if [ -f $FilePath ]; then
-                if [ $FilePath = "$RawDir/$FileName" ]; then
+            local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
+            if [ -f ${FilePath} ]; then
+                if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|$FileName" $FilePath | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
@@ -355,19 +355,18 @@ function Add_Cron_Own() {
                     fi
                     ## 如果未检测出定时则随机一个
                     if [ -z "${cron}" ]; then
-                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd $FilePath" | sort -u | head -1 >>$ListCrontabOwnTmp
+                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     else
-                        echo "$cron $TaskCmd $FilePath" | sort -u | head -1 >>$ListCrontabOwnTmp
+                        echo "$cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     fi
                 else
-                    perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*$FileName/" $FilePath |
-                        perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$FileName.*|\1 $TaskCmd $FilePath|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd $FilePath)|\1|;}" |
+                    perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                        perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
                         sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
                 fi
             fi
         done
-        Crontab_Tmp="$(cat $ListCrontabOwnTmp)"
-        perl -i -pe "s|(# 自用own任务结束.+)|$Crontab_Tmp\n\1|" $ListCrontabUser
+        perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
         ExitStatus=$?
     fi
     [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
@@ -466,12 +465,13 @@ function Update_RawFile() {
                 ;;
             esac
             ## 拉取脚本
-            echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本"
+            echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 10
         else
             ## 拉取脚本
-            echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本"
-            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${OwnRawFile[i]} -T 10
+            DownloadUrl="${InputContent}"
+            echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
+            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 10
         fi
         if [ $? -eq 0 ]; then
             mv -f "$RawDir/${RawFileName[$i]}.new" "$RawDir/${RawFileName[$i]}"
@@ -599,6 +599,7 @@ function Update_Own() {
             echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！\n"
             exit ## 终止退出
         fi
+        Title $1
         ;;
     esac
     if [[ ${#array_own_scripts_path[*]} -gt 0 ]]; then
@@ -836,7 +837,6 @@ function Combin_Function() {
             Update_Own "repo"
             ;;
         raw)
-            Title $1
             Update_Own "raw"
             ;;
         extra)

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-20
+## Modified: 2021-12-25
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -10,10 +10,10 @@ function Find_Script() {
 
     ## 通过各种判断将得到的必要信息传给接下来运行的函数或命令
 
-    ##   "FileName" 脚本名称（去后缀）
-    ##   "FileSuffix" 脚本后缀名
-    ##   "FileFormat" 脚本类型
-    ##   "FileDir" 脚本所在目录（绝对路径）
+    ##   "FileName"     脚本名称（去后缀）
+    ##   "FileSuffix"   脚本后缀名
+    ##   "FileFormat"   脚本类型
+    ##   "FileDir"      脚本所在目录（绝对路径）
 
     ## 不论何种匹配方式或查找方式，当未指定脚本类型但存在同名脚本时，执行优先级为 JavaScript > Python > TypeScript > Shell
 
@@ -214,7 +214,7 @@ function Find_Script() {
 
     ## 匹配位于远程仓库的脚本
     function MatchingRemoteFile() {
-        local DownloadJudge RepositoryJudge ProxyJudge RepositoryName InputContentFormat
+        local DownloadJudge RepoJudge ProxyJudge RepoName InputContent_Format
         local FileNameTmp=${InputContent##*/}
 
         ## 判断并定义脚本类型
@@ -243,39 +243,39 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库
-        RepositoryName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
-        case ${RepositoryName} in
+        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
+        case ${RepoName} in
         github)
-            RepositoryJudge=" Github "
+            RepoJudge=" Github "
             ;;
         gitee)
-            RepositoryJudge=" Gitee "
+            RepoJudge=" Gitee "
             ;;
         gitlab)
-            RepositoryJudge=" GitLab "
+            RepoJudge=" GitLab "
             ;;
         *)
-            RepositoryJudge=""
+            RepoJudge=""
             ;;
         esac
 
         ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
-            if [[ ${RepositoryJudge} == " Github " ]]; then
+            if [[ ${RepoJudge} == " Github " ]]; then
                 echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
                 if [ $? -eq 0 ]; then
-                    InputContentFormat=$(echo ${InputContent} | perl -pe "{s|github\.com|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                    InputContent_Format=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
                 else
-                    InputContentFormat=${InputContent}
+                    InputContent_Format=${InputContent}
                 fi
-            elif [[ ${RepositoryJudge} == " Gitee " ]]; then
-                InputContentFormat=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+            elif [[ ${RepoJudge} == " Gitee " ]]; then
+                InputContent_Format=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
             else
-                InputContentFormat=${InputContent}
+                InputContent_Format=${InputContent}
             fi
         else
-            InputContentFormat=${InputContent}
+            InputContent_Format=${InputContent}
         fi
 
         ## 判定是否使用代理
@@ -288,8 +288,8 @@ function Find_Script() {
         fi
 
         ## 拉取脚本
-        echo -en "\n$WORKING 正在从${RepositoryJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
-        wget -q --no-check-certificate "${DownloadJudge}${InputContentFormat}" -O "$ScriptsDir/${FileNameTmp}.new" -T 8
+        echo -en "\n$WORKING 正在从${RepoJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
+        wget -q --no-check-certificate "${DownloadJudge}${InputContent_Format}" -O "$ScriptsDir/${FileNameTmp}.new" -T 8
         local ExitStatus=$?
         echo ''
 
@@ -298,7 +298,7 @@ function Find_Script() {
             mv -f "$ScriptsDir/${FileNameTmp}.new" "$ScriptsDir/${FileNameTmp}"
             case ${RUN_MODE} in
             normal)
-                RunModJudge="依次"
+                RunModJudge="普通"
                 ;;
             concurrent)
                 RunModJudge="并发"
@@ -322,7 +322,7 @@ function Find_Script() {
             RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
-            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查目标 URL 地址是否正确或网络连通性问题...\n"
+            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
             exit ## 终止退出
         fi
     }
@@ -332,8 +332,10 @@ function Find_Script() {
         local CurrentDir=$(pwd)
         local WorkDir=$1
         cd $WorkDir
+        ## 拷贝核心组件
         [ ! -f $WorkDir/jdCookie.js ] && cp -rf $UtilsDir/jdCookie.js .
         [ ! -f $WorkDir/USER_AGENTS.js ] && cp -rf $UtilsDir/USER_AGENTS.js .
+        ## 拷贝推送通知脚本
         cp -rf $FileSendNotify .
         cd $CurrentDir
     }
@@ -416,7 +418,7 @@ function Run_Normal() {
 
     ## 加载账号
     if [[ ${RUN_DESIGNATED} == true ]]; then
-        local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
+        Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
         for UserNum in ${Accounts}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -438,6 +440,7 @@ function Run_Normal() {
         ## 声明变量
         export JD_COOKIE=${COOKIE_TMP}
     else
+        ## 组合 Cookie
         Combin_Cookie
     fi
 
@@ -445,13 +448,14 @@ function Run_Normal() {
     if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
+        ## 组合互助码
         Combin_ShareCodes
     fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
     cd ${FileDir}
-    ## 定义日志文件
+    ## 定义日志文件路径
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
     ## 执行脚本
     if [[ ${RUN_BACKGROUND} == true ]]; then
@@ -522,7 +526,7 @@ function Run_Concurrent() {
         local Num=$1
         local Tmp=Cookie${Num}
         export JD_COOKIE=${!Tmp}
-        ## 定义日志文件
+        ## 定义日志文件路径
         LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_${Num}.log"
         ## 记录执行开始时间
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
@@ -551,6 +555,7 @@ function Run_Concurrent() {
     if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
+        ## 组合互助码
         Combin_ShareCodes
     fi
     [[ ${RUN_DELAY} == true ]] && Random_Delay
@@ -560,7 +565,7 @@ function Run_Concurrent() {
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
-        local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
+        Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
         for UserNum in ${Accounts}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -616,7 +621,7 @@ function Process_Kill() {
     ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}\b" -wq
     local ExitStatus=$?
     if [[ ${ExitStatus} == 0 ]]; then
-        ## 列出进程到的相关进程
+        ## 列出检测到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程号] [脚本名称]${PLAIN}"
         ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
@@ -830,6 +835,7 @@ function Cookies_Control() {
             )
 
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
+                ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
                 echo -e "\n$WORKING 检测到 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
                 ## 记录执行开始时间
@@ -908,6 +914,7 @@ function Cookies_Control() {
             ## 判定该 pt_pin 对应 Cookie 是否存在
             grep ${FormatPin} -q $FileAccountConf
             if [ $? -eq 0 ]; then
+                ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
                 echo -e "\n$WORKING 开始更新账号 ${BLUE}$UserNum${PLAIN} ...\n"
                 ## 声明变量
@@ -1002,8 +1009,8 @@ function Cookies_Control() {
 }
 
 ## 被你发现了嘿嘿，等有空了再写~
-## 添加 own 仓库功能
-function Add_Repos() {
+## 添加 Own 仓库功能
+function Add_OwnRepo() {
     case $# in
     0) ;;
 
@@ -1013,13 +1020,133 @@ function Add_Repos() {
 }
 
 ## 添加 Raw 脚本功能
-function Add_Raws() {
-    case $# in
-    0) ;;
+function Add_RawFile() {
+    local RawFileName FormatUrl ReformatUrl RepoBranch RepoUrl RepoPlatformUrl DownloadUrl FormatDownloadUrl RawFilePath FormatRawFilePath
+    local InputContent=$1
+    ## 定义脚本名称
+    RawFileName=$(echo ${InputContent} | awk -F "/" '{print $NF}')
 
-    1) ;;
+    ## 判断脚本来源（ 托管仓库 or 普通网站 ）
+    echo ${InputContent} | grep -Eq "github\.com|gitee\.com|gitlab\.com"
+    if [ $? -eq 0 ]; then
+        echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
+        if [ $? -eq 0 ]; then
+            ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
+            case $(echo ${InputContent} | grep -Eo "github|gitee|gitlab") in
+            github)
+                echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
+                if [ $? -eq 0 ]; then
+                    DownloadUrl=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                else
+                    DownloadUrl=${InputContent}
+                fi
+                ;;
+            gitee)
+                DownloadUrl=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                ;;
+            gitlab)
+                DownloadUrl=${InputContent}
+                ;;
+            esac
+        else
+            ## 原始链接不做任何处理
+            DownloadUrl=${InputContent}
+        fi
 
-    esac
+        ## 处理仓库地址
+        FormatUrl=$(echo ${DownloadUrl} | perl -pe "{s|${RawFileName}||g;}" | awk -F '.com' '{print$NF}' | sed 's/.$//')
+        ## 判断仓库平台
+        case $(echo ${DownloadUrl} | grep -Eo "github|gitee|gitlab") in
+        github)
+            RepoPlatformUrl="https://github.com"
+            RepoBranch=$(echo $FormatUrl | awk -F '/' '{print$4}')
+            ReformatUrl=$(echo $FormatUrl | sed "s|$RepoBranch|tree/$RepoBranch|g")
+            ## 定义脚本来源仓库地址链接
+            RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
+            ;;
+        gitee)
+            RepoPlatformUrl="https://gitee.com"
+            ReformatUrl=$(echo $FormatUrl | sed "s|/raw/|/tree/|g")
+            ## 定义脚本来源仓库地址链接
+            RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
+            ;;
+        gitlab)
+            ## 定义脚本来源仓库地址链接
+            RepoUrl=${DownloadUrl}
+            ;;
+        esac
+        ## 拉取脚本
+        echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName} 脚本..."
+        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 10
+    else
+        ## 拉取脚本
+        DownloadUrl="${InputContent}"
+        echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
+        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 10
+    fi
+    FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+
+    ## 判断下载结果
+    if [ $? -eq 0 ]; then
+        mv -f "$RawDir/${RawFileName}.new" "$RawDir/${RawFileName}"
+        echo -e "$COMPLETE ${RawFileName} 下载完成，脚本保存路径：$RawDir/${RawFileName}"
+
+        ## 定义脚本路径
+        RawFilePath="$RawDir/${RawFileName}"
+        ## 判断表达式所在行
+        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        ## 判断开头
+        local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
+        ## 判断表达式的第一个数字（分钟）
+        local Tmp3=$(echo "${Tmp1}" | grep -Eo "[0-9]" | head -1)
+        ## 判定开头是否为空值
+        if [[ $(echo "${Tmp2}" | perl -pe '{s| ||g;}') = "" ]]; then
+            local cron=$(echo "${Tmp1}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+        else
+            local cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+        fi
+        ## 如果未检测出定时则随机一个
+        if [ -z "${cron}" ]; then
+            local FullContent="$(echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${RawFilePath}" | sort -u | head -1)"
+        else
+            local FullContent="$(echo "$cron $TaskCmd ${RawFilePath}" | sort -u | head -1)"
+        fi
+
+        ## 添加定时任务
+        FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
+            perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
+            ## 判断添加结果
+            if [ $? -eq 0 ]; then
+                ## 写进清单
+                echo "${RawFilePath}" >>$ListOwnAll
+                echo "${RawFilePath}" >>$ListOwnUser
+                ## 打印定时
+                echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
+                echo -e "\n$COMPLETE 定时任务已添加\n"
+            else
+                echo -e "\n$ERROR 定时任务添加失败\n"
+            fi
+        else
+            echo -e "\n$WARN 该脚本定时任务已存在，跳过添加\n"
+        fi
+
+        ## 添加变量
+        Import_Config_Not_Check
+        for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
+            if [[ ${OwnRawFile[i]} == ${DownloadUrl} ]]; then
+                echo -e "$WARN 检测到 OwnRawFile 变量中已存在该脚本，跳过添加变量\n"
+                echo -e "${GREEN}Tips：${PLAIN}请尽量不要尝试重复添加以免产生未知问题！\n"
+                exit ## 终止退出
+            fi
+        done
+        sed -i "s/OwnRawFile=(/\1OwnRawFile=(\n  ${FormatDownloadUrl}/" $FileConfUser
+
+    else
+        [ -f "$RawDir/${RawFileName}.new" ] && rm -rf "$RawDir/${RawFileName}.new"
+        echo -e "\n$ERROR 脚本 ${RawFileName} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
+        exit ## 终止退出
+    fi
 }
 
 ## 管理全局环境变量功能
@@ -1038,7 +1165,7 @@ function Manage_Env() {
             VariableTmp=$2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             exit ## 终止退出
             ;;
         esac
@@ -1095,7 +1222,7 @@ function Manage_Env() {
                     exit ## 终止退出
                     ;;
                 *)
-                    Output_Command_Error 1
+                    Output_Command_Error 1 ## 命令错误
                     exit ## 终止退出
                     ;;
                 esac
@@ -1109,7 +1236,7 @@ function Manage_Env() {
                     sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
                     ;;
                 *)
-                    Output_Command_Error 1
+                    Output_Command_Error 1 ## 命令错误
                     exit ## 终止退出
                     ;;
                 esac
@@ -1163,7 +1290,7 @@ function Manage_Env() {
             local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             exit ## 终止退出
             ;;
         esac
@@ -1535,7 +1662,6 @@ function List_Local_Scripts() {
 
     ## 列出 Scripts 仓库中的脚本
     function List_Scripts() {
-        local Name
         cd $ScriptsDir
         local ListFiles=($(
             git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
@@ -1547,9 +1673,9 @@ function List_Local_Scripts() {
         done
     }
 
-    ## 列出本地其它仓库中的脚本
+    ## 列出所有 Own 仓库中的脚本
     function List_Own() {
-        local Name FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
+        local FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
         Import_Config_Not_Check
 
         if [[ ${OwnRepoUrl1} ]]; then
@@ -1597,7 +1723,6 @@ function List_Local_Scripts() {
 
     ## 列出 scripts 目录下的第三方脚本
     function List_Other() {
-        local Name
         cd $ScriptsDir
         local ListFiles=($(
             ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
@@ -1611,18 +1736,46 @@ function List_Local_Scripts() {
         fi
     }
 
-    echo -e "#################################### 本  地  脚  本  清  单 ####################################"
-    echo -e "自行导入的脚本不会随更新而自动删除，Python 和 TypeScript 类型的脚本只有在安装了相关环境后才会列出"
-    case ${ARCH} in
-    armv7l | armv6l) ;;
-    *)
-        echo -e "TypeScript 脚本如遇报错可使用 tsc 命令转换成 js 脚本后执行，转换命令格式：tsc <含有路径的脚本名>"
+    ## 列出指定目录下的脚本
+    function List_Designated() {
+        local WorkDir=$1
+        if [ -d $WorkDir ]; then
+            if [ "$(ls -A $WorkDir | grep -E "${ScriptType}")" = "" ]; then
+                if [ "$(ls -A $WorkDir)" = "" ]; then
+                    echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
+                else
+                    echo -e "\n$ERROR 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
+                fi
+                exit ## 终止退出
+            fi
+        else
+            echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！\n"
+            exit ## 终止退出
+        fi
+        cd $WorkDir
+        local ListFiles=($(
+            ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
+        ))
+        if [ ${#ListFiles[*]} != 0 ]; then
+            echo -e "\n❖ 检测到的脚本："
+            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                Query_Name ${ListFiles[i]}
+                echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
+            done
+        fi
+    }
+
+    case $# in
+    0)
+        echo -e "#################################### 本  地  脚  本  清  单 ####################################"
+        List_Scripts
+        List_Own
+        List_Other
+        ;;
+    1)
+        List_Designated $1
         ;;
     esac
-
-    List_Scripts
-    List_Own
-    List_Other
     echo ''
 }
 
@@ -1679,7 +1832,7 @@ case $# in
             Process_CleanUp $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1692,7 +1845,7 @@ case $# in
             Cookies_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1702,17 +1855,37 @@ case $# in
             Manage_Env $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
     *)
         case $1 in
-        list | ps | exsc)
-            Output_Command_Error 2
+        list)
+            echo $2 | grep "\/" -q
+            if [ $? -eq 0 ]; then
+                List_Local_Scripts $2
+            else
+                if [ -d "./$2" ]; then
+                    List_Local_Scripts "./$2"
+                else
+                    echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的路径，请确认！\n"
+                fi
+            fi
+            ;;
+        raw)
+            echo $2 | grep -Eq "http.*:"
+            if [ $? -eq 0 ]; then
+                Add_RawFile $2
+            else
+                echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的 URL ，请确认！\n"
+            fi
+            ;;
+        ps | exsc)
+            Output_Command_Error 2 ## 命令过多
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1809,12 +1982,12 @@ case $# in
                 Cookies_Control $2 $3
                 ;;
             *)
-                Output_Command_Error 1
+                Output_Command_Error 1 ## 命令错误
                 ;;
             esac
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1824,7 +1997,7 @@ case $# in
             Manage_Env $2 $3
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1834,7 +2007,7 @@ case $# in
             Manage_Env edit $2 $3
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1844,7 +2017,7 @@ case $# in
             SendNotify $2 $3
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -1954,19 +2127,20 @@ case $# in
                 Manage_Env $2 $3 "$4"
                 ;;
             *)
-                Output_Command_Error 1
+                Output_Command_Error 1 ## 命令错误
                 ;;
             esac
         else
-            Output_Command_Error 2
+            Output_Command_Error 2 ## 命令过多
         fi
         ;;
     *)
-        Output_Command_Error 1
+        Output_Command_Error 1 ## 命令错误
         ;;
     esac
     ;;
+
 *)
-    Output_Command_Error 2
+    Output_Command_Error 2 ## 命令过多
     ;;
 esac

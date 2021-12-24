@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-24
+## Modified: 2021-12-25
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -82,7 +82,7 @@ COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
 RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
 ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts"
-ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
+ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
 GithubProxy="https://ghproxy.com/"
@@ -99,11 +99,11 @@ name_script=(
     jd_plantBean
     jd_dreamFactory
     jd_jdfactory
-    jd_bookshop
-    jd_cash
     jd_sgmh
     jd_cfd
     jd_health
+    jd_cash
+    jd_bookshop
     jd_global
     jd_carnivalcity
     jd_city
@@ -115,11 +115,11 @@ name_config=(
     Bean
     DreamFactory
     JdFactory
-    BookShop
-    Cash
     Sgmh
     Cfd
     Health
+    Cash
+    BookShop
     Global
     Carni
     City
@@ -131,11 +131,11 @@ name_chinese=(
     京东种豆得豆
     京喜工厂
     东东工厂
-    口袋书店
-    签到领现金
     闪购盲盒
     京喜财富岛
     东东健康社区
+    签到领现金
+    口袋书店
     环球挑战赛
     京东手机狂欢城
     城城领现金
@@ -147,11 +147,11 @@ bot_command=(
     bean
     jxfactory
     ddfactory
-    bookshop
-    sign
     sgmh
     cfd
     health
+    sign
+    bookshop
     global
     carnivalcity
     city
@@ -230,10 +230,10 @@ function Combin_ShareCodes() {
     export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
     export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
     export DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
-    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
-    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
     export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
     export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
+    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
+    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
     export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
     export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
     export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
@@ -291,13 +291,15 @@ function Help() {
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，可选参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
  ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
  ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
  ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}               ✧ 添加 Raw 脚本功能，单独拉取脚本至本地并自动添加定时任务
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
  ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
@@ -328,13 +330,15 @@ function Help() {
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，可选参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
  ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
  ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
  ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}               ✧ 添加 Raw 脚本功能，单独拉取脚本至本地并自动添加定时任务
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
  ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
