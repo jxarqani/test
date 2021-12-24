@@ -270,6 +270,10 @@ h4 {
     padding: .5rem 1rem .5rem 2rem;
 }
 
+.elk-side-nav .metismenu {
+    height: 100%;
+}
+
 .metismenu .has-arrow::after {
     left: .5rem;
     right: auto;
