@@ -99,6 +99,6 @@ echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && slee
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
 echo -e "Tips: 请退出查看容器初始化日志\n"
 
-crond -f >/dev/null 2>&1
+crond -f >/dev/null
 
 exec "$@"

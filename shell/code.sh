@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-12-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -169,7 +169,7 @@ function Export_Bot_Submit_Format() {
             Tmp2=${!Tmp1}
             CombinAll="${CombinAll}&${Tmp2}"
         done
-        echo -e "\n## ${name_chinese[j]}：\n# /${bot_command[j]} $(echo $CombinAll | perl -pe "{s|^&||; s|&&&&|&&&|; s|&&&|&&|; s|&&|&|; s|&$||;}")"
+        echo -e "\n## ${name_chinese[j]}：\n# /${bot_command[j]} $(echo $CombinAll | perl -pe "{s|^&||; s|&&&&|&&&|; s|&&&|&&|; s|&&|&|; s|&$||; s|京东种豆|种豆|;}")"
     done
     echo ''
 }
@@ -215,5 +215,5 @@ Gen_pt_pin_Array
 LogTime=$(date "+%Y-%m-%d-%H-%M-%S")
 LogPath="$CodeDir/${LogTime}.log"
 Make_Dir $CodeDir
-Export_Codes_All | perl -pe "{s|京东种豆|种豆|; s|crazyJoy任务|疯狂的JOY|}" | tee ${LogPath}
+Export_Codes_All | perl -pe "{s|京东种豆|种豆|;}" | tee ${LogPath}
 Export_Bot_Submit_Format | tee -a ${LogPath}

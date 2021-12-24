@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-15
+## Modified: 2021-12-24
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -80,8 +80,9 @@ ERROR='[\033[31mERROR\033[0m]'
 WORKING='[\033[34m*\033[0m]'
 COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
+RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
 ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts"
-ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|JDJR|validate|ZooFaker|MovementFaker|tencentscf|api_test|app\.|main\.|jdEnv|${ShieldingScripts}"
+ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
 GithubProxy="https://ghproxy.com/"
@@ -175,7 +176,7 @@ function Import_Config_Not_Check() {
     fi
 }
 
-## 命令错误输出
+## 输出命令错误提示
 function Output_Command_Error() {
     local Mod=$1
     case $Mod in
@@ -217,7 +218,7 @@ function Combin_Sub() {
 
 ## 组合互助码
 function Combin_ShareCodes() {
-    ## 读取已导出的互助码类变量（自动互助功能）
+    ## 读取已导出的互助码类变量（自动互助）
     if [[ $AutoHelpOther == true ]] && [[ -d $CodeDir ]]; then
         if [[ $(ls $CodeDir) ]]; then
             local LatestLog=$(ls -r $CodeDir | head -1)
@@ -277,8 +278,7 @@ function Query_Name() {
     if [[ ${Tmp} ]]; then
         ScriptName=${Tmp}
     else
-        ## 从收录的词典中获取
-        . $FileScriptDictionary $FileName
+        ScriptName="<未知>"
     fi
 }
 

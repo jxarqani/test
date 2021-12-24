@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-12
+## Modified: 2021-12-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -220,7 +220,7 @@ function Panel_Control() {
             cp -f $FileAuthSample $FileAuth
         fi
         echo ''
-        jq '.' $FileAuth | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[更新接口Token]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
+        jq '.' $FileAuth | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"cookieApiToken\"|[openApiToken]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
         echo -e '\n'
         ;;
     ## 重置密码
@@ -515,7 +515,7 @@ case $# in
     Help
     ;;
 1)
-    Output_Command_Error 1
+    Output_Command_Error 1 ## 命令错误
     ;;
 2)
     case $2 in
@@ -525,7 +525,7 @@ case $# in
             Panel_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -535,7 +535,7 @@ case $# in
             Hang_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -545,7 +545,7 @@ case $# in
             Bot_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -558,7 +558,7 @@ case $# in
             Bot_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -568,7 +568,7 @@ case $# in
             Server_Status
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -578,7 +578,7 @@ case $# in
             Panel_Control $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -588,7 +588,7 @@ case $# in
             Environment_Deployment $2
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
@@ -598,16 +598,16 @@ case $# in
             Check_Files
             ;;
         *)
-            Output_Command_Error 1
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;
     *)
-        Output_Command_Error 1
+        Output_Command_Error 1 ## 命令错误
         ;;
     esac
     ;;
 *)
-    Output_Command_Error 2
+    Output_Command_Error 2 ## 命令过多
     ;;
 esac

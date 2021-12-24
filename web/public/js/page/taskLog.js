@@ -96,10 +96,13 @@ $(document).ready(function () {
         editor.setOption('lineWrapping', !lineWrapping);
     });
 
+    $('#move-bottom').click(function () {
+        editor.execCommand('goDocEnd');
+    })
+
     setTimeout(function () {
         userAgentTools.mobile(navigator.userAgent) && dispatch(document.getElementById('toggleIcon'), 'click');
     }, 100);
-
 
     //自动触发事件
     function dispatch(ele, type) {

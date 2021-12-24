@@ -1,6 +1,6 @@
-## Version: v1.07.2
-## Date: 2021-12-15
-## Update Content: \n1. 调整区域划分，修改部分注释内容\n2. 移除京喜农场互助变量模板
+## Version: v1.07.3
+## Date: 2021-12-24
+## Update Content: \n1. 调整排版
 
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 ## 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -10,10 +10,9 @@
 
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 账 号 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-################################## 说 明 ##################################
-## 所有赋值等号两边不能有空格，所有的值请一律在两侧添加半角的双引号，如果变量值中含有双引号，则外侧改为一对半角的单引号。
+## 注意：所有赋值等号两边不能有空格，所有的值请一律在两侧添加半角的双引号，如果变量值中含有双引号，则外侧改为一对半角的单引号。
 
-################################## ※ 定义账号（必填） ##################################
+## ※ 定义账号（必填）
 ## 请依次填入每个用户的Cookie，具体格式为( pt_key=xxxxxxxxxx;pt_pin=xxxx; )，只有 pt_key 字段和 pt_pin 字段，没有其他字段
 ## 必须按数字顺序1、2、3、4...依次编号下去，账号变量之间不能有空变量，否则自第一个空变量开始下面的所有账号将不会生效
 ## 不允许有汉字，如果ID有汉字，请在PC浏览器上获取Cookie，会自动将汉字转换为URL编码，或者通过面板的转码工具进行转换
@@ -22,7 +21,7 @@ Cookie1=""
 Cookie2=""
 
 
-################################## 账号临时屏蔽（选填） ##################################
+## ❖ 账号临时屏蔽功能（选填）
 ## 如果某些 Cookie 已经失效了但暂时还没法更新，可以使用此功能在不做任何更改的前提下临时屏蔽掉某些编号的 Cookie
 ## 全局屏蔽 Cookie，举例：TempBlockCookie="2 4" 临时屏蔽掉 Cookie2 和 Cookie4
 ## 该功能在指定账号执行脚本时所有屏蔽设置均不会生效
@@ -43,7 +42,8 @@ TempBlockCookie=""
 #   ;;
 # esac
 
-################################## 定义是否自动增加新的账号（暂时保留，已失效） ##################################
+
+## ❖ 自动增加新的账号（已失效，暂时保留）
 ## 自动添加新增Cookie，默认启用即扫码登陆后会自动添加新的Cookie，如想禁用请修改位 "false"
 ## 如果部署了副容器建议按需启用此功能以此避免被滥用，避免自动添加不认识的人的Cookie账号
 # export CK_AUTO_ADD="true"
@@ -51,18 +51,26 @@ TempBlockCookie=""
 
 
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 仓 库 功 能 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-## 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方变量拉取更多的仓库或脚本
-
-################################## 定义是否启用其他开发者的仓库（选填） ##################################
+## 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方的变量添加更多的仓库或脚本到本地
 ## 提供两种方式，请认真阅读注释内容，针对同一个仓库，为了防止定时冲突方式一和方式二只能选择一种
 ## 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
 
-## 方式一：完整更新整个仓库（基于 Git）
-## 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，仅支持导入 js 类型的脚本
-## 即当脚本的注释内容中同时含有crontab表达式和脚本名才可自动增加定时任务，否则略过，此标准方法能排除许多无用脚本
+## ❖ 方式一：克隆仓库（基于 Git）
+## 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
+## 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
 
+OwnRepoUrl1=""
+OwnRepoUrl2=""
+
+OwnRepoBranch1=""
+OwnRepoBranch2=""
+
+OwnRepoPath1=""
+OwnRepoPath2=""
+
+## 示例：
 ## OwnRepoUrl：仓库地址清单，必须从1开始依次编号
 ## OwnRepoBranch：您想使用的分支清单，不能为 "空" 必须指定分支的名称，编号必须和 OwnRepoUrl 对应。
 ## OwnRepoPath：要使用的脚本在仓库哪个路径下，请输入仓库下的相对路径，默认空值""代表仓库根目录，编号必须和 OwnRepoUrl 对应。
@@ -78,52 +86,47 @@ TempBlockCookie=""
 ## OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://ghproxy.com/https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
 ## OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
-OwnRepoUrl1=""
-OwnRepoUrl2=""
-
-OwnRepoBranch1=""
-OwnRepoBranch2=""
-
-OwnRepoPath1=""
-OwnRepoPath2=""
-
-## 方式二：单独下载想要的脚本（基于 Wget）
-## 请先确认您能正常下载该 raw 脚本才列在下方，无论是 Github 还是 Gitee 的仓库需填入 raw 原始文件链接。
-
-## 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始装自动增加定时任务，支持导入 js、py、ts 类型的脚本
-## 请确认对应脚本中是否含有 crontab 表达式，否则将导入残缺的定时任务，即 crontab 表达式为空仅包含命令内容
-## 注意缩进和格式，每行开头四个或两个空格，一行一个脚本链接，首尾一对半角括号，示例：
-## OwnRawFile=(
-##     https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-##     https://ghproxy.com/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
-##     https://ghproxy.com/https://github.com/sunsem/qx/raw/main/z_dida.js
-## )
-OwnRawFile=(
-)
-
-################################## 定义是否自动增加或自动删除 own 仓库脚本的定时任务（选填） ##################################
+## Own 仓库脚本定时任务开关（自动增加/自动删除）
 ## 自动增加: "AutoAddOwnRepoCron"；自动删除: "AutoDelOwnRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
 ## 本项目不一定能完全从脚本中识别出有效的cron设置，如果发现不能满足您的需要，请设置为 "false" 以取消自动增加或自动删除。
 AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
-################################## 定义是否自动增加或自动删除 raw 脚本的定时任务（选填） ##################################
+## Own 仓库脚本定时任务屏蔽功能
+## 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词不支持符号仅限英文和数字，多个关键词用空格隔开，注意区分大小写
+## 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"
+OwnRepoCronShielding=""
+
+
+
+## ❖ 方式二：拉取脚本（基于 Wget）
+## 请先确认您能正常下载目标脚本后再列在下方，位于托管仓库的脚本自带地址纠正功能可不填入 raw 原始文件地址，支持一般网站
+## 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
+## 请确认对应脚本中是否含有 crontab 表达式，否则将导入残缺的定时任务，即 crontab 表达式为空仅包含命令内容
+## 注意缩进和格式，每行开头四个或两个空格，一行一个脚本链接，首尾一对半角括号
+
+OwnRawFile=(
+)
+
+## 示例：
+## OwnRawFile=(
+##     https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
+##     https://ghproxy.com/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
+##     https://ghproxy.com/https://github.com/sunsem/qx/raw/main/z_dida.js
+## )
+
+## Raw 脚本定时任务开关（自动增加/自动删除）
 ## 自动增加: "AutoAddOwnRawCron"；自动删除: "AutoDelOwnRawCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
 ## 本项目不一定能完全从脚本中识别出有效的cron设置，如果发现不能满足您的需要，请设置为 "false" 以取消自动增加或自动删除。
 AutoAddOwnRawCron="true"
 AutoDelOwnRawCron="true"
-
-################################## 定义是否屏蔽其他开发者仓库指定脚本的定时任务（选填） ##################################
-## 该屏蔽功能仅适用于 "启用其他开发者的仓库" 的方法一，如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，多个关键词用空格隔开
-## 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"，关键词不支持符号仅限英文和数字，注意区分大小写
-OwnRepoCronShielding=""
 
 
 
 
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 项 目 功 能 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-################################## 定义是否自动增加或自动删除 Scripts 仓库脚本的定时任务（选填） ##################################
+## ❖ 1. Scripts 仓库脚本定时任务开关（自动增加/自动删除）
 ## 当启用自动增加时，如果从检测文件中检测到有新的定时任务会自动在本地增加，定时时间为检测文件中定义的时间
 ## 当启用自动删除时，会自动从检测文件中读取比对删除的任务，脚本只会删除失效定时任务的所在行
 ## 当启用自动删除时，如果您有添加额外脚本是以 "jd_" "jr_" "jx_" 开头的会被自动删除，其它字符开头的任务则不受影响
@@ -132,41 +135,41 @@ OwnRepoCronShielding=""
 AutoAddCron="true"
 AutoDelCron="true"
 
-################################## 定义删除日志的时间（选填） ##################################
+## ❖ 2. 删除日志时间
 ## 定义在运行删除旧的日志任务时，要删除多少天以前的日志，请输入正整数，不填则禁用删除日志的功能
 RmLogDaysAgo="7"
 
-################################## 定义检测本地账号功能的过期提醒时间（选填） ##################################
-## 定义在运行该功能时的检测过期提醒天数，请输入正整数，不填则默认为 3 天
+## ❖ 3. 账号期提醒时间
+## 定义在运行检查本地账号是否有效功能时的检测过期提醒天数，请输入正整数，不填则默认为 3 天
 CheckCookieDaysAgo=""
 
-################################## 定义随机延迟启动任务（选填） ##################################
+## ❖ 4. 随机延迟时间范围
 ## 如果任务不是必须准点运行的任务，那么给它增加一个随机延迟，由您定义最大延迟时间，单位为秒，如 RandomDelay="300" ，表示任务将在 1-300 秒内随机延迟一个秒数，然后再运行
-## 在crontab.list中，在每小时第0-2分、第30-31分、第59分这几个时间内启动的任务，均算作必须准点运行的任务，在启动这些任务时，即使您定义了RandomDelay，也将准点运行，不启用随机延迟
+## 在crontab.list中，在每小时第的 0~3,30~31,58~59 几个分钟时间内启动的任务，均算作必须准点运行的任务，在启动这些任务时，即使您定义了RandomDelay，也将准点运行，不启用随机延迟
 ## 在crontab.list中，除掉每小时上述时间启动的任务外，其他任务在您定义了 RandomDelay 的情况下，一律启用随机延迟，但如果给某些任务添加了 "now"，那么这些任务也将无视随机延迟直接启动
 RandomDelay="300"
 
-################################## 定义 Extra 自定义脚本功能（选填） ##################################
+## ❖ 5. Extra 自定义脚本功能
 ## 如果您自己会写shell脚本，并且希望在每次更新脚本时额外运行您的脚本，请赋值为 "true"
 ## 请务必将您的脚本命名为 extra.sh (只能叫这个文件名)，放在 config 目录下
 ## 启用开关，如想启用请赋值为 "true"
 EnableExtraShell=""
 ## 定义 Extra 自定义脚本远程同步功能：
-## 1. 功能开关，如想启用请赋值为 "true"
+## 1). 功能开关，如想启用请赋值为 "true"
 EnableExtraShellSync=""
-## 2. 同步地址
+## 2). 同步地址
 ExtraShellSyncUrl=""
 
-################################## 定义更新账号成功后是否推送通知（选填） ##################################
+## ❖ 6. 更新账号推送通知
 ## 当使用 WSKEY 成功更新 Cookie 后是否推送通知，默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-################################## 定义执行位于远程仓库的脚本时执行完毕后是否删除脚本（选填） ##################################
+## ❖ 7. 定义执行位于远程仓库的脚本时执行完毕后是否删除脚本
 ## 当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 ## 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-################################## 定义执行脚本时是否启用代理（选填） ##################################
+## ❖ 8. 脚本代理功能
 ## global-agent (仅支持 js 脚本)
 ## 官方仓库：https://github.com/gajus/global-agent
 ## 官方文档：https://www.npmjs.com/package/global-agent
@@ -198,12 +201,11 @@ export GLOBAL_AGENT_HTTP_PROXY=""
 
 ## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 推 送 通 知 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-################################## 定义推送通知方式（选填） ##################################
-## 想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
+## 在下方定义推送通知方式，想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
 ## 目前提供：Server酱、iOS Bark APP、PushPlus(推送加)、Telegram机器人、钉钉机器人、企业微信机器人、企业微信应用、iGot、go-cqhttp等通知方式
 ## 具体教程请查看环境变量说明文档：https://github.com/chinnkarahoi/jd_scripts/blob/master/githubAction.md
 
-## ✩ 1. Server酱
+## ❖ 1. Server酱
 ## 官方网站：https://sct.ftqq.com
 ## 下方填写 SCHKEY 值或 SendKey 值
 export PUSH_KEY=""
@@ -212,7 +214,7 @@ export SCKEY_WECOM=""
 export SCKEY_WECOM_URL=""
 
 
-## ✩ 2. BARK
+## ❖ 2. Bark
 ## 参考图片：https://github.com/chinnkarahoi/jd_scripts/blob/master/icon/bark.jpg
 ## 下方填写app提供的设备码，例如：https://api.day.app/123 那么此处的设备码就是123
 export BARK_PUSH=""
@@ -222,7 +224,7 @@ export BARK_SOUND=""
 export BARK_GROUP=""
 
 
-## ✩ 3. Telegram 
+## ❖ 3. Telegram 
 ## 具体教程：https://github.com/chinnkarahoi/jd_scripts/blob/master/backUp/TG_PUSH.md
 ## 需设备可连接外网，"TG_BOT_TOKEN" 和 "TG_USER_ID" 必须同时赋值
 ## 下方填写自己申请 @BotFather 的 Token，如 10xxx4:AAFcqxxxxgER5uw
@@ -246,7 +248,7 @@ export TG_USER_ID=""
 # export TG_API_HOST=""
 
 
-## ✩ 4. 钉钉 
+## ❖ 4. 钉钉 
 ## 官方文档：https://developers.dingtalk.com/document/app/custom-robot-access
 ## 参考图片：https://github.com/chinnkarahoi/jd_scripts/blob/master/icon/DD_bot.png
 ## "DD_BOT_TOKEN" 和 "DD_BOT_SECRET" 必须同时赋值
@@ -257,26 +259,26 @@ export DD_BOT_TOKEN=""
 export DD_BOT_SECRET=""
 
 
-## ✩ 5. 企业微信机器人
+## ❖ 5. 企业微信 - 机器人
 ## 官方说明文档：https://work.weixin.qq.com/api/doc/90000/90136/91770
 ## 下方填写密钥，企业微信推送 webhook 后面的 key
 export QYWX_KEY=""
 
 
-## ✩ 6. 企业微信应用
+## ❖ 6. 企业微信 - 应用
 ## 参考文档：http://note.youdao.com/s/HMiudGkb
 ##          http://note.youdao.com/noteshare?id=1a0c8aff284ad28cbd011b29b3ad0191
 ## 下方填写素材库图片id（corpid,corpsecret,touser,agentid），素材库图片填0为图文消息, 填1为纯文本消息
 export QYWX_AM=""
 
 
-## ✩ 7. iGot聚合
+## ❖ 7. iGot聚合
 ## 参考文档：https://wahao.github.io/Bark-MP-helper
 ## 下方填写iGot的推送key，支持多方式推送，确保消息可达
 export IGOT_PUSH_KEY=""
 
 
-## ✩ 8. Push Plus
+## ❖ 8. pushplus
 ## 官方网站：http://www.pushplus.plus
 ## 下方填写您的Token，微信扫码登录后一对一推送或一对多推送下面的 token，只填 "PUSH_PLUS_TOKEN" 默认为一对一推送
 export PUSH_PLUS_TOKEN=""
@@ -287,7 +289,7 @@ export PUSH_PLUS_TOKEN=""
 export PUSH_PLUS_USER=""
 
 
-## ✩ 9. go-cqhttp
+## ❖ 9. go-cqhttp
 ## 官方仓库：https://github.com/Mrs4s/go-cqhttp
 ## 官方教程：https://docs.go-cqhttp.org/api/
 ## 官方搭建教程：https://docs.go-cqhttp.org/guide/quick_start.html
@@ -310,7 +312,7 @@ export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
 
 
 
-# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 控 制 脚 本 功 能 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 控 制 脚 本 功 能 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
 ################################## 定义 User-Agent（选填） ##################################
 ## 自定义仓库里京东脚本的USER_AGENTS，不懂不知不会User-Agent的请不要随意填写内容，随意填写了出错概不负责
