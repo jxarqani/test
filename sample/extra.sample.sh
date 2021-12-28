@@ -106,7 +106,7 @@ for author in $author_list; do
       fi
     else
       [ -f scripts/$name.new ] && rm -f scripts/$name.new
-      echo -e "[\033[31mERR!${PLAIN}] $name 更新失败"
+      echo -e "[${RED}FAIL${PLAIN}] $name 更新失败"
     fi
   done
   let index+=1

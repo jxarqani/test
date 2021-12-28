@@ -466,12 +466,12 @@ function Update_RawFile() {
             esac
             ## 拉取脚本
             echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本..."
-            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 10
+            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
             ## 拉取脚本
             DownloadUrl="${InputContent}"
             echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
-            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 10
+            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         fi
         if [ $? -eq 0 ]; then
             mv -f "$RawDir/${RawFileName[$i]}.new" "$RawDir/${RawFileName[$i]}"
@@ -662,7 +662,7 @@ function ExtraShell() {
     ## 同步用户的 extra.sh
     if [[ $EnableExtraShellSync == true ]] && [[ $ExtraShellSyncUrl ]]; then
         echo -e "$WORKING 开始同步自定义脚本：$ExtraShellSyncUrl\n"
-        wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 10
+        wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 20
         if [ $? -eq 0 ]; then
             mv -f "$FileExtra.new" "$FileExtra"
             echo -e "$COMPLETE 自定义脚本同步完成\n"
@@ -695,7 +695,7 @@ function Update_Designated() {
     local InputContent=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
-    echo ${InputContent} | grep $RootDir -q
+    echo ${InputContent} | grep "^$RootDir/" -q
     if [ $? -eq 0 ]; then
         AbsolutePath=${InputContent}
     else
@@ -705,12 +705,14 @@ function Update_Designated() {
             AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
             if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
             else
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
             fi
         fi
     fi
+
+    echo -e "${AbsolutePath}"
     if [ -d ${AbsolutePath}/.git ]; then
         Title "specify"
         case ${AbsolutePath} in
@@ -725,7 +727,7 @@ function Update_Designated() {
             Git_Pull ${AbsolutePath} $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
-                echo -e "注意：此模式下不会附带更新定时任务等\n"
+                echo -e "${YELLOW}注意：此模式下不会附带更新定时任务等${PLAIN}\n"
             else
                 echo -e "\n$ERROR ${AbsolutePath} 仓库更新失败，请检查原因...\n"
             fi

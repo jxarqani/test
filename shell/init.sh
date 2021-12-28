@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-25
+## Modified: 2021-12-27
 
 set -e
 RED="\033[31m"
@@ -67,7 +67,7 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页�
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
   export PS1="\u@\h:\w# "
-  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t disableLeaveAlert=true -t rendererType=webgl bash
+  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t lineHeight=1.5 -t disableLeaveAlert=true -t rendererType=webgl bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
   cd ./web

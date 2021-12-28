@@ -127,10 +127,10 @@ let MenuTools = {
             //     path: "https://u.jd.com/3t9LXZe",
             // },
             {
-                title: "配置文件",
+                title: "环境变量",
                 faIcon: "fa-home",
                 titleFaIcon: "fa-arrow-right",
-                subText: "编辑环境变量",
+                subText: "编辑主配置文件",
                 customClass: 'gb a',
                 path: "/config"
             }, {

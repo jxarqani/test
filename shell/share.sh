@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-25
+## Modified: 2021-12-26
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -287,15 +287,15 @@ function Help() {
     case ${ARCH} in
     armv7l | armv6l)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<b/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，可选参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，扩展参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
  ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
- ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，扩展参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，扩展参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
@@ -306,7 +306,7 @@ function Help() {
  ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
  ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
  ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
- ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
  ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
  ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
@@ -315,8 +315,8 @@ function Help() {
  ❋ 基本命令注释：
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
- ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+ ❋ 用于执行脚本的可选参数： 
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行，不在前台输出脚本进度
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
@@ -325,16 +325,16 @@ function Help() {
         ;;
     *)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<b/p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，可选参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 列出本地脚本清单，扩展参数(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
  ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
- ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，扩展参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，扩展参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
@@ -345,7 +345,7 @@ function Help() {
  ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
  ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
  ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
- ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
  ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
  ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
@@ -354,8 +354,8 @@ function Help() {
  ❋ 基本命令注释：
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
- ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+ ❋ 用于执行脚本的可选参数： 
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行，不在前台输出脚本进度
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-25
+## Modified: 2021-12-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -26,7 +26,7 @@ function Find_Script() {
     function MatchingPathFile() {
         local AbsolutePath PwdTmp FileNameTmp FileDirTmp
         ## 判定传入的是绝对路径还是相对路径
-        echo ${InputContent} | grep "$RootDir/" -q
+        echo ${InputContent} | grep "^$RootDir/" -q
         if [ $? -eq 0 ]; then
             AbsolutePath=${InputContent}
         else
@@ -36,9 +36,9 @@ function Find_Script() {
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
                 if [[ $(pwd) == "/root" ]]; then
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
                 else
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
                 fi
             fi
         fi
@@ -289,7 +289,7 @@ function Find_Script() {
 
         ## 拉取脚本
         echo -en "\n$WORKING 正在从${RepoJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
-        wget -q --no-check-certificate "${DownloadJudge}${InputContent_Format}" -O "$ScriptsDir/${FileNameTmp}.new" -T 8
+        wget -q --no-check-certificate "${DownloadJudge}${InputContent_Format}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
         echo ''
 
@@ -1011,12 +1011,23 @@ function Cookies_Control() {
 ## 被你发现了嘿嘿，等有空了再写~
 ## 添加 Own 仓库功能
 function Add_OwnRepo() {
-    case $# in
-    0) ;;
+    local GitUrl=$1
+    local Branch=$2
+    local Path=$3
 
-    1) ;;
+    ## 判断仓库地址
+    echo ${GitUrl} | grep -Eq "http.*:"
+    if [ $? -eq 0 ]; then
+        echo ${GitUrl} | grep -Eq "\.git\b"
+        if [ $? -ne 0 ]; then
+            echo -e "\n$ERROR ${BLUE}${GitUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
+            exit ## 终止退出
+        fi
+    else
+        echo -e "\n$ERROR ${BLUE}${GitUrl}${PLAIN} 不是一个有效的 URL 链接地址！\n"
+        exit ## 终止退出
+    fi
 
-    esac
 }
 
 ## 添加 Raw 脚本功能
@@ -1077,12 +1088,12 @@ function Add_RawFile() {
         esac
         ## 拉取脚本
         echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName} 脚本..."
-        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 10
+        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     else
         ## 拉取脚本
         DownloadUrl="${InputContent}"
         echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
-        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 10
+        wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     fi
     FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
 
@@ -1166,7 +1177,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit ## 终止退出
+            exit                   ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1218,18 +1229,18 @@ function Manage_Env() {
                     sed -i "s/.*export ${VariableTmp}=/export ${VariableTmp}=/g" $FileConfUser
                     ;;
                 disable)
-                    echo -e "\n$ERROR 该变量已经禁用，无需任何操作！\n"
+                    echo -e "\n$COMPLETE 该环境变量已经禁用，不执行任何操作\n"
                     exit ## 终止退出
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             else
                 case ${Mod} in
                 enable)
-                    echo -e "\n$ERROR 该变量已经启用，无需任何操作！\n"
+                    echo -e "\n$COMPLETE 该环境变量已经启用，不执行任何操作\n"
                     exit ## 终止退出
                     ;;
                 disable)
@@ -1237,7 +1248,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             fi
@@ -1249,9 +1260,16 @@ function Manage_Env() {
         echo -e "\n\033[41;37m${OldContent}${PLAIN} ${RED}-${PLAIN}\n\033[42m${NewContent}${PLAIN} ${GREEN}+${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
-            echo -e "\n$ERROR 修改失败\n"
+            echo -e "\n$ERROR 环境变量修改失败\n"
         else
-            echo -e "\n$COMPLETE 修改完毕\n"
+            case ${Mod} in
+            enable)
+                echo -e "\n$COMPLETE 环境变量已启用\n"
+                ;;
+            disable)
+                echo -e "\n$COMPLETE 环境变量已禁用\n"
+                ;;
+            esac
         fi
     }
 
@@ -1291,7 +1309,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit ## 终止退出
+            exit                   ## 终止退出
             ;;
         esac
 
@@ -1361,7 +1379,7 @@ function Manage_Env() {
                 done
                 sed -i "9 i ${FullContent}" $FileConfUser
                 echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
-                echo -e "\n$COMPLETE 已添加\n"
+                echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
         3)
@@ -1378,7 +1396,7 @@ function Manage_Env() {
                 FullContent="export ${Variable}=\"${Value}\""
                 sed -i "9 i ${FullContent}" $FileConfUser
                 echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
-                echo -e "\n$COMPLETE 已添加\n"
+                echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
         esac
@@ -1408,7 +1426,7 @@ function Manage_Env() {
                         elif [[ ${VariableNums} -eq "1" ]]; then
                             echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                         fi
-                        echo -e "\n$COMPLETE 已删除\n"
+                        echo -e "\n$COMPLETE 环境变量已删除\n"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
@@ -1436,7 +1454,7 @@ function Manage_Env() {
                 elif [[ ${VariableNums} -eq "1" ]]; then
                     echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
                 fi
-                echo -e "\n$COMPLETE 已删除\n"
+                echo -e "\n$COMPLETE 环境变量已删除\n"
             else
                 echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
@@ -1878,7 +1896,7 @@ case $# in
             if [ $? -eq 0 ]; then
                 Add_RawFile $2
             else
-                echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的 URL ，请确认！\n"
+                echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的 URL 链接地址！\n"
             fi
             ;;
         ps | exsc)
