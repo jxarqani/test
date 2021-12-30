@@ -166,7 +166,7 @@ function Gen_ListOwn() {
             if [[ -z ${OwnRepoCronShielding} ]]; then
                 local Matching=$(ls *.js 2>/dev/null)
             else
-                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #\|#g;}')
                 local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
             fi
             if [[ $(ls *.js 2>/dev/null) ]]; then

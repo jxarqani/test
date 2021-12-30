@@ -669,7 +669,7 @@ function Process_Kill() {
     if [[ ${ExitStatus} == 0 ]]; then
         ## 列出检测到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
-        echo -e "\n${BLUE}[进程号] [脚本名称]${PLAIN}"
+        echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
         ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
         while true; do
             read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
@@ -1125,7 +1125,7 @@ function Add_OwnRepo() {
         ;;
     3)
         local RepoBranch=$2
-        local RepoPath=$(echo $3 | perl -pe '{s|\" |\"|g; s| \"|\"|g; s#|# #g;}')
+        local RepoPath=$(echo $3 | perl -pe '{s|\" |\"|g; s| \"|\"|g; s#\|# #g;}')
         ;;
     esac
 
@@ -1155,12 +1155,11 @@ function Add_OwnRepo() {
 
         ## 判断仓库本地是否已经存在
         if [ -d $RepoDir/.git ]; then
-            echo -e "\n$ERROR $RepoDir 目录下已存在仓库，请先删除！\n"
+            echo -e "\n$ERROR ${BLUE}$RepoDir${PLAIN} 目录下已存在仓库，请先删除！\n"
             exit ## 终止退出
         else
             [ -d $RepoDir ] && rm -rf $RepoDir
         fi
-
     }
 
     ## 克隆仓库
@@ -1186,35 +1185,39 @@ function Add_OwnRepo() {
 
     ## 在配置文件中插入变量
     function Add_Env_Own() {
-        local Tmp1 Tmp2 Sum FormatRepoUrl
+        local FormatRepoUrl FormatRepoPath Tmp1 Tmp2 Sum SumTmp
         ## 导入配置文件
         Import_Config_Not_Check
 
+        ## 格式化特殊符号用于sed命令
         FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        FormatRepoPath=$(echo ${RepoPath} | perl -pe '{s|[\ \.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
 
         if [[ -z ${OwnRepoUrl1} ]]; then
             ## 没有 Own 仓库
             sed -i "s/\(OwnRepoUrl1=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
             local ExitStatus=$?
             sed -i "s/\(OwnRepoBranch1=\).*/\1\"${RepoBranch}\"/" $FileConfUser
-            sed -i "s/\(OwnRepoPath1=\).*/\1\"${RepoPath}\"/" $FileConfUser
+            sed -i "s/\(OwnRepoPath1=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
         else
+            ## 统计当前仓库数量
             for ((i = 1; i <= 0x64; i++)); do
                 Tmp1=OwnRepoUrl$i
                 Tmp2=${!Tmp1}
                 [[ $Tmp2 ]] && Sum=$i || break
             done
-            if [[ $Sum -ge 1 ]]; then
+            ## 判断编辑模式（如果只要一个仓库就改2号变量，否则追加新变量）
+            if [[ $Sum -eq 1 ]]; then
                 ## 有1个 Own 仓库
                 sed -i "s/\(OwnRepoUrl2=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
                 local ExitStatus=$?
                 sed -i "s/\(OwnRepoBranch2=\).*/\1\"${RepoBranch}\"/" $FileConfUser
-                sed -i "s/\(OwnRepoPath2=\).*/\1\"${RepoPath}\"/" $FileConfUser
+                sed -i "s/\(OwnRepoPath2=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
             else
-                sed -i "/OwnRepoUrl$Sum.*/a\OwnRepoUrl$(($Sum + 1))=\"${FormatRepoUrl}\"" $FileConfUser
+                sed -i "/\(OwnRepoUrl${Sum}\)/a \OwnRepoUrl$((${Sum} + 1))=\"${FormatRepoUrl}\"" $FileConfUser
                 local ExitStatus=$?
-                sed -i "/OwnRepoBranch$Sum.*/a\OwnRepoBranch$(($Sum + 1))=\"${RepoBranch}\"" $FileConfUser
-                sed -i "/OwnRepoPath$Sum.*/a\OwnRepoPath$(($Sum + 1))=\"${RepoPath}\"" $FileConfUser
+                sed -i "/\(OwnRepoBranch${Sum}\)/a \OwnRepoBranch$((${Sum} + 1))=\"${RepoBranch}\"" $FileConfUser
+                sed -i "/\(OwnRepoPath${Sum}\)/a \OwnRepoPath$((${Sum} + 1))=\"${FormatRepoPath}\"" $FileConfUser
             fi
         fi
         ## 判定结果
@@ -1302,7 +1305,7 @@ function Add_OwnRepo() {
                 if [[ -z ${OwnRepoCronShielding} ]]; then
                     local Matching=$(ls *.js 2>/dev/null)
                 else
-                    local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                    local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #\|#g;}')
                     local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
                 fi
                 if [[ $(ls *.js 2>/dev/null) ]]; then
@@ -1474,12 +1477,12 @@ function Add_RawFile() {
     ## 判断下载结果
     if [ $? -eq 0 ]; then
         mv -f "$RawDir/${RawFileName}.new" "$RawDir/${RawFileName}"
-        echo -e "$COMPLETE ${RawFileName} 下载完成，脚本保存路径：$RawDir/${RawFileName}"
+        echo -e "\n$COMPLETE ${RawFileName} 下载完成，脚本保存路径：$RawDir/${RawFileName}"
 
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -E "^[1-9]" | grep "" head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -2549,12 +2552,16 @@ case $# in
             Output_Command_Error 2 ## 命令过多
         fi
         ;;
-    repo)
-        if [ $# -eq 4 ]; then
-            Add_OwnRepo $2 $3 $4
-        else
-            Output_Command_Error 2 ## 命令过多
-        fi
+    *)
+        case $1 in
+        repo)
+            if [ $# -eq 4 ]; then
+                Add_OwnRepo $2 $3 $4
+            else
+                Output_Command_Error 2 ## 命令过多
+            fi
+            ;;
+        esac
         ;;
     *)
         Output_Command_Error 1 ## 命令错误
