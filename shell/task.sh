@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-26
+## Modified: 2021-12-31
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -111,8 +111,8 @@ function Find_Script() {
     ## 匹配 Scripts 目录下的脚本
     function MatchingScriptsFile() {
         local FileNameTmp1 FileNameTmp2 FileNameTmp3 SeekDir SeekExtension
-        ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/activity > /jd/scripts/utils > /jd/scripts/backUp
-        SeekDir="$ScriptsDir $ScriptsDir/activity $ScriptsDir/utils $ScriptsDir/backUp"
+        ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/utils > /jd/scripts/backUp
+        SeekDir="$ScriptsDir $ScriptsDir/utils $ScriptsDir/backUp"
         ## 定义后缀格式
         SeekExtension="js py ts sh"
 
@@ -207,14 +207,14 @@ function Find_Script() {
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 目录下的根目录以及 ${BLUE}./activity${PLAIN} ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 三个子目录范围内均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
+            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 目录下的根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录范围内均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
             exit ## 终止退出
         fi
     }
 
     ## 匹配位于远程仓库的脚本
     function MatchingRemoteFile() {
-        local DownloadJudge RepoJudge ProxyJudge RepoName InputContent_Format
+        local DownloadJudge RepoJudge ProxyJudge RepoName FormatInputContent
         local FileNameTmp=${InputContent##*/}
 
         ## 判断并定义脚本类型
@@ -265,17 +265,17 @@ function Find_Script() {
             if [[ ${RepoJudge} == " Github " ]]; then
                 echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
                 if [ $? -eq 0 ]; then
-                    InputContent_Format=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                    FormatInputContent=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
                 else
-                    InputContent_Format=${InputContent}
+                    FormatInputContent=${InputContent}
                 fi
             elif [[ ${RepoJudge} == " Gitee " ]]; then
-                InputContent_Format=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                FormatInputContent=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
             else
-                InputContent_Format=${InputContent}
+                FormatInputContent=${InputContent}
             fi
         else
-            InputContent_Format=${InputContent}
+            FormatInputContent=${InputContent}
         fi
 
         ## 判定是否使用代理
@@ -289,7 +289,7 @@ function Find_Script() {
 
         ## 拉取脚本
         echo -en "\n$WORKING 正在从${RepoJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
-        wget -q --no-check-certificate "${DownloadJudge}${InputContent_Format}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
+        wget -q --no-check-certificate "${DownloadJudge}${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
         echo ''
 
@@ -298,7 +298,7 @@ function Find_Script() {
             mv -f "$ScriptsDir/${FileNameTmp}.new" "$ScriptsDir/${FileNameTmp}"
             case ${RUN_MODE} in
             normal)
-                RunModJudge="普通"
+                RunModJudge=""
                 ;;
             concurrent)
                 RunModJudge="并发"
@@ -396,6 +396,40 @@ function ExistenceJudgment() {
     fi
 }
 
+## 静默执行，不推送通知消息
+function DoNotPushNotify() {
+    ## Server酱
+    export PUSH_KEY=""
+    export SCKEY_WECOM=""
+    export SCKEY_WECOM_URL=""
+    ## Bark
+    export BARK_PUSH=""
+    export BARK_SOUND=""
+    export BARK_GROUP=""
+    ## Telegram
+    export TG_BOT_TOKEN=""
+    export TG_USER_ID=""
+    ## 钉钉
+    export DD_BOT_TOKEN=""
+    export DD_BOT_SECRET=""
+    ## 企业微信
+    export QYWX_KEY=""
+    export QYWX_AM=""
+    ## iGot聚合
+    export IGOT_PUSH_KEY=""
+    ## pushplus
+    export PUSH_PLUS_TOKEN=""
+    export PUSH_PLUS_USER=""
+    ## go-cqhttp
+    export GO_CQHTTP_URL=""
+    export GO_CQHTTP_QQ=""
+    export GO_CQHTTP_METHOD=""
+    export GO_CQHTTP_SCRIPTS=""
+    export GO_CQHTTP_LINK=""
+    export GO_CQHTTP_MSG_SIZE=""
+    export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+}
+
 ## 普通执行
 function Run_Normal() {
     local InputContent=$1
@@ -424,6 +458,7 @@ function Run_Normal() {
             if [ $? -eq 0 ]; then
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
+                        ## 判定账号是否存在
                         ExistenceJudgment $i
                         Combine_Account $i
                     done
@@ -433,6 +468,7 @@ function Run_Normal() {
                     exit ## 终止退出
                 fi
             else
+                ## 判定账号是否存在
                 ExistenceJudgment $UserNum
                 Combine_Account $UserNum
             fi
@@ -444,14 +480,18 @@ function Run_Normal() {
         Combin_Cookie
     fi
 
-    ## 处理其它参数
+    ## 处理其它参数：
+    ## 迅速模式
     if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
         Combin_ShareCodes
     fi
+    ## 随机延迟
     [[ ${RUN_DELAY} == true ]] && Random_Delay
+    ## 消息静默
+    [[ ${RUN_MUTE} == true ]] && DoNotPushNotify
 
     ## 进入脚本所在目录
     cd ${FileDir}
@@ -551,14 +591,18 @@ function Run_Concurrent() {
         esac
     }
 
-    ## 处理其它参数
+    ## 处理其它参数：
+    ## 迅速模式
     if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
         Combin_ShareCodes
     fi
+    ## 随机延迟
     [[ ${RUN_DELAY} == true ]] && Random_Delay
+    ## 消息静默
+    [[ ${RUN_MUTE} == true ]] && DoNotPushNotify
 
     ## 进入脚本所在目录
     cd ${FileDir}
@@ -571,6 +615,7 @@ function Run_Concurrent() {
             if [ $? -eq 0 ]; then
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
+                        ## 判定账号是否存在
                         ExistenceJudgment $i
                     done
                 else
@@ -579,6 +624,7 @@ function Run_Concurrent() {
                     exit ## 终止退出
                 fi
             else
+                ## 判定账号是否存在
                 ExistenceJudgment $UserNum
             fi
         done
@@ -713,25 +759,13 @@ function Cookies_Control() {
     local TRUE_ICON="[✔]"
     local FALSE_ICON="[X]"
     local INTERFACE_URL="https://bean.m.jd.com/bean/signIndex.action"
+
     case $1 in
+    ## 检测账号是否有效
     check)
         ## 导入配置文件
         Import_Config
-        ## 统计账号数量
-        Count_UserSum
         [ -f $FileSendMark ] && rm -rf $FileSendMark
-
-        ## 生成 pt_pin 数组
-        function Gen_pt_pin_Array() {
-            local Tmp1 Tmp2 i pt_pin_temp
-            for ((user_num = 1; user_num <= $UserSum; user_num++)); do
-                Tmp1=Cookie$user_num
-                Tmp2=${!Tmp1}
-                i=$(($user_num - 1))
-                pt_pin_temp=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
-                pt_pin[i]=$pt_pin_temp
-            done
-        }
 
         ## 检测
         function CheckCookie() {
@@ -760,14 +794,35 @@ function Cookies_Control() {
             fi
         }
 
-        ## 汇总输出以及计算时间
-        function Print_Info() {
-            local CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3
-            echo -e "\n检测到本地共有 ${BLUE}$UserSum${PLAIN} 个账号，当前状态信息如下（${TRUE_ICON}为有效，${FALSE_ICON}为无效）："
+        ## 检测全部账号
+        function Print_Info_Normal() {
+            local TmpA TmpB pt_pin pt_pin_temp FormatPin State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
+
+            ## 统计账号数量
+            Count_UserSum
+
+            ## 生成 pt_pin 数组
+            for ((user_num = 1; user_num <= $UserSum; user_num++)); do
+                TmpA=Cookie$user_num
+                TmpB=${!TmpA}
+                i=$(($user_num - 1))
+                pt_pin_temp=$(echo ${TmpB} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
+                pt_pin[i]=$pt_pin_temp
+            done
+
+            echo -e "\n$WORKING 当前本地共有 ${BLUE}$UserSum${PLAIN} 个账号，开始检测...\n"
+
+            ## 汇总输出以及计算过期时间
             for ((m = 0; m < $UserSum; m++)); do
-                ## 查询上次更新时间
+
+                ## 定义Pt_Pin
                 FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
                 CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+
+                ## 定义账号状态
+                State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
+
+                ## 查询上次更新时间
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
@@ -781,14 +836,58 @@ function Cookies_Control() {
                 else
                     UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
                 fi
-                sleep 1 ## 降低频率减少出现因查询太快导致API请求失败的情况
+                sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
+
                 num=$((m + 1))
-                echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) $(CheckCookie $(grep -E "Cookie[1-9]" $FileConfUser | grep ${FormatPin} | awk -F "[\"\']" '{print$2}'))    ${UpdateTimes}"
+                echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) ${State}    ${UpdateTimes}"
             done
         }
 
-        Gen_pt_pin_Array
-        Print_Info
+        ## 检测指定账号
+        function Print_Info_Designated() {
+            local pt_pin FormatPin State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3
+            local UserNum=$1
+            ## 判定账号是否存在
+            ExistenceJudgment ${UserNum}
+
+            echo -e "\n$WORKING 开始检测账号 ${BLUE}${UserNum}${PLAIN} ...\n"
+
+            ## 定义Pt_Pin
+            pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
+            FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+
+            ## 定义账号状态
+            State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
+
+            ## 查询上次更新时间并计算过期时间
+            CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+            if [[ ${CookieUpdatedDate} ]]; then
+                UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
+                Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
+                Tmp2=$(($Tmp1 / 86400))
+                Tmp3=$((30 - $Tmp2))
+                [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
+                if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
+                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
+                    echo -e "账号$((m + 1))：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
+                fi
+            else
+                UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
+            fi
+
+            ## 输出
+            echo -e "$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) ${State}    ${UpdateTimes}"
+        }
+
+        ## 汇总
+        case $# in
+        1)
+            Print_Info_Normal
+            ;;
+        2)
+            Print_Info_Designated $2
+            ;;
+        esac
 
         ## 过期提醒推送通知
         if [ -f $FileSendMark ]; then
@@ -799,8 +898,10 @@ function Cookies_Control() {
             Notify "账号过期提醒" "$(cat $FileSendMark)"
             rm -rf $FileSendMark
         fi
-        echo ''
+        echo -e "\n$COMPLETE 检测完成\n"
         ;;
+
+    ## 使用 WSKEY 更新账号
     update)
         Import_Config_Not_Check "UpdateCookies"
         local ExitStatus LogPath LogFile
@@ -837,7 +938,7 @@ function Cookies_Control() {
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
                 ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
-                echo -e "\n$WORKING 检测到 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
+                echo -e "\n$WORKING 检测到已配置 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
                 ## 记录执行开始时间
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                 for ((i = 1; i <= ${#pt_pin_array[@]}; i++)); do
@@ -872,9 +973,9 @@ function Cookies_Control() {
                         UserNum=$((i - 1))
                         FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
                         EscapePin=$(printf $(echo ${pt_pin_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
-                        CookieTmp="$(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
+                        CookieTmp="$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
                         [ $(grep "Cookie => \[${FormatPin}\]" ${LogFile} | awk -F ' ' '{print$NF}') != "更新成功" ] && continue
-                        if [[ $(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser) ]]; then
+                        if [[ $(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser) ]]; then
                             if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
                                 if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
                                     echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
@@ -892,7 +993,7 @@ function Cookies_Control() {
                             echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
                         fi
                         ## 打印 Cookie
-                        # echo -e "Cookie：$(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
+                        # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
                     done
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
@@ -908,8 +1009,9 @@ function Cookies_Control() {
             local UserNum=$1
             local Pt_Pin FormatPin EscapePin CookieTmp LogFile
             local COOKIE_TMP=Cookie$UserNum
+            ## 判定账号是否存在
             ExistenceJudgment $UserNum
-            Pt_Pin=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|pt_pin=||g; s|;||g;}')
+            Pt_Pin=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
             FormatPin="$(echo ${Pt_Pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
             ## 判定该 pt_pin 对应 Cookie 是否存在
             grep ${FormatPin} -q $FileAccountConf
@@ -940,11 +1042,11 @@ function Cookies_Control() {
                 fi
                 ## 更新后检测 Cookie 是否有效
                 if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
-                    CookieTmp="$(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
+                    CookieTmp="$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
                     EscapePin=$(printf $(echo ${JD_PT_PIN} | perl -pe "s|%|\\\x|g;"))
                     if [ $(grep "Cookie => \[${FormatPin}\]" ${LogFile} | awk -F ' ' '{print$NF}') = "更新成功" ]; then
                         echo -e "\n$WORKING 更新后 Cookie 检测：\n"
-                        if [[ $(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser) ]]; then
+                        if [[ $(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser) ]]; then
                             if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
                                 if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
                                     echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
@@ -962,7 +1064,7 @@ function Cookies_Control() {
                             echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
                         fi
                     ## 打印 Cookie
-                    # echo -e "Cookie：$(grep "^Cookie.*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
+                    # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
                     fi
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
@@ -1008,26 +1110,276 @@ function Cookies_Control() {
     esac
 }
 
-## 被你发现了嘿嘿，等有空了再写~
 ## 添加 Own 仓库功能
 function Add_OwnRepo() {
-    local GitUrl=$1
-    local Branch=$2
-    local Path=$3
+    local RepoUrl=$1
+    local RepoDir="$OwnDir/$(echo ${RepoUrl} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
+    case $# in
+    1)
+        local RepoBranch=""
+        local RepoPath=""
+        ;;
+    2)
+        local RepoBranch=$2
+        local RepoPath=""
+        ;;
+    3)
+        local RepoBranch=$2
+        local RepoPath=$3
+        ;;
+    esac
 
-    ## 判断仓库地址
-    echo ${GitUrl} | grep -Eq "http.*:"
-    if [ $? -eq 0 ]; then
-        echo ${GitUrl} | grep -Eq "\.git\b"
-        if [ $? -ne 0 ]; then
-            echo -e "\n$ERROR ${BLUE}${GitUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
+    ## 判断传入信息格式是否正确
+    function CheckFormat() {
+        ## 判断仓库地址格式
+        echo ${RepoUrl} | grep -Eq "http.*:"
+        if [ $? -eq 0 ]; then
+            echo ${RepoUrl} | grep -Eq "\.git\b"
+            if [ $? -ne 0 ]; then
+                echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
+                exit ## 终止退出
+            fi
+        else
+            echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的 URL 链接地址！\n"
             exit ## 终止退出
         fi
-    else
-        echo -e "\n$ERROR ${BLUE}${GitUrl}${PLAIN} 不是一个有效的 URL 链接地址！\n"
-        exit ## 终止退出
-    fi
 
+        ## 判断路径格式
+        if [ ! -z ${RepoPath} ]; then
+            echo ${RepoPath} | grep -Eq "[\!@#$%^&*]|\(|\)|\[|\]|\{|\}"
+            if [ $? -eq 0 ]; then
+                echo -e "\n$ERROR 路径 ${BLUE}${RepoPath}${PLAIN} 格式有误，不支持特殊字符！\n"
+                exit ## 终止退出
+            fi
+        fi
+
+        ## 判断仓库本地是否已经存在
+        if [ -d $RepoDir/.git ]; then
+            echo -e "\n$ERROR $RepoDir 目录下已存在仓库，请先删除！\n"
+            exit ## 终止退出
+        else
+            [ -d $RepoDir ] && rm -rf $RepoDir
+        fi
+
+    }
+
+    ## 克隆仓库
+    function Clone_Repo() {
+        local CurrentDir=$(pwd)
+        echo -e "\n$WORKING 开始克隆仓库 ${BLUE}${RepoUrl}${PLAIN} 到 ${BLUE}$RepoDir${PLAIN} ... \n"
+        if [ -z ${RepoBranch} ]; then
+            git clone -b ${RepoBranch} ${RepoUrl} $RepoDir
+        else
+            git clone ${RepoUrl} $RepoDir
+        fi
+        if [ $? -ne 0 ]; then
+            echo -e "\n$ERROR 仓库克隆失败，请检查信息是否正确！\n"
+            exit ## 终止退出
+        fi
+        ## 确定分支名
+        if [ -z ${RepoBranch} ]; then
+            cd $RepoDir
+            RepoBranch=$(git status | head -n 1 | awk -F ' ' '{print$NF}')
+            cd $CurrentDir
+        fi
+    }
+
+    ## 在配置文件中插入变量
+    function Add_Env_Own() {
+        local Tmp1 Tmp2 Sum
+        ## 导入配置文件
+        Import_Config_Not_Check
+        if [[ -z ${OwnRepoUrl1} ]]; then
+            ## 没有 Own 仓库
+            sed -i "s/OwnRepoUrl1=/\1OwnRepoUrl1=\"${RepoUrl}\"/" $FileConfUser
+            sed -i "s/OwnRepoBranch1=/\1OwnRepoBranch1=\"${RepoBranch}\"/" $FileConfUser
+            sed -i "s/OwnRepoPath1=/\1OwnRepoPath1=\"${RepoPath}\"/" $FileConfUser
+        else
+            for ((i = 1; i <= 0x64; i++)); do
+                Tmp1=OwnRepoUrl$i
+                Tmp2=${!Tmp1}
+                [[ $Tmp2 ]] && Sum=$i || break
+            done
+            if [[ $Sum -ge 1 ]]; then
+                ## 有1个 Own 仓库
+                sed -i "s/OwnRepoUrl2=/\1OwnRepoUrl2=\"${RepoUrl}\"/" $FileConfUser
+                sed -i "s/OwnRepoBranch2=/\1OwnRepoBranch2=\"${RepoBranch}\"/" $FileConfUser
+                sed -i "s/OwnRepoPath2=/\1OwnRepoPath2=\"${RepoPath}\"/" $FileConfUser
+            else
+                sed -i "/OwnRepoUrl$Sum.*/a\OwnRepoUrl$(($Sum + 1))=\"${RepoUrl}\"" $FileConfUser
+                sed -i "/OwnRepoBranch$Sum.*/a\OwnRepoBranch$(($Sum + 1))=\"${RepoBranch}\"" $FileConfUser
+                sed -i "/OwnRepoPath$Sum.*/a\OwnRepoPath$(($Sum + 1))=\"${RepoPath}\"" $FileConfUser
+            fi
+        fi
+    }
+
+    ## 统计 own 仓库数量
+    function Count_OwnRepoSum() {
+        ## 导入配置文件
+        Import_Config_Not_Check
+        if [[ -z ${OwnRepoUrl1} ]]; then
+            OwnRepoSum=0
+        else
+            for ((i = 1; i <= 0x64; i++)); do
+                local Tmp1=OwnRepoUrl$i
+                local Tmp2=${!Tmp1}
+                [[ $Tmp2 ]] && OwnRepoSum=$i || break
+            done
+        fi
+    }
+
+    ## 生成数组
+    function Gen_Own_Dir_And_Path() {
+        local scripts_path_num="-1"
+        local repo_num Tmp1 Tmp2 Tmp3 Tmp4 Tmp5 dir
+
+        if [[ $OwnRepoSum -ge 1 ]]; then
+            for ((i = 1; i <= $OwnRepoSum; i++)); do
+                repo_num=$((i - 1))
+                ## 仓库地址
+                Tmp1=OwnRepoUrl$i
+                array_own_repo_url[$repo_num]=${!Tmp1}
+                ## 仓库分支
+                Tmp2=OwnRepoBranch$i
+                array_own_repo_branch[$repo_num]=${!Tmp2}
+                ## 仓库文件夹名（作者_仓库名）
+                array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
+                ## 仓库路径
+                array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
+                Tmp3=OwnRepoPath$i
+                if [[ ${!Tmp3} ]]; then
+                    for dir in ${!Tmp3}; do
+                        let scripts_path_num++
+                        Tmp4="${array_own_repo_dir[repo_num]}/$dir"
+                        Tmp5=$(echo $Tmp4 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
+                        array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp5"
+                    done
+                else
+                    let scripts_path_num++
+                    array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$repo_num]}"
+                fi
+            done
+        fi
+        if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
+            let scripts_path_num++
+            array_own_scripts_path[$scripts_path_num]=$RawDir
+        fi
+    }
+
+    ## 生成绝对路径清单
+    function Gen_ListOwn() {
+        local CurrentDir=$(pwd)
+        ## 导入用户的定时
+        local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
+        grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
+        local ExitStatus=$?
+        [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
+        rm -rf $LogTmpDir/own*.list
+        for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
+            cd ${array_own_scripts_path[i]}
+            if [ ${array_own_scripts_path[i]} = $RawDir ]; then
+                if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                    for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}"); do
+                        if [ -f $file ]; then
+                            echo "$RawDir/$file" >>$ListOwnScripts
+                        fi
+                    done
+                fi
+            else
+                ## Own仓库脚本定时屏蔽
+                if [[ -z ${OwnRepoCronShielding} ]]; then
+                    local Matching=$(ls *.js 2>/dev/null)
+                else
+                    local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                    local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
+                fi
+                if [[ $(ls *.js 2>/dev/null) ]]; then
+                    ls | grep "\.js\b" -q
+                    if [ $? -eq 0 ]; then
+                        for file in ${Matching}; do
+                            if [ -f $file ]; then
+                                perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*\/?$file/" $file |
+                                    perl -pe "s|.*(([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$file.*|${array_own_scripts_path[i]}/$file|g" |
+                                    sort -u | head -1 >>$ListOwnScripts
+                            fi
+                        done
+                    fi
+                fi
+            fi
+        done
+        ## 汇总去重
+        echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
+        ## 导入用户的定时
+        cat $ListOwnScripts >$ListOwnAll
+        [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
+
+        if [[ $ExitStatus -eq 0 ]]; then
+            grep -E " $TaskCmd $OwnDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+            cat $ListCrontabOwnTmp >>$ListOwnUser
+        else
+            grep -E " $TaskCmd $OwnDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+        fi
+        [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+        cd $CurrentDir
+    }
+
+    ## 检测cron的差异
+    function Diff_Own_Cron() {
+        if [ -s $ListOwnUser ] && [ -s $ListOwnAll ]; then
+            diff $ListOwnAll $ListOwnUser | grep "<" | awk '{print $2}' >$ListOwnAdd
+            diff $ListOwnAll $ListOwnUser | grep ">" | awk '{print $2}' >$ListOwnDrop
+        elif [ ! -s $ListOwnUser ] && [ -s $ListOwnAll ]; then
+            cp -f $ListOwnAll $ListOwnAdd
+        elif [ -s $ListOwnUser ] && [ ! -s $ListOwnAll ]; then
+            cp -f $ListOwnUser $ListOwnDrop
+        fi
+        ## 比对清单
+        grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
+        grep -v "$RawDir/" $ListOwnDrop >$ListOwnRepoDrop
+    }
+
+    ## 添加定时
+    function Add_Cron_Own() {
+        local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
+        [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+
+        if [[ ${AutoAddOwnRepoCron} == true ]] && [ -s $ListOwnRepoAdd ]; then
+            echo -e "\n检测到有新的定时任务：\n"
+            cat $ListOwnRepoAdd
+            echo ''
+            if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
+                echo -e "$WORKING 开始添加 own 脚本的定时任务...\n"
+                local Detail=$(cat $ListOwnRepoAdd)
+                for FilePath in $Detail; do
+                    local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
+                    if [ -f ${FilePath} ]; then
+                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
+                            sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                    fi
+                done
+                perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
+                ExitStatus=$?
+            fi
+            [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+        fi
+    }
+
+    ## 检测格式
+    CheckFormat
+    ## 克隆仓库
+    Clone_Repo
+    ## 添加变量
+    Add_Env_Own
+    ## 统计信息
+    Count_OwnRepoSum
+    ## 生成相关清单
+    Gen_Own_Dir_And_Path
+    Gen_ListOwn
+    ## 比较定时任务
+    Diff_Own_Cron
+    ## 添加定时
+    Add_Cron_Own
 }
 
 ## 添加 Raw 脚本功能
@@ -1037,6 +1389,12 @@ function Add_RawFile() {
     ## 定义脚本名称
     RawFileName=$(echo ${InputContent} | awk -F "/" '{print $NF}')
 
+    ## 格式检测
+    echo ${InputContent} | grep -Eq "http.*:"
+    if [ $? -ne 0 ]; then
+        echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的 URL 链接地址！\n"
+        exit ## 终止退出
+    fi
     ## 判断脚本来源（ 托管仓库 or 普通网站 ）
     echo ${InputContent} | grep -Eq "github\.com|gitee\.com|gitlab\.com"
     if [ $? -eq 0 ]; then
@@ -1123,27 +1481,31 @@ function Add_RawFile() {
             local FullContent="$(echo "$cron $TaskCmd ${RawFilePath}" | sort -u | head -1)"
         fi
 
+        ## 导入配置文件
+        Import_Config_Not_Check
+
         ## 添加定时任务
-        FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-        if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
-            perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
-            ## 判断添加结果
-            if [ $? -eq 0 ]; then
-                ## 写进清单
-                echo "${RawFilePath}" >>$ListOwnAll
-                echo "${RawFilePath}" >>$ListOwnUser
-                ## 打印定时
-                echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
-                echo -e "\n$COMPLETE 定时任务已添加\n"
+        if [[ ${AutoAddOwnRawCron} == true ]]; then
+            FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
+                perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
+                ## 判断添加结果
+                if [ $? -eq 0 ]; then
+                    ## 写进清单
+                    echo "${RawFilePath}" >>$ListOwnAll
+                    echo "${RawFilePath}" >>$ListOwnScripts
+                    ## 打印定时
+                    echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
+                    echo -e "\n$COMPLETE 定时任务已添加"
+                else
+                    echo -e "\n$ERROR 定时任务添加失败"
+                fi
             else
-                echo -e "\n$ERROR 定时任务添加失败\n"
+                echo -e "\n$WARN 该脚本定时任务已存在，跳过添加"
             fi
-        else
-            echo -e "\n$WARN 该脚本定时任务已存在，跳过添加\n"
         fi
 
         ## 添加变量
-        Import_Config_Not_Check
         for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
             if [[ ${OwnRawFile[i]} == ${DownloadUrl} ]]; then
                 echo -e "$WARN 检测到 OwnRawFile 变量中已存在该脚本，跳过添加变量\n"
@@ -1151,7 +1513,12 @@ function Add_RawFile() {
                 exit ## 终止退出
             fi
         done
-        sed -i "s/OwnRawFile=(/\1OwnRawFile=(\n  ${FormatDownloadUrl}/" $FileConfUser
+        sed -i "/OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
+        if [ $? -eq 0 ]; then
+            echo -e "\n$COMPLETE 变量已添加\n"
+        else
+            echo -e "\n$ERROR 变量添加失败\n"
+        fi
 
     else
         [ -f "$RawDir/${RawFileName}.new" ] && rm -rf "$RawDir/${RawFileName}.new"
@@ -1891,13 +2258,11 @@ case $# in
                 fi
             fi
             ;;
+        repo)
+            Add_OwnRepo $2
+            ;;
         raw)
-            echo $2 | grep -Eq "http.*:"
-            if [ $? -eq 0 ]; then
-                Add_RawFile $2
-            else
-                echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的 URL 链接地址！\n"
-            fi
+            Add_RawFile $2
             ;;
         ps | exsc)
             Output_Command_Error 2 ## 命令过多
@@ -1941,6 +2306,9 @@ case $# in
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
                 exit ## 终止退出
                 ;;
+            -m | --mute)
+                RUN_MUTE="true"
+                ;;
             *)
                 Help
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
@@ -1981,6 +2349,9 @@ case $# in
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
                 exit ## 终止退出
                 ;;
+            -m | --mute)
+                RUN_MUTE="true"
+                ;;
             *)
                 Help
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
@@ -1992,7 +2363,7 @@ case $# in
         RUN_MODE=concurrent
         Run_Concurrent ${RUN_TARGET}
         ;;
-    update)
+    update | check)
         case $1 in
         cookie)
             case $3 in
@@ -2034,6 +2405,9 @@ case $# in
         notify)
             SendNotify $2 $3
             ;;
+        repo)
+            Add_OwnRepo $2 $3
+            ;;
         *)
             Output_Command_Error 1 ## 命令错误
             ;;
@@ -2042,8 +2416,8 @@ case $# in
     esac
     ;;
 
-## 很多个参数
-4 | 5 | 6 | 7)
+## 多个参数（ 2 + 参数个数 + 参数值个数 ）
+4 | 5 | 6 | 7 | 8 | 9)
     RUN_TARGET=$1
     case $2 in
     now)
@@ -2079,6 +2453,9 @@ case $# in
                     DESIGNATED_NUMS="$4"
                     shift
                 fi
+                ;;
+            -m | --mute)
+                RUN_MUTE="true"
                 ;;
             *)
                 Help
@@ -2127,6 +2504,9 @@ case $# in
                     shift
                 fi
                 ;;
+            -m | --mute)
+                RUN_MUTE="true"
+                ;;
             *)
                 Help
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
@@ -2142,12 +2522,19 @@ case $# in
         if [ $# -eq 4 ]; then
             case $1 in
             env)
-                Manage_Env $2 $3 "$4"
+                Manage_Env $2 $3 $4
                 ;;
             *)
                 Output_Command_Error 1 ## 命令错误
                 ;;
             esac
+        else
+            Output_Command_Error 2 ## 命令过多
+        fi
+        ;;
+    repo)
+        if [ $# -eq 4 ]; then
+            Add_OwnRepo $2 $3 $4
         else
             Output_Command_Error 2 ## 命令过多
         fi

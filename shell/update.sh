@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-25
+## Modified: 2021-12-31
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -47,7 +47,7 @@ function Git_Clone() {
     local Dir=$2
     local Branch=$3
     [[ $Branch ]] && local Command="-b $Branch "
-    echo -e "\n$WORKING 开始克隆仓库 $Url 到 $Dir\n"
+    echo -e "\n$WORKING 开始克隆仓库 ${BLUE}$Url${PLAIN} 到 ${BLUE}$Dir${PLAIN}\n"
     git clone $Command $Url $Dir
     ExitStatus=$?
 }
@@ -59,7 +59,7 @@ function Git_Pull() {
     local WorkDir=$1
     local Branch=$2
     cd $WorkDir
-    echo -e "\n$WORKING 开始更新仓库：$WorkDir\n"
+    echo -e "\n$WORKING 开始更新仓库：${BLUE}$WorkDir${PLAIN}\n"
     git fetch --all
     ExitStatus=$?
     git pull
@@ -96,7 +96,7 @@ function Count_OwnRepoSum() {
     fi
 }
 
-## 形成 own 仓库的文件夹名清单，依赖于 Import_Conf 或 Import_Config_Not_Check
+## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
 ## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
 function Gen_Own_Dir_And_Path() {
     local scripts_path_num="-1"
@@ -111,8 +111,9 @@ function Gen_Own_Dir_And_Path() {
             ## 仓库分支
             Tmp2=OwnRepoBranch$i
             array_own_repo_branch[$repo_num]=${!Tmp2}
-            ## 仓库路径
+            ## 仓库文件夹名（作者_仓库名）
             array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
+            ## 仓库路径
             array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
             Tmp3=OwnRepoPath$i
             if [[ ${!Tmp3} ]]; then
@@ -144,7 +145,6 @@ function Gen_ListTask() {
 ## 生成 own 脚本的绝对路径清单
 function Gen_ListOwn() {
     local CurrentDir=$(pwd)
-    local Own_Scripts_Tmp
     ## 导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
     grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
@@ -184,8 +184,7 @@ function Gen_ListOwn() {
         fi
     done
     ## 汇总去重
-    Own_Scripts_Tmp=$(sort -u $ListOwnScripts)
-    echo "$Own_Scripts_Tmp" >$ListOwnScripts
+    echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
     ## 导入用户的定时
     cat $ListOwnScripts >$ListOwnAll
     [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
@@ -203,7 +202,6 @@ function Gen_ListOwn() {
 ## 检测cron的差异
 ## 注释  $1：脚本清单文件路径，$2：cron任务清单文件路径，$3：增加任务清单文件路径，$4：删除任务清单文件路径
 function Diff_Cron() {
-    Make_Dir $LogTmpDir
     local ListScripts="$1"
     local ListTask="$2"
     local ListAdd="$3"
@@ -271,7 +269,7 @@ function Output_List_Add_Drop() {
     if [ -s $List ]; then
         echo -e "\n检测到有$Type的定时任务：\n"
         cat $List
-        echo
+        echo ''
     fi
 }
 
@@ -396,13 +394,18 @@ function Update_OwnRepo() {
         if [ -d ${array_own_repo_path[i]}/.git ]; then
             Reset_Romote_Url ${array_own_repo_path[i]} ${array_own_repo_url[i]} ${array_own_repo_branch[i]}
             Git_Pull ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n$COMPLETE ${array_own_repo_dir[i]} 仓库更新完成"
+            else
+                echo -e "\n$ERROR ${array_own_repo_dir[i]} 仓库更新失败，请检查原因..."
+            fi
         else
             Git_Clone ${array_own_repo_url[i]} ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
-        fi
-        if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n$COMPLETE ${array_own_repo_dir[i]} 仓库更新完成"
-        else
-            echo -e "\n$ERROR ${array_own_repo_dir[i]} 仓库更新失败，请检查原因..."
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n$SUCCESS ${array_own_repo_dir[i]} 克隆仓库成功"
+            else
+                echo -e "\n$ERROR ${array_own_repo_dir[i]} 克隆仓库失败，请检查原因..."
+            fi
         fi
     done
 }
@@ -415,7 +418,7 @@ function Update_RawFile() {
         RawFileName[$i]=$(echo ${OwnRawFile[i]} | awk -F "/" '{print $NF}')
 
         ## 判断脚本来源（ 托管仓库 or 普通网站 ）
-        echo ${OwnRawFile[i]} | grep -Eq "github\.com|gitee\.com|gitlab\.com"
+        echo ${OwnRawFile[i]} | grep -Eq "github|gitee|gitlab"
         if [ $? -eq 0 ]; then
             ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
             echo ${OwnRawFile[i]} | grep "\.com\/.*\/blob\/.*" -q
@@ -555,17 +558,19 @@ function Update_Scripts() {
         ## 比较定时任务
         Gen_ListTask
         Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
+
         ## 删除定时任务 & 通知
-        if [ -s $ListTaskDrop ]; then
+        if [[ ${AutoDelCron} == true ]] && [ -s $ListTaskDrop ]; then
             Output_List_Add_Drop $ListTaskDrop "失效"
-            [[ ${AutoDelCron} == true ]] && Del_Cron $ListTaskDrop $TaskCmd
+            Del_Cron $ListTaskDrop $TaskCmd
         fi
         ## 新增定时任务 & 通知
-        if [ -s $ListTaskAdd ]; then
+        if [[ ${AutoAddCron} == true ]] && [ -s $ListTaskAdd ]; then
             Output_List_Add_Drop $ListTaskAdd "新"
             Add_Cron_Scripts $ListTaskAdd
-            [[ ${AutoAddCron} == true ]] && Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
+            Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
         fi
+
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
         echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"
@@ -619,6 +624,7 @@ function Update_Own() {
             ## 比对清单
             grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
             grep -v "$RawDir/" $ListOwnDrop >$ListOwnRepoDrop
+
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRepoCron} == true ]] && [ -s $ListOwnRepoDrop ]; then
                 Output_List_Add_Drop $ListOwnRepoDrop "失效"
@@ -630,12 +636,14 @@ function Update_Own() {
                 Add_Cron_Own $ListOwnRepoAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRepoAdd " Own 仓库脚本"
             fi
+
         fi
         ## Own Raw 脚本
         if [[ ${EnableRawUpdate} == true ]]; then
             ## 比对清单
             grep "$RawDir/" $ListOwnAdd >$ListOwnRawAdd
             grep "$RawDir/" $ListOwnDrop >$ListOwnRawDrop
+
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
                 Output_List_Add_Drop $ListOwnRawDrop "失效"
@@ -647,6 +655,7 @@ function Update_Own() {
                 Add_Cron_Own $ListOwnRawAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRawAdd " Raw 脚本"
             fi
+
         fi
         echo ''
     else

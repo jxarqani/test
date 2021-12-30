@@ -1,5 +1,5 @@
 ## Version: v1.08.0
-## Date: 2021-12-25
+## Date: 2021-12-31
 ## Update Content: \n1. 调整排版\n2. 修改部分注释内容\n3. 开放自定义通知尾内容
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -205,11 +205,10 @@ EnableGlobalProxy=""
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 推 送 通 知 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
 # 在下方定义推送通知方式，想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
-# 目前提供：Server酱、iOS Bark APP、PushPlus(推送加)、Telegram机器人、钉钉机器人、企业微信机器人、企业微信应用、iGot、go-cqhttp等通知方式
-# 具体教程请查看环境变量说明文档：https://github.com/chinnkarahoi/jd_scripts/blob/master/githubAction.md
+# 目前提供：Server酱、iOS Bark APP、pushplus(推送加)、Telegram机器人、钉钉机器人、企业微信机器人、企业微信应用、iGot、go-cqhttp等通知方式
 
 ## ❖ 定义通知尾
-export NOTIFY_TAIL="本通知 By：https://hub.docker.com/r/supermanito/helloworld"
+export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
 
 ## ❖ 1. Server酱
 # 官方网站：https://sct.ftqq.com
@@ -266,7 +265,7 @@ export DD_BOT_SECRET=""
 
 
 ## ❖ 5. 企业微信 - 机器人
-# 官方说明文档：https://work.weixin.qq.com/api/doc/90000/90136/91770
+# 官方文档：https://work.weixin.qq.com/api/doc/90000/90136/91770
 # 下方填写密钥，企业微信推送 webhook 后面的 key
 export QYWX_KEY=""
 
@@ -279,7 +278,7 @@ export QYWX_AM=""
 
 
 ## ❖ 7. iGot聚合
-# 参考文档：https://wahao.github.io/Bark-MP-helper
+# 官方文档：https://wahao.github.io/Bark-MP-helper
 # 下方填写iGot的推送key，支持多方式推送，确保消息可达
 export IGOT_PUSH_KEY=""
 
@@ -297,7 +296,7 @@ export PUSH_PLUS_USER=""
 
 ## ❖ 9. go-cqhttp
 # 官方仓库：https://github.com/Mrs4s/go-cqhttp
-# 官方教程：https://docs.go-cqhttp.org/api/
+# 官方文档：https://docs.go-cqhttp.org/api/
 # 官方搭建教程：https://docs.go-cqhttp.org/guide/quick_start.html
 # 需要自建服务，默认监听地址：127.0.0.1:5700，下方填写您服务的监听地址
 export GO_CQHTTP_URL=""
@@ -556,7 +555,7 @@ BotSubmit=(
 # 请在运行过一次需要互助的活动脚本以后，再运行一次 task exsc 即可获取，将输出内容替换下面自定义互助码填写区域中的内容即可
 # 如果启用了自动互助功能那么下方手动定义的互助码变量和助力规则将不会生效，已默认注释掉相关模板
 
-# 互助码是填在My系列变量中的，ForOther系统变量中只要填入My系列的变量名即可，按注释中的例子拼接，以东东农场为例，如下所示。
+# 互助码是填在My系列变量中的，ForOther系列变量中只要填入My系列的变量名即可，按注释中的例子拼接，以东东农场为例，如下所示。
 # 实际上东东农场一个账号只能给别人助力3次，多写的话只有前几个会被助力。但如果前面的账号获得的助力次数已经达到上限了那么还是会尝试继续给余下的账号助力，所以多填也是有意义的。
 # ForOther系列变量必须从1开始编号，依次编下去。
 
