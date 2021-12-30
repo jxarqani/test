@@ -395,16 +395,16 @@ function Update_OwnRepo() {
             Reset_Romote_Url ${array_own_repo_path[i]} ${array_own_repo_url[i]} ${array_own_repo_branch[i]}
             Git_Pull ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n$COMPLETE ${array_own_repo_dir[i]} 仓库更新完成"
+                echo -e "\n$COMPLETE ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新完成"
             else
-                echo -e "\n$ERROR ${array_own_repo_dir[i]} 仓库更新失败，请检查原因..."
+                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新失败，请检查原因..."
             fi
         else
             Git_Clone ${array_own_repo_url[i]} ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n$SUCCESS ${array_own_repo_dir[i]} 克隆仓库成功"
+                echo -e "\n$SUCCESS ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库成功"
             else
-                echo -e "\n$ERROR ${array_own_repo_dir[i]} 克隆仓库失败，请检查原因..."
+                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库失败，请检查原因..."
             fi
         fi
     done

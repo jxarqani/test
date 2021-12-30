@@ -1125,7 +1125,7 @@ function Add_OwnRepo() {
         ;;
     3)
         local RepoBranch=$2
-        local RepoPath=$3
+        local RepoPath=$(echo $3 | perl -pe '{s|\" |\"|g; s| \"|\"|g; s#|# #g;}')
         ;;
     esac
 
@@ -1168,9 +1168,9 @@ function Add_OwnRepo() {
         local CurrentDir=$(pwd)
         echo -e "\n$WORKING 开始克隆仓库 ${BLUE}${RepoUrl}${PLAIN} 到 ${BLUE}$RepoDir${PLAIN} ... \n"
         if [ -z ${RepoBranch} ]; then
-            git clone -b ${RepoBranch} ${RepoUrl} $RepoDir
-        else
             git clone ${RepoUrl} $RepoDir
+        else
+            git clone -b ${RepoBranch} ${RepoUrl} $RepoDir
         fi
         if [ $? -ne 0 ]; then
             echo -e "\n$ERROR 仓库克隆失败，请检查信息是否正确！\n"
@@ -1186,14 +1186,18 @@ function Add_OwnRepo() {
 
     ## 在配置文件中插入变量
     function Add_Env_Own() {
-        local Tmp1 Tmp2 Sum
+        local Tmp1 Tmp2 Sum FormatRepoUrl
         ## 导入配置文件
         Import_Config_Not_Check
+
+        FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+
         if [[ -z ${OwnRepoUrl1} ]]; then
             ## 没有 Own 仓库
-            sed -i "s/OwnRepoUrl1=/\1OwnRepoUrl1=\"${RepoUrl}\"/" $FileConfUser
-            sed -i "s/OwnRepoBranch1=/\1OwnRepoBranch1=\"${RepoBranch}\"/" $FileConfUser
-            sed -i "s/OwnRepoPath1=/\1OwnRepoPath1=\"${RepoPath}\"/" $FileConfUser
+            sed -i "s/\(OwnRepoUrl1=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
+            local ExitStatus=$?
+            sed -i "s/\(OwnRepoBranch1=\).*/\1\"${RepoBranch}\"/" $FileConfUser
+            sed -i "s/\(OwnRepoPath1=\).*/\1\"${RepoPath}\"/" $FileConfUser
         else
             for ((i = 1; i <= 0x64; i++)); do
                 Tmp1=OwnRepoUrl$i
@@ -1202,14 +1206,22 @@ function Add_OwnRepo() {
             done
             if [[ $Sum -ge 1 ]]; then
                 ## 有1个 Own 仓库
-                sed -i "s/OwnRepoUrl2=/\1OwnRepoUrl2=\"${RepoUrl}\"/" $FileConfUser
-                sed -i "s/OwnRepoBranch2=/\1OwnRepoBranch2=\"${RepoBranch}\"/" $FileConfUser
-                sed -i "s/OwnRepoPath2=/\1OwnRepoPath2=\"${RepoPath}\"/" $FileConfUser
+                sed -i "s/\(OwnRepoUrl2=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
+                local ExitStatus=$?
+                sed -i "s/\(OwnRepoBranch2=\).*/\1\"${RepoBranch}\"/" $FileConfUser
+                sed -i "s/\(OwnRepoPath2=\).*/\1\"${RepoPath}\"/" $FileConfUser
             else
-                sed -i "/OwnRepoUrl$Sum.*/a\OwnRepoUrl$(($Sum + 1))=\"${RepoUrl}\"" $FileConfUser
+                sed -i "/OwnRepoUrl$Sum.*/a\OwnRepoUrl$(($Sum + 1))=\"${FormatRepoUrl}\"" $FileConfUser
+                local ExitStatus=$?
                 sed -i "/OwnRepoBranch$Sum.*/a\OwnRepoBranch$(($Sum + 1))=\"${RepoBranch}\"" $FileConfUser
                 sed -i "/OwnRepoPath$Sum.*/a\OwnRepoPath$(($Sum + 1))=\"${RepoPath}\"" $FileConfUser
             fi
+        fi
+        ## 判定结果
+        if [[ $ExitStatus -eq 0 ]]; then
+            echo -e "\n$COMPLETE 变量已添加"
+        else
+            echo -e "\n$ERROR 变量添加失败"
         fi
     }
 
@@ -1335,7 +1347,6 @@ function Add_OwnRepo() {
         fi
         ## 比对清单
         grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
-        grep -v "$RawDir/" $ListOwnDrop >$ListOwnRepoDrop
     }
 
     ## 添加定时
@@ -1344,11 +1355,8 @@ function Add_OwnRepo() {
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
 
         if [[ ${AutoAddOwnRepoCron} == true ]] && [ -s $ListOwnRepoAdd ]; then
-            echo -e "\n检测到有新的定时任务：\n"
-            cat $ListOwnRepoAdd
             echo ''
             if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
-                echo -e "$WORKING 开始添加 own 脚本的定时任务...\n"
                 local Detail=$(cat $ListOwnRepoAdd)
                 for FilePath in $Detail; do
                     local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
@@ -1360,6 +1368,14 @@ function Add_OwnRepo() {
                 done
                 perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
                 ExitStatus=$?
+            fi
+            ## 判定结果
+            if [[ $ExitStatus -eq 0 ]]; then
+                ## 打印定时
+                cat $ListCrontabOwnTmp | perl -pe "{s|^|${GREEN}+${PLAIN} |g}"
+                echo -e "\n$COMPLETE 定时任务已添加"
+            else
+                echo -e "\n$ERROR 定时任务添加失败"
             fi
             [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
         fi
@@ -1380,6 +1396,7 @@ function Add_OwnRepo() {
     Diff_Own_Cron
     ## 添加定时
     Add_Cron_Own
+    echo ''
 }
 
 ## 添加 Raw 脚本功能
@@ -1453,7 +1470,6 @@ function Add_RawFile() {
         echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     fi
-    FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
 
     ## 判断下载结果
     if [ $? -eq 0 ]; then
@@ -1513,6 +1529,7 @@ function Add_RawFile() {
                 exit ## 终止退出
             fi
         done
+        FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
         sed -i "/OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
