@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-15
+## Modified: 2021-12-31
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -40,24 +40,26 @@ function Random_Update_Cron() {
     fi
 }
 
-## 克隆仓库，$1：仓库地址，$2：仓库保存路径，$3：分支（可省略）
+## 克隆仓库
+## 注释  $1：仓库地址，$2：仓库保存路径，$3：分支（可省略）
 function Git_Clone() {
     local Url=$1
     local Dir=$2
     local Branch=$3
     [[ $Branch ]] && local Command="-b $Branch "
-    echo -e "\n$WORKING 开始克隆仓库 $Url 到 $Dir\n"
+    echo -e "\n$WORKING 开始克隆仓库 ${BLUE}$Url${PLAIN} 到 ${BLUE}$Dir${PLAIN}\n"
     git clone $Command $Url $Dir
     ExitStatus=$?
 }
 
-## 更新仓库，$1：仓库保存路径
+## 更新仓库
+## 注释  $1：仓库保存路径
 function Git_Pull() {
     local CurrentDir=$(pwd)
     local WorkDir=$1
     local Branch=$2
     cd $WorkDir
-    echo -e "\n$WORKING 开始更新仓库：$WorkDir\n"
+    echo -e "\n$WORKING 开始更新仓库：${BLUE}$WorkDir${PLAIN}\n"
     git fetch --all
     ExitStatus=$?
     git pull
@@ -65,7 +67,8 @@ function Git_Pull() {
     cd $CurrentDir
 }
 
-## 重置仓库remote url，docker专用，$1：要重置的目录，$2：要重置为的网址
+## 重置仓库remote url，docker专用
+## 注释  $1：要重置的目录，$2：要重置为的网址
 function Reset_Romote_Url() {
     local CurrentDir=$(pwd)
     local WorkDir=$1
@@ -93,7 +96,7 @@ function Count_OwnRepoSum() {
     fi
 }
 
-## 形成 own 仓库的文件夹名清单，依赖于 Import_Conf 或 Import_Config_Not_Check
+## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
 ## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
 function Gen_Own_Dir_And_Path() {
     local scripts_path_num="-1"
@@ -102,14 +105,15 @@ function Gen_Own_Dir_And_Path() {
     if [[ $OwnRepoSum -ge 1 ]]; then
         for ((i = 1; i <= $OwnRepoSum; i++)); do
             repo_num=$((i - 1))
-
+            ## 仓库地址
             Tmp1=OwnRepoUrl$i
             array_own_repo_url[$repo_num]=${!Tmp1}
-
+            ## 仓库分支
             Tmp2=OwnRepoBranch$i
             array_own_repo_branch[$repo_num]=${!Tmp2}
-
+            ## 仓库文件夹名（作者_仓库名）
             array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
+            ## 仓库路径
             array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
             Tmp3=OwnRepoPath$i
             if [[ ${!Tmp3} ]]; then
@@ -141,7 +145,6 @@ function Gen_ListTask() {
 ## 生成 own 脚本的绝对路径清单
 function Gen_ListOwn() {
     local CurrentDir=$(pwd)
-    local Own_Scripts_Tmp
     ## 导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
     grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
@@ -151,18 +154,19 @@ function Gen_ListOwn() {
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js" 2>/dev/null) ]]; then
-                for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js"); do
+            if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}"); do
                     if [ -f $file ]; then
                         echo "$RawDir/$file" >>$ListOwnScripts
                     fi
                 done
             fi
         else
+            ## Own仓库脚本定时屏蔽
             if [[ -z ${OwnRepoCronShielding} ]]; then
                 local Matching=$(ls *.js 2>/dev/null)
             else
-                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #|#g;}')
+                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #\|#g;}')
                 local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
             fi
             if [[ $(ls *.js 2>/dev/null) ]]; then
@@ -180,8 +184,7 @@ function Gen_ListOwn() {
         fi
     done
     ## 汇总去重
-    Own_Scripts_Tmp=$(sort -u $ListOwnScripts)
-    echo "$Own_Scripts_Tmp" >$ListOwnScripts
+    echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
     ## 导入用户的定时
     cat $ListOwnScripts >$ListOwnAll
     [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
@@ -196,9 +199,9 @@ function Gen_ListOwn() {
     cd $CurrentDir
 }
 
-## 检测cron的差异，$1：脚本清单文件路径，$2：cron任务清单文件路径，$3：增加任务清单文件路径，$4：删除任务清单文件路径
+## 检测cron的差异
+## 注释  $1：脚本清单文件路径，$2：cron任务清单文件路径，$3：增加任务清单文件路径，$4：删除任务清单文件路径
 function Diff_Cron() {
-    Make_Dir $LogTmpDir
     local ListScripts="$1"
     local ListTask="$2"
     local ListAdd="$3"
@@ -237,7 +240,8 @@ function Detect_Config_Version() {
     fi
 }
 
-## npm install 安装脚本依赖模块，$1：package.json 文件所在路径
+## npm install 安装脚本依赖模块
+## 注释  $1：package.json 文件所在路径
 function Npm_Install_Standard() {
     local CurrentDir=$(pwd)
     local WorkDir=$1
@@ -257,19 +261,25 @@ function Npm_Install_Upgrade() {
     cd $CurrentDir
 }
 
-## 输出是否有新的或失效的定时任务，$1：新的或失效的任务清单文件路径，$2：新/失效
+## 输出是否有新的或失效的定时任务
+## 注释  $1：新的或失效的任务清单文件路径，$2：新/失效
 function Output_List_Add_Drop() {
     local List=$1
     local Type=$2
     if [ -s $List ]; then
         echo -e "\n检测到有$Type的定时任务：\n"
         cat $List
-        echo
+        echo ''
     fi
 }
 
-## 自动删除失效的脚本与定时任务，需要：1.AutoDelCron/AutoDelOwnRepoCron/AutoDelOwnRawCron 设置为 true；2.正常更新脚本，没有报错；3.存在失效任务；4.crontab.list存在并且不为空
-## $1：失效任务清单文件路径，$2：task
+## 自动删除失效的脚本与定时任务
+## 需要：
+##      1.AutoDelCron/AutoDelOwnRepoCron/AutoDelOwnRawCron 设置为 true；
+##      2.正常更新脚本，没有报错；
+##      3.存在失效任务；
+##      4.crontab.list存在并且不为空
+## 注释  $1：失效任务清单文件路径，$2：task
 function Del_Cron() {
     local ListDrop=$1
     local Type=$2
@@ -288,8 +298,13 @@ function Del_Cron() {
     fi
 }
 
-## 自动增加 Scripts 仓库新的定时任务，需要：1.AutoAddCron 设置为 true；2.正常更新脚本，没有报错；3.存在新任务；4.crontab.list存在并且不为空
-## $1：新任务清单文件路径
+## 自动增加 Scripts 仓库新的定时任务
+## 需要：
+##      1.AutoAddCron 设置为 true；
+##      2.正常更新脚本，没有报错；
+##      3.存在新任务；
+##      4.crontab.list存在并且不为空
+## 注释  $1：新任务清单文件路径
 function Add_Cron_Scripts() {
     local ListAdd=$1
     if [[ ${AutoAddCron} == true ]] && [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
@@ -306,8 +321,13 @@ function Add_Cron_Scripts() {
     fi
 }
 
-## 自动增加自己额外的脚本的定时任务，需要：1.AutoAddOwnRepoCron/AutoAddOwnRawCron 设置为 true；2.正常更新脚本，没有报错；3.存在新任务；4.crontab.list存在并且不为空
-## $1：新任务清单文件路径
+## 自动增加自己额外的脚本的定时任务
+## 需要：
+##      1.AutoAddOwnRepoCron/AutoAddOwnRawCron 设置为 true；
+##      2.正常更新脚本，没有报错；
+##      3.存在新任务；
+##      4.crontab.list存在并且不为空
+## 注释  $1：新任务清单文件路径
 function Add_Cron_Own() {
     local ListAdd=$1
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
@@ -316,11 +336,11 @@ function Add_Cron_Own() {
         echo -e "$WORKING 开始添加 own 脚本的定时任务...\n"
         local Detail=$(cat $ListAdd)
         for FilePath in $Detail; do
-            local FileName=$(echo $FilePath | awk -F "/" '{print $NF}')
-            if [ -f $FilePath ]; then
-                if [ $FilePath = "$RawDir/$FileName" ]; then
+            local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
+            if [ -f ${FilePath} ]; then
+                if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|$FileName" $FilePath | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
@@ -331,22 +351,27 @@ function Add_Cron_Own() {
                     else
                         cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
                     fi
-                    echo "$cron $TaskCmd $FilePath" | sort -u | head -1 >>$ListCrontabOwnTmp
+                    ## 如果未检测出定时则随机一个
+                    if [ -z "${cron}" ]; then
+                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                    else
+                        echo "$cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                    fi
                 else
-                    perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*$FileName/" $FilePath |
-                        perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$FileName.*|\1 $TaskCmd $FilePath|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd $FilePath)|\1|;}" |
+                    perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                        perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
                         sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
                 fi
             fi
         done
-        Crontab_Tmp="$(cat $ListCrontabOwnTmp)"
-        perl -i -pe "s|(# 自用own任务结束.+)|$Crontab_Tmp\n\1|" $ListCrontabUser
+        perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
         ExitStatus=$?
     fi
     [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
 }
 
-## 向系统添加定时任务以及通知，$1：写入crontab.list时的exit状态，$2：新增清单文件路径，$3：Scripts仓库脚本/own脚本
+## 向系统添加定时任务以及通知
+## 注释  $1：写入crontab.list时的exit状态，$2：新增清单文件路径，$3：Scripts仓库脚本/Own仓库脚本/Raw脚本
 function Add_Cron_Notify() {
     local Status_Code=$1
     local ListAdd=$2
@@ -369,56 +394,105 @@ function Update_OwnRepo() {
         if [ -d ${array_own_repo_path[i]}/.git ]; then
             Reset_Romote_Url ${array_own_repo_path[i]} ${array_own_repo_url[i]} ${array_own_repo_branch[i]}
             Git_Pull ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n$COMPLETE ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新完成"
+            else
+                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新失败，请检查原因..."
+            fi
         else
             Git_Clone ${array_own_repo_url[i]} ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
-        fi
-        if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n$COMPLETE ${array_own_repo_dir[i]} 仓库更新完成"
-        else
-            echo -e "\n$ERROR ${array_own_repo_dir[i]} 仓库更新失败，请检查原因..."
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n$SUCCESS ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库成功"
+            else
+                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库失败，请检查原因..."
+            fi
         fi
     done
 }
 
 ## 更新所有 Raw 脚本
-function Update_OwnRaw() {
-    local Rm_Mark format_url repository_platform repository_branch reformat_url repository_url repository_url_tmp
+function Update_RawFile() {
+    local RawFileName RemoveMark FormatUrl ReformatUrl RepoBranch RepoUrl RepoPlatformUrl DownloadUrl
     for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
-        raw_file_name[$i]=$(echo ${OwnRawFile[i]} | awk -F "/" '{print $NF}')
-        ## 判断脚本来源仓库
-        repository_url_tmp=$(echo ${OwnRawFile[i]} | perl -pe "{s|${raw_file_name[$i]}||g;}")
-        format_url=$(echo $repository_url_tmp | awk -F '.com' '{print$NF}' | sed 's/.$//')
-        case $(echo $repository_url_tmp | grep -Eo "github|gitee") in
-        github)
-            repository_platform="https://github.com"
-            repository_branch=$(echo $format_url | awk -F '/' '{print$4}')
-            reformat_url=$(echo $format_url | sed "s|$repository_branch|tree/$repository_branch|g")
-            ;;
-        gitee)
-            repository_platform="https://gitee.com"
-            reformat_url=$(echo $format_url | sed "s|/raw/|/tree/|g")
-            ;;
-        esac
-        repository_url="$repository_platform$reformat_url"
-        echo -e "\n$WORKING 开始从仓库 $repository_url 下载 ${raw_file_name[$i]} 脚本"
-        wget -q --no-check-certificate -O "$RawDir/${raw_file_name[$i]}.new" ${OwnRawFile[i]} -T 10
+        ## 定义脚本名称
+        RawFileName[$i]=$(echo ${OwnRawFile[i]} | awk -F "/" '{print $NF}')
+
+        ## 判断脚本来源（ 托管仓库 or 普通网站 ）
+        echo ${OwnRawFile[i]} | grep -Eq "github|gitee|gitlab"
         if [ $? -eq 0 ]; then
-            mv -f "$RawDir/${raw_file_name[$i]}.new" "$RawDir/${raw_file_name[$i]}"
-            echo -e "$COMPLETE ${raw_file_name[$i]} 下载完成，脚本保存路径：$RawDir/${raw_file_name[$i]}"
+            ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
+            echo ${OwnRawFile[i]} | grep "\.com\/.*\/blob\/.*" -q
+            if [ $? -eq 0 ]; then
+                ## 纠正链接
+                case $(echo ${OwnRawFile[i]} | grep -Eo "github|gitee|gitlab") in
+                github)
+                    echo ${OwnRawFile[i]} | grep "github\.com\/.*\/blob\/.*" -q
+                    if [ $? -eq 0 ]; then
+                        DownloadUrl=$(echo ${OwnRawFile[i]} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                    else
+                        DownloadUrl=${OwnRawFile[i]}
+                    fi
+                    ;;
+                gitee)
+                    DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                    ;;
+                gitlab)
+                    DownloadUrl=${OwnRawFile[i]}
+                    ;;
+                esac
+            else
+                ## 原始链接
+                DownloadUrl=${OwnRawFile[i]}
+            fi
+
+            ## 处理仓库地址
+            FormatUrl=$(echo ${DownloadUrl} | perl -pe "{s|${RawFileName[$i]}||g;}" | awk -F '.com' '{print$NF}' | sed 's/.$//')
+            ## 判断仓库平台
+            case $(echo ${DownloadUrl} | grep -Eo "github|gitee|gitlab") in
+            github)
+                RepoPlatformUrl="https://github.com"
+                RepoBranch=$(echo $FormatUrl | awk -F '/' '{print$4}')
+                ReformatUrl=$(echo $FormatUrl | sed "s|$RepoBranch|tree/$RepoBranch|g")
+                ## 定义脚本来源仓库地址链接
+                RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
+                ;;
+            gitee)
+                RepoPlatformUrl="https://gitee.com"
+                ReformatUrl=$(echo $FormatUrl | sed "s|/raw/|/tree/|g")
+                ## 定义脚本来源仓库地址链接
+                RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
+                ;;
+            gitlab)
+                ## 定义脚本来源仓库地址链接
+                RepoUrl=${DownloadUrl}
+                ;;
+            esac
+            ## 拉取脚本
+            echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本..."
+            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
-            echo -e "$ERROR 下载 ${raw_file_name[$i]} 失败，保留之前正常下载的版本...\n"
-            [ -f "$RawDir/${raw_file_name[$i]}.new" ] && rm -f "$RawDir/${raw_file_name[$i]}.new"
+            ## 拉取脚本
+            DownloadUrl="${InputContent}"
+            echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
+            wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
+        fi
+        if [ $? -eq 0 ]; then
+            mv -f "$RawDir/${RawFileName[$i]}.new" "$RawDir/${RawFileName[$i]}"
+            echo -e "$COMPLETE ${RawFileName[$i]} 下载完成，脚本保存路径：$RawDir/${RawFileName[$i]}"
+        else
+            echo -e "$ERROR 下载 ${RawFileName[$i]} 失败，保留之前正常下载的版本...\n"
+            [ -f "$RawDir/${RawFileName[$i]}.new" ] && rm -f "$RawDir/${RawFileName[$i]}.new"
         fi
     done
-    for file in $(ls $RawDir | grep -Ev "jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"); do
-        Rm_Mark="yes"
-        for ((i = 0; i < ${#raw_file_name[*]}; i++)); do
-            if [[ $file == ${raw_file_name[$i]} ]]; then
-                Rm_Mark="no"
+    for file in $(ls $RawDir | grep -Ev "${RawDirUtils}"); do
+        RemoveMark="yes"
+        for ((i = 0; i < ${#RawFileName[*]}; i++)); do
+            if [[ $file == ${RawFileName[$i]} ]]; then
+                RemoveMark="no"
                 break
             fi
         done
-        [[ $Rm_Mark == yes ]] && rm -f $RawDir/$file 2>/dev/null
+        [[ $RemoveMark == yes ]] && rm -f $RawDir/$file 2>/dev/null
     done
 }
 
@@ -484,17 +558,19 @@ function Update_Scripts() {
         ## 比较定时任务
         Gen_ListTask
         Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
+
         ## 删除定时任务 & 通知
-        if [ -s $ListTaskDrop ]; then
+        if [[ ${AutoDelCron} == true ]] && [ -s $ListTaskDrop ]; then
             Output_List_Add_Drop $ListTaskDrop "失效"
-            [[ ${AutoDelCron} == true ]] && Del_Cron $ListTaskDrop $TaskCmd
+            Del_Cron $ListTaskDrop $TaskCmd
         fi
         ## 新增定时任务 & 通知
-        if [ -s $ListTaskAdd ]; then
+        if [[ ${AutoAddCron} == true ]] && [ -s $ListTaskAdd ]; then
             Output_List_Add_Drop $ListTaskAdd "新"
             Add_Cron_Scripts $ListTaskAdd
-            [[ ${AutoAddCron} == true ]] && Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
+            Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
         fi
+
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
         echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"
@@ -528,6 +604,7 @@ function Update_Own() {
             echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！\n"
             exit ## 终止退出
         fi
+        Title $1
         ;;
     esac
     if [[ ${#array_own_scripts_path[*]} -gt 0 ]]; then
@@ -537,7 +614,7 @@ function Update_Own() {
             Update_OwnRepo
         fi
         if [[ ${EnableRawUpdate} == true ]]; then
-            Update_OwnRaw
+            Update_RawFile
         fi
         ## 比较定时任务
         Gen_ListOwn
@@ -547,6 +624,7 @@ function Update_Own() {
             ## 比对清单
             grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
             grep -v "$RawDir/" $ListOwnDrop >$ListOwnRepoDrop
+
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRepoCron} == true ]] && [ -s $ListOwnRepoDrop ]; then
                 Output_List_Add_Drop $ListOwnRepoDrop "失效"
@@ -558,12 +636,14 @@ function Update_Own() {
                 Add_Cron_Own $ListOwnRepoAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRepoAdd " Own 仓库脚本"
             fi
+
         fi
         ## Own Raw 脚本
         if [[ ${EnableRawUpdate} == true ]]; then
             ## 比对清单
             grep "$RawDir/" $ListOwnAdd >$ListOwnRawAdd
             grep "$RawDir/" $ListOwnDrop >$ListOwnRawDrop
+
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
                 Output_List_Add_Drop $ListOwnRawDrop "失效"
@@ -575,6 +655,7 @@ function Update_Own() {
                 Add_Cron_Own $ListOwnRawAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRawAdd " Raw 脚本"
             fi
+
         fi
         echo ''
     else
@@ -590,7 +671,7 @@ function ExtraShell() {
     ## 同步用户的 extra.sh
     if [[ $EnableExtraShellSync == true ]] && [[ $ExtraShellSyncUrl ]]; then
         echo -e "$WORKING 开始同步自定义脚本：$ExtraShellSyncUrl\n"
-        wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 10
+        wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 20
         if [ $? -eq 0 ]; then
             mv -f "$FileExtra.new" "$FileExtra"
             echo -e "$COMPLETE 自定义脚本同步完成\n"
@@ -623,7 +704,7 @@ function Update_Designated() {
     local InputContent=${1%*/}
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
-    echo ${InputContent} | grep $RootDir -q
+    echo ${InputContent} | grep "^$RootDir/" -q
     if [ $? -eq 0 ]; then
         AbsolutePath=${InputContent}
     else
@@ -633,12 +714,14 @@ function Update_Designated() {
             AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
             if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$RootDir/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
             else
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\./||; s|^*|$(pwd)/|;}")
+                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
             fi
         fi
     fi
+
+    echo -e "${AbsolutePath}"
     if [ -d ${AbsolutePath}/.git ]; then
         Title "specify"
         case ${AbsolutePath} in
@@ -653,7 +736,7 @@ function Update_Designated() {
             Git_Pull ${AbsolutePath} $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
-                echo -e "注意：此模式下不会附带更新定时任务等\n"
+                echo -e "${YELLOW}注意：此更新模式下不会附带更新定时任务${PLAIN}\n"
             else
                 echo -e "\n$ERROR ${AbsolutePath} 仓库更新失败，请检查原因...\n"
             fi
@@ -716,13 +799,13 @@ function Notice() {
 
   本项目为非营利性的公益闭源项目，脚本免费使用仅供用于学习！
 
-  圈内资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！
+  项目资源禁止以任何形式发布到咸鱼等国内平台，否则后果自负！
 
-  我们始终致力于打击使用本项目进行违法贩卖行为的个人或组织！
+  我们始终致力于打击使用本项目进行非法贩售行为的个人或组织！
 
   我们不会放纵某些行为，不保证不采取非常手段，请勿挑战底线！
 
-+-----------------------------------------------------------+\n"
++--------------- 请遵循本项目宗旨 - 低调使用 ---------------+\n"
 }
 
 ## 组合函数
@@ -765,7 +848,6 @@ function Combin_Function() {
             Update_Own "repo"
             ;;
         raw)
-            Title $1
             Update_Own "raw"
             ;;
         extra)
@@ -781,8 +863,8 @@ function Combin_Function() {
             if [ $? -eq 0 ]; then
                 Update_Designated $1
             else
-                Output_Command_Error 1
-                exit ## 终止退出
+                Output_Command_Error 1 ## 命令错误
+                exit                   ## 终止退出
             fi
             ;;
         esac
@@ -791,7 +873,7 @@ function Combin_Function() {
         exit ## 终止退出
         ;;
     *)
-        Output_Command_Error 2
+        Output_Command_Error 2 ## 命令过多
         ;;
     esac
 }

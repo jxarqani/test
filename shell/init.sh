@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-11-18
+## Modified: 2021-12-27
 
 set -e
 RED="\033[31m"
@@ -18,7 +18,7 @@ if [ ! -d ${WORK_DIR}/config ]; then
   exit 1
 fi
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码开始 -----\n"
 cd ${WORK_DIR}
 sleep 1
@@ -28,7 +28,7 @@ taskctl check files >/dev/null 2>&1
 bash ${WORK_DIR}/shell/update.sh
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 挂机程序开始 -----\n"
 if [[ ${ENABLE_HANGUP} == true ]]; then
   . ${WORK_DIR}/config/config.sh
@@ -42,7 +42,7 @@ elif [[ ${ENABLE_HANGUP} == false ]]; then
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 挂机程序结束 -----\n"
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 三 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 三 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 电报机器人开始 -----\n"
 if [[ ${ENABLE_TG_BOT} == true ]]; then
   case $(uname -m) in
@@ -62,12 +62,12 @@ elif [[ ${ENABLE_TG_BOT} == false ]]; then
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 电报机器人结束 -----\n"
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
   export PS1="\u@\h:\w# "
-  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t disableLeaveAlert=true -t rendererType=webgl bash
+  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t lineHeight=1.5 -t disableLeaveAlert=true -t rendererType=webgl bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
   cd ./web
@@ -84,7 +84,7 @@ elif [[ ${ENABLE_WEB_PANEL} == false ]]; then
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页终端结束 -----\n"
 
-## ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 五 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 五 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装环境开始 -----\n"
 if [[ ${ENABLE_ALL_ENV} == false ]]; then
   echo -e "已设置为不在容器启动时安装环境包"
@@ -93,12 +93,11 @@ else
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装环境结束 -----\n"
 
-
 echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
 
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
 echo -e "Tips: 请退出查看容器初始化日志\n"
 
-crond -f >/dev/null 2>&1
+crond -f >/dev/null
 
 exec "$@"

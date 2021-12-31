@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="./css/prism.css"/>
     <link rel="stylesheet" href="./css/onoffcanvas.min.css">
     <link rel="stylesheet" type="text/css" href="./css/codemirror.min.css">
-    <link rel="stylesheet" href="js/third/codemirror/minimap/minimap.css">
+    <link rel="stylesheet" href="./js/third/codemirror/minimap/minimap.css">
 
     <link rel="stylesheet" type="text/css" href="./css/codemirror-theme.css">
     <link rel="stylesheet" type="text/css" href="./css/main.css">
@@ -48,9 +48,13 @@
                                 <i class="fa fa-exchange"></i>
                                 <span class="animate-normal">切换换行</span>
                             </button>
-                            <button id="move-bottom">
+                            <button id="move-bottom" style="border-radius: 0;">
                                 <i class="fa fa-arrow-circle-o-down"></i>
                                 <span class="animate-normal">跳转底部</span>
+                            </button>
+                            <button id="refresh">
+                                <i class="fa fa-refresh"></i>
+                                <span class="animate-normal">刷新日志</span>
                             </button>
                         </div>
                     </header>

@@ -1,7 +1,7 @@
-var qrcode, userCookie;
+var qrcode, userCookie, curDir = "", cruFile = "";
 $(document).ready(function () {
     editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        minimap: minimapVal,
+        minimap: !userAgentTools.mobile(navigator.userAgent),
         lineNumbers: true,
         lineWrapping: true,
         styleActiveLine: false,
@@ -12,10 +12,10 @@ $(document).ready(function () {
         mode: 'shell',
         theme: themeChange.getAndUpdateEditorTheme(),
     });
-    let metisMenu, $menuTree = $('#menuTree');
+    var $menuTree = $('#menuTree');
 
     function loadData(keywords = '') {
-        panelRequest.get( '/api/logs', {keywords}, function (res) {
+        panelRequest.get('/api/logs', {keywords}, function (res) {
             var dirs = res.data;
             var navHtml = "";
             for (let index in dirs) {
@@ -49,7 +49,7 @@ $(document).ready(function () {
 
             $menuTree.metisMenu('dispose')
             $menuTree.html(navHtml);
-            metisMenu = $menuTree.metisMenu();
+            $menuTree.metisMenu();
         });
     }
 
@@ -63,15 +63,24 @@ $(document).ready(function () {
             $("#submitSearch").click();
         }
     });
-    window.logDetail = function logDetail(dir, file) {
-        if (window.innerWidth < 993) {
+    $("#refresh").click(function () {
+        logDetail(curDir, cruFile, true);
+    })
+    window.logDetail = function logDetail(dir, file, toEnd) {
+        curDir = dir;
+        cruFile = file;
+        if (window.innerWidth < 993 && !toEnd) {
             dispatch(document.getElementById('toggleIcon'), 'click');
         }
 
-        panelRequest.get( `/api/logs/${dir}/${file}`, function (res) {
-            if(res.code === 1){
+        panelRequest.get(`/api/logs/${dir}/${file}`, function (res) {
+            if (res.code === 1) {
                 editor.setValue(res.data);
                 !userAgentTools.mobile(navigator.userAgent) && $(".CodeMirror-scroll").css("width", `calc(100% - ${$(".CodeMirror-minimap").width() + 5}px)`);
+            }
+            if (toEnd) {
+                //将光标和滚动条设置到文本区最下方
+                editor.execCommand('goDocEnd');
             }
         });
     }
@@ -90,6 +99,10 @@ $(document).ready(function () {
     $('#move-bottom').click(function () {
         editor.execCommand('goDocEnd');
     })
+
+    setTimeout(function () {
+        userAgentTools.mobile(navigator.userAgent) && dispatch(document.getElementById('toggleIcon'), 'click');
+    }, 100);
 
     //自动触发事件
     function dispatch(ele, type) {

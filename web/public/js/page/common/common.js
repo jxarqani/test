@@ -127,10 +127,10 @@ let MenuTools = {
             //     path: "https://u.jd.com/3t9LXZe",
             // },
             {
-                title: "配置文件",
+                title: "环境变量",
                 faIcon: "fa-home",
                 titleFaIcon: "fa-arrow-right",
-                subText: "编辑环境变量",
+                subText: "编辑主配置文件",
                 customClass: 'gb a',
                 path: "/config"
             }, {
@@ -191,12 +191,12 @@ let MenuTools = {
             customClass: 'gb b',
             path: "/terminal"
         }, {
-            title: "使用说明",
-            faIcon: "fa-book",
+            title: "官方文档",
+            faIcon: "fa fa-tv",
             titleFaIcon: "fa-external-link",
-            subText: "查看所有关于项目的使用教程",
+            subText: "关于本项目的所有文档内容",
             customClass: 'gb c',
-            path: "javascript:window.open('./cause/index.html')"
+            path: "javascript:window.open('https://supermanito.github.io/Helloworld')"
         }]
     }, {
         title: "文件浏览",

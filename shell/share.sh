@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-15
+## Modified: 2021-12-31
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -80,8 +80,9 @@ ERROR='[\033[31mERROR\033[0m]'
 WORKING='[\033[34m*\033[0m]'
 COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
+RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
 ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts"
-ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|JDJR|validate|ZooFaker|MovementFaker|tencentscf|api_test|app\.|main\.|jdEnv|${ShieldingScripts}"
+ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
 GithubProxy="https://ghproxy.com/"
@@ -98,11 +99,11 @@ name_script=(
     jd_plantBean
     jd_dreamFactory
     jd_jdfactory
-    jd_bookshop
-    jd_cash
     jd_sgmh
     jd_cfd
     jd_health
+    jd_cash
+    jd_bookshop
     jd_global
     jd_carnivalcity
     jd_city
@@ -114,11 +115,11 @@ name_config=(
     Bean
     DreamFactory
     JdFactory
-    BookShop
-    Cash
     Sgmh
     Cfd
     Health
+    Cash
+    BookShop
     Global
     Carni
     City
@@ -130,11 +131,11 @@ name_chinese=(
     京东种豆得豆
     京喜工厂
     东东工厂
-    口袋书店
-    签到领现金
     闪购盲盒
     京喜财富岛
     东东健康社区
+    签到领现金
+    口袋书店
     环球挑战赛
     京东手机狂欢城
     城城领现金
@@ -146,11 +147,11 @@ bot_command=(
     bean
     jxfactory
     ddfactory
-    bookshop
-    sign
     sgmh
     cfd
     health
+    sign
+    bookshop
     global
     carnivalcity
     city
@@ -175,7 +176,7 @@ function Import_Config_Not_Check() {
     fi
 }
 
-## 命令错误输出
+## 输出命令错误提示
 function Output_Command_Error() {
     local Mod=$1
     case $Mod in
@@ -217,7 +218,7 @@ function Combin_Sub() {
 
 ## 组合互助码
 function Combin_ShareCodes() {
-    ## 读取已导出的互助码类变量（自动互助功能）
+    ## 读取已导出的互助码类变量（自动互助）
     if [[ $AutoHelpOther == true ]] && [[ -d $CodeDir ]]; then
         if [[ $(ls $CodeDir) ]]; then
             local LatestLog=$(ls -r $CodeDir | head -1)
@@ -229,10 +230,10 @@ function Combin_ShareCodes() {
     export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
     export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
     export DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
-    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
-    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
     export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
     export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
+    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
+    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
     export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
     export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
     export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
@@ -277,8 +278,7 @@ function Query_Name() {
     if [[ ${Tmp} ]]; then
         ScriptName=${Tmp}
     else
-        ## 从收录的词典中获取
-        . $FileScriptDictionary $FileName
+        ScriptName="<未知>"
     fi
 }
 
@@ -287,75 +287,83 @@ function Help() {
     case ${ARCH} in
     armv7l | armv6l)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
- ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<b/p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
- ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
- ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
- ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
- ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
- ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd ps${PLAIN}                           ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
+ ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                        ✧ 删除项目产生的日志文件，默认检测7天以前的日志，扩展用法(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                      ✧ 检测并终止卡死的脚本进程以此释放内存占用，扩展用法(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，扩展用法(加在末尾): ${BLUE}<num>${PLAIN} 指定账号
+ ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
- ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
- ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
- ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
- ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
- ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+ ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地后自动添加相关变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地后自动添加相关变量并配置定时任务
 
- ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
- ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
-                                             \"Raw\" 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
+ ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
+ ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}               ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}                ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}                 ✧ 执行环境软件包相关命令(不支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
+
+ ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}               ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、Scripts主要仓库 ${BLUE}scripts${PLAIN}、Own扩展仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
+                                                  Raw 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
- ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+ ❋ 用于执行脚本的可选参数： 
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行，不在前台输出脚本进度
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}        静默执行，不推送通知消息
 "
         ;;
     *)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}     ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个)：${BLUE}-<b/p/r/d/c>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}    ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个)：${BLUE}-<p/r/d/c>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}       ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
- ❖  ${BLUE}source runall${PLAIN}                ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<b/p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}         ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<p/r/d/c>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                    ✧ 查看本地脚本清单
- ❖  ${BLUE}$TaskCmd ps${PLAIN}                      ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
- ❖  ${BLUE}$TaskCmd exsc${PLAIN}                    ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                   ✧ 删除项目产生的日志文件，默认检测7天以前的日志，可选参数(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
- ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                 ✧ 检测并终止卡死的脚本进程以此释放内存占用，可选参数(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
- ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}            ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，支持指定账号更新(末尾加序号)
- ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}               ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd ps${PLAIN}                           ✧ 查看资源消耗情况和正在运行的脚本进程，当检测到内存占用较高时自动尝试释放
+ ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
+ ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                        ✧ 删除项目产生的日志文件，默认检测7天以前的日志，扩展用法(加在末尾): ${BLUE}<days>${PLAIN} 指定天数
+ ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                      ✧ 检测并终止卡死的脚本进程以此释放内存占用，扩展用法(加在末尾): ${BLUE}<hours>${PLAIN} 指定时间
+ ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，扩展用法(加在末尾): ${BLUE}<num>${PLAIN} 指定账号
+ ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
- ❖  ${BLUE}$ContrlCmd server status${PLAIN}        ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}           ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
- ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}          ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
- ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}           ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
- ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}            ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
- ❖  ${BLUE}$ContrlCmd check files${PLAIN}          ✧ 检测项目相关配置文件是否存在，如果缺失就从模板导入
+ ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地后自动添加相关变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地后自动添加相关变量并配置定时任务
 
- ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}          ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
- ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}            ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、\"Scripts\"仓库 ${BLUE}scripts${PLAIN}、\"Own\"仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
-                                             \"Raw\" 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
+ ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
+ ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}               ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}                ✧ Telegram Bot 功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}                 ✧ 执行环境软件包相关命令(支持 TypeSciprt 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
+
+ ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}               ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、Scripts主要仓库 ${BLUE}scripts${PLAIN}、Own扩展仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}
+                                                  Raw 脚本 ${BLUE}raw${PLAIN}、自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
     ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
 
- ❋ 可选参数注释（加在末尾）： 
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行脚本，不在前台输出日志
+ ❋ 用于执行脚本的可选参数： 
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}  后台运行，不在前台输出脚本进度
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}       启用下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       随机延迟一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
+    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}       延迟执行，随机倒数一定秒数后再执行脚本，当时间处于每小时的 0~3,30~31,58~59 分时该参数无效
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}      指定账号运行，参数后面需跟账号序号，如有多个需用 \",\" 隔开，支持账号区间，用 \"-\" 连接
+    ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}        静默运行，不推送任何通知消息
 "
         ;;
     esac

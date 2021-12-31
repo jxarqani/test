@@ -20,7 +20,7 @@ h4 {
 }
 
 .footer {
-    color: rgb(209, 209, 209);
+    color: rgb(70, 70, 70);
     left: 0px;
     bottom: 2%;
     width: 100%;
@@ -40,7 +40,7 @@ h4 {
     top: 0px;
     left: 0px;
     position: absolute;
-    background-image: linear-gradient(30deg, #ef008f, #6ec3f4, #7038ff, #ffba27);
+    background-image: linear-gradient(-225deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%);
 }
 
 .container p {
@@ -226,7 +226,7 @@ h4 {
 }
 
 .light .elk-side {
-    background: #f8f9fa;
+    background: #ffffff;
 }
 
 .elk-side-search {
@@ -268,6 +268,10 @@ h4 {
 
 .elk-side-nav .metismenu a {
     padding: .5rem 1rem .5rem 2rem;
+}
+
+.elk-side-nav .metismenu {
+    height: 100%;
 }
 
 .metismenu .has-arrow::after {

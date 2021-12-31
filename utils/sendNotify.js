@@ -186,8 +186,8 @@ if (process.env.GO_CQHTTP_EXPIRE_SEND_PRIVATE) {
 }
 
 let end_txt = "本通知 By：https://hub.docker.com/r/supermanito/helloworld";
-if (process.env.END_TXT) {
-    end_txt = process.env.END_TXT;
+if (process.env.NOTIFY_TAIL) {
+    end_txt = process.env.NOTIFY_TAIL;
 }
 let tg_only = false;
 if (process.env.TG_ONLY) {

@@ -1,3 +1,8 @@
+/*
+juejin：浅色主题
+panda-syntax：暗黑主题
+*/
+
 .cm-s-panda-syntax {
     background: #292A2B;
     color: #ffffff;
@@ -18,7 +23,7 @@
 }
 
 .cm-s-juejin {
-    background: #fcfcfc;
+    background: #f7f7f7;
     color: #000000;
     font-size: 14px;
     font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
@@ -28,7 +33,7 @@
 @media screen and (max-width: 640px) {
 
     .cm-s-juejin {
-        background: #fcfcfc;
+        background: #f7f7f7;
         color: #000000;
         font-size: 11px;
         font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
