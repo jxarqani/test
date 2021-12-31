@@ -736,7 +736,7 @@ function Update_Designated() {
             Git_Pull ${AbsolutePath} $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
-                echo -e "${YELLOW}注意：此模式下不会附带更新定时任务等${PLAIN}\n"
+                echo -e "${YELLOW}注意：此更新模式下不会附带更新定时任务${PLAIN}\n"
             else
                 echo -e "\n$ERROR ${AbsolutePath} 仓库更新失败，请检查原因...\n"
             fi

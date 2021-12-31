@@ -299,8 +299,8 @@ function Help() {
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，扩展用法(加在末尾): ${BLUE}<num>${PLAIN} 指定账号
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
- ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地并自动添加变量并配置定时任务
- ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地并自动添加变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地后自动添加相关变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地后自动添加相关变量并配置定时任务
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
  ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}
@@ -340,8 +340,8 @@ function Help() {
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}，扩展用法(加在末尾): ${BLUE}<num>${PLAIN} 指定账号
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
 
- ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地并自动添加变量并配置定时任务
- ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地并自动添加变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd repo <url> <branch> <path>${PLAIN}   ✧ 添加 Own 扩展仓库功能，拉取仓库至本地后自动添加相关变量并配置定时任务
+ ❖  ${BLUE}$TaskCmd raw <url>${PLAIN}                    ✧ 添加 Raw 扩展脚本功能，单独拉取脚本至本地后自动添加相关变量并配置定时任务
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
  ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}、查看日志 ${BLUE}logs${PLAIN}

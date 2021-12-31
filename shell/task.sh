@@ -2558,13 +2558,10 @@ case $# in
             if [ $# -eq 4 ]; then
                 Add_OwnRepo $2 $3 $4
             else
-                Output_Command_Error 2 ## 命令过多
+                Output_Command_Error 1 ## 命令错误
             fi
             ;;
         esac
-        ;;
-    *)
-        Output_Command_Error 1 ## 命令错误
         ;;
     esac
     ;;

@@ -53,13 +53,11 @@ TempBlockCookie=""
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
-# 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方的变量添加更多的仓库或脚本到本地
-# 提供两种方式，请认真阅读注释内容，针对同一个仓库，为了防止定时冲突方式一和方式二只能选择一种
-# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
+# 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方的变量添加更多的仓库到本地
 
-## ❖ 方式一：克隆仓库（基于 Git）
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
+# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
 
 OwnRepoUrl1=""
 OwnRepoUrl2=""
@@ -72,8 +70,8 @@ OwnRepoPath2=""
 
 # 示例：
 # OwnRepoUrl：仓库地址清单，必须从1开始依次编号
-# OwnRepoBranch：您想使用的分支清单，不能为 "空" 必须指定分支的名称，编号必须和 OwnRepoUrl 对应。
-# OwnRepoPath：要使用的脚本在仓库哪个路径下，请输入仓库下的相对路径，默认空值""代表仓库根目录，编号必须和 OwnRepoUrl 对应。
+# OwnRepoBranch：分支清单，不能为 "空" 必须指定分支的名称，编号必须和 OwnRepoUrl 对应。
+# OwnRepoPath：脚本路径清单，要使用的脚本在仓库哪个路径下，请输入仓库下的相对路径，默认空值""代表仓库根目录，编号必须和 OwnRepoUrl 对应。
 #              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中OwnRepoPath3。
 # 所有脚本存放在 own 目录下，三个清单必须一一对应，示例如下：
 # OwnRepoUrl1="https://gitee.com/abc/jdtsa.git"
@@ -87,37 +85,41 @@ OwnRepoPath2=""
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## Own 仓库脚本定时任务开关（自动增加/自动删除）
-# 自动增加: "AutoAddOwnRepoCron"；自动删除: "AutoDelOwnRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
-# 本项目不一定能完全从脚本中识别出有效的cron设置，如果发现不能满足您的需要，请设置为 "false" 以取消自动增加或自动删除。
+# 自动增加: "AutoAddOwnRepoCron"；自动删除: "AutoDelOwnRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"
+# 默认均为 "true"，项目不一定能完全从脚本中识别出有效的 cron 设置，如果发现不能满足您的需要，请修改为 "false" 以取消自动增加或自动删除
 AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
 ## Own 仓库脚本定时任务屏蔽功能
-# 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词不支持符号仅限英文和数字，多个关键词用空格隔开，注意区分大小写
+# 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词仅限英文和数字不支持符号，多个关键词用空格隔开，注意区分大小写
 # 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"
 OwnRepoCronShielding=""
 
 
 
-## ❖ 方式二：拉取脚本（基于 Wget）
-# 请先确认您能正常下载目标脚本后再列在下方，位于托管仓库的脚本自带地址纠正功能可不填入 raw 原始文件地址，支持一般网站
+
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 脚 本 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
+
+# 用户可以通过定义下方的变量单独添加更多的脚本到本地
+
+# 请先确认您能正常下载目标脚本后再列在下方，位于托管仓库的脚本支持地址纠正功能可不填入 raw 原始文件地址，也支持一般网站
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
-# 请确认对应脚本中是否含有 crontab 表达式，否则将导入残缺的定时任务，即 crontab 表达式为空仅包含命令内容
-# 注意缩进和格式，每行开头四个或两个空格，一行一个脚本链接，首尾一对半角括号
+# 导入前请先确认目标脚本中是否含有 `Crontab 表达式`，如若没有或者未识别到那么将随机指定一个每天执行一次的定时
+# 注意缩进和格式，每行开头两个或四个空格，一行一个脚本链接，首尾一对半角括号
+# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
 
 OwnRawFile=(
 )
 
 # 示例：
 # OwnRawFile=(
-#     https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-#     https://ghproxy.com/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
-#     https://ghproxy.com/https://github.com/sunsem/qx/raw/main/z_dida.js
+#   https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
+#   https://ghproxy.com/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
+#   https://ghproxy.com/https://github.com/sunsem/qx/raw/main/z_dida.js
 # )
 
 ## Raw 脚本定时任务开关（自动增加/自动删除）
 # 自动增加: "AutoAddOwnRawCron"；自动删除: "AutoDelOwnRawCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
-# 本项目不一定能完全从脚本中识别出有效的cron设置，如果发现不能满足您的需要，请设置为 "false" 以取消自动增加或自动删除。
 AutoAddOwnRawCron="true"
 AutoDelOwnRawCron="true"
 
@@ -205,13 +207,14 @@ EnableGlobalProxy=""
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 推 送 通 知 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
 # 在下方定义推送通知方式，想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
-# 目前提供：Server酱、iOS Bark APP、pushplus(推送加)、Telegram机器人、钉钉机器人、企业微信机器人、企业微信应用、iGot、go-cqhttp等通知方式
+# 目前提供：Server酱、Bark、Telegram、钉钉、企业微信、iGot、pushplus、go-cqhttp
+# 项目文档：https://supermanito.github.io/Helloworld/#/config/推送通知
 
 ## ❖ 定义通知尾
 export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
 
 ## ❖ 1. Server酱
-# 官方网站：https://sct.ftqq.com
+# 官网：https://sct.ftqq.com
 # 下方填写 SCHKEY 值或 SendKey 值
 export PUSH_KEY=""
 # 自建Server酱
@@ -284,7 +287,7 @@ export IGOT_PUSH_KEY=""
 
 
 ## ❖ 8. pushplus
-# 官方网站：http://www.pushplus.plus
+# 官网：http://www.pushplus.plus
 # 下方填写您的Token，微信扫码登录后一对一推送或一对多推送下面的 token，只填 "PUSH_PLUS_TOKEN" 默认为一对一推送
 export PUSH_PLUS_TOKEN=""
 # 一对一多推送（选填）
@@ -305,14 +308,14 @@ export GO_CQHTTP_QQ=""
 # 下方填写 "send_private_msg" 或 "send_group_msg" 的值
 export GO_CQHTTP_METHOD=""
 # 下方填写分开推送的脚本名，如需使用请赋值并自行解除下一行的注释
-export GO_CQHTTP_SCRIPTS=""
+# export GO_CQHTTP_SCRIPTS=""
 # 下方填写外网扫码地址，如需使用请赋值并自行解除下一行的注释
-export GO_CQHTTP_LINK=""
+# export GO_CQHTTP_LINK=""
 # 下方填写消息分页字数，默认每 "1500" 字分为一条信息，如需修改请在赋值下面的变量
 export GO_CQHTTP_MSG_SIZE=""
 # 下方填写当账号失效后是否启用私信，默认启用，如需关闭请修改为 "false"
 # 由于在账号失效后一般会批量群发，有可能触发风控下线或者封号，不建议禁用
-export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+# export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
 
 
 
