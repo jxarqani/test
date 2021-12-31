@@ -49,6 +49,14 @@ h4 {
     line-height: 1.5em;
 }
 
+@media screen and (max-width: 480px) {
+    .container p {
+        font-size: 0.75rem;
+        margin: 0;
+        line-height: 1.5em;
+    }
+}
+
 .container .menu .right {
     top: 0px;
     left: 0px;
@@ -188,14 +196,6 @@ h4 {
     font-size: 20px;
     color: #f00;
     cursor: pointer;
-}
-
-@media screen and (max-width: 480px) {
-    .container p {
-        font-size: 0.75rem;
-        margin: 0;
-        line-height: 1.5em;
-    }
 }
 
 .log-container {
