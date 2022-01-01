@@ -542,8 +542,6 @@ function Update_Scripts() {
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
 
-    [ -f $ScriptsDir/jd_mall_active.js ] && cp -rf $UtilsDir/jd_mall_active.js $ScriptsDir
-
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir

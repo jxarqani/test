@@ -49,6 +49,14 @@ h4 {
     line-height: 1.5em;
 }
 
+@media screen and (max-width: 480px) {
+    .container p {
+        font-size: 0.75rem;
+        margin: 0;
+        line-height: 1.5em;
+    }
+}
+
 .container .menu .right {
     top: 0px;
     left: 0px;
@@ -190,14 +198,6 @@ h4 {
     cursor: pointer;
 }
 
-@media screen and (max-width: 480px) {
-    .container p {
-        font-size: 0.75rem;
-        margin: 0;
-        line-height: 1.5em;
-    }
-}
-
 .log-container {
     display: flex;
     flex-direction: column;
@@ -289,7 +289,7 @@ h4 {
 }
 
 .elk-side-nav .metismenu ul a {
-    padding-left: 3rem !important;
+    padding-left: 2.5rem !important;
 }
 
 /*.bg-light {*/
