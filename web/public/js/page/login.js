@@ -71,6 +71,7 @@ function togglePassword() {
     if (passwordInput.type === "password") {
         passwordInput.type = "text";
         togglePasswordButton.setAttribute("aria-label", "Hide password.");
+        togglePasswordButton.classList.add('hide-password');
     } else {
         passwordInput.type = "password";
         togglePasswordButton.setAttribute(
@@ -78,6 +79,7 @@ function togglePassword() {
             "Show password as plain text. " +
             "Warning: this will display your password on the screen."
         );
+        togglePasswordButton.classList.remove('hide-password');
     }
 }
 
