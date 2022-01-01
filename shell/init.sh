@@ -21,7 +21,7 @@ fi
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码开始 -----\n"
 cd ${WORK_DIR}
-sleep 1
+sleep 3
 git fetch --all
 git reset --hard origin/master
 taskctl check files >/dev/null 2>&1
@@ -67,7 +67,7 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页�
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
   export PS1="\u@\h:\w# "
-  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t fontSize=16 -t lineHeight=1.5 -t disableLeaveAlert=true -t rendererType=webgl bash
+  pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t lineHeight=1.3 -t fontSize=16 -t disableLeaveAlert=true bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
   cd ./web

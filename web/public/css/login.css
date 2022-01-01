@@ -36,8 +36,6 @@ main {
     justify-content: center;
     position: relative;
     width: 450px;
-    height: 450px;
-    top: -8%;
     -ms-flex-negative: 0;
     flex-shrink: 0;
     border-radius: 5px;
@@ -57,8 +55,6 @@ main {
         justify-content: center;
         position: relative;
         width: 22em;
-        height: 22em;
-        top: -8%;
         -ms-flex-negative: 0;
         flex-shrink: 0;
         border-radius: 5px;
@@ -217,7 +213,7 @@ h1.title {
     -webkit-transition: all .3s ease;
     transition: all .3s ease;
     overflow: hidden;
-    margin: 0 1px
+    margin: 20px 0;
 }
 
 .styled-button__real-text-holder {
