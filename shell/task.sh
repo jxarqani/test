@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-31
+## Modified: 2022-01-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -376,13 +376,50 @@ function Random_Delay() {
     if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
         local CurMin=$(date "+%-M")
         ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
-        if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
+        case ${CRON_TASK} in
+        true)
+            if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
+                CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
+                echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
+                sleep ${CurDelay}
+            fi
+            ;;
+        *)
             CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
             echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
             sleep ${CurDelay}
-        else
-            echo -e "\n$WORKING 检测到当前处于整点，为了适配定时任务随机延迟在此时间段内不会生效，开始执行任务...\n"
+            ;;
+        esac
+    fi
+}
+
+## 等待执行
+function RunWait() {
+    local FormatPrint
+    if [[ ${RUN_WAIT} == true ]]; then
+        echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
+        if [ $? -eq 0 ]; then
+            echo -e "\n$ERROR 等待时间值格式有误！\n"
+            exit ## 终止退出
         fi
+        Tmp=$(echo ${RUN_WAIT_TIMES} | perl -pe '{s|[smd]||g}')
+        case ${RUN_WAIT_TIMES:0-1} in
+        s)
+            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
+            ;;
+        m)
+            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 分"
+            ;;
+        d)
+            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 天"
+            ;;
+        *)
+            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
+            ;;
+        esac
+        echo -en "\n$WORKING 此任务将在${FormatPrint}后开始运行..."
+        sleep ${RUN_WAIT_TIMES}
+        echo ''
     fi
 }
 
@@ -497,6 +534,9 @@ function Run_Normal() {
     cd ${FileDir}
     ## 定义日志文件路径
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
+
+    ## 等待执行
+    RunWait
     ## 执行脚本
     if [[ ${RUN_BACKGROUND} == true ]]; then
         ## 记录执行开始时间
@@ -606,6 +646,9 @@ function Run_Concurrent() {
 
     ## 进入脚本所在目录
     cd ${FileDir}
+
+    ## 等待执行
+    RunWait
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
@@ -1644,7 +1687,7 @@ function Manage_Env() {
 
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n\033[41;37m${OldContent}${PLAIN} ${RED}-${PLAIN}\n\033[42m${NewContent}${PLAIN} ${GREEN}+${PLAIN}"
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42m${NewContent}${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
             echo -e "\n$ERROR 环境变量修改失败\n"
@@ -1704,7 +1747,7 @@ function Manage_Env() {
         sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n\033[41;37m${OldContent}${PLAIN} ${RED}-${PLAIN}\n\033[42m${NewContent}${PLAIN} ${GREEN}+${PLAIN}"
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42m${NewContent}${PLAIN}"
         ## 结果判定
         grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
         local ExitStatus=$?
@@ -1765,7 +1808,7 @@ function Manage_Env() {
                     esac
                 done
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
+                echo -e "\n${GREEN}+${PLAIN} \033[42m${FullContent}${PLAIN}"
                 echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
@@ -1782,7 +1825,7 @@ function Manage_Env() {
             else
                 FullContent="export ${Variable}=\"${Value}\""
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n\033[42m${FullContent}${PLAIN} ${GREEN}+${PLAIN}"
+                echo -e "\n${GREEN}+${PLAIN} \033[42m${FullContent}${PLAIN}"
                 echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
@@ -1811,7 +1854,7 @@ function Manage_Env() {
                         if [[ ${VariableNums} -gt "1" ]]; then
                             echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
                         elif [[ ${VariableNums} -eq "1" ]]; then
-                            echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
+                            echo -e "\n${RED}-${PLAIN} \033[41;37m${FullContent}${PLAIN}"
                         fi
                         echo -e "\n$COMPLETE 环境变量已删除\n"
                         break
@@ -1839,7 +1882,7 @@ function Manage_Env() {
                 if [[ ${VariableNums} -gt "1" ]]; then
                     echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
                 elif [[ ${VariableNums} -eq "1" ]]; then
-                    echo -e "\n\033[41;37m${FullContent}${PLAIN} ${RED}-${PLAIN}"
+                    echo -e "\n${RED}-${PLAIN} \033[41;37m${FullContent}${PLAIN}"
                 fi
                 echo -e "\n$COMPLETE 环境变量已删除\n"
             else
@@ -2211,6 +2254,7 @@ case $# in
         ;;
     *)
         RUN_DELAY="true"
+        CRON_TASK="true"
         RUN_MODE=normal
         Run_Normal $1
         ;;
@@ -2297,16 +2341,31 @@ case $# in
 
 ## 3个参数
 3)
-    RUN_TARGET=$1
     case $2 in
-    now)
+    now | conc)
+        ## 定义执行内容，下面的判断会把参数打乱
+        RUN_TARGET=$1
+        case $2 in
+        now)
+            RUN_MODE=normal
+            ;;
+        conc)
+            RUN_MODE=concurrent
+            ;;
+        esac
+        ## 判断参数
         while [ $# -gt 2 ]; do
             case $3 in
-            -b | --background)
-                RUN_BACKGROUND="true"
+            -m | --mute)
+                RUN_MUTE="true"
+                ;;
+            -w | --wait)
+                Help
+                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定等待时间！\n"
+                exit ## 终止退出
                 ;;
             -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:"
+                echo ${RUN_TARGET} | grep -Eq "http.*:.*github|http.*:.*gitee|http.*:.*gitlab"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
@@ -2326,51 +2385,17 @@ case $# in
                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
                 exit ## 终止退出
                 ;;
-            -m | --mute)
-                RUN_MUTE="true"
-                ;;
-            *)
-                Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
-                exit ## 终止退出
-                ;;
-            esac
-            shift
-        done
-        RUN_MODE=normal
-        Run_Normal ${RUN_TARGET}
-        ;;
-    conc)
-        while [ $# -gt 2 ]; do
-            case $3 in
             -b | --background)
-                Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
-                exit ## 终止退出
-                ;;
-            -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:"
-                if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY="true"
-                else
+                case ${RUN_MODE} in
+                normal)
+                    RUN_BACKGROUND="true"
+                    ;;
+                concurrent)
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
-                fi
-                ;;
-            -r | --rapid)
-                RUN_RAPID="true"
-                ;;
-            -d | --delay)
-                RUN_DELAY="true"
-                ;;
-            -c | --cookie)
-                Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
-                exit ## 终止退出
-                ;;
-            -m | --mute)
-                RUN_MUTE="true"
+                    ;;
+                esac
                 ;;
             *)
                 Help
@@ -2380,8 +2405,15 @@ case $# in
             esac
             shift
         done
-        RUN_MODE=concurrent
-        Run_Concurrent ${RUN_TARGET}
+        ## 运行
+        case ${RUN_MODE} in
+        normal)
+            Run_Normal ${RUN_TARGET}
+            ;;
+        concurrent)
+            Run_Concurrent ${RUN_TARGET}
+            ;;
+        esac
         ;;
     update | check)
         case $1 in
@@ -2438,16 +2470,44 @@ case $# in
 
 ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
 4 | 5 | 6 | 7 | 8 | 9)
-    RUN_TARGET=$1
     case $2 in
-    now)
+    now | conc)
+        ## 定义执行内容，下面的判断会把参数打乱
+        RUN_TARGET=$1
+        case $2 in
+        now)
+            RUN_MODE=normal
+            ;;
+        conc)
+            RUN_MODE=concurrent
+            ;;
+        esac
+        ## 判断参数
         while [ $# -gt 2 ]; do
             case $3 in
-            -b | --background)
-                RUN_BACKGROUND="true"
+            -m | --mute)
+                RUN_MUTE="true"
+                ;;
+            -w | --wait)
+                if [[ $4 ]]; then
+                    echo "$4" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    if [ $? -eq 0 ]; then
+                        Help
+                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                        exit ## 终止退出
+                    else
+                        RUN_WAIT="true"
+                        RUN_WAIT_TIMES="$4"
+                        shift
+                    fi
+                else
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定等待时间！\n"
+                    exit ## 终止退出
+                fi
                 ;;
             -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:"
+                echo ${RUN_TARGET} | grep -Eq "http.*:.*github|http.*:.*gitee|http.*:.*gitlab"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
@@ -2463,69 +2523,34 @@ case $# in
                 RUN_DELAY="true"
                 ;;
             -c | --cookie)
-                echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
-                if [ $? -eq 0 ]; then
-                    Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                    exit ## 终止退出
+                if [[ $4 ]]; then
+                    echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    if [ $? -eq 0 ]; then
+                        Help
+                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                        exit ## 终止退出
+                    else
+                        RUN_DESIGNATED="true"
+                        DESIGNATED_NUMS="$4"
+                        shift
+                    fi
                 else
-                    RUN_DESIGNATED="true"
-                    DESIGNATED_NUMS="$4"
-                    shift
+                    Help
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
+                    exit ## 终止退出
                 fi
                 ;;
-            -m | --mute)
-                RUN_MUTE="true"
-                ;;
-            *)
-                Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
-                exit ## 终止退出
-                ;;
-            esac
-            shift
-        done
-        RUN_MODE=normal
-        Run_Normal ${RUN_TARGET}
-        ;;
-    conc)
-        while [ $# -gt 2 ]; do
-            case $3 in
             -b | --background)
-                Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
-                exit ## 终止退出
-                ;;
-            -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:"
-                if [ $? -eq 0 ]; then
-                    DOWNLOAD_PROXY="true"
-                else
+                case ${RUN_MODE} in
+                normal)
+                    RUN_BACKGROUND="true"
+                    ;;
+                concurrent)
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
-                fi
-                ;;
-            -r | --rapid)
-                RUN_RAPID="true"
-                ;;
-            -d | --delay)
-                RUN_DELAY="true"
-                ;;
-            -c | --cookie)
-                echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
-                if [ $? -eq 0 ]; then
-                    Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                    exit ## 终止退出
-                else
-                    RUN_DESIGNATED="true"
-                    DESIGNATED_NUMS="$4"
-                    shift
-                fi
-                ;;
-            -m | --mute)
-                RUN_MUTE="true"
+                    ;;
+                esac
                 ;;
             *)
                 Help
@@ -2535,8 +2560,15 @@ case $# in
             esac
             shift
         done
-        RUN_MODE=concurrent
-        Run_Concurrent ${RUN_TARGET}
+        ## 运行
+        case ${RUN_MODE} in
+        normal)
+            Run_Normal ${RUN_TARGET}
+            ;;
+        concurrent)
+            Run_Concurrent ${RUN_TARGET}
+            ;;
+        esac
         ;;
     add | edit)
         if [ $# -eq 4 ]; then
@@ -2560,6 +2592,9 @@ case $# in
             else
                 Output_Command_Error 1 ## 命令错误
             fi
+            ;;
+        *)
+            Output_Command_Error 1 ## 命令错误
             ;;
         esac
         ;;

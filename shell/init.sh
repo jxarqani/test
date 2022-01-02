@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-27
+## Modified: 2022-01-02
 
 set -e
 RED="\033[31m"
