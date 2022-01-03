@@ -3,7 +3,7 @@
 body {
     all: initial;
     font-family: 'Roboto', sans-serif;
-    letter-spacing: .02em
+    letter-spacing: .02em;
 }
 
 main {
@@ -58,7 +58,7 @@ main {
         -ms-flex-negative: 0;
         flex-shrink: 0;
         border-radius: 5px;
-        z-index: 1
+        z-index: 1;
     }
 }
 
@@ -79,7 +79,7 @@ main {
     align-items: center;
     z-index: -4;
     -webkit-transition: all .5s ease;
-    transition: all .5s ease
+    transition: all .5s ease;
 }
 
 .form__content {
@@ -100,7 +100,7 @@ main {
     transform: translateY(10px);
     -webkit-transition: all .5s ease .7s;
     transition: all .5s ease .7s;
-    width: 300px
+    width: 300px;
 }
 
 .form__cover {
@@ -114,7 +114,7 @@ main {
     overflow: hidden;
     -webkit-transition: all .3s ease .8s;
     transition: all .3s ease .8s;
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0)
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 .form__cover:after {
@@ -130,41 +130,42 @@ main {
     -webkit-transition: all 1.5s ease .3s;
     transition: all 1.5s ease .3s;
     -webkit-transform: scale(0);
-    transform: scale(0)
+    transform: scale(0);
 }
 
 .form__cover:before {
     content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
+    left: 50%;
+    top: 50%;
+    height: 400px;
+    width: 400px;
     background: white;
     z-index: -5;
     border-radius: 50%;
     -webkit-transition: all .5s ease;
     transition: all .5s ease;
-    -webkit-transform: scale(0);
-    transform: scale(0)
+    transform-origin: left top;
+    -webkit-transform: scale(0) translate(-50%, -50%);
+    transform: scale(0) translate(-50%, -50%);
 }
 
 body.on-start .form__cover:before {
-    -webkit-transform: scale(0.15);
-    transform: scale(0.15)
+    -webkit-transform: scale(0.15) translate(-50%, -50%);
+    transform: scale(0.15) translate(-50%, -50%);
 }
 
 body.document-loaded .form__loader {
     -webkit-transform: scale(0);
     transform: scale(0);
     opacity: 0;
-    visibility: hidden
+    visibility: hidden;
 }
 
 body.document-loaded .form__content {
     opacity: 1;
     -webkit-transform: none;
-    transform: none
+    transform: none;
 }
 
 body.document-loaded .form__cover {
@@ -172,8 +173,9 @@ body.document-loaded .form__cover {
 }
 
 body.document-loaded .form__cover:after {
-    -webkit-transform: scale(2);
-    transform: scale(2)
+    transform-origin: left top;
+    -webkit-transform: scale(4) translate(-50%, -50%);
+    transform: scale(4) translate(-50%, -50%);
 }
 
 body.document-loaded .form__cover:before {
@@ -181,9 +183,9 @@ body.document-loaded .form__cover:before {
     transition: opacity .3s ease .8s, -webkit-transform 2s ease;
     transition: transform 2s ease, opacity .3s ease .8s;
     transition: transform 2s ease, opacity .3s ease .8s, -webkit-transform 2s ease;
-    -webkit-transform: scale(2);
-    transform: scale(2);
-    opacity: 0
+    -webkit-transform: scale(4) translate(-50%, -50%);
+    transform: scale(4) translate(-50%, -50%);
+    opacity: 0;
 }
 
 h1.title {
@@ -191,7 +193,7 @@ h1.title {
     margin: 0 0 20px 0;
     color: black;
     font-weight: 700;
-    padding: .5em 0
+    padding: .5em 0;
 }
 
 .styled-button {
@@ -222,7 +224,7 @@ h1.title {
 
 .styled-button__real-text {
     color: transparent;
-    display: inline-block
+    display: inline-block;
 }
 
 .styled-button__text-holder {
@@ -241,7 +243,7 @@ h1.title {
     -ms-flex-pack: center;
     justify-content: center;
     -webkit-transition: all .3s ease;
-    transition: all .3s ease
+    transition: all .3s ease;
 }
 
 .styled-button__moving-block {
@@ -253,52 +255,52 @@ h1.title {
     top: 0;
     height: 100%;
     width: 100%;
-    overflow: hidden
+    overflow: hidden;
 }
 
 .styled-button__moving-block.back {
     color: white;
     -webkit-transform: translateX(-100%);
-    transform: translateX(-100%)
+    transform: translateX(-100%);
 }
 
 .styled-button__moving-block.back .styled-button__text-holder {
     -webkit-transform: translateX(100%);
-    transform: translateX(100%)
+    transform: translateX(100%);
 }
 
 .styled-button:hover,
 .styled-button:active {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    background: #208dfa
+    background: #208dfa;
 }
 
 .styled-button:hover .face,
 .styled-button:active .face {
     -webkit-transform: translateX(100%);
-    transform: translateX(100%)
+    transform: translateX(100%);
 }
 
 .styled-button:hover .face .styled-button__text-holder,
 .styled-button:active .face .styled-button__text-holder {
     -webkit-transform: translateX(-100%);
-    transform: translateX(-100%)
+    transform: translateX(-100%);
 }
 
 .styled-button:hover .back,
 .styled-button:active .back {
     -webkit-transform: translateX(0);
-    transform: translateX(0)
+    transform: translateX(0);
 }
 
 .styled-button:hover .back .styled-button__text-holder,
 .styled-button:active .back .styled-button__text-holder {
     -webkit-transform: translateX(0);
-    transform: translateX(0)
+    transform: translateX(0);
 }
 
 .styled-button:active {
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3)
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .styled-input {
@@ -308,22 +310,22 @@ h1.title {
     border: 2px solid rgba(0, 0, 0, 0.1);
     border-radius: 3px;
     -webkit-transition: all .3s ease;
-    transition: all .3s ease
+    transition: all .3s ease;
 }
 
 .styled-input.captcha-input {
-    display: none
+    display: none;
 }
 
 .styled-input.captcha-input .styled-input__placeholder {
-    justify-content: space-between
+    justify-content: space-between;
 }
 
 .styled-input.captcha-input .styled-input__placeholder-image {
     cursor: pointer;
     position: absolute;
     top: 3px;
-    right: 2px
+    right: 2px;
 }
 
 .styled-input__circle {
@@ -334,7 +336,7 @@ h1.title {
     height: 100%;
     z-index: -2;
     overflow: hidden;
-    border-radius: 3px
+    border-radius: 3px;
 }
 
 .styled-input__circle:after {
@@ -350,7 +352,7 @@ h1.title {
     -webkit-transition: opacity 1s ease, -webkit-transform .6s ease;
     transition: opacity 1s ease, -webkit-transform .6s ease;
     transition: transform .6s ease, opacity 1s ease;
-    transition: transform .6s ease, opacity 1s ease, -webkit-transform .6s ease
+    transition: transform .6s ease, opacity 1s ease, -webkit-transform .6s ease;
 }
 
 .styled-input__input {
@@ -364,7 +366,7 @@ h1.title {
     border: 0;
     font-weight: 600;
     letter-spacing: .035em;
-    text-indent: 15px
+    text-indent: 15px;
 }
 
 .styled-input__placeholder {
@@ -375,13 +377,13 @@ h1.title {
     -ms-flex-align: center;
     color: #918f8f;
     top: -11px;
-    background: #ffffff
+    background: #fff;
 }
 
 .styled-input__placeholder-text {
     -webkit-perspective: 500px;
     perspective: 500px;
-    display: inline-block
+    display: inline-block;
 }
 
 .styled-input__placeholder-text .letter {
@@ -391,13 +393,13 @@ h1.title {
     -webkit-animation: letterAnimOut .25s ease forwards;
     animation: letterAnimOut .25s ease forwards;
     text-shadow: 0 2 4px;
-    background-color: transparent
+    background-color: transparent;
 }
 
 .styled-input__placeholder-text .letter.active {
     -webkit-animation: letterAnimIn .25s ease forwards;
     animation: letterAnimIn .25s ease forwards;
-    top: 0
+    top: 0;
 }
 
 .styled-input:hover {
@@ -416,7 +418,7 @@ h1.title {
 .styled-input.filled .styled-input__circle:after {
     -webkit-transform: scale(37);
     transform: scale(37);
-    opacity: 0
+    opacity: 0;
 }
 
 .spinner {
@@ -425,7 +427,7 @@ h1.title {
     width: 50px;
     height: 50px;
     -webkit-transition: all .2s ease 0s;
-    transition: all .2s ease 0s
+    transition: all .2s ease 0s;
 }
 
 .spinner__circular {
@@ -440,7 +442,7 @@ h1.title {
     height: 100%;
     top: 0;
     left: 0;
-    margin: auto
+    margin: auto;
 }
 
 .spinner__path {
@@ -452,24 +454,24 @@ h1.title {
     stroke-linecap: round;
     stroke: #2ca7ff;
     -webkit-animation-play-state: running;
-    animation-play-state: running
+    animation-play-state: running;
 }
 
 @-webkit-keyframes dash {
     0% {
         stroke-dasharray: 1, 200;
         stroke-dashoffset: 0;
-        opacity: 0
+        opacity: 0;
     }
 
     50% {
         stroke-dasharray: 40, 200;
-        opacity: 1
+        opacity: 1;
     }
 
     100% {
         stroke-dasharray: 125, 200;
-        opacity: 1
+        opacity: 1;
     }
 }
 
@@ -477,17 +479,17 @@ h1.title {
     0% {
         stroke-dasharray: 1, 200;
         stroke-dashoffset: 0;
-        opacity: 0
+        opacity: 0;
     }
 
     50% {
         stroke-dasharray: 40, 200;
-        opacity: 1
+        opacity: 1;
     }
 
     100% {
         stroke-dasharray: 125, 200;
-        opacity: 1
+        opacity: 1;
     }
 }
 
@@ -501,7 +503,7 @@ h1.title {
     height: 100%;
     position: absolute;
     top: 0;
-    left: 0
+    left: 0;
 }
 
 button#toggle-password {
@@ -530,17 +532,17 @@ button#toggle-password:hover {
 button#toggle-password:active,
 button#toggle-password:focus,
 button#toggle-password:hover {
-    cursor: pointer
+    cursor: pointer;
 }
 
 button#toggle-password:focus {
-    outline: none !important
+    outline: none !important;
 }
 
 .input-password {
     background-repeat: no-repeat;
     background-position: right calc(.375em+.1875rem) center;
-    background-size: calc(.75em+.375rem) calc(.75em+.375rem)
+    background-size: calc(.75em+.375rem) calc(.75em+.375rem);
 }
 
 .input-password[type="password"]:valid {
@@ -572,21 +574,21 @@ button#toggle-password:focus {
     visibility: hidden;
     -webkit-transition: background-color .2s, visisility .1s;
     transition: background-color .2s, visisility .1s;
-    z-index: 1
+    z-index: 1;
 }
 
 .progress-bar_active {
-    visibility: visible
+    visibility: visible;
 }
 
 .progress-bar_item-1.progress-bar_active {
-    background-color: #ff4b47
+    background-color: #ff4b47;
 }
 
 .progress-bar_item-2.progress-bar_active {
-    background-color: #f9ae35
+    background-color: #f9ae35;
 }
 
 .progress-bar_item-3.progress-bar_active {
-    background-color: #2daf7d
+    background-color: #2daf7d;
 }

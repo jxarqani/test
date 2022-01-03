@@ -719,7 +719,6 @@ function Update_Designated() {
         fi
     fi
 
-    echo -e "${AbsolutePath}"
     if [ -d ${AbsolutePath}/.git ]; then
         Title "specify"
         case ${AbsolutePath} in
