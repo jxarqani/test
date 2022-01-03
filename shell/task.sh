@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-02
+## Modified: 2022-01-03
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -800,7 +800,7 @@ function Process_CleanUp() {
 ## 账号控制功能
 function Cookies_Control() {
     local TRUE_ICON="[✔]"
-    local FALSE_ICON="[X]"
+    local FALSE_ICON="[×]"
     local INTERFACE_URL="https://bean.m.jd.com/bean/signIndex.action"
 
     case $1 in

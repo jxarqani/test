@@ -323,7 +323,7 @@ function Help() {
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号运行，参数后面需跟账号序号，多个需用 \",\" 隔开，账号区间用 \"-\" 连接
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本进度
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
     *)
@@ -365,7 +365,7 @@ function Help() {
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号运行，参数后面需跟账号序号，多个需用 \",\" 隔开，账号区间用 \"-\" 连接
-    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本进度
+    ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
     esac
