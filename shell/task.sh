@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-03
+## Modified: 2022-01-04
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -2089,6 +2089,7 @@ function Process_Monitor() {
 ## 列出本地脚本清单功能
 function List_Local_Scripts() {
     local ScriptType Tmp1 Tmp2
+    ## 根据处理器架构判断匹配脚本类型
     case ${ARCH} in
     armv7l | armv6l)
         ScriptType="\.js\b"
@@ -2115,9 +2116,13 @@ function List_Local_Scripts() {
             git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
         ))
         echo -e "\n❖ Scripts 仓库的脚本："
+        local NumTmp=0
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            Query_Name ${ListFiles[i]}
-            echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
+            if [ -f ${ListFiles[i]} ]; then
+                Query_Name ${ListFiles[i]}
+                let NumTmp++
+                echo -e "[$NumTmp] ${ScriptName} - ${ListFiles[i]}"
+            fi
         done
     }
 
