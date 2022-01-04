@@ -571,6 +571,9 @@ function Update_Scripts() {
 
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
+        ## 更换 sendNotify(拉取失败也要执行，因为拉取失败，也会进行git reset)
+        [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
+
         echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"
     fi
 }
