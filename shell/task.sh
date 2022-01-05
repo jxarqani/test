@@ -1510,7 +1510,7 @@ function Add_RawFile() {
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -E "^[1-9]" | grep "" head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
