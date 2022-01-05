@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-02
+## Modified: 2022-01-05
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -67,7 +67,7 @@ function Git_Pull() {
     cd $CurrentDir
 }
 
-## 重置仓库remote url，docker专用
+## 重置仓库远程链接 remote url
 ## 注释  $1：要重置的目录，$2：要重置为的网址
 function Reset_Romote_Url() {
     local CurrentDir=$(pwd)
@@ -340,7 +340,7 @@ function Add_Cron_Own() {
             if [ -f ${FilePath} ]; then
                 if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
@@ -571,7 +571,7 @@ function Update_Scripts() {
 
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
-        ## 更换 sendNotify(拉取失败也要执行，因为拉取失败，也会进行git reset)
+        ## 更换 sendNotify（拉取失败也要执行，因为拉取失败也会 git reset 还原）
         [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
 
         echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-04
+## Modified: 2022-01-05
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -799,8 +799,8 @@ function Process_CleanUp() {
 
 ## 账号控制功能
 function Cookies_Control() {
-    local TRUE_ICON="[✔]"
-    local FALSE_ICON="[×]"
+    local SUCCESS_ICON="[✔]"
+    local FAIL_ICON="[×]"
     local INTERFACE_URL="https://bean.m.jd.com/bean/signIndex.action"
 
     case $1 in
@@ -817,9 +817,9 @@ function Cookies_Control() {
             local CookieValidityTest="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
             if [[ ${ConnectionTest} == 302 ]]; then
                 if [[ ${CookieValidityTest} ]]; then
-                    echo -e "${GREEN}${TRUE_ICON}${PLAIN}"
+                    echo -e "${GREEN}${SUCCESS_ICON}${PLAIN}"
                 else
-                    echo -e "${RED}${FALSE_ICON}${PLAIN}"
+                    echo -e "${RED}${FAIL_ICON}${PLAIN}"
                 fi
             else
                 sleep 2
@@ -827,9 +827,9 @@ function Cookies_Control() {
                 local CookieValidityTestAgain="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
                 if [[ ${ConnectionTestAgain} == 302 ]]; then
                     if [[ ${CookieValidityTestAgain} ]]; then
-                        echo -e "${GREEN}${TRUE_ICON}${PLAIN}"
+                        echo -e "${GREEN}${SUCCESS_ICON}${PLAIN}"
                     else
-                        echo -e "${RED}${FALSE_ICON}${PLAIN}"
+                        echo -e "${RED}${FAIL_ICON}${PLAIN}"
                     fi
                 else
                     echo -e "${RED}[ API 请求失败 ]${PLAIN}"
@@ -839,7 +839,7 @@ function Cookies_Control() {
 
         ## 检测全部账号
         function Print_Info_Normal() {
-            local TmpA TmpB pt_pin pt_pin_temp FormatPin State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
+            local TmpA TmpB pt_pin pt_pin_temp FormatPin EscapePin EscapePinLength State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
 
             ## 统计账号数量
             Count_UserSum
@@ -855,34 +855,35 @@ function Cookies_Control() {
 
             echo -e "\n$WORKING 当前本地共有 ${BLUE}$UserSum${PLAIN} 个账号，开始检测...\n"
 
-            ## 汇总输出以及计算过期时间
+            ## 汇总输出
             for ((m = 0; m < $UserSum; m++)); do
-
-                ## 定义Pt_Pin
+                ## 定义格式化后的pt_pin
                 FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
-
+                ## 转义pt_pin中的汉字
+                EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
+                ## 定义pt_pin中的汉字长度
+                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - 1))
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
-
-                ## 查询上次更新时间
+                ## 查询上次更新时间并计算过期时间
+                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
-                    UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
+                    UpdateTimes="${CookieUpdatedDate}"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                     Tmp2=$(($Tmp1 / 86400))
                     Tmp3=$((30 - $Tmp2))
                     [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
                     if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
                         [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                        echo -e "账号$((m + 1))：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
+                        echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
                     fi
                 else
-                    UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
+                    UpdateTimes="Unknow"
                 fi
                 sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
-
                 num=$((m + 1))
-                echo -e "$num：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) ${State}    ${UpdateTimes}"
+                ## 格式化输出
+                printf "%-3s ${BLUE}%-$((35 + ${EscapePinLength}))s${PLAIN} 更新日期：${BLUE}%-s${PLAIN}\n" "$num:" "${EscapePin} ${State}" "${UpdateTimes}"
             done
         }
 
@@ -892,34 +893,31 @@ function Cookies_Control() {
             local UserNum=$1
             ## 判定账号是否存在
             ExistenceJudgment ${UserNum}
-
-            echo -e "\n$WORKING 开始检测账号 ${BLUE}${UserNum}${PLAIN} ...\n"
-
-            ## 定义Pt_Pin
+            echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
+            ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
             FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-
+            ## 转义 pt_pin 中的 UrlEncode 输出中文
+            EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
-
             ## 查询上次更新时间并计算过期时间
             CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
             if [[ ${CookieUpdatedDate} ]]; then
-                UpdateTimes="更新日期：[${BLUE}${CookieUpdatedDate}${PLAIN}]"
+                UpdateTimes="${CookieUpdatedDate}"
                 Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                 Tmp2=$(($Tmp1 / 86400))
                 Tmp3=$((30 - $Tmp2))
                 [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
                 if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
                     [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                    echo -e "账号$((m + 1))：$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) 将在$TmpTime过期" >>$FileSendMark
+                    echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
                 fi
             else
-                UpdateTimes="更新日期：[${BLUE}Unknow${PLAIN}]"
+                UpdateTimes="Unknow"
             fi
-
             ## 输出
-            echo -e "$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;")) ${State}    ${UpdateTimes}"
+            echo -e "${BLUE}${EscapePin}${PLAIN} ${State}    更新日期：${BLUE}${UpdateTimes}${PLAIN}"
         }
 
         ## 汇总
@@ -970,9 +968,9 @@ function Cookies_Control() {
             fi
         }
 
-        ## 全部更新
+        ## 更新全部账号
         function UpdateNormal() {
-            local UserNum FormatPin CookieTmp LogFile
+            local UserNum FormatPin EscapePin EscapePinLength CookieTmp LogFile
             ## 生成 pt_pin 数组
             local pt_pin_array=(
                 $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | grep -v '^$')
@@ -988,6 +986,12 @@ function Cookies_Control() {
                     UserNum=$((i - 1))
                     ## 声明变量
                     export JD_PT_PIN=${pt_pin_array[$UserNum]}
+                    ## 定义格式化后的pt_pin
+                    FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                    ## 转义pt_pin中的汉字
+                    EscapePin=$(printf $(echo ${pt_pin_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
+                    ## 定义pt_pin中的汉字长度
+                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - 1))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == true ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -995,75 +999,66 @@ function Cookies_Control() {
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
                     wait
-                    ## 判断结果并写入至推送通知
-                    FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-                    if [[ $(grep "Cookie => \[${FormatPin}\]" ${LogFile}) ]]; then
-                        grep "Cookie => \[${FormatPin}\]" ${LogFile} | perl -pe "s|${FormatPin}|$(printf $(echo "${FormatPin}" | perl -pe "s|%|\\\x|g;"))|g;" | tee -a $FileSendMark
+                    ## 判断结果
+                    if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
+                        ## 格式化输出
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$i:" "${EscapePin}" "${SUCCESS_ICON}"
                     else
-                        echo "Cookie => [${pt_pin_array[$UserNum]}]  更新异常" | tee -a $FileSendMark
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$i:" "${EscapePin}" "${FAIL_ICON}"
                     fi
                 done
                 ## 优化日志排版
                 sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                 ## 记录执行结束时间
                 echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
-                echo "" >>$FileSendMark
-                ## 更新后检测 Cookie 是否有效
+                ## 推送通知
+                grep "Cookie => \[" ${LogFile} >>$FileSendMark
                 if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
-                    echo -e "\n$WORKING 更新后 Cookie 检测：\n"
-                    for ((i = 1; i <= ${#pt_pin_array[@]}; i++)); do
-                        sleep 1 ## 降低频率减少出现因查询太快导致API请求失败的情况
-                        UserNum=$((i - 1))
-                        FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-                        EscapePin=$(printf $(echo ${pt_pin_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
-                        CookieTmp="$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
-                        [ $(grep "Cookie => \[${FormatPin}\]" ${LogFile} | awk -F ' ' '{print$NF}') != "更新成功" ] && continue
-                        if [[ $(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser) ]]; then
-                            if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
-                                if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
-                                    echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
-                                    echo -e "${EscapePin} 更新后的 Cookie 有效 ${TRUE_ICON}" >>$FileSendMark
-                                else
-                                    echo -e "${EscapePin} 无效 ${RED}${FALSE_ICON}${PLAIN}"
-                                    echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
-                                fi
-                            else
-                                echo -e "${EscapePin} 检测超时 ${RED}[ API 请求失败 ]${PLAIN}"
-                                echo -e "${EscapePin} 更新后检测超时 [ API 请求失败 ]" >>$FileSendMark
-                            fi
-                        else
-                            echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
-                            echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
-                        fi
-                        ## 打印 Cookie
-                        # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
-                    done
+                    ## 转义中文用户名
+                    local tmp_array=(
+                        $(cat $FileSendMark | grep -o "\[.*\%.*\]" | perl -pe '{s|\[||g; s|\]||g}')
+                    )
+                    if [[ ${#tmp_array[@]} -ge 1 ]]; then
+                        for ((i = 1; i <= ${#tmp_array[@]}; i++)); do
+                            UserNum=$((i - 1))
+                            ## 转义pt_pin中的汉字
+                            EscapePin=$(printf $(echo ${tmp_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
+                            sed -i "s/${tmp_array[$UserNum]}/${EscapePin}/g" $FileSendMark
+                        done
+                    fi
+                    ## 格式化通知内容
+                    perl -pe '{s|Cookie => ||g; s|\[||g; s|\]|\ \ \-|g}' -i $FileSendMark
+                    echo "" >>$FileSendMark
+
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
                     echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好您的 pt_pin ！\n"
+                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 pt_pin ！\n"
             fi
         }
 
-        ## 指定账号更新
+        ## 更新指定账号
         function UpdateDesignated() {
             local UserNum=$1
-            local Pt_Pin FormatPin EscapePin CookieTmp LogFile
+            local pt_pin_tmp FormatPin EscapePin CookieTmp LogFile
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
             ExistenceJudgment $UserNum
-            Pt_Pin=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
-            FormatPin="$(echo ${Pt_Pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
+            pt_pin_tmp=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
+            ## 定义格式化后的pt_pin
+            FormatPin="$(echo ${pt_pin_tmp} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
             ## 判定该 pt_pin 对应 Cookie 是否存在
             grep ${FormatPin} -q $FileAccountConf
             if [ $? -eq 0 ]; then
                 ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
-                echo -e "\n$WORKING 开始更新账号 ${BLUE}$UserNum${PLAIN} ...\n"
+                echo -e "\n$WORKING 开始更新第 ${BLUE}$UserNum${PLAIN} 个账号...\n"
                 ## 声明变量
-                export JD_PT_PIN=${Pt_Pin}
+                export JD_PT_PIN=${pt_pin_tmp}
+                ## 转义pt_pin中的汉字
+                EscapePin=$(printf $(echo ${pt_pin_tmp} | perl -pe "s|%|\\\x|g;"))
                 ## 记录执行开始时间
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                 ## 执行脚本
@@ -1077,44 +1072,34 @@ function Cookies_Control() {
                 sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                 ## 记录执行结束时间
                 echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
-                ## 判断结果并写入至推送通知
-                if [[ $(grep "Cookie => \[${FormatPin}\]" ${LogFile}) ]]; then
-                    grep "Cookie => \[${FormatPin}\]" ${LogFile} | perl -pe "s|${FormatPin}|$(printf $(echo "${FormatPin}" | perl -pe "s|%|\\\x|g;"))|g;" | tee -a $FileSendMark
-                else
-                    echo "Cookie => [${Pt_Pin}]  更新异常" | tee -a $FileSendMark
-                fi
-                ## 更新后检测 Cookie 是否有效
-                if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
-                    CookieTmp="$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')"
-                    EscapePin=$(printf $(echo ${JD_PT_PIN} | perl -pe "s|%|\\\x|g;"))
-                    if [ $(grep "Cookie => \[${FormatPin}\]" ${LogFile} | awk -F ' ' '{print$NF}') = "更新成功" ]; then
-                        echo -e "\n$WORKING 更新后 Cookie 检测：\n"
-                        if [[ $(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser) ]]; then
-                            if [ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)" -eq "302" ]; then
-                                if [[ $(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${CookieTmp}") ]]; then
-                                    echo -e "${EscapePin} 有效 ${GREEN}${TRUE_ICON}${PLAIN}"
-                                    echo -e "${EscapePin} 更新后的 Cookie 有效 ${TRUE_ICON}" >>$FileSendMark
-                                else
-                                    echo -e "${EscapePin} 无效 ${RED}${FALSE_ICON}${PLAIN}"
-                                    echo -e "${EscapePin} 更新后的 Cookie 无效 ${FALSE_ICON}" >>$FileSendMark
-                                fi
-                            else
-                                echo -e "${EscapePin} 检测超时 ${RED}[ API 请求失败 ]${PLAIN}"
-                                echo -e "${EscapePin} 更新后检测超时 [ API 请求失败 ]" >>$FileSendMark
-                            fi
-                        else
-                            echo -e "${EscapePin} 的 Cookie 不存在 ${RED}${FALSE_ICON}${PLAIN}"
-                            echo -e "${EscapePin} 更新后的 Cookie 不存在 ${FALSE_ICON}" >>$FileSendMark
-                        fi
+                ## 判断结果
+                if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
+                    echo -e "${BLUE}${EscapePin}${PLAIN}  ${GREEN}${SUCCESS_ICON}${PLAIN}"
                     ## 打印 Cookie
                     # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
+                else
+                    echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
+                fi
+                ## 推送通知
+                grep "Cookie => \[" ${LogFile} >>$FileSendMark
+                if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
+                    ## 转义中文用户名
+                    local tmp_pt_pin=$(cat $FileSendMark | grep -o "\[.*\%.*\]" | perl -pe '{s|\[||g; s|\]||g}')
+                    if [[ ${tmp_pt_pin} ]]; then
+                        ## 转义pt_pin中的汉字
+                        EscapePin=$(printf $(echo ${tmp_pt_pin} | perl -pe "s|%|\\\x|g;"))
+                        sed -i "s/${tmp_pt_pin}/${EscapePin}/g" $FileSendMark
                     fi
+                    ## 格式化通知内容
+                    perl -pe '{s|Cookie => ||g; s|\[||g; s|\]|\ \ \-|g}' -i $FileSendMark
+                    echo "" >>$FileSendMark
+
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
                     echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好该账号的 pt_pin ！\n"
+                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置该账号的 pt_pin ！\n"
             fi
         }
 
@@ -1135,7 +1120,7 @@ function Cookies_Control() {
                         ;;
                     esac
                     ## 推送通知
-                    [ -f $FileSendMark ] && sed -i "/未设置ws_key不更新/d" $FileSendMark
+                    [ -f $FileSendMark ] && sed -i "/未设置 ws_key 跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
                         [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
@@ -1144,7 +1129,7 @@ function Cookies_Control() {
                     echo -e "\n$ERROR 签名更新失败，请检查网络环境后重试！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好您的 ws_key ！\n"
+                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 ws_key ！\n"
             fi
         else
             echo -e "\n$ERROR 账号更新脚本不存在，请确认是否移动！\n"
@@ -1607,7 +1592,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
+            exit ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1664,7 +1649,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             else
@@ -1678,7 +1663,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             fi
@@ -1739,7 +1724,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
+            exit ## 终止退出
             ;;
         esac
 
@@ -1812,7 +1797,7 @@ function Manage_Env() {
                 echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
-        3)
+        3 | 4)
             Variable=$2
             Value=$3
             ## 检测是否已存在该变量
@@ -1823,7 +1808,14 @@ function Manage_Env() {
                 echo -e "\n$ERROR 该变量已经存在，无需任何操作！\n"
                 exit ## 终止退出
             else
-                FullContent="export ${Variable}=\"${Value}\""
+                case $# in
+                3)
+                    FullContent="export ${Variable}=\"${Value}\""
+                    ;;
+                4)
+                    FullContent="export ${Variable}=\"${Value}\" # $4"
+                    ;;
+                esac
                 sed -i "9 i ${FullContent}" $FileConfUser
                 echo -e "\n${GREEN}+${PLAIN} \033[42m${FullContent}${PLAIN}"
                 echo -e "\n$COMPLETE 环境变量已添加\n"
@@ -1888,7 +1880,6 @@ function Manage_Env() {
             else
                 echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
-
             ;;
         esac
         ;;
@@ -2121,7 +2112,7 @@ function List_Local_Scripts() {
             if [ -f ${ListFiles[i]} ]; then
                 Query_Name ${ListFiles[i]}
                 let NumTmp++
-                echo -e "[$NumTmp] ${ScriptName} - ${ListFiles[i]}"
+                printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
             fi
         done
     }
@@ -2169,7 +2160,7 @@ function List_Local_Scripts() {
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
                 cd $FileDir
                 Query_Name $FileName
-                echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
+                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]:8}" "${ScriptName}"
             done
         fi
     }
@@ -2184,7 +2175,7 @@ function List_Local_Scripts() {
             echo -e "\n❖ 第三方脚本："
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 Query_Name ${ListFiles[i]}
-                echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
+                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
             done
         fi
     }
@@ -2209,18 +2200,25 @@ function List_Local_Scripts() {
         local ListFiles=($(
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
         ))
-        if [ ${#ListFiles[*]} != 0 ]; then
-            echo -e "\n❖ 检测到的脚本："
+        [ ${#ListFiles[*]} = 0 ] && exit ## 终止退出
+        echo -e "\n❖ 检测到的脚本："
+        echo $WorkDir | grep -Eq "^$OwnDir.*"
+        if [ $? -eq 0 ]; then
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 Query_Name ${ListFiles[i]}
-                echo -e "[$(($i + 1))] ${ScriptName} - ${ListFiles[i]}"
+                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]:8}" "${ScriptName}"
+            done
+        else
+            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                Query_Name ${ListFiles[i]}
+                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
             done
         fi
     }
 
     case $# in
     0)
-        echo -e "#################################### 本  地  脚  本  清  单 ####################################"
+        echo -e "#############################  本  地  脚  本  清  单  #############################"
         List_Scripts
         List_Own
         List_Other
@@ -2575,19 +2573,42 @@ case $# in
             ;;
         esac
         ;;
-    add | edit)
-        if [ $# -eq 4 ]; then
-            case $1 in
-            env)
-                Manage_Env $2 $3 $4
+    edit)
+        case $1 in
+        env)
+            case $# in
+            4)
+                Manage_Env $2 $3 "$4"
                 ;;
             *)
-                Output_Command_Error 1 ## 命令错误
+                Output_Command_Error 2 ## 命令过多
                 ;;
             esac
-        else
-            Output_Command_Error 2 ## 命令过多
-        fi
+            ;;
+        *)
+            Output_Command_Error 1 ## 命令错误
+            ;;
+        esac
+        ;;
+    add)
+        case $1 in
+        env)
+            case $# in
+            4)
+                Manage_Env $2 $3 "$4"
+                ;;
+            5)
+                Manage_Env $2 $3 "$4" $5
+                ;;
+            *)
+                Output_Command_Error 2 ## 命令过多
+                ;;
+            esac
+            ;;
+        *)
+            Output_Command_Error 1 ## 命令错误
+            ;;
+        esac
         ;;
     *)
         case $1 in

@@ -7,7 +7,7 @@ panda-syntax：暗黑主题
     background: #292A2B;
     color: #ffffff;
     font-size: 14px;
-    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
     line-height: 150%;
 }
 
@@ -17,7 +17,7 @@ panda-syntax：暗黑主题
         background: #292A2B;
         color: #ffffff;
         font-size: 11px;
-        font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+        font-family: Menlo, Monaco, 'Courier New', monospace;
     }
 
 }
@@ -26,7 +26,7 @@ panda-syntax：暗黑主题
     background: #f7f7f7;
     color: #000000;
     font-size: 14px;
-    font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
     line-height: 150%;
 }
 
@@ -36,7 +36,7 @@ panda-syntax：暗黑主题
         background: #f7f7f7;
         color: #000000;
         font-size: 11px;
-        font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+        font-family: Menlo, Monaco, 'Courier New', monospace;
     }
 
 }
@@ -79,7 +79,7 @@ panda-syntax：暗黑主题
 }
 
 .cm-s-juejin .CodeMirror-gutters {
-    background: #fcfcfc;
+    background: #f7f7f7;
     border-right-color: transparent;
 }
 
@@ -130,7 +130,7 @@ panda-syntax：暗黑主题
 
 /*符号*/
 .cm-s-panda-syntax .cm-operator {
-    color: #f3f3f3;
+    color: #ffffff;
 }
 
 .cm-s-juejin .cm-operator {
@@ -285,7 +285,7 @@ diff页面
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-gap {
-    background: #fcfcfc;
+    background: #f7f7f7;
     width: 30px;
 }
 
