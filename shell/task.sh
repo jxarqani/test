@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-05
+## Modified: 2022-01-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -559,7 +559,7 @@ function Run_Normal() {
             bash ${FileName}.sh 2>&1 &>>${LogFile} &
             ;;
         esac
-        echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath}${PLAIN} 目录查看相关日志\n"
+        echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
     else
         ## 记录执行开始时间
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
@@ -690,7 +690,7 @@ function Run_Concurrent() {
             Main ${UserNum}
         done
     fi
-    echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath}${PLAIN} 目录查看相关日志\n"
+    echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
