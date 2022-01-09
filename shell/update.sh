@@ -542,6 +542,11 @@ function Update_Scripts() {
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
 
+    ## 更换 sendNotify
+    [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
+    ## 京享红包
+    [ -f $UtilsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
+
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
@@ -551,8 +556,6 @@ function Update_Scripts() {
         if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
             cp -rf $UtilsDir/crontab_list_public.sh $ScriptsDir/docker
         fi
-        ## 更换 sendNotify
-        [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
         ## 比较定时任务
         Gen_ListTask
         Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
@@ -571,9 +574,6 @@ function Update_Scripts() {
 
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
-        ## 更换 sendNotify（拉取失败也要执行，因为拉取失败也会 git reset 还原）
-        [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
-
         echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"
     fi
 }

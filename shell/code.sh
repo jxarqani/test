@@ -1,9 +1,10 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-24
+## Modified: 2022-01-09
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
+Make_Dir $CodeDir
 
 if [[ "$(ls -A $CodeDir)" != "" ]]; then
     FileCodeLatestLog=$CodeDir/$(ls -r $CodeDir | head -1)
@@ -214,6 +215,5 @@ Gen_pt_pin_Array
 ## 执行并写入日志
 LogTime=$(date "+%Y-%m-%d-%H-%M-%S")
 LogPath="$CodeDir/${LogTime}.log"
-Make_Dir $CodeDir
 Export_Codes_All | perl -pe "{s|京东种豆|种豆|;}" | tee ${LogPath}
 Export_Bot_Submit_Format | tee -a ${LogPath}
