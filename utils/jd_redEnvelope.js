@@ -2109,7 +2109,7 @@ if ($.isNode()) {
 } else {
   cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
-rebateCodes = $.isNode() ? (process.env.gua_redEnvelope_rebateCode ? process.env.gua_redEnvelope_rebateCode : `${rebateCodes}`) : ($.getdata('gua_redEnvelope_rebateCode') ? $.getdata('gua_redEnvelope_rebateCode') : `${rebateCodes}`);
+rebateCodes = $.isNode() ? (process.env.JX_CODE ? process.env.JX_CODE : `${rebateCodes}`) : ($.getdata('JX_CODE') ? $.getdata('JX_CODE') : `${rebateCodes}`);
 
 rebateCode = ''
 message = ''
