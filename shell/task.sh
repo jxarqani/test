@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-08
+## Modified: 2022-01-09
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1223,10 +1223,10 @@ function Add_OwnRepo() {
 
         if [[ -z ${OwnRepoUrl1} ]]; then
             ## 没有 Own 仓库
-            sed -i "s/\(OwnRepoUrl1=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
+            sed -i "s/^\(OwnRepoUrl1=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
             local ExitStatus=$?
-            sed -i "s/\(OwnRepoBranch1=\).*/\1\"${RepoBranch}\"/" $FileConfUser
-            sed -i "s/\(OwnRepoPath1=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
+            sed -i "s/^\(OwnRepoBranch1=\).*/\1\"${RepoBranch}\"/" $FileConfUser
+            sed -i "s/^\(OwnRepoPath1=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
         else
             ## 统计当前仓库数量
             for ((i = 1; i <= 0x64; i++)); do
@@ -1237,15 +1237,15 @@ function Add_OwnRepo() {
             ## 判断编辑模式（如果只要一个仓库就改2号变量，否则追加新变量）
             if [[ $Sum -eq 1 ]]; then
                 ## 有1个 Own 仓库
-                sed -i "s/\(OwnRepoUrl2=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
+                sed -i "s/^\(OwnRepoUrl2=\).*/\1\"${FormatRepoUrl}\"/" $FileConfUser
                 local ExitStatus=$?
-                sed -i "s/\(OwnRepoBranch2=\).*/\1\"${RepoBranch}\"/" $FileConfUser
-                sed -i "s/\(OwnRepoPath2=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
+                sed -i "s/^\(OwnRepoBranch2=\).*/\1\"${RepoBranch}\"/" $FileConfUser
+                sed -i "s/^\(OwnRepoPath2=\).*/\1\"${FormatRepoPath}\"/" $FileConfUser
             else
-                sed -i "/\(OwnRepoUrl${Sum}\)/a \OwnRepoUrl$((${Sum} + 1))=\"${FormatRepoUrl}\"" $FileConfUser
+                sed -i "/^\(OwnRepoUrl${Sum}\)/a \OwnRepoUrl$((${Sum} + 1))=\"${FormatRepoUrl}\"" $FileConfUser
                 local ExitStatus=$?
-                sed -i "/\(OwnRepoBranch${Sum}\)/a \OwnRepoBranch$((${Sum} + 1))=\"${RepoBranch}\"" $FileConfUser
-                sed -i "/\(OwnRepoPath${Sum}\)/a \OwnRepoPath$((${Sum} + 1))=\"${FormatRepoPath}\"" $FileConfUser
+                sed -i "/^\(OwnRepoBranch${Sum}\)/a \OwnRepoBranch$((${Sum} + 1))=\"${RepoBranch}\"" $FileConfUser
+                sed -i "/^\(OwnRepoPath${Sum}\)/a \OwnRepoPath$((${Sum} + 1))=\"${FormatRepoPath}\"" $FileConfUser
             fi
         fi
         ## 判定结果
@@ -1561,7 +1561,7 @@ function Add_RawFile() {
             fi
         done
         FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-        sed -i "/OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
+        sed -i "/^OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
         else
@@ -1966,7 +1966,7 @@ function Manage_Env() {
 ## 推送通知功能
 function SendNotify() {
     Import_Config_Not_Check
-    Notify $1 $2
+    Notify "$1" "$2"
 }
 
 ## 切换分支功能
