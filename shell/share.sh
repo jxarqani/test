@@ -205,48 +205,15 @@ function Combin_Sub() {
     local What_Combine=$1
     local CombinAll=""
     local Tmp1 Tmp2
-    case $What_Combine in
-
-    ## 城城分现金临时内置作者助力，活动结束删
-    ForOtherCity)
-        local Code1="-ryUX_0Jb2JHZBTMQoqWpFUo7B-augsV"
-        local Code2="oevzXqwOYGdFYxarCpeJ96Mtqj5M"
-        local Code3="ouj8XqsOYWNGfhbFS9vE8H5M36LJUiTskJU"
-        ## 随机取值
-        local RandomNumTmp=$(($((${RANDOM} % 3)) + 1))
-        for ((i = 0x1; i <= ${UserSum}; i++)); do
-            for num in ${TempBlockCookie}; do
-                [[ $i -eq $num ]] && continue 2
-            done
-            Tmp1=$What_Combine$i
-            Tmp2=${!Tmp1}
-            CombinAll="${CombinAll}&${Tmp2}"
+    for ((i = 0x1; i <= ${UserSum}; i++)); do
+        for num in ${TempBlockCookie}; do
+            [[ $i -eq $num ]] && continue 2
         done
-        case $RandomNumTmp in
-        1)
-            CombinAll="${CombinAll}&${Code1}&${Code2}&${Code3}"
-            ;;
-        2)
-            CombinAll="${CombinAll}&${Code2}&${Code1}&${Code3}"
-            ;;
-        3)
-            CombinAll="${CombinAll}&${Code3}&${Code1}&${Code2}"
-            ;;
-        esac
-        echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
-        ;;
-    *)
-        for ((i = 0x1; i <= ${UserSum}; i++)); do
-            for num in ${TempBlockCookie}; do
-                [[ $i -eq $num ]] && continue 2
-            done
-            Tmp1=$What_Combine$i
-            Tmp2=${!Tmp1}
-            CombinAll="${CombinAll}&${Tmp2}"
-        done
-        echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
-        ;;
-    esac
+        Tmp1=$What_Combine$i
+        Tmp2=${!Tmp1}
+        CombinAll="${CombinAll}&${Tmp2}"
+    done
+    echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
 }
 
 ## 组合互助码
