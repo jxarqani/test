@@ -17,7 +17,7 @@ if ($.isNode()) {
     cookiesArr = [$.getdata("CookieJD"), $.getdata("CookieJD2"), ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let cookie = "";
-const codeArr = ['SCdH83Z', 'SCdH83Z', 'SMIdOOm'];
+const codeArr = ['SdIdGkO', 'SCdH83Z', 'SMIdOOm'];
 const jxCode = codeArr[Math.floor(Math.random() * codeArr.length)];
 const code = $.isNode() ? process.env.JX_CODE ? process.env.JX_CODE : jxCode : $.getdata("JX_CODE") ? $.getdata("JX_CODE") : '';
 !(async () => {
