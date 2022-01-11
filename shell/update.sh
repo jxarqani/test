@@ -545,7 +545,7 @@ function Update_Scripts() {
     ## 更换 sendNotify
     [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
     ## 京享红包
-    [ -f $UtilsDir/jd_redEnvelope.js ] && cp -rf $UtilsDir/jd_redEnvelope.js $ScriptsDir
+    [ -f $UtilsDir/jd_nhRedEnvelope.js ] && cp -rf $UtilsDir/jd_nhRedEnvelope.js $ScriptsDir
 
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
