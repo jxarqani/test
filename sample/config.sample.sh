@@ -1,6 +1,6 @@
-## Version: v1.08.1
-## Date: 2022-01-02
-## Update Content: \n1. 调整排版
+## Version: v1.09.0
+## Date: 2022-01-15
+## Update Content: 1. 新增定义 “Scripts 仓库脚本新增定时任务自动禁用” 项目功能环境变量 2. 新增定义 “Own 仓库脚本新增定时任务自动禁用” 扩展仓库环境变量
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -90,6 +90,10 @@ OwnRepoPath2=""
 AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
+## Own 仓库脚本新增定时任务自动禁用
+# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
+DisableNewOwnRepoCron=""
+
 ## Own 仓库脚本定时任务屏蔽功能
 # 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词仅限英文和数字不支持符号，多个关键词用空格隔开，注意区分大小写
 # 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"
@@ -137,21 +141,25 @@ AutoDelOwnRawCron="true"
 AutoAddCron="true"
 AutoDelCron="true"
 
-## ❖ 2. 控制删除日志时间
+## ❖ 2. Scripts 仓库脚本新增定时任务自动禁用
+# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
+DisableNewCron=""
+
+## ❖ 3. 控制删除日志时间
 # 定义在运行删除旧的日志任务时要删除多少天以前的日志，请输入正整数，不填则禁用删除日志的功能
 RmLogDaysAgo="7"
 
-## ❖ 3. 控制账号期提醒时间
+## ❖ 4. 控制账号期提醒时间
 # 定义在运行检查本地账号是否有效功能时的检测过期提醒天数，请输入正整数，不填则默认为 3 天
 CheckCookieDaysAgo=""
 
-## ❖ 4. 定义随机延迟时间范围
+## ❖ 5. 定义随机延迟时间范围
 # 如果任务不是必须准点运行的任务，那么给它增加一个随机延迟，由您定义最大延迟时间，单位为秒，如 RandomDelay="300" ，表示任务将在 1-300 秒内随机延迟一个秒数，然后再运行
 # 在crontab.list中，在每小时第的 0~3,30~31,58~59 几个分钟时间内启动的任务，均算作必须准点运行的任务，在启动这些任务时，即使您定义了RandomDelay，也将准点运行，不启用随机延迟
 # 在crontab.list中，除掉每小时上述时间启动的任务外，其他任务在您定义了 RandomDelay 的情况下，一律启用随机延迟，但如果给某些任务添加了 "now"，那么这些任务也将无视随机延迟直接启动
 RandomDelay="300"
 
-## ❖ 5. 自定义 Extra 脚本功能
+## ❖ 6. 自定义 Extra 脚本功能
 # 在每次执行更新脚本时额外运行的 Shell 脚本
 # 必须将脚本命名为 "extra.sh" 并且放置在 config 目录下
 # 如想启用请赋值为 "true"
@@ -162,17 +170,17 @@ EnableExtraShellSync=""
 #   2). 同步地址
 ExtraShellSyncUrl=""
 
-## ❖ 6. 更新账号推送通知功能
+## ❖ 7. 更新账号推送通知功能
 # 当使用 WSKEY 成功更新 Cookie 后是否推送通知
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-## ❖ 7. 控制远程脚本执行完毕后是否删除
+## ❖ 8. 控制远程脚本执行完毕后是否删除
 # 当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 8. 脚本全局代理功能
+## ❖ 9. 脚本全局代理功能
 # Powered by global-agent (仅支持 js 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent

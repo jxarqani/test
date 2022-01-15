@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-05
+## Modified: 2022-01-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -225,7 +225,7 @@ function Detect_Config_Version() {
     [ -f $FileSendMark ] && [[ $(cat $FileSendMark) != $VerConfSample ]] && rm -f $FileSendMark
     ## 识别出更新日期和更新内容
     UpdateDate=$(grep " Date: " $FileConfSample | awk -F ": " '{print $2}')
-    UpdateContent=$(grep " Update Content: " $FileConfSample | awk -F ": " '{print $2}')
+    UpdateContent=$(grep " Update Content: " $FileConfSample | awk -F ": " '{print $2}' | sed "s/[0-9]\./\\\n&/g")
     ## 如果是今天，并且版本号不一致，则发送通知
     if [ -f $FileConfUser ] && [[ $VerConfUser != $VerConfSample ]] && [[ $UpdateDate == $(date "+%Y-%m-%d") ]]; then
         if [ ! -f $FileSendMark ]; then
@@ -311,8 +311,9 @@ function Add_Cron_Scripts() {
         echo -e "$WORKING 开始尝试自动添加 Scipts 仓库的定时任务...\n"
         local Detail=$(cat $ListAdd)
         for cron in $Detail; do
-            if [[ $cron == jd_bean_sign ]]; then
-                echo "4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
+            ## 新增定时任务自动禁用
+            if [[ ${DisableNewCron} == true ]]; then
+                cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
             else
                 cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|" >>$ListCrontabUser
             fi
@@ -358,9 +359,16 @@ function Add_Cron_Own() {
                         echo "$cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     fi
                 else
-                    perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                        perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                        sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                    ## 新增定时任务自动禁用
+                    if [[ ${DisableNewOwnRepoCron} == true ]]; then
+                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
+                            sort -u | grep -Ev "^\*|^ \*" | head -1 | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                    else
+                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
+                            sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                    fi
                 fi
             fi
         done

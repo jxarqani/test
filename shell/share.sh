@@ -288,7 +288,7 @@ function Help() {
     armv7l | armv6l)
         echo -e "
  ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/b>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
  ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
@@ -331,7 +331,7 @@ function Help() {
         echo -e "
  ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/b>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}         ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c>${PLAIN}
- ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死(交互)，脚本死循环时建议使用
+ ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
  ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
