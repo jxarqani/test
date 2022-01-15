@@ -84,19 +84,28 @@ let GO_CQHTTP_EXPIRE_SEND_PRIVATE = true
 let qqnumber = ''
 let accounts = []
 
+// ======================================= WxPusher 通知设置区域 ===========================================
+// 此处填你申请的 appToken. 官方文档：https://wxpusher.zjiecode.com/docs
+// WP_APP_TOKEN 可在管理台查看: https://wxpusher.zjiecode.com/admin/main/app/appToken
+// WP_TOPICIDS 群发, 发送目标的 topicId, 以 ; 分隔! 使用 WP_UIDS 单发的时候, 可以不传
+// WP_UIDS 发送目标的 uid, 以 ; 分隔。注意 WP_UIDS 和 WP_TOPICIDS 可以同时填写, 也可以只填写一个。
+// WP_URL 原文链接, 可选参数
+let WP_APP_TOKEN = "";
+let WP_TOPICIDS = "";
+let WP_UIDS = "";
+let WP_URL = "";
+
 //==========================云端环境变量的判断与接收=========================
+
 if (process.env.PUSH_KEY) {
     SCKEY = process.env.PUSH_KEY;
 }
-
 if (process.env.QQ_SKEY) {
     QQ_SKEY = process.env.QQ_SKEY;
 }
-
 if (process.env.QQ_MODE) {
     QQ_MODE = process.env.QQ_MODE;
 }
-
 if (process.env.BARK_PUSH) {
     if (process.env.BARK_PUSH.indexOf('https') > -1 || process.env.BARK_PUSH.indexOf('http') > -1) {
         //兼容BARK自建用户
@@ -126,43 +135,48 @@ if (process.env.TG_PROXY_AUTH) TG_PROXY_AUTH = process.env.TG_PROXY_AUTH;
 if (process.env.TG_PROXY_HOST) TG_PROXY_HOST = process.env.TG_PROXY_HOST;
 if (process.env.TG_PROXY_PORT) TG_PROXY_PORT = process.env.TG_PROXY_PORT;
 if (process.env.TG_API_HOST) TG_API_HOST = process.env.TG_API_HOST;
-
 if (process.env.DD_BOT_TOKEN) {
     DD_BOT_TOKEN = process.env.DD_BOT_TOKEN;
     if (process.env.DD_BOT_SECRET) {
         DD_BOT_SECRET = process.env.DD_BOT_SECRET;
     }
 }
-
 if (process.env.QYWX_KEY) {
     QYWX_KEY = process.env.QYWX_KEY;
 }
-
 if (process.env.QYWX_AM) {
     QYWX_AM = process.env.QYWX_AM;
 }
-
 if (process.env.IGOT_PUSH_KEY) {
     IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
 }
-
 if (process.env.PUSH_PLUS_TOKEN) {
     PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
 }
 if (process.env.PUSH_PLUS_USER) {
     PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
 }
-//==========================云端环境变量的判断与接收=========================
-
-/**
- * sendNotify 推送通知功能
- * @param text 通知头
- * @param desp 通知体
- * @param params 某些推送通知方式点击弹窗可跳转, 例：{ url: 'https://abc.com' }
- * @param author 作者仓库等信息  例：`本脚本免费使用 By：xxxx`
- * @returns {Promise<unknown>}
- */
-
+if (process.env.IGOT_PUSH_KEY) {
+    IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
+}
+if (process.env.PUSH_PLUS_TOKEN) {
+    PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
+}
+if (process.env.PUSH_PLUS_USER) {
+    PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
+}
+if (process.env.WP_APP_TOKEN) {
+    WP_APP_TOKEN = process.env.WP_APP_TOKEN;
+}
+if (process.env.WP_TOPICIDS) {
+    WP_TOPICIDS = process.env.WP_TOPICIDS;
+}
+if (process.env.WP_UIDS) {
+    WP_UIDS = process.env.WP_UIDS;
+}
+if (process.env.WP_URL) {
+    WP_URL = process.env.WP_URL;
+}
 if (process.env.GO_CQHTTP_URL) {
     GO_CQHTTP_URL = process.env.GO_CQHTTP_URL;
 }
@@ -193,6 +207,8 @@ let tg_only = false;
 if (process.env.TG_ONLY) {
     tg_only = process.env.TG_ONLY;
 }
+
+
 
 function nameConvert(pt_pin, remarks = '', text) {
     if (remarks === '') {
@@ -248,7 +264,8 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
             qywxamNotify(text, desp), //企业微信应用消息推送
             iGotNotify(text, desp, params), //iGot
             //CoolPush(text, desp)//QQ酷推
-            goCQhttp(text, desp)  // go-cqhttp
+            goCQhttp(text, desp), // go-cqhttp
+            wxPusherNotify(text,desp) //wxPusher
         ])
     }
 }
@@ -901,6 +918,62 @@ function pushPlusNotify(text, desp) {
             resolve()
         }
     })
+}
+
+function wxPusherNotify(text, desp) {
+    return new Promise((resolve) => {
+        if (WP_APP_TOKEN) {
+            let uids = [];
+            for (let i of WP_UIDS.split(";")) {
+                if (i.length !== 0)
+                    uids.push(i);
+            }
+            let topicIds = [];
+            for (let i of WP_TOPICIDS.split(";")) {
+                if (i.length !== 0)
+                    topicIds.push(i);
+            }
+            desp = `<font size="4"><b>${text}</b></font>\n\n<font size="3">${desp}</font>`;
+            desp = desp.replace(/[\n\r]/g, '<br>'); // 默认为html, 不支持plaintext
+            const body = {
+                appToken: `${WP_APP_TOKEN}`,
+                content: `${text}\n\n${desp}`,
+                summary: `${text}`,
+                contentType: 2,
+                topicIds: topicIds,
+                uids: uids,
+                url: `${WP_URL}`,
+            };
+            const options = {
+                url: `http://wxpusher.zjiecode.com/api/send/message`,
+                body: JSON.stringify(body),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                timeout,
+            };
+            $.post(options, (err, resp, data) => {
+                try {
+                    if (err) {
+                        console.log("WxPusher 发送通知调用 API 失败！！\n");
+                        console.log(err);
+                    } else {
+                        data = JSON.parse(data);
+                        if (data.code === 1000) {
+                            console.log("WxPusher 发送通知消息成功!\n");
+                        }
+                    }
+                } catch (e) {
+                    $.logErr(e, resp);
+                }
+                finally {
+                    resolve(data);
+                }
+            });
+        } else {
+            resolve();
+        }
+    });
 }
 
 module.exports = {
