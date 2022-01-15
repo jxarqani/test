@@ -426,7 +426,7 @@ function getUrl1() {
 function getUrl() {
   return new Promise(resolve => {
     if($.again == true) {
-      rebateCodes = ["SIMHz54", "StIuUgG", "SLI8zFT"];
+      rebateCodes = ['SdIdGkO', 'SCdH83Z', 'SMIdOOm'];
       rebateCode = rebateCodes[Math.floor((Math.random() * rebateCodes.length))]
     }
     const options = {
