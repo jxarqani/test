@@ -1,13 +1,13 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-20
+## Modified: 2022-01-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
 
 ## 选择执行模式
 function ChooseRunMod() {
-    local Input1 Input2 Input3 UserNum TmpParam1 TmpParam2
+    local Input1 Input2 Input3 Input4 UserNum TmpParam1 TmpParam2 TmpParam3
 
     ## 判定账号是否存在
     function ExistenceJudgment() {
@@ -18,7 +18,7 @@ function ChooseRunMod() {
             exit ## 终止退出
         fi
     }
-
+    ## 指定账号参数
     while true; do
         read -p "$(echo -e "\n${BOLD}└ 是否指定账号 [ Y/n ]：${PLAIN}")" Input1
         [ -z ${Input1} ] && Input1=Y
@@ -62,6 +62,7 @@ function ChooseRunMod() {
         esac
         echo -e "\n$ERROR 输入错误，请重新执行！\n"
     done
+    ## 迅速模式（组合互助码）参数
     while true; do
         read -p "$(echo -e "\n${BOLD}└ 是否组合互助码 [ Y/n ]：${PLAIN}")" Input3
         [ -z ${Input3} ] && Input3=Y
@@ -77,7 +78,24 @@ function ChooseRunMod() {
         esac
         echo -e "\n$ERROR 输入错误，请重新执行！\n"
     done
-    RunMode="now${TmpParam1}${TmpParam2}"
+    ## 静默推送通知参数
+    while true; do
+        read -p "$(echo -e "\n${BOLD}└ 是否推送通知消息 [ Y/n ]：${PLAIN}")" Input4
+        [ -z ${Input4} ] && Input4=Y
+        case $Input4 in
+        [Yy] | [Yy][Ee][Ss])
+            TmpParam3=""
+            break
+            ;;
+        [Nn] | [Nn][Oo])
+            TmpParam3=" --mute"
+            break
+            ;;
+        esac
+        echo -e "\n$ERROR 输入错误，请重新执行！\n"
+    done
+    ## 组合命令
+    RunMode="now${TmpParam1}${TmpParam2}${TmpParam3}"
 }
 
 function Main() {
@@ -104,13 +122,13 @@ function Main() {
         ;;
     esac
 
-    echo -e ''
-    echo -e '1)   Scripts 仓库的脚本'
+    echo -e "\n❖ ${BOLD}RunAll${PLAIN}\n"
+    echo -e '1)   Scripts 主要仓库的脚本'
     echo -e '2)   Scripts 目录下的所有脚本'
     echo -e '3)   Scripts 目录下的第三方脚本'
     echo -e '4)   指定路径下的所有脚本（非递归）'
     while true; do
-        read -p "$(echo -e "\n${BOLD}└ 请选择需要执行的脚本范围 [ 1-3 ]：${PLAIN}")" Input3
+        read -p "$(echo -e "\n${BOLD}└ 请选择执行脚本范围 [ 1-4 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
             local WorkDir=$ScriptsDir
@@ -133,11 +151,10 @@ function Main() {
         4)
             Import_Config_Not_Check
             echo -e "\n❖ 检测到的仓库："
-            echo -e "$ScriptsDir"
             if [[ ${OwnRepoUrl1} ]]; then
                 ls $OwnDir | egrep -v "node_modules|package|raw" | perl -pe "{s|^|$OwnDir/|g}"
             fi
-            echo -e "\nTips：可以指定任何一个目录并非仅限于上方检测到的仓库。"
+            echo -e "\n${GREEN}Tips${PLAIN}：可以指定任何一个目录并非仅限于上方检测到的仓库"
             while true; do
                 read -p "$(echo -e "\n${BOLD}└ 请输入绝对路径：${PLAIN}")" Input4
                 local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
@@ -181,7 +198,7 @@ function Main() {
             sed -i "s/$/& ${RunMode}/g" $RunFile
             sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
-            echo -e "\n\033[32mTips${PLAIN}: ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
+            echo -e "\n${GREEN}Tips${PLAIN}: ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
             ## 等待动画
             local spin=('.   ' '..  ' '... ' '....')
             local n=0
