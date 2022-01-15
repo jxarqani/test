@@ -94,23 +94,18 @@ let WP_APP_TOKEN = "";
 let WP_TOPICIDS = "";
 let WP_UIDS = "";
 let WP_URL = "";
-let WP_APP_TOKEN_ONE = "";
-let WP_UIDS_ONE = "";
-
 
 //==========================云端环境变量的判断与接收=========================
+
 if (process.env.PUSH_KEY) {
     SCKEY = process.env.PUSH_KEY;
 }
-
 if (process.env.QQ_SKEY) {
     QQ_SKEY = process.env.QQ_SKEY;
 }
-
 if (process.env.QQ_MODE) {
     QQ_MODE = process.env.QQ_MODE;
 }
-
 if (process.env.BARK_PUSH) {
     if (process.env.BARK_PUSH.indexOf('https') > -1 || process.env.BARK_PUSH.indexOf('http') > -1) {
         //兼容BARK自建用户
@@ -140,55 +135,48 @@ if (process.env.TG_PROXY_AUTH) TG_PROXY_AUTH = process.env.TG_PROXY_AUTH;
 if (process.env.TG_PROXY_HOST) TG_PROXY_HOST = process.env.TG_PROXY_HOST;
 if (process.env.TG_PROXY_PORT) TG_PROXY_PORT = process.env.TG_PROXY_PORT;
 if (process.env.TG_API_HOST) TG_API_HOST = process.env.TG_API_HOST;
-
 if (process.env.DD_BOT_TOKEN) {
     DD_BOT_TOKEN = process.env.DD_BOT_TOKEN;
     if (process.env.DD_BOT_SECRET) {
         DD_BOT_SECRET = process.env.DD_BOT_SECRET;
     }
 }
-
 if (process.env.QYWX_KEY) {
     QYWX_KEY = process.env.QYWX_KEY;
 }
-
 if (process.env.QYWX_AM) {
     QYWX_AM = process.env.QYWX_AM;
 }
-
 if (process.env.IGOT_PUSH_KEY) {
     IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
 }
-
 if (process.env.PUSH_PLUS_TOKEN) {
     PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
 }
 if (process.env.PUSH_PLUS_USER) {
     PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
 }
-
 if (process.env.IGOT_PUSH_KEY) {
     IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
 }
-
 if (process.env.PUSH_PLUS_TOKEN) {
     PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
 }
 if (process.env.PUSH_PLUS_USER) {
     PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
 }
-
-//==========================云端环境变量的判断与接收=========================
-
-/**
- * sendNotify 推送通知功能
- * @param text 通知头
- * @param desp 通知体
- * @param params 某些推送通知方式点击弹窗可跳转, 例：{ url: 'https://abc.com' }
- * @param author 作者仓库等信息  例：`本脚本免费使用 By：xxxx`
- * @returns {Promise<unknown>}
- */
-
+if (process.env.WP_APP_TOKEN) {
+    WP_APP_TOKEN = process.env.WP_APP_TOKEN;
+}
+if (process.env.WP_TOPICIDS) {
+    WP_TOPICIDS = process.env.WP_TOPICIDS;
+}
+if (process.env.WP_UIDS) {
+    WP_UIDS = process.env.WP_UIDS;
+}
+if (process.env.WP_URL) {
+    WP_URL = process.env.WP_URL;
+}
 if (process.env.GO_CQHTTP_URL) {
     GO_CQHTTP_URL = process.env.GO_CQHTTP_URL;
 }
@@ -219,6 +207,8 @@ let tg_only = false;
 if (process.env.TG_ONLY) {
     tg_only = process.env.TG_ONLY;
 }
+
+
 
 function nameConvert(pt_pin, remarks = '', text) {
     if (remarks === '') {
@@ -928,27 +918,6 @@ function pushPlusNotify(text, desp) {
             resolve()
         }
     })
-}
-
-
-if (process.env.WP_APP_TOKEN) {
-    WP_APP_TOKEN = process.env.WP_APP_TOKEN;
-}
-
-if (process.env.WP_TOPICIDS) {
-    WP_TOPICIDS = process.env.WP_TOPICIDS;
-}
-if (process.env.WP_UIDS) {
-    WP_UIDS = process.env.WP_UIDS;
-}
-if (process.env.WP_URL) {
-    WP_URL = process.env.WP_URL;
-}
-if (process.env.WP_APP_TOKEN_ONE) {
-    WP_APP_TOKEN_ONE = process.env.WP_APP_TOKEN_ONE;
-}
-if (process.env.WP_UIDS_ONE) {
-    WP_UIDS_ONE = process.env.WP_UIDS_ONE;
 }
 
 function wxPusherNotify(text, desp) {
