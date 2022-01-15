@@ -143,7 +143,7 @@ let nowTime = new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*
 
 async function run(type = 0){
   try{
-    let rebateCodes = ["SIMHz54", "StIuUgG", "SLI8zFT"];
+    let rebateCodes = ['SdIdGkO', 'SCdH83Z', 'SMIdOOm'];
     rebateCodes = rebateCodes[Math.floor((Math.random() * rebateCodes.length))]
     rebateCodes = $.isNode() ? (process.env.JX_CODE ? process.env.JX_CODE : `${rebateCodes}`) : ($.getdata('JX_CODE') ? $.getdata('JX_CODE') : `${rebateCodes}`);
     rebateCode = rebateCodes
