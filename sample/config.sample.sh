@@ -91,7 +91,7 @@ AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
 ## Own 仓库脚本新增定时任务自动禁用
-# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务
+# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
 DisableNewOwnRepoCron=""
 
 ## Own 仓库脚本定时任务屏蔽功能
@@ -142,7 +142,7 @@ AutoAddCron="true"
 AutoDelCron="true"
 
 ## ❖ 2. Scripts 仓库脚本新增定时任务自动禁用
-# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务
+# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
 DisableNewCron=""
 
 ## ❖ 3. 控制删除日志时间
