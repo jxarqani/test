@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-09
+## Modified: 2022-01-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -702,7 +702,6 @@ function Run_Concurrent() {
 function Process_Kill() {
     local InputContent=$1
     local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
-    local Input
     ## 匹配脚本
     Find_Script ${InputContent}
     local ProcessKeywords="${FileName}\.${FileSuffix}\b"
@@ -714,21 +713,10 @@ function Process_Kill() {
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
         ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
-        while true; do
-            read -p "$(echo -e "\n${BOLD}└ 是否确认终止上述进程 [ Y/n ]：${PLAIN}")" Input
-            [ -z ${Input} ] && Input=Y
-            case ${Input} in
-            [Yy] | [Yy][Ee][Ss])
-                break
-                ;;
-            [Nn] | [Nn][Oo])
-                echo -e "\n$COMPLETE 已退出，没有进行任何操作\n"
-                exit ## 终止退出
-                ;;
-            esac
-            echo -e "\n$ERROR 输入错误，请重新输入！\n"
-        done
-
+        ## 终止前等待确认
+        echo -en "\n$WORKING 进程将在 ${BLUE}3${PLAIN} 秒后终止，可通过 ${BLUE}Ctrl + Z${PLAIN} 中断此操作..."
+        sleep 3
+        echo ''
         ## 杀死进程
         kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
@@ -883,7 +871,7 @@ function Cookies_Control() {
                 sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                 num=$((m + 1))
                 ## 格式化输出
-                printf "%-3s ${BLUE}%-$((35 + ${EscapePinLength}))s${PLAIN} 更新日期：${BLUE}%-s${PLAIN}\n" "$num:" "${EscapePin} ${State}" "${UpdateTimes}"
+                printf "%-3s ${BLUE}%-$((35 + ${EscapePinLength}))s${PLAIN} 更新日期：${BLUE}%-s${PLAIN}\n" "$num." "${EscapePin} ${State}" "${UpdateTimes}"
             done
         }
 
@@ -1002,9 +990,9 @@ function Cookies_Control() {
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$i:" "${EscapePin}" "${SUCCESS_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$i." "${EscapePin}" "${SUCCESS_ICON}"
                     else
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$i:" "${EscapePin}" "${FAIL_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$i." "${EscapePin}" "${FAIL_ICON}"
                     fi
                 done
                 ## 优化日志排版
@@ -1384,31 +1372,36 @@ function Add_OwnRepo() {
     function Add_Cron_Own() {
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
-
-        if [[ ${AutoAddOwnRepoCron} == true ]] && [ -s $ListOwnRepoAdd ]; then
-            echo ''
-            if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
-                local Detail=$(cat $ListOwnRepoAdd)
-                for FilePath in $Detail; do
-                    local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
-                    if [ -f ${FilePath} ]; then
-                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                            sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
-                    fi
-                done
-                perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
-                ExitStatus=$?
-            fi
-            ## 判定结果
-            if [[ $ExitStatus -eq 0 ]]; then
-                ## 打印定时
-                cat $ListCrontabOwnTmp | perl -pe "{s|^|${GREEN}+${PLAIN} |g}"
-                echo -e "\n$COMPLETE 定时任务已添加"
+        if [ -s $ListOwnRepoAdd ]; then
+            if [[ ${AutoAddOwnRepoCron} == true ]]; then
+                echo ''
+                if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
+                    local Detail=$(cat $ListOwnRepoAdd)
+                    for FilePath in $Detail; do
+                        local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
+                        if [ -f ${FilePath} ]; then
+                            perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
+                                perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
+                                sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                        fi
+                    done
+                    perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
+                    ExitStatus=$?
+                fi
+                ## 判定结果
+                if [[ $ExitStatus -eq 0 ]]; then
+                    ## 打印定时
+                    cat $ListCrontabOwnTmp | perl -pe "{s|^|${GREEN}+${PLAIN} |g}"
+                    echo -e "\n$COMPLETE 定时任务已添加"
+                else
+                    echo -e "\n$ERROR 定时任务添加失败"
+                fi
+                [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
             else
-                echo -e "\n$ERROR 定时任务添加失败"
+                echo -e "\n$WARN 已设置为不添加定时任务，跳过添加"
             fi
-            [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+        else
+            echo -e "\n$WARN 没有检测到新增脚本，跳过添加定时任务"
         fi
     }
 
@@ -1550,13 +1543,15 @@ function Add_RawFile() {
             else
                 echo -e "\n$WARN 该脚本定时任务已存在，跳过添加"
             fi
+        else
+            echo -e "\n$WARN 已设置为不添加定时任务，跳过添加"
         fi
 
         ## 添加变量
         for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
             if [[ ${OwnRawFile[i]} == ${DownloadUrl} ]]; then
-                echo -e "$WARN 检测到 OwnRawFile 变量中已存在该脚本，跳过添加变量\n"
-                echo -e "${GREEN}Tips：${PLAIN}请尽量不要尝试重复添加以免产生未知问题！\n"
+                echo -e "\n$WARN 检测到该脚本已存在于 ${BLUE}OwnRawFile${PLAIN} 变量中，跳过添加"
+                echo -e "\n${GREEN}Tips：${PLAIN}请尽量不要尝试重复添加以免产生未知问题！\n"
                 exit ## 终止退出
             fi
         done
@@ -1649,7 +1644,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             else
@@ -1753,7 +1748,7 @@ function Manage_Env() {
             grep ".*export ${Variable}=" -q $FileConfUser
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 是否继续修改 [ Y/n ]：${PLAIN}")" Input1
                     [ -z ${Input1} ] && Input1=Y
@@ -1804,7 +1799,7 @@ function Manage_Env() {
             grep ".*export ${Variable}=" -q $FileConfUser
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n "^export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 echo -e "\n$ERROR 该变量已经存在，无需任何操作！\n"
                 exit ## 终止退出
             else
