@@ -244,6 +244,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
 
         }
     }
+    console.log('')
     if (tg_only) {
         text = text.match(/.*?(?=\s?-)/g) ? text.match(/.*?(?=\s?-)/g)[0] : text;
         await Promise.all([
@@ -268,6 +269,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
             wxPusherNotify(text,desp) //wxPusher
         ])
     }
+    console.log('')
 }
 
 
@@ -359,7 +361,7 @@ function goCQhttp(text = '', desp = '') {
                                 console.log(`go-cqhttp发送通知消息成功🎉`)
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
                                 console.log(`\ngo-cqhttp发送给个人通知消息异常\n${JSON.stringify(data)}`)
-                                console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=`)
+                                console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=\n`)
                             }
                         }
                     } catch (e) {
@@ -955,12 +957,12 @@ function wxPusherNotify(text, desp) {
             $.post(options, (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log("\nWxPusher 发送通知调用 API 失败！\n");
+                        console.log("\nWxPusher发送通知调用 API 失败！\n");
                         console.log(err);
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 1000) {
-                            console.log("WxPusher 发送通知消息成功🎉");
+                            console.log("WxPusher发送通知消息成功🎉");
                         }
                     }
                 } catch (e) {
