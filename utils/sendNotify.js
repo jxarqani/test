@@ -65,7 +65,7 @@ let QYWX_AM = '';
 //此处填您iGot的信息(推送key，例如：https://push.hellyw.com/XXXXXXXX)
 let IGOT_PUSH_KEY = '';
 
-// =======================================push+设置区域=======================================
+// =======================================pushplus设置区域=======================================
 //官方文档：http://www.pushplus.plus/
 //PUSH_PLUS_TOKEN：微信扫码登录后一对一推送或一对多推送下面的token(您的Token)，不提供PUSH_PLUS_USER则默认为一对一推送
 //PUSH_PLUS_USER： 一对多推送的“群组编码”（一对多推送下面->您的群组(如无则新建)->群组编码，如果您是创建群组人。也需点击“查看二维码”扫描绑定，否则不能接受群组消息推送）
@@ -294,7 +294,7 @@ function serverNotify(text, desp, time = 2100) {
                             data = JSON.parse(data);
                             //server酱和Server酱·Turbo版的返回json格式不太一样
                             if (data.errno === 0 || data.data.errno === 0) {
-                                console.log('\nServer酱发送通知消息成功🎉\n')
+                                console.log('Server酱发送通知消息成功🎉')
                             } else if (data.errno === 1024) {
                                 // 一分钟内发送相同的内容会触发
                                 console.log(`\nServer酱发送通知消息异常: ${data.errmsg}\n`)
@@ -356,7 +356,7 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log(`\ngo-cqhttp发送通知消息成功🎉\n`)
+                                console.log(`go-cqhttp发送通知消息成功🎉`)
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
                                 console.log(`\ngo-cqhttp发送给个人通知消息异常\n${JSON.stringify(data)}`)
                                 console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=`)
@@ -381,9 +381,9 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log(`\ngo-cqhttp发送给个人通知消息成功🎉\n`)
+                                console.log(`go-cqhttp发送给个人通知消息成功🎉`)
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
-                                console.log(`\ngo-cqhttp发送给个人通知消息异常\n${JSON.stringify(data)}`)
+                                console.log(`\ngo-cqhttp发送给个人通知消息异常！\n${JSON.stringify(data)}`)
                                 console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=`)
                             }
                         }
@@ -412,7 +412,7 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log('\ngo-cqhttp发送通知消息成功🎉\n')
+                                console.log('go-cqhttp发送通知消息成功🎉')
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
                                 console.log(`\ngo-cqhttp发送通知消息异常\n${JSON.stringify(data)}`)
                             }
@@ -483,7 +483,7 @@ function CoolPush(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log(`\nQQ酷推发送${pushMode(QQ_MODE)}通知消息成功🎉\n`)
+                            console.log(`QQ酷推发送${pushMode(QQ_MODE)}通知消息成功🎉`)
                         } else if (data.code === 400) {
                             console.log(`\nQQ酷推(Cool Push)发送${pushMode(QQ_MODE)}推送失败：${data.msg}！\n`)
                         } else if (data.code === 503) {
@@ -523,7 +523,7 @@ function BarkNotify(text, desp, params = {}) {
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log('\nBark APP发送通知消息成功🎉\n')
+                            console.log('Bark APP发送通知消息成功🎉')
                         } else {
                             console.log(`${data.message}\n`);
                         }
@@ -573,11 +573,11 @@ function tgBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.ok) {
-                            console.log('\nTelegram发送通知消息成功🎉\n')
+                            console.log('Telegram发送通知消息成功🎉')
                         } else if (data.error_code === 400) {
-                            console.log('\n请主动给bot发送一条消息并检查接收用户ID是否正确。\n')
+                            console.log('\n请主动给bot发送一条消息并检查接收用户ID是否正确！\n')
                         } else if (data.error_code === 401) {
-                            console.log('\nTelegram bot token 填写错误。\n')
+                            console.log('\nTelegram bot 的 token 有误！\n')
                         }
                     }
                 } catch (e) {
@@ -623,7 +623,7 @@ function ddBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n钉钉发送通知消息成功🎉\n')
+                            console.log('钉钉发送通知消息成功🎉')
                         } else {
                             console.log(`\n${data.errmsg}\n`)
                         }
@@ -643,9 +643,9 @@ function ddBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n钉钉发送通知消息成功🎉\n')
+                            console.log('钉钉发送通知消息成功🎉')
                         } else {
-                            console.log(`${data.errmsg}\n`)
+                            console.log(`\n${data.errmsg}\n`)
                         }
                     }
                 } catch (e) {
@@ -685,7 +685,7 @@ function qywxBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n企业微信发送通知消息成功🎉\n');
+                            console.log('企业微信发送通知消息成功🎉');
                         } else {
                             console.log(`${data.errmsg}\n`);
                         }
@@ -813,7 +813,7 @@ function qywxamNotify(text, desp) {
                         } else {
                             data = JSON.parse(data);
                             if (data.errcode === 0) {
-                                console.log('\n成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息成功🎉\n');
+                                console.log('成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息成功🎉');
                             } else {
                                 console.log(`\n${data.errmsg}\n`);
                             }
@@ -858,9 +858,9 @@ function iGotNotify(text, desp, params = {}) {
                     } else {
                         if (typeof data === 'string') data = JSON.parse(data);
                         if (data.ret === 0) {
-                            console.log('\niGot发送通知消息成功🎉\n')
+                            console.log('iGot发送通知消息成功🎉')
                         } else {
-                            console.log(`\niGot发送通知消息失败：${data.errMsg}\n`)
+                            console.log(`\niGot发送通知消息失败：\n${data.errMsg}\n`)
                         }
                     }
                 } catch (e) {
@@ -897,14 +897,14 @@ function pushPlusNotify(text, desp) {
             $.post(options, (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败！\n`)
+                        console.log(`\npushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败！\n`)
                         console.log(err);
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息成功🎉\n`)
+                            console.log(`pushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息成功🎉`)
                         } else {
-                            console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败：${data.msg}\n`)
+                            console.log(`\npushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败：\n${data.msg}\n`)
                         }
                     }
                 } catch (e) {
@@ -914,7 +914,7 @@ function pushPlusNotify(text, desp) {
                 }
             })
         } else {
-            console.log('您未提供push+推送所需的 PUSH_PLUS_TOKEN ，取消push+推送消息通知🚫');
+            console.log('您未提供pushplus推送所需的 PUSH_PLUS_TOKEN ，取消pushplus推送消息通知🚫');
             resolve()
         }
     })
@@ -955,12 +955,12 @@ function wxPusherNotify(text, desp) {
             $.post(options, (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log("WxPusher 发送通知调用 API 失败！！\n");
+                        console.log("\nWxPusher 发送通知调用 API 失败！\n");
                         console.log(err);
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 1000) {
-                            console.log("WxPusher 发送通知消息成功!\n");
+                            console.log("WxPusher 发送通知消息成功🎉");
                         }
                     }
                 } catch (e) {
@@ -971,6 +971,7 @@ function wxPusherNotify(text, desp) {
                 }
             });
         } else {
+            console.log('您未提供WxPusher推送所需的 WP_APP_TOKEN ，取消WxPusher推送消息通知🚫');
             resolve();
         }
     });
