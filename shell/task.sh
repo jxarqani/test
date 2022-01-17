@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-15
+## Modified: 2022-01-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1644,7 +1644,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             else
@@ -1667,7 +1667,7 @@ function Manage_Env() {
 
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42m${NewContent}${PLAIN}"
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
             echo -e "\n$ERROR 环境变量修改失败\n"
@@ -1727,7 +1727,7 @@ function Manage_Env() {
         sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
-        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42m${NewContent}${PLAIN}"
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
         ## 结果判定
         grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
         local ExitStatus=$?
@@ -1788,7 +1788,7 @@ function Manage_Env() {
                     esac
                 done
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n${GREEN}+${PLAIN} \033[42m${FullContent}${PLAIN}"
+                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
                 echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
@@ -1812,7 +1812,7 @@ function Manage_Env() {
                     ;;
                 esac
                 sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n${GREEN}+${PLAIN} \033[42m${FullContent}${PLAIN}"
+                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
                 echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
