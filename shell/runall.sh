@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-15
+## Modified: 2022-01-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -198,7 +198,7 @@ function Main() {
             sed -i "s/$/& ${RunMode}/g" $RunFile
             sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
-            echo -e "\n${GREEN}Tips${PLAIN}: ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
+            echo -e "\n$TIPS ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
             ## 等待动画
             local spin=('.   ' '..  ' '... ' '....')
             local n=0

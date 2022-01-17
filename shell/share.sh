@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-09
+## Modified: 2022-01-17
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -78,6 +78,8 @@ COMPLETE='[\033[32mDone\033[0m]'
 WARN='[\033[33mWARN\033[0m]'
 ERROR='[\033[31mERROR\033[0m]'
 WORKING='[\033[34m*\033[0m]'
+EXAMPLE='[\033[32m参考命令\033[0m]'
+TIPS='[\033[32m友情提示\033[0m]'
 COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
 RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
