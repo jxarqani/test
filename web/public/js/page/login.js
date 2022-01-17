@@ -54,40 +54,41 @@ function placeholderAnimationIn(parent, action) {
 }
 
 setTimeout(function () {
-    document.body.classList.add('on-start');
+   $(document.body).addClass('on-start');
 }, 100);
 
 setTimeout(function () {
-    document.body.classList.add('document-loaded');
+    $(document.body).addClass('document-loaded');
 }, 1800);
 
-document.getElementById("password").classList.add("input-password");
-document.getElementById("toggle-password").classList.remove("d-none");
-const passwordInput = document.getElementById("password");
-const togglePasswordButton = document.getElementById("toggle-password");
-togglePasswordButton.addEventListener("click", togglePassword);
+const $passwordInput = $('#password');
+const $rePasswordInput = $('#confirm-password');
+const $togglePasswordButton = $('#toggle-password');
+$passwordInput.addClass('input-password');
+$rePasswordInput.removeClass('d-none');
+
+$togglePasswordButton.click(togglePassword);
 
 function togglePassword() {
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        togglePasswordButton.setAttribute("aria-label", "Hide password.");
-        togglePasswordButton.classList.add('hide-password');
+    if ($passwordInput.attr('type') === 'password') {
+        $passwordInput.attr('type', 'text');
+        $rePasswordInput.attr('type', 'text');
+        $togglePasswordButton.attr('aria-label', 'Hide password.').addClass('hide-password');
     } else {
-        passwordInput.type = "password";
-        togglePasswordButton.setAttribute(
-            "aria-label",
-            "Show password as plain text. " +
-            "Warning: this will display your password on the screen."
-        );
-        togglePasswordButton.classList.remove('hide-password');
+        $passwordInput.attr('type', 'password');
+        $rePasswordInput.attr('type', 'password');
+        $togglePasswordButton.attr(
+            'aria-label',
+            'Show password as plain text. Warning: this will display your password on the screen.'
+        ).removeClass('hide-password');
     }
 }
 
 let showCaptcha = false;
 
 function checkNeedCaptcha(flag = false) {
-    let $captchaInput = $(".captcha-input");
-    let $captchaImage = $("#captcha-image");
+    let $captchaInput = $('.captcha-input');
+    let $captchaImage = $('#captcha-image');
     if (flag) {
         $captchaImage.click();
         $captchaInput.show();
@@ -106,21 +107,21 @@ function checkNeedCaptcha(flag = false) {
 }
 
 $(document).ready(function () {
-    localStorage.removeItem("lastLoginInfo");
-    let $captchaImage = $("#captcha-image");
+    localStorage.removeItem('lastLoginInfo');
+    let $captchaImage = $('#captcha-image');
 
     $captchaImage.click(function () {
-        $(this).attr("src", BASE_API_PATH + "/api/captcha?t=" + new Date().getTime())
+        $(this).attr('src', BASE_API_PATH + '/api/captcha?t=' + new Date().getTime())
     })
 
     checkNeedCaptcha();
-    $("#login").click(function () {
-        let $user = $("#username").val();
-        let $password = $("#password").val();
-        let $captcha = $("#captcha").val();
+    $('#login').click(function () {
+        let $user = $('#username').val();
+        let $password = $('#password').val();
+        let $captcha = $('#captcha').val();
         if (!$user || !$password) return;
         if (showCaptcha && !$captcha) return;
-        panelUtils.showLoading("登录中...")
+        panelUtils.showLoading('登录中...')
         panelRequest.post('/api/auth', {
             username: $user,
             password: $password,
@@ -129,10 +130,10 @@ $(document).ready(function () {
             let data = res.data;
             if (res.code === 1) {
                 if (data.lastLoginInfo) {
-                    localStorage.setItem("lastLoginInfo", JSON.stringify(data.lastLoginInfo))
+                    localStorage.setItem('lastLoginInfo', JSON.stringify(data.lastLoginInfo))
                 }
                 if (data.newPwd) {
-                    panelUtils.showWarning("温馨提示", `系统检测到您的密码为初始密码，已修改为随机密码：${data.newPwd}，请重新登录`, "复制新密码并重新登录").then((isConfirm) => {
+                    panelUtils.showWarning('温馨提示', `系统检测到您的密码为初始密码，已修改为随机密码：${data.newPwd}，请重新登录`, '复制新密码并重新登录').then((isConfirm) => {
                         if (isConfirm.value) {
                             copyToClip(data.newPwd);
                         }
