@@ -207,7 +207,7 @@ function Find_Script() {
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 目录下的根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录范围内均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
+            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录下均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
             exit ## 终止退出
         fi
     }
@@ -1800,8 +1800,8 @@ function Manage_Env() {
             local ExitStatus=$?
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
-                echo -e "\n$ERROR 该变量已经存在，无需任何操作！\n"
-                exit ## 终止退出
+                echo -e "\n$ERROR 该变量已经存在，请直接修改！"
+                echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value}${PLAIN}\n"
             else
                 case $# in
                 3)
@@ -1915,6 +1915,7 @@ function Manage_Env() {
                 ;;
             *)
                 Variable=$2
+                Value=$3
                 ;;
             esac
             grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
@@ -1922,14 +1923,22 @@ function Manage_Env() {
             if [[ $ExitStatus -eq 0 ]]; then
                 case $2 in
                 enable | disable)
-                    ControlEnv "$2" "$3"
+                    ControlEnv "$2" "${Variable}"
                     ;;
                 *)
-                    ModifyValue "$2" "$3"
+                    ModifyValue "${Variable}" "${Value}"
                     ;;
                 esac
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                case $2 in
+                enable | disable)
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                    ;;
+                *)
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value}${PLAIN}\n"
+                    ;;
+                esac
             fi
             ;;
         esac

@@ -1,15 +1,20 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-02
+## Modified: 2022-01-17
 
 set -e
-RED="\033[31m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-BLUE="\033[34m"
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
 PLAIN='\033[0m'
+BOLD='\033[1m'
 SUCCESS='[\033[32mOK\033[0m]'
+COMPLETE='[\033[32mDone\033[0m]'
+WARN='[\033[33mWARN\033[0m]'
 ERROR='[\033[31mERROR\033[0m]'
+WORKING='[\033[34m*\033[0m]'
+TIPS='[\033[32m友情提示\033[0m]'
 TIME="+%Y-%m-%d %T"
 ContrlCmd="taskctl"
 
@@ -96,7 +101,7 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装环境结束 ----
 echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
 
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
-echo -e "Tips: 请退出查看容器初始化日志\n"
+echo -e "$TIPS 请退出查看容器初始化日志\n"
 
 crond -f >/dev/null
 
