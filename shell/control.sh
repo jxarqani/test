@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2021-12-25
+## Modified: 2022-01-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -96,7 +96,7 @@ function Hang_Control() {
         ;;
     ## 查看日志
     logs)
-        echo -e "\n${GREEN}Tips${PLAIN}: 默认查看日志倒数 50 行的内容，日志会持续输出，Ctrl + C 退出查看，若想查看更多请执行 pm2 logs jd_cfd_loop --lines <行数> \n" && sleep 2
+        echo -e "\n$TIPS 默认查看日志倒数 50 行的内容，日志会持续输出，Ctrl + C 退出查看，若想查看更多请执行 pm2 logs jd_cfd_loop --lines <行数> \n" && sleep 2
         pm2 logs jd_cfd_loop --lines 50
         ;;
     esac

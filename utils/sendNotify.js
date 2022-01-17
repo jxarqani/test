@@ -65,7 +65,7 @@ let QYWX_AM = '';
 //此处填您iGot的信息(推送key，例如：https://push.hellyw.com/XXXXXXXX)
 let IGOT_PUSH_KEY = '';
 
-// =======================================push+设置区域=======================================
+// =======================================pushplus设置区域=======================================
 //官方文档：http://www.pushplus.plus/
 //PUSH_PLUS_TOKEN：微信扫码登录后一对一推送或一对多推送下面的token(您的Token)，不提供PUSH_PLUS_USER则默认为一对一推送
 //PUSH_PLUS_USER： 一对多推送的“群组编码”（一对多推送下面->您的群组(如无则新建)->群组编码，如果您是创建群组人。也需点击“查看二维码”扫描绑定，否则不能接受群组消息推送）
@@ -94,23 +94,18 @@ let WP_APP_TOKEN = "";
 let WP_TOPICIDS = "";
 let WP_UIDS = "";
 let WP_URL = "";
-let WP_APP_TOKEN_ONE = "";
-let WP_UIDS_ONE = "";
-
 
 //==========================云端环境变量的判断与接收=========================
+
 if (process.env.PUSH_KEY) {
     SCKEY = process.env.PUSH_KEY;
 }
-
 if (process.env.QQ_SKEY) {
     QQ_SKEY = process.env.QQ_SKEY;
 }
-
 if (process.env.QQ_MODE) {
     QQ_MODE = process.env.QQ_MODE;
 }
-
 if (process.env.BARK_PUSH) {
     if (process.env.BARK_PUSH.indexOf('https') > -1 || process.env.BARK_PUSH.indexOf('http') > -1) {
         //兼容BARK自建用户
@@ -140,55 +135,48 @@ if (process.env.TG_PROXY_AUTH) TG_PROXY_AUTH = process.env.TG_PROXY_AUTH;
 if (process.env.TG_PROXY_HOST) TG_PROXY_HOST = process.env.TG_PROXY_HOST;
 if (process.env.TG_PROXY_PORT) TG_PROXY_PORT = process.env.TG_PROXY_PORT;
 if (process.env.TG_API_HOST) TG_API_HOST = process.env.TG_API_HOST;
-
 if (process.env.DD_BOT_TOKEN) {
     DD_BOT_TOKEN = process.env.DD_BOT_TOKEN;
     if (process.env.DD_BOT_SECRET) {
         DD_BOT_SECRET = process.env.DD_BOT_SECRET;
     }
 }
-
 if (process.env.QYWX_KEY) {
     QYWX_KEY = process.env.QYWX_KEY;
 }
-
 if (process.env.QYWX_AM) {
     QYWX_AM = process.env.QYWX_AM;
 }
-
 if (process.env.IGOT_PUSH_KEY) {
     IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
 }
-
 if (process.env.PUSH_PLUS_TOKEN) {
     PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
 }
 if (process.env.PUSH_PLUS_USER) {
     PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
 }
-
 if (process.env.IGOT_PUSH_KEY) {
     IGOT_PUSH_KEY = process.env.IGOT_PUSH_KEY;
 }
-
 if (process.env.PUSH_PLUS_TOKEN) {
     PUSH_PLUS_TOKEN = process.env.PUSH_PLUS_TOKEN;
 }
 if (process.env.PUSH_PLUS_USER) {
     PUSH_PLUS_USER = process.env.PUSH_PLUS_USER;
 }
-
-//==========================云端环境变量的判断与接收=========================
-
-/**
- * sendNotify 推送通知功能
- * @param text 通知头
- * @param desp 通知体
- * @param params 某些推送通知方式点击弹窗可跳转, 例：{ url: 'https://abc.com' }
- * @param author 作者仓库等信息  例：`本脚本免费使用 By：xxxx`
- * @returns {Promise<unknown>}
- */
-
+if (process.env.WP_APP_TOKEN) {
+    WP_APP_TOKEN = process.env.WP_APP_TOKEN;
+}
+if (process.env.WP_TOPICIDS) {
+    WP_TOPICIDS = process.env.WP_TOPICIDS;
+}
+if (process.env.WP_UIDS) {
+    WP_UIDS = process.env.WP_UIDS;
+}
+if (process.env.WP_URL) {
+    WP_URL = process.env.WP_URL;
+}
 if (process.env.GO_CQHTTP_URL) {
     GO_CQHTTP_URL = process.env.GO_CQHTTP_URL;
 }
@@ -219,6 +207,8 @@ let tg_only = false;
 if (process.env.TG_ONLY) {
     tg_only = process.env.TG_ONLY;
 }
+
+
 
 function nameConvert(pt_pin, remarks = '', text) {
     if (remarks === '') {
@@ -254,6 +244,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
 
         }
     }
+    console.log('')
     if (tg_only) {
         text = text.match(/.*?(?=\s?-)/g) ? text.match(/.*?(?=\s?-)/g)[0] : text;
         await Promise.all([
@@ -278,6 +269,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
             wxPusherNotify(text,desp) //wxPusher
         ])
     }
+    console.log('')
 }
 
 
@@ -304,7 +296,7 @@ function serverNotify(text, desp, time = 2100) {
                             data = JSON.parse(data);
                             //server酱和Server酱·Turbo版的返回json格式不太一样
                             if (data.errno === 0 || data.data.errno === 0) {
-                                console.log('\nServer酱发送通知消息成功🎉\n')
+                                console.log('Server酱发送通知消息成功🎉')
                             } else if (data.errno === 1024) {
                                 // 一分钟内发送相同的内容会触发
                                 console.log(`\nServer酱发送通知消息异常: ${data.errmsg}\n`)
@@ -366,10 +358,10 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log(`\ngo-cqhttp发送通知消息成功🎉\n`)
+                                console.log(`go-cqhttp发送通知消息成功🎉`)
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
                                 console.log(`\ngo-cqhttp发送给个人通知消息异常\n${JSON.stringify(data)}`)
-                                console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=`)
+                                console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=\n`)
                             }
                         }
                     } catch (e) {
@@ -391,9 +383,9 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log(`\ngo-cqhttp发送给个人通知消息成功🎉\n`)
+                                console.log(`go-cqhttp发送给个人通知消息成功🎉`)
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
-                                console.log(`\ngo-cqhttp发送给个人通知消息异常\n${JSON.stringify(data)}`)
+                                console.log(`\ngo-cqhttp发送给个人通知消息异常！\n${JSON.stringify(data)}`)
                                 console.log(`http://${GO_CQHTTP_URL}/send_private_msg?$user_id=${qq}&message=`)
                             }
                         }
@@ -422,7 +414,7 @@ function goCQhttp(text = '', desp = '') {
                             // console.log(data);
                             data = JSON.parse(data);
                             if (data.retcode === 0 && data.status === 'ok') {
-                                console.log('\ngo-cqhttp发送通知消息成功🎉\n')
+                                console.log('go-cqhttp发送通知消息成功🎉')
                             } else if (data.retcode !== 0 && data.status !== 'ok') {
                                 console.log(`\ngo-cqhttp发送通知消息异常\n${JSON.stringify(data)}`)
                             }
@@ -493,7 +485,7 @@ function CoolPush(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log(`\nQQ酷推发送${pushMode(QQ_MODE)}通知消息成功🎉\n`)
+                            console.log(`QQ酷推发送${pushMode(QQ_MODE)}通知消息成功🎉`)
                         } else if (data.code === 400) {
                             console.log(`\nQQ酷推(Cool Push)发送${pushMode(QQ_MODE)}推送失败：${data.msg}！\n`)
                         } else if (data.code === 503) {
@@ -533,7 +525,7 @@ function BarkNotify(text, desp, params = {}) {
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log('\nBark APP发送通知消息成功🎉\n')
+                            console.log('Bark APP发送通知消息成功🎉')
                         } else {
                             console.log(`${data.message}\n`);
                         }
@@ -583,11 +575,11 @@ function tgBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.ok) {
-                            console.log('\nTelegram发送通知消息成功🎉\n')
+                            console.log('Telegram发送通知消息成功🎉')
                         } else if (data.error_code === 400) {
-                            console.log('\n请主动给bot发送一条消息并检查接收用户ID是否正确。\n')
+                            console.log('\n请主动给bot发送一条消息并检查接收用户ID是否正确！\n')
                         } else if (data.error_code === 401) {
-                            console.log('\nTelegram bot token 填写错误。\n')
+                            console.log('\nTelegram bot 的 token 有误！\n')
                         }
                     }
                 } catch (e) {
@@ -633,7 +625,7 @@ function ddBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n钉钉发送通知消息成功🎉\n')
+                            console.log('钉钉发送通知消息成功🎉')
                         } else {
                             console.log(`\n${data.errmsg}\n`)
                         }
@@ -653,9 +645,9 @@ function ddBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n钉钉发送通知消息成功🎉\n')
+                            console.log('钉钉发送通知消息成功🎉')
                         } else {
-                            console.log(`${data.errmsg}\n`)
+                            console.log(`\n${data.errmsg}\n`)
                         }
                     }
                 } catch (e) {
@@ -695,7 +687,7 @@ function qywxBotNotify(text, desp) {
                     } else {
                         data = JSON.parse(data);
                         if (data.errcode === 0) {
-                            console.log('\n企业微信发送通知消息成功🎉\n');
+                            console.log('企业微信发送通知消息成功🎉');
                         } else {
                             console.log(`${data.errmsg}\n`);
                         }
@@ -823,7 +815,7 @@ function qywxamNotify(text, desp) {
                         } else {
                             data = JSON.parse(data);
                             if (data.errcode === 0) {
-                                console.log('\n成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息成功🎉\n');
+                                console.log('成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息成功🎉');
                             } else {
                                 console.log(`\n${data.errmsg}\n`);
                             }
@@ -868,9 +860,9 @@ function iGotNotify(text, desp, params = {}) {
                     } else {
                         if (typeof data === 'string') data = JSON.parse(data);
                         if (data.ret === 0) {
-                            console.log('\niGot发送通知消息成功🎉\n')
+                            console.log('iGot发送通知消息成功🎉')
                         } else {
-                            console.log(`\niGot发送通知消息失败：${data.errMsg}\n`)
+                            console.log(`\niGot发送通知消息失败：\n${data.errMsg}\n`)
                         }
                     }
                 } catch (e) {
@@ -907,14 +899,14 @@ function pushPlusNotify(text, desp) {
             $.post(options, (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败！\n`)
+                        console.log(`\npushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败！\n`)
                         console.log(err);
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 200) {
-                            console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息成功🎉\n`)
+                            console.log(`pushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息成功🎉`)
                         } else {
-                            console.log(`\npush+发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败：${data.msg}\n`)
+                            console.log(`\npushplus发送${PUSH_PLUS_USER ? '一对多' : '一对一'}通知消息失败：\n${data.msg}\n`)
                         }
                     }
                 } catch (e) {
@@ -924,31 +916,10 @@ function pushPlusNotify(text, desp) {
                 }
             })
         } else {
-            console.log('您未提供push+推送所需的 PUSH_PLUS_TOKEN ，取消push+推送消息通知🚫');
+            console.log('您未提供pushplus推送所需的 PUSH_PLUS_TOKEN ，取消pushplus推送消息通知🚫');
             resolve()
         }
     })
-}
-
-
-if (process.env.WP_APP_TOKEN) {
-    WP_APP_TOKEN = process.env.WP_APP_TOKEN;
-}
-
-if (process.env.WP_TOPICIDS) {
-    WP_TOPICIDS = process.env.WP_TOPICIDS;
-}
-if (process.env.WP_UIDS) {
-    WP_UIDS = process.env.WP_UIDS;
-}
-if (process.env.WP_URL) {
-    WP_URL = process.env.WP_URL;
-}
-if (process.env.WP_APP_TOKEN_ONE) {
-    WP_APP_TOKEN_ONE = process.env.WP_APP_TOKEN_ONE;
-}
-if (process.env.WP_UIDS_ONE) {
-    WP_UIDS_ONE = process.env.WP_UIDS_ONE;
 }
 
 function wxPusherNotify(text, desp) {
@@ -986,12 +957,12 @@ function wxPusherNotify(text, desp) {
             $.post(options, (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log("WxPusher 发送通知调用 API 失败！！\n");
+                        console.log("\nWxPusher发送通知调用 API 失败！\n");
                         console.log(err);
                     } else {
                         data = JSON.parse(data);
                         if (data.code === 1000) {
-                            console.log("WxPusher 发送通知消息成功!\n");
+                            console.log("WxPusher发送通知消息成功🎉");
                         }
                     }
                 } catch (e) {
@@ -1002,6 +973,7 @@ function wxPusherNotify(text, desp) {
                 }
             });
         } else {
+            console.log('您未提供WxPusher推送所需的 WP_APP_TOKEN ，取消WxPusher推送消息通知🚫');
             resolve();
         }
     });

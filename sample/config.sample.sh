@@ -1,6 +1,6 @@
-## Version: v1.09.0
+## Version: v1.09.1
 ## Date: 2022-01-15
-## Update Content: 1. 新增定义 “Scripts 仓库脚本新增定时任务自动禁用” 项目功能环境变量 2. 新增定义 “Own 仓库脚本新增定时任务自动禁用” 扩展仓库环境变量
+## Update Content: 1. 新增定义 “Scripts 仓库脚本新增定时任务自动禁用” 项目功能环境变量 2. 新增定义 “Own 仓库脚本新增定时任务自动禁用” 扩展仓库环境变量 3. 新增 WxPusher 推送通知方式以及相关环境变量
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -91,7 +91,7 @@ AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
 ## Own 仓库脚本新增定时任务自动禁用
-# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
+# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
 DisableNewOwnRepoCron=""
 
 ## Own 仓库脚本定时任务屏蔽功能
@@ -142,7 +142,7 @@ AutoAddCron="true"
 AutoDelCron="true"
 
 ## ❖ 2. Scripts 仓库脚本新增定时任务自动禁用
-# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用请设置为 "true"，否则请设置为 "false"
+# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
 DisableNewCron=""
 
 ## ❖ 3. 控制删除日志时间
@@ -215,7 +215,7 @@ EnableGlobalProxy=""
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 推 送 通 知 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
 # 在下方定义推送通知方式，想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
-# 目前提供：Server酱、Bark、Telegram、钉钉、企业微信、iGot、pushplus、go-cqhttp
+# 目前提供：Server酱、Bark、Telegram、钉钉、企业微信、iGot、pushplus、go-cqhttp、WxPusher
 # 项目文档：https://supermanito.github.io/Helloworld/#/config/推送通知
 
 ## ❖ 定义通知尾
@@ -324,6 +324,20 @@ export GO_CQHTTP_MSG_SIZE=""
 # 下方填写当账号失效后是否启用私信，默认启用，如需关闭请修改为 "false"
 # 由于在账号失效后一般会批量群发，有可能触发风控下线或者封号，不建议禁用
 # export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+
+
+## ❖ 10. WxPusher
+# 官方仓库：https://github.com/wxpusher/wxpusher-client
+# 官方文档：https://wxpusher.zjiecode.com/docs
+# 微信公众号：WxPusher 消息推送平台
+# 下方填写您申请的 appToken，可在管理台查看：https://wxpusher.zjiecode.com/admin/main/app/appToken
+export WP_APP_TOKEN=""
+# 下方填写发送目标用户的UID，多个用户用 ";" 分隔，WP_UIDS 和 WP_TOPICIDS 可以同时填写, 也可以只填写一个
+export WP_UIDS=""
+# 下方填写发送主题的 TopicId ，适用于群发，用户只需要订阅主题即可，多个主题用 ";" 分隔，使用 WP_UIDS 单独发送的时可以不定义此变量
+export WP_TOPICIDS=""
+# 下方填写原文链接，如需使用请赋值并自行解除下一行的注释
+# export WP_URL=""
 
 
 
