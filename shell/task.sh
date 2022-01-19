@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-17
+## Modified: 2022-01-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -281,7 +281,7 @@ function Find_Script() {
         ## 判定是否使用代理
         if [[ ${DOWNLOAD_PROXY} == true ]]; then
             ProxyJudge="使用代理"
-            DownloadJudge="https://ghproxy.com/"
+            DownloadJudge=${GithubProxy}
         else
             ProxyJudge=""
             DownloadJudge=""
@@ -363,7 +363,7 @@ function Find_Script() {
         fi
         case ${FileFormat} in
         Python | TypeScript)
-            echo -e "\n$ERROR 宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！\n"
+            echo -e "\n$ERROR 当前宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！\n"
             exit ## 终止退出
             ;;
         esac
@@ -424,7 +424,7 @@ function RunWait() {
 }
 
 ## 判定账号是否存在
-function ExistenceJudgment() {
+function Account_ExistenceJudgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
@@ -434,7 +434,7 @@ function ExistenceJudgment() {
 }
 
 ## 静默执行，不推送通知消息
-function DoNotPushNotify() {
+function NoPushNotify() {
     ## Server酱
     export PUSH_KEY=""
     export SCKEY_WECOM=""
@@ -465,21 +465,78 @@ function DoNotPushNotify() {
     export GO_CQHTTP_LINK=""
     export GO_CQHTTP_MSG_SIZE=""
     export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+    ## WxPusher
+    export WP_APP_TOKEN=""
+    export WP_UIDS=""
+    export WP_TOPICIDS=""
+    export WP_URL=""
 }
 
 ## 普通执行
 function Run_Normal() {
     local InputContent=$1
-    local Accounts UserNum LogFile
+    local UserNum LogFile COOKIE_TMP
     ## 匹配脚本
     Find_Script ${InputContent}
     ## 导入配置文件
     Import_Config ${FileName}
     ## 统计账号数量
     Count_UserSum
+    ## 静默运行
+    [[ ${RUN_MUTE} == true ]] && NoPushNotify
+
+    ## 运行主命令
+    function Main() {
+        if [[ ${RUN_BACKGROUND} == true ]]; then
+            ## 记录执行开始时间
+            echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
+            case ${FileFormat} in
+            JavaScript)
+                if [[ ${EnableGlobalProxy} == true ]]; then
+                    node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
+                else
+                    node ${FileName}.js 2>&1 &>>${LogFile} &
+                fi
+                ;;
+            Python)
+                python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+                ;;
+            TypeScript)
+                ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+                ;;
+            Shell)
+                bash ${FileName}.sh 2>&1 &>>${LogFile} &
+                ;;
+            esac
+            echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看最新日志\n"
+        else
+            ## 记录执行开始时间
+            echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
+            case ${FileFormat} in
+            JavaScript)
+                if [[ ${EnableGlobalProxy} == true ]]; then
+                    node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
+                else
+                    node ${FileName}.js 2>&1 | tee -a ${LogFile}
+                fi
+                ;;
+            Python)
+                python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
+                ;;
+            TypeScript)
+                ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
+                ;;
+            Shell)
+                bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
+                ;;
+            esac
+            ## 记录执行结束时间
+            echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+        fi
+    }
 
     ## 组合账号变量
-    function Combine_Account() {
+    function Combin_Designated_Cookie() {
         local Num=$1
         local Tmp1=Cookie$Num
         local Tmp2=${!Tmp1}
@@ -487,17 +544,17 @@ function Run_Normal() {
         COOKIE_TMP=$(echo $CombinAll | perl -pe "{s|^&||}")
     }
 
-    ## 加载账号
-    if [[ ${RUN_DESIGNATED} == true ]]; then
-        Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
-        for UserNum in ${Accounts}; do
+    ## 指定运行账号
+    function Designated_Account() {
+        local AccountsTmp=$1
+        for UserNum in ${AccountsTmp}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
-                        ExistenceJudgment $i
-                        Combine_Account $i
+                        Account_ExistenceJudgment $i
+                        Combin_Designated_Cookie $i
                     done
                 else
                     Help
@@ -506,18 +563,14 @@ function Run_Normal() {
                 fi
             else
                 ## 判定账号是否存在
-                ExistenceJudgment $UserNum
-                Combine_Account $UserNum
+                Account_ExistenceJudgment $UserNum
+                Combin_Designated_Cookie $UserNum
             fi
         done
         ## 声明变量
         export JD_COOKIE=${COOKIE_TMP}
-    else
-        ## 组合 Cookie
-        Combin_Cookie
-    fi
+    }
 
-    ## 处理其它参数：
     ## 迅速模式
     if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
@@ -527,62 +580,38 @@ function Run_Normal() {
     fi
     ## 随机延迟
     [[ ${RUN_DELAY} == true ]] && Random_Delay
-    ## 消息静默
-    [[ ${RUN_MUTE} == true ]] && DoNotPushNotify
-
     ## 进入脚本所在目录
     cd ${FileDir}
     ## 定义日志文件路径
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
 
-    ## 等待执行
-    RunWait
-    ## 执行脚本
-    if [[ ${RUN_BACKGROUND} == true ]]; then
-        ## 记录执行开始时间
-        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
-        case ${FileFormat} in
-        JavaScript)
-            if [[ ${EnableGlobalProxy} == true ]]; then
-                node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
-            else
-                node ${FileName}.js 2>&1 &>>${LogFile} &
-            fi
-            ;;
-        Python)
-            python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
-            ;;
-        TypeScript)
-            ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
-            ;;
-        Shell)
-            bash ${FileName}.sh 2>&1 &>>${LogFile} &
-            ;;
-        esac
-        echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
+    ## 账号分组
+    if [[ ${RUN_GROUPING} == true ]]; then
+        ## 定义分组
+        local Groups=$(echo ${GROUPING_NUMS} | perl -pe "{s|;| |g}")
+        ## 等待执行
+        RunWait
+        for GROUP in ${Accounts}; do
+            local Accounts=$(echo ${GROUP} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+            Designated_Account ${Accounts}
+            ## 执行脚本
+            Main
+            ## 重新组合变量
+            COOKIE_TMP=""
+        done
     else
-        ## 记录执行开始时间
-        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
-        case ${FileFormat} in
-        JavaScript)
-            if [[ ${EnableGlobalProxy} == true ]]; then
-                node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
-            else
-                node ${FileName}.js 2>&1 | tee -a ${LogFile}
-            fi
-            ;;
-        Python)
-            python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
-            ;;
-        TypeScript)
-            ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
-            ;;
-        Shell)
-            bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
-            ;;
-        esac
-        ## 记录执行结束时间
-        echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+        ## 指定账号
+        if [[ ${RUN_DESIGNATED} == true ]]; then
+            local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+            Designated_Account ${Accounts}
+        else
+            ## 加载全部账号
+            Combin_AllCookie
+        fi
+        ## 等待执行
+        RunWait
+        ## 执行脚本
+        Main
     fi
 
     ## 判断远程脚本执行后是否删除
@@ -594,14 +623,17 @@ function Run_Normal() {
 ## 并发执行
 function Run_Concurrent() {
     local InputContent=$1
-    local Accounts UserNum LogFile
+    local UserNum LogFile
     ## 匹配脚本
     Find_Script ${InputContent}
     ## 导入配置文件
     Import_Config ${FileName}
     ## 统计账号数量
     Count_UserSum
+    ## 静默运行参数
+    [[ ${RUN_MUTE} == true ]] && NoPushNotify
 
+    ## 运行主命令
     function Main() {
         local Num=$1
         local Tmp=Cookie${Num}
@@ -641,25 +673,22 @@ function Run_Concurrent() {
     fi
     ## 随机延迟
     [[ ${RUN_DELAY} == true ]] && Random_Delay
-    ## 消息静默
-    [[ ${RUN_MUTE} == true ]] && DoNotPushNotify
 
     ## 进入脚本所在目录
     cd ${FileDir}
-
     ## 等待执行
     RunWait
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
-        Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe '{s|,| |g}')
+        local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
         for UserNum in ${Accounts}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
-                        ExistenceJudgment $i
+                        Account_ExistenceJudgment $i
                     done
                 else
                     Help
@@ -668,10 +697,11 @@ function Run_Concurrent() {
                 fi
             else
                 ## 判定账号是否存在
-                ExistenceJudgment $UserNum
+                Account_ExistenceJudgment $UserNum
             fi
         done
 
+        ## 指定运行账号
         for UserNum in ${Accounts}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -679,14 +709,17 @@ function Run_Concurrent() {
                     Main $i
                 done
             else
+                ## 执行脚本
                 Main ${UserNum}
             fi
         done
     else
+        ## 加载全部账号
         for ((UserNum = 1; UserNum <= ${UserSum}; UserNum++)); do
             for num in ${TempBlockCookie}; do
                 [[ $UserNum -eq $num ]] && continue 2
             done
+            ## 执行脚本
             Main ${UserNum}
         done
     fi
@@ -880,7 +913,7 @@ function Cookies_Control() {
             local pt_pin FormatPin State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3
             local UserNum=$1
             ## 判定账号是否存在
-            ExistenceJudgment ${UserNum}
+            Account_ExistenceJudgment ${UserNum}
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
@@ -1033,7 +1066,7 @@ function Cookies_Control() {
             local pt_pin_tmp FormatPin EscapePin CookieTmp LogFile
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
-            ExistenceJudgment $UserNum
+            Account_ExistenceJudgment $UserNum
             pt_pin_tmp=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
             ## 定义格式化后的pt_pin
             FormatPin="$(echo ${pt_pin_tmp} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
@@ -1302,6 +1335,7 @@ function Add_OwnRepo() {
         local CurrentDir=$(pwd)
         ## 导入用户的定时
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
+        [ ! -f $ListOwnScripts ] && Make_Dir $LogTmpDir && touch $ListOwnScripts
         grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
         local ExitStatus=$?
         [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
@@ -1587,7 +1621,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit ## 终止退出
+            exit                   ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1644,7 +1678,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             else
@@ -1658,7 +1692,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             fi
@@ -1684,7 +1718,7 @@ function Manage_Env() {
     }
 
     ## 修改变量
-    function ModifyValue() {
+    function ModifyEnv() {
         local VariableTmp=$1
         local OldContent NewContent Remarks InputA InputB InputC
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1717,14 +1751,19 @@ function Manage_Env() {
         2)
             local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ;;
+        3)
+            local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            Remarks=" # $3"
+            ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit ## 终止退出
+            exit                   ## 终止退出
             ;;
         esac
 
         ## 修改
         sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
+
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
         echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
@@ -1754,7 +1793,7 @@ function Manage_Env() {
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
-                        ModifyValue "${Variable}"
+                        ModifyEnv "${Variable}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
@@ -1898,7 +1937,7 @@ function Manage_Env() {
                         break
                         ;;
                     2)
-                        ModifyValue "${Variable}"
+                        ModifyEnv "${Variable}"
                         break
                         ;;
                     esac
@@ -1908,7 +1947,7 @@ function Manage_Env() {
                 echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
             fi
             ;;
-        3)
+        3 | 4)
             case $2 in
             enable | disable)
                 Variable=$3
@@ -1926,7 +1965,14 @@ function Manage_Env() {
                     ControlEnv "$2" "${Variable}"
                     ;;
                 *)
-                    ModifyValue "${Variable}" "${Value}"
+                    case $# in
+                    3)
+                        ModifyEnv "${Variable}" "${Value}"
+                        ;;
+                    4)
+                        ModifyEnv "${Variable}" "${Value}" "$4"
+                        ;;
+                    esac
                     ;;
                 esac
             else
@@ -2368,7 +2414,7 @@ case $# in
                 ;;
             -w | --wait)
                 Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定等待时间！\n"
+                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                 exit ## 终止退出
                 ;;
             -p | --proxy)
@@ -2377,7 +2423,7 @@ case $# in
                     DOWNLOAD_PROXY="true"
                 else
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -2389,7 +2435,19 @@ case $# in
                 ;;
             -c | --cookie)
                 Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
+                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
+                exit ## 终止退出
+                ;;
+            -g | --grouping)
+                Help
+                case ${RUN_MODE} in
+                normal)
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定分组运行账号！\n"
+                    ;;
+                concurrent)
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    ;;
+                esac
                 exit ## 终止退出
                 ;;
             -b | --background)
@@ -2399,14 +2457,14 @@ case $# in
                     ;;
                 concurrent)
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
                 ;;
             *)
                 Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
                 exit ## 终止退出
                 ;;
             esac
@@ -2476,7 +2534,7 @@ case $# in
     ;;
 
 ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
-4 | 5 | 6 | 7 | 8 | 9 | 10 | 11)
+4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13)
     case $2 in
     now | conc)
         ## 定义执行内容，下面的判断会把参数打乱
@@ -2509,7 +2567,7 @@ case $# in
                     fi
                 else
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定等待时间！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -2519,7 +2577,7 @@ case $# in
                     DOWNLOAD_PROXY="true"
                 else
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -2531,21 +2589,68 @@ case $# in
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    echo "$4" | grep -Eq "[a-zA-Z\.;:/\!#$%^&*|]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
                         Help
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                         exit ## 终止退出
                     else
-                        RUN_DESIGNATED="true"
-                        DESIGNATED_NUMS="$4"
-                        shift
+                        if [[ ${RUN_GROUPING} == true ]]; then
+                            Help
+                            echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
+                            exit ## 终止退出
+                        else
+                            RUN_DESIGNATED="true"
+                            DESIGNATED_NUMS="$4"
+                            shift
+                        fi
                     fi
                 else
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请在该参数后指定运行账号！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
                     exit ## 终止退出
                 fi
+                ;;
+            -g | --grouping)
+                case ${RUN_MODE} in
+                normal)
+                    if [[ $4 ]]; then
+                        echo "$4" | grep -Eq "[a-zA-Z\.:/\!#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                        if [ $? -eq 0 ]; then
+                            Help
+                            echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                            exit ## 终止退出
+                        else
+                            if [[ ${RUN_DESIGNATED} == true ]]; then
+                                Help
+                                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
+                                exit ## 终止退出
+                            else
+                                ## 判断是否已分组
+                                echo "$4" | grep -Eq ";"
+                                if [ $? -eq 0 ]; then
+                                    RUN_GROUPING="true"
+                                    GROUPING_NUMS="$4"
+                                    shift
+                                else
+                                    Help
+                                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，请定义账号分组否则请使用指定账号参数！\n"
+                                    exit ## 终止退出
+                                fi
+                            fi
+                        fi
+                    else
+                        Help
+                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定分组运行账号！\n"
+                        exit ## 终止退出
+                    fi
+                    ;;
+                concurrent)
+                    Help
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    exit ## 终止退出
+                    ;;
+                esac
                 ;;
             -b | --background)
                 case ${RUN_MODE} in
@@ -2554,14 +2659,14 @@ case $# in
                     ;;
                 concurrent)
                     Help
-                    echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，该参数仅适用于普通执行！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
                 ;;
             *)
                 Help
-                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，请确认后重新输入！\n"
+                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
                 exit ## 终止退出
                 ;;
             esac
@@ -2577,24 +2682,7 @@ case $# in
             ;;
         esac
         ;;
-    edit)
-        case $1 in
-        env)
-            case $# in
-            4)
-                Manage_Env $2 $3 "$4"
-                ;;
-            *)
-                Output_Command_Error 2 ## 命令过多
-                ;;
-            esac
-            ;;
-        *)
-            Output_Command_Error 1 ## 命令错误
-            ;;
-        esac
-        ;;
-    add)
+    add | edit)
         case $1 in
         env)
             case $# in

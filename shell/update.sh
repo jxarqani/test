@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-15
+## Modified: 2022-01-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -8,9 +8,9 @@ ShellDir=${WORK_DIR}/shell
 ## 定义 Scripts 仓库
 ScriptsBranch=${ScriptsRepoBranch}
 if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
-    ScriptsUrl=${ScriptsRepoGitUrl}
+    ScriptsUrl=${ScriptsRepoUrl}
 else
-    ScriptsUrl="${GithubProxy}${ScriptsRepoGitUrl}"
+    ScriptsUrl="${GithubProxy}${ScriptsRepoUrl}"
 fi
 
 ## 创建日志文件夹
@@ -147,6 +147,7 @@ function Gen_ListOwn() {
     local CurrentDir=$(pwd)
     ## 导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
+    [ ! -f $ListOwnScripts ] && Make_Dir $LogTmpDir && touch $ListOwnScripts
     grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
     local ExitStatus=$?
     [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
@@ -312,10 +313,18 @@ function Add_Cron_Scripts() {
         local Detail=$(cat $ListAdd)
         for cron in $Detail; do
             ## 新增定时任务自动禁用
-            if [[ ${DisableNewCron} == true ]]; then
-                cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
+            if [[ $cron == jd_bean_sign ]]; then
+                if [[ ${DisableNewCron} == true ]]; then
+                    echo "# 4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
+                else
+                    echo "4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
+                fi
             else
-                cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|" >>$ListCrontabUser
+                if [[ ${DisableNewCron} == true ]]; then
+                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
+                else
+                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|" >>$ListCrontabUser
+                fi
             fi
         done
         ExitStatus=$?
