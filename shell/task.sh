@@ -2442,7 +2442,7 @@ case $# in
                 Help
                 case ${RUN_MODE} in
                 normal)
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定分组运行账号！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
                     ;;
                 concurrent)
                     echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
@@ -2589,7 +2589,7 @@ case $# in
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[a-zA-Z\.;:/\!#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    echo "$4" | grep -Eq "[a-zA-Z\.;:/\!@#$^&*|]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
                         Help
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2615,7 +2615,7 @@ case $# in
                 case ${RUN_MODE} in
                 normal)
                     if [[ $4 ]]; then
-                        echo "$4" | grep -Eq "[a-zA-Z\.:/\!#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                        echo "$4" | grep -Eq "[a-zA-Z\.;:/\!#$^&*|]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
                             Help
                             echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2641,7 +2641,7 @@ case $# in
                         fi
                     else
                         Help
-                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定分组运行账号！\n"
+                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
                         exit ## 终止退出
                     fi
                     ;;
