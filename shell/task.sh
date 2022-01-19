@@ -591,8 +591,8 @@ function Run_Normal() {
         local Groups=$(echo ${GROUPING_NUMS} | perl -pe "{s|;| |g}")
         ## 等待执行
         RunWait
-        for GROUP in ${Groups}; do
-            local Accounts=$(echo ${GROUP} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+        for g in ${Groups}; do
+            local Accounts=$(echo ${g} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
             Designated_Account ${Accounts}
             ## 执行脚本
             Main
