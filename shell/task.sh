@@ -2627,7 +2627,7 @@ case $# in
                                 exit ## 终止退出
                             else
                                 ## 判断是否已分组
-                                echo "$4" | grep -Eq ";"
+                                echo "$4" | grep -Eq "@"
                                 if [ $? -eq 0 ]; then
                                     RUN_GROUPING="true"
                                     GROUPING_VALUE="$4"
