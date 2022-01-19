@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-17
+## Modified: 2022-01-20
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -87,7 +87,7 @@ ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_ene
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
-GithubProxy="https://ghproxy.com/"
+GithubProxy="https://endpoint.fastgit.org/"
 ScriptsRepoBranch="jd_scripts"
 ScriptsRepoGitUrl="https://github.com/Aaron-lv/sync.git"
 BotRepoGitUrl="${GithubProxy}https://github.com/SuMaiKaDe/bot.git"
