@@ -107,7 +107,7 @@ OwnRepoCronShielding=""
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
 # 导入前请先确认目标脚本中是否含有 `Crontab 表达式`，如若没有或者未识别到那么将随机指定一个每天执行一次的定时
 # 注意缩进和格式，每行开头两个或四个空格，一行一个脚本链接，首尾一对半角括号
-# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://endpoint.fastgit.org/
+# 如果没有外网环境不能有效连通 Github 建议使用代理，推荐 jsDelivr，可使用官方转换工具一键转换为代理链接 https://www.jsdelivr.com/github
 
 OwnRawFile=(
 )
@@ -115,8 +115,8 @@ OwnRawFile=(
 # 示例：
 # OwnRawFile=(
 #   https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-#   https://endpoint.fastgit.org/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
-#   https://endpoint.fastgit.org/https://github.com/sunsem/qx/raw/main/z_dida.js
+#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/jd_dudi.js
+#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/z_dida.js
 # )
 
 ## Raw 脚本定时任务开关（自动增加/自动删除）
