@@ -75,10 +75,10 @@ PURPLE='\033[35m'
 AZURE='\033[36m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
-SUCCESS="[ ${GREEN}成  功${PLAIN} ]"
-COMPLETE="[ ${GREEN}完  成${PLAIN} ]"
-WARN="[ ${YELLOW}警  告${PLAIN} ]"
-ERROR="[ ${RED}错  误${PLAIN} ]"
+SUCCESS="[${GREEN}成功${PLAIN}]"
+COMPLETE="[${GREEN}完成${PLAIN}]"
+WARN="[${YELLOW}警告${PLAIN}]"
+ERROR="[${RED}错误${PLAIN}]"
 WORKING="[${AZURE}正在运行${PLAIN}]"
 EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
@@ -327,8 +327,8 @@ function Help() {
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"@\" 表示账号总数
-    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \";\" 隔开
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
@@ -371,8 +371,8 @@ function Help() {
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"@\" 表示账号总数
-    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \";\" 隔开
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;

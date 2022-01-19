@@ -588,11 +588,11 @@ function Run_Normal() {
     ## 账号分组
     if [[ ${RUN_GROUPING} == true ]]; then
         ## 定义分组
-        local Groups=$(echo ${GROUPING_NUMS} | perl -pe "{s|;| |g}")
+        local Groups=$(echo ${GROUPING_VALUE} | perl -pe "{s|@| |g}")
         ## 等待执行
         RunWait
         for g in ${Groups}; do
-            local Accounts=$(echo ${g} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+            local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account ${Accounts}
             ## 执行脚本
             Main
@@ -602,7 +602,7 @@ function Run_Normal() {
     else
         ## 指定账号
         if [[ ${RUN_DESIGNATED} == true ]]; then
-            local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+            local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account ${Accounts}
         else
             ## 加载全部账号
@@ -681,7 +681,7 @@ function Run_Concurrent() {
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
-        local Accounts=$(echo ${DESIGNATED_NUMS} | perl -pe "{s|@|${UserSum}|g, s|,| |g}")
+        local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
         for UserNum in ${Accounts}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -2601,7 +2601,7 @@ case $# in
                             exit ## 终止退出
                         else
                             RUN_DESIGNATED="true"
-                            DESIGNATED_NUMS="$4"
+                            DESIGNATED_VALUE="$4"
                             shift
                         fi
                     fi
@@ -2630,7 +2630,7 @@ case $# in
                                 echo "$4" | grep -Eq ";"
                                 if [ $? -eq 0 ]; then
                                     RUN_GROUPING="true"
-                                    GROUPING_NUMS="$4"
+                                    GROUPING_VALUE="$4"
                                     shift
                                 else
                                     Help
