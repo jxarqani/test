@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -489,7 +489,7 @@ function Update_RawFile() {
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
             ## 拉取脚本
-            DownloadUrl="${InputContent}"
+            DownloadUrl=${OwnRawFile[i]}
             echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         fi
