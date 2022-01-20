@@ -10,7 +10,7 @@ ScriptsBranch=${ScriptsRepoBranch}
 if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
     ScriptsUrl=${ScriptsRepoUrl}
 else
-    ScriptsUrl="${GithubProxy}${ScriptsRepoUrl}"
+    ScriptsUrl=$(echo ${ScriptsRepoUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}')
 fi
 
 ## 创建日志文件夹
