@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -246,13 +246,13 @@ function Find_Script() {
         RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
         case ${RepoName} in
         github)
-            RepoJudge="GitHub"
+            RepoJudge=" GitHub "
             ;;
         gitee)
-            RepoJudge="Gitee"
+            RepoJudge=" Gitee "
             ;;
         gitlab)
-            RepoJudge="GitLab"
+            RepoJudge=" GitLab "
             ;;
         *)
             RepoJudge=""
@@ -262,14 +262,14 @@ function Find_Script() {
         ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
-            if [[ ${RepoJudge} == "GitHub" ]]; then
+            if [[ ${RepoJudge} == " GitHub " ]]; then
                 echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
                 if [ $? -eq 0 ]; then
                     FormatInputContent=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
                 else
                     FormatInputContent=${InputContent}
                 fi
-            elif [[ ${RepoJudge} == "Gitee" ]]; then
+            elif [[ ${RepoJudge} == " Gitee " ]]; then
                 FormatInputContent=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
             else
                 FormatInputContent=${InputContent}
@@ -288,7 +288,7 @@ function Find_Script() {
         fi
 
         ## 拉取脚本
-        echo -en "\n$WORKING 正在从 ${BLUE}${RepoJudge}${PLAIN} 远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
+        echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
         wget -q --no-check-certificate "${DownloadJudge}${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
         echo ''
@@ -1471,7 +1471,7 @@ function Add_RawFile() {
         exit ## 终止退出
     fi
     ## 判断脚本来源（ 托管仓库 or 普通网站 ）
-    echo ${InputContent} | grep -Eq "github\.com|gitee\.com|gitlab\.com"
+    echo ${InputContent} | grep -Eq "github|gitee|gitlab"
     if [ $? -eq 0 ]; then
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
