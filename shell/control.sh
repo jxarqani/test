@@ -242,7 +242,7 @@ function Bot_Control() {
             if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
                 git remote set-url origin ${BotRepoGitUrl} >/dev/null
             else
-                git remote set-url origin ${GithubProxy}${BotRepoGitUrl} >/dev/null
+                git remote set-url origin $(echo ${BotRepoGitUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}') >/dev/null
             fi
             git reset --hard origin/main >/dev/null
             git fetch --all
@@ -255,7 +255,7 @@ function Bot_Control() {
             if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
                 git clone -b main ${BotRepoGitUrl} $BotRepoDir
             else
-                git clone -b main ${GithubProxy}${BotRepoGitUrl} $BotRepoDir
+                git clone -b main $(echo ${BotRepoGitUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}') $BotRepoDir
             fi
             local ExitStatusBot=$?
         fi
