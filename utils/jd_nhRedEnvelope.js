@@ -133,7 +133,7 @@ let timeH = $.time('H')
   }
   if(Object.getOwnPropertyNames($.shareCodeArr).length > 0 && $.shareCodeArr["updateTime"] != pinUpdateTime) $.setdata($.shareCodeArr,'JX_SHARE_CODE')
   if(message){
-    $.msg($.name, ``, `${message}\nhttps://u.jd.com/SCdH83Z\n\n跳转到app 可查看助力情况`);
+    $.msg($.name, ``, `${message}\nhttps://u.jd.com/PtLV4rV\n\n跳转到app 可查看助力情况`);
     if ($.isNode()){
       // await notify.sendNotify(`${$.name}`, `${message}\n\nhttps://u.jd.com/SIMHz54\n跳转到app 可查看助力情况`);
     }
@@ -144,7 +144,7 @@ let timeH = $.time('H')
 
 async function run(type = 0){
   try{
-    rebateCodes = ['SdIdGkO', 'SCdH83Z', 'SMIdOOm'];
+    rebateCodes = ['SdIdGkO', 'PtLV4rV', 'SMIdOOm'];
     rebateCodes = rebateCodes[Math.floor((Math.random() * rebateCodes.length))]
     rebateCodes = $.isNode() ? (process.env.JX_CODE ? process.env.JX_CODE : `${rebateCodes}`) : ($.getdata('JX_CODE') ? $.getdata('JX_CODE') : `${rebateCodes}`);
     rebateCode = rebateCodes
