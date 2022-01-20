@@ -89,7 +89,7 @@ ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_ene
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
-GithubProxy=${GITHUB_PROXY:-"https://endpoint.fastgit.org/"}
+GithubProxy=${USER_PROXY_URL:-"https://endpoint.fastgit.org/"}
 ScriptsRepoBranch="jd_scripts"
 ScriptsRepoUrl="https://github.com/Aaron-lv/sync.git"
 BotRepoGitUrl="https://github.com/SuMaiKaDe/bot.git"
