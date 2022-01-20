@@ -249,10 +249,10 @@ function Find_Script() {
             RepoJudge=" GitHub "
             ;;
         gitee)
-            RepoJudge="Gitee"
+            RepoJudge=" Gitee "
             ;;
         gitlab)
-            RepoJudge="GitLab"
+            RepoJudge=" GitLab "
             ;;
         *)
             RepoJudge=""
@@ -269,7 +269,7 @@ function Find_Script() {
                 else
                     FormatInputContent=${InputContent}
                 fi
-            elif [[ ${RepoJudge} == "Gitee" ]]; then
+            elif [[ ${RepoJudge} == " Gitee " ]]; then
                 FormatInputContent=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
             else
                 FormatInputContent=${InputContent}
