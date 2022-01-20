@@ -475,7 +475,7 @@ function NoPushNotify() {
 ## 普通执行
 function Run_Normal() {
     local InputContent=$1
-    local UserNum LogFile COOKIE_TMP
+    local UserNum LogFile
     ## 匹配脚本
     Find_Script ${InputContent}
     ## 导入配置文件
@@ -537,7 +537,7 @@ function Run_Normal() {
 
     ## 组合账号变量
     function Combin_Designated_Cookie() {
-        local Num=$1
+        local Num="$1"
         local Tmp1=Cookie$Num
         local Tmp2=${!Tmp1}
         local CombinAll="${COOKIE_TMP}&${Tmp2}"
@@ -546,7 +546,7 @@ function Run_Normal() {
 
     ## 指定运行账号
     function Designated_Account() {
-        local AccountsTmp=$1
+        local AccountsTmp="$1"
         for UserNum in ${AccountsTmp}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -593,7 +593,7 @@ function Run_Normal() {
         RunWait
         for g in ${Groups}; do
             local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
-            Designated_Account ${Accounts}
+            Designated_Account "${Accounts}"
             ## 执行脚本
             Main
             ## 重新组合变量
@@ -603,7 +603,7 @@ function Run_Normal() {
         ## 指定账号
         if [[ ${RUN_DESIGNATED} == true ]]; then
             local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
-            Designated_Account ${Accounts}
+            Designated_Account "${Accounts}"
         else
             ## 加载全部账号
             Combin_AllCookie
