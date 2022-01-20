@@ -1,6 +1,6 @@
-## Version: v1.09.2
-## Date: 2022-01-18
-## Update Content: 1. 删除了一些无效变量
+## Version: v1.10.0
+## Date: 2022-01-20
+## Update Content: 1. 新增定义 "东东农场是否储存水滴（选填）" 控制脚本功能类环境变量 2. 修改了部分注释内容 3. 删除了一些无效变量
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -24,21 +24,18 @@ Cookie2=""
 ## ❖ 账号临时屏蔽功能（选填）
 # 如果某些 Cookie 已经失效了但暂时还没法更新，可以使用此功能在不做任何更改的前提下临时屏蔽掉某些编号的 Cookie
 # 全局屏蔽 Cookie，举例：TempBlockCookie="2 4" 临时屏蔽掉 Cookie2 和 Cookie4
-# 该功能在指定账号执行脚本时所有屏蔽设置均不会生效
+# 注意在使用指定账号或分组账号参数运行脚本时所有屏蔽设置均不会生效
 TempBlockCookie=""
 
-# 如果只是想要屏蔽某个账号不玩某些小游戏，可以参考下面 case 这个命令的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
-# 实际使用时需注意对应脚本的执行方式，例如您 case 例子中填写的是 jd_test，那么执行 task jd_test 才能生效
-# 反之如果执行 task jd_test.js 或者 task test 都是不生效的，同时注意该 case 语句的语法
+# 如果只想屏蔽某账号不执行特定脚本，可以参考下面这个 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
+# 脚本名称请去掉后缀格式否则不能被识别，若同时与全局屏蔽使用则应确保全局屏蔽的账号也在其中，因为当执行对应脚本时变量会被二次覆盖
+# 代码示例：
 # case $1 in
-# jd_fruit)
-#   TempBlockCookie="5"      # 账号5不玩东东农场
+# test)
+#   TempBlockCookie="5"      # 账号5不执行 test 脚本
 #   ;;
-# jd_dreamFactory | jd_jdfactory)
-#   TempBlockCookie="2"      # 账号2不玩京喜工厂和东东工厂
-#   ;;
-# jd_jdzz | jd_joy)
-#   TempBlockCookie="3 6"    # 账号3、账号6不玩京东赚赚和宠汪汪
+# utils | warp)
+#   TempBlockCookie="3 6"    # 账号3、账号6不执行 utils 和 warp 脚本
 #   ;;
 # esac
 
@@ -57,7 +54,7 @@ TempBlockCookie=""
 
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
-# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
+# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://endpoint.fastgit.org/
 
 OwnRepoUrl1=""
 OwnRepoUrl2=""
@@ -75,13 +72,13 @@ OwnRepoPath2=""
 #              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中OwnRepoPath3。
 # 所有脚本存放在 own 目录下，三个清单必须一一对应，示例如下：
 # OwnRepoUrl1="https://gitee.com/abc/jdtsa.git"
-# OwnRepoUrl2="https://ghproxy.com/https://github.com/nedcd/jxddfsa.git"
+# OwnRepoUrl2="https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git"
 # OwnRepoUrl3="git@github.com:eject/poex.git"
 # OwnRepoBranch1="master"   # 代表第1个仓库 https://gitee.com/abc/jdtsa.git 使用 "master" 主分支
-# OwnRepoBranch2="main"     # 代表第2个仓库 https://ghproxy.com/https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
+# OwnRepoBranch2="main"     # 代表第2个仓库 https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
 # OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
 # OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://ghproxy.com/https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
+# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## Own 仓库脚本定时任务开关（自动增加/自动删除）
@@ -110,7 +107,7 @@ OwnRepoCronShielding=""
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
 # 导入前请先确认目标脚本中是否含有 `Crontab 表达式`，如若没有或者未识别到那么将随机指定一个每天执行一次的定时
 # 注意缩进和格式，每行开头两个或四个空格，一行一个脚本链接，首尾一对半角括号
-# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://ghproxy.com/
+# 如果没有外网环境不能有效连通 Github 建议使用代理，推荐 jsDelivr，可使用官方转换工具一键转换为代理链接 https://www.jsdelivr.com/github
 
 OwnRawFile=(
 )
@@ -118,8 +115,8 @@ OwnRawFile=(
 # 示例：
 # OwnRawFile=(
 #   https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-#   https://ghproxy.com/https://github.com/lonfeg/loon/raw/main/jd_dudi.js
-#   https://ghproxy.com/https://github.com/sunsem/qx/raw/main/z_dida.js
+#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/jd_dudi.js
+#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/z_dida.js
 # )
 
 ## Raw 脚本定时任务开关（自动增加/自动删除）
@@ -535,6 +532,11 @@ export TUAN_ACTIVEID=""
 ## ❖  29. 定义京豆变动推送通知单次发送的用户数量（选填）
 # 默认为 10 个账户，即单次推送内容最多包含10个号的信息，若想指定单次推送的账号数量请赋值下面的变量
 export NOTIFY_PAGE_SIZE=""
+
+
+## ❖  30. 定义东东农场是否储存水滴（选填）
+# 默认为 "false"，不储存水滴，启用储存水滴后仍会使用少量的水滴用于完成任务，如需启用请修改为 "true"
+export DO_TEN_WATER_AGAIN=""
 
 
 

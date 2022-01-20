@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-17
+## Modified: 2022-01-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -39,17 +39,6 @@ function Hang_Control() {
             ExitStatus=$?
             cd $ScriptsDir
             ## 判断脚本是否存在
-            case $ScriptFiles in
-            jd_cfd_loop.js)
-                if [ -d "$ScriptsDir/.git" ]; then
-                    git remote -v | grep "Aaron-lv/sync" -wq
-                    if [ $? -ne 0 ]; then
-                        echo -e "\n$WORKING 更新挂机活动脚本..."
-                        wget -q --no-check-certificate ${GithubProxy}https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfd_loop.js -O "$ScriptsDir/jd_cfd_loop.js"
-                    fi
-                fi
-                ;;
-            esac
             if [ ! -f "$ScriptsDir/$ScriptFiles" ]; then
                 echo -e "\n$ERROR $ScriptFiles 脚本不存在！\n"
                 exit ## 终止退出
@@ -250,7 +239,11 @@ function Bot_Control() {
         if [ -d $BotRepoDir/.git ]; then
             cd $BotRepoDir
             echo -e "$WORKING 开始更新仓库\n"
-            git remote set-url origin ${BotRepoGitUrl} >/dev/null
+            if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
+                git remote set-url origin ${BotRepoGitUrl} >/dev/null
+            else
+                git remote set-url origin ${GithubProxy}${BotRepoGitUrl} >/dev/null
+            fi
             git reset --hard origin/main >/dev/null
             git fetch --all
             local ExitStatusBot=$?
@@ -259,14 +252,19 @@ function Bot_Control() {
         else
             echo -e "$WORKING 开始克隆仓库...\n"
             rm -rf $BotRepoDir
-            git clone -b main ${BotRepoGitUrl} $BotRepoDir
+            if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
+                git clone -b main ${BotRepoGitUrl} $BotRepoDir
+            else
+                git clone -b main ${GithubProxy}${BotRepoGitUrl} $BotRepoDir
+            fi
             local ExitStatusBot=$?
         fi
         if [[ ${ExitStatusBot} -eq 0 ]]; then
             echo -e "\n$SUCCESS 仓库更新完成\n"
             sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
         else
-            echo -e "\n$ERROR 仓库更新失败，请检查原因后重试！\n"
+            echo -e "\n$ERROR 仓库克隆失败，请检查原因后重试！\n"
+            exit ## 终止退出
         fi
 
         if [ ! -s $ConfigDir/bot.json ]; then

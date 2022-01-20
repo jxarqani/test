@@ -71,15 +71,17 @@ RED='\033[31m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
 BLUE='\033[34m'
+PURPLE='\033[35m'
+AZURE='\033[36m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
-SUCCESS='[\033[32mOK\033[0m]'
-COMPLETE='[\033[32mDone\033[0m]'
-WARN='[\033[33mWARN\033[0m]'
-ERROR='[\033[31mERROR\033[0m]'
-WORKING='[\033[34m*\033[0m]'
-EXAMPLE='[\033[32m参考命令\033[0m]'
-TIPS='[\033[32m友情提示\033[0m]'
+SUCCESS="[${GREEN}OK${PLAIN}]"
+COMPLETE="[${GREEN}DONE${PLAIN}]"
+WARN="[${YELLOW}WARN${PLAIN}]"
+ERROR="[${RED}ERROR${PLAIN}]"
+WORKING="[${AZURE}*${PLAIN}]"
+EXAMPLE="[${GREEN}参考命令${PLAIN}]"
+TIPS="[${GREEN}友情提示${PLAIN}]"
 COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
 RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
@@ -87,10 +89,10 @@ ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_ene
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
-GithubProxy="https://endpoint.fastgit.org/"
+GithubProxy=${GITHUB_PROXY:-"https://endpoint.fastgit.org/"}
 ScriptsRepoBranch="jd_scripts"
-ScriptsRepoGitUrl="https://github.com/Aaron-lv/sync.git"
-BotRepoGitUrl="${GithubProxy}https://github.com/SuMaiKaDe/bot.git"
+ScriptsRepoUrl="https://github.com/Aaron-lv/sync.git"
+BotRepoGitUrl="https://github.com/SuMaiKaDe/bot.git"
 SignsRepoGitUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
 
 ## 用于组合互助码的数组（保留部分限时活动变量）
@@ -241,8 +243,8 @@ function Combin_ShareCodes() {
     export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
 }
 
-## 组合Cookie
-function Combin_Cookie() {
+## 组合全部Cookie
+function Combin_AllCookie() {
     export JD_COOKIE=$(Combin_Sub Cookie)
 }
 
@@ -289,7 +291,7 @@ function Help() {
     case ${ARCH} in
     armv7l | armv6l)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/b>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/g/b>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
 
@@ -325,13 +327,14 @@ function Help() {
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号运行，参数后面需跟账号序号，多个需用 \",\" 隔开，账号区间用 \"-\" 连接
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
     *)
         echo -e "
- ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/b>${PLAIN}
+ ❖  ${BLUE}$TaskCmd <name/path/url> now${PLAIN}          ✧ 普通执行，前台运行并在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c/g/b>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path/url> conc${PLAIN}         ✧ 并发执行，后台运行不在命令行输出进度，可选参数(支持多个，加在末尾)：${BLUE}-<m/w/p/r/d/c>${PLAIN}
  ❖  ${BLUE}$TaskCmd <name/path> pkill${PLAIN}            ✧ 终止执行，根据脚本匹配对应的进程并立即杀死，脚本死循环时建议使用
  ❖  ${BLUE}source runall${PLAIN}                     ✧ 全部执行，在选择运行模式后执行指定范围的脚本(交互)，非常耗时不要盲目使用
@@ -368,7 +371,8 @@ function Help() {
     ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号运行，参数后面需跟账号序号，多个需用 \",\" 隔开，账号区间用 \"-\" 连接
+    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后面需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
