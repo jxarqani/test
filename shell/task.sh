@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-21
+## Modified: 2022-01-22
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -322,7 +322,7 @@ function Find_Script() {
             RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
-            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
+            echo -e "\n$FAIL 脚本 ${FileNameTmp} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
             exit ## 终止退出
         fi
     }
@@ -759,7 +759,7 @@ function Process_Kill() {
         ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
         if [ $? -eq 0 ]; then
             ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
-            echo -e "\n$ERROR 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
+            echo -e "\n$FAIL 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
@@ -1147,7 +1147,7 @@ function Cookies_Control() {
                     fi
                     [ -f $FileSendMark ] && rm -rf $FileSendMark
                 else
-                    echo -e "\n$ERROR 签名更新失败，请检查网络环境后重试！\n"
+                    echo -e "\n$FAIL 签名更新失败，请检查网络环境后重试！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 ws_key ！\n"
@@ -1221,7 +1221,7 @@ function Add_OwnRepo() {
             git clone -b ${RepoBranch} ${RepoUrl} $RepoDir
         fi
         if [ $? -ne 0 ]; then
-            echo -e "\n$ERROR 仓库克隆失败，请检查信息是否正确！\n"
+            echo -e "\n$FAIL 仓库克隆失败，请检查信息是否正确！\n"
             exit ## 终止退出
         fi
         ## 确定分支名
@@ -1273,7 +1273,7 @@ function Add_OwnRepo() {
         if [[ $ExitStatus -eq 0 ]]; then
             echo -e "\n$COMPLETE 变量已添加"
         else
-            echo -e "\n$ERROR 变量添加失败"
+            echo -e "\n$FAIL 变量添加失败"
         fi
     }
 
@@ -1428,7 +1428,7 @@ function Add_OwnRepo() {
                     cat $ListCrontabOwnTmp | perl -pe "{s|^|${GREEN}+${PLAIN} |g}"
                     echo -e "\n$COMPLETE 定时任务已添加"
                 else
-                    echo -e "\n$ERROR 定时任务添加失败"
+                    echo -e "\n$FAIL 定时任务添加失败"
                 fi
                 [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
             else
@@ -1537,7 +1537,7 @@ function Add_RawFile() {
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -1572,7 +1572,7 @@ function Add_RawFile() {
                     echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
                     echo -e "\n$COMPLETE 定时任务已添加"
                 else
-                    echo -e "\n$ERROR 定时任务添加失败"
+                    echo -e "\n$FAIL 定时任务添加失败"
                 fi
             else
                 echo -e "\n$WARN 该脚本定时任务已存在，跳过添加"
@@ -1594,12 +1594,12 @@ function Add_RawFile() {
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
         else
-            echo -e "\n$ERROR 变量添加失败\n"
+            echo -e "\n$FAIL 变量添加失败\n"
         fi
 
     else
         [ -f "$RawDir/${RawFileName}.new" ] && rm -rf "$RawDir/${RawFileName}.new"
-        echo -e "\n$ERROR 脚本 ${RawFileName} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
+        echo -e "\n$FAIL 脚本 ${RawFileName} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
         exit ## 终止退出
     fi
 }
@@ -1704,7 +1704,7 @@ function Manage_Env() {
         echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
-            echo -e "\n$ERROR 环境变量修改失败\n"
+            echo -e "\n$FAIL 环境变量修改失败\n"
         else
             case ${Mod} in
             enable)
@@ -1771,9 +1771,9 @@ function Manage_Env() {
         grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
         local ExitStatus=$?
         if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n$COMPLETE 修改完毕\n"
+            echo -e "\n$COMPLETE 环境变量修改完毕\n"
         else
-            echo -e "\n$ERROR 修改失败\n"
+            echo -e "\n$FAIL 环境变量修改失败\n"
         fi
     }
 
