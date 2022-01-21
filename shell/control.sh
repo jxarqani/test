@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-22
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -134,7 +134,7 @@ function Panel_Control() {
                 if [[ ${ServiceNewStatus} == "online" ]]; then
                     echo -e "\n$SUCCESS 修复成功！\n"
                 else
-                    echo -e "\n$ERROR 修复失败，请检查原因后重试！\n"
+                    echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
                 fi
                 ;;
             esac
@@ -148,7 +148,7 @@ function Panel_Control() {
             if [[ ${ServiceStatus} == "online" ]]; then
                 echo -e "\n$SUCCESS 控制面板启动成功\n"
             else
-                echo -e "\n$ERROR 控制面板启动失败，请检查原因后重试！\n"
+                echo -e "\n$FAIL 控制面板启动失败，请检查原因后重试！\n"
             fi
         fi
         if [[ ${ExitStatusTTYD} -eq 0 ]]; then
@@ -173,7 +173,7 @@ function Panel_Control() {
                 if [[ ${ServiceNewStatus} == "online" ]]; then
                     echo -e "\n$SUCCESS 修复成功！\n"
                 else
-                    echo -e "\n$ERROR 修复失败，请检查原因后重试！\n"
+                    echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
                 fi
                 ;;
             esac
@@ -186,7 +186,7 @@ function Panel_Control() {
             if [[ ${ServiceStatus} == "online" ]]; then
                 echo -e "\n$SUCCESS 网页终端启动成功\n"
             else
-                echo -e "\n$ERROR 网页终端启动失败，请检查原因后重试！\n"
+                echo -e "\n$FAIL 网页终端启动失败，请检查原因后重试！\n"
             fi
         fi
         ;;
@@ -233,7 +233,7 @@ function Bot_Control() {
         if [ $? -eq 0 ]; then
             echo -e "\n$SUCCESS 依赖安装完成\n"
         else
-            echo -e "\n$ERROR 依赖安装失败，请检查原因后重试！\n"
+            echo -e "\n$FAIL 依赖安装失败，请检查原因后重试！\n"
         fi
         ## 拉取组件
         if [ -d $BotRepoDir/.git ]; then
@@ -263,7 +263,7 @@ function Bot_Control() {
             echo -e "\n$SUCCESS 仓库更新完成\n"
             sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
         else
-            echo -e "\n$ERROR 仓库克隆失败，请检查原因后重试！\n"
+            echo -e "\n$FAIL 仓库克隆失败，请检查原因后重试！\n"
             exit ## 终止退出
         fi
 
@@ -280,7 +280,7 @@ function Bot_Control() {
         if [[ $? -eq 0 ]]; then
             echo -e "\n$SUCCESS 模块安装完成\n"
         else
-            echo -e "\n$ERROR 模块安装失败，请检查原因后重试！\n"
+            echo -e "\n$FAIL 模块安装失败，请检查原因后重试！\n"
         fi
     }
 
@@ -310,7 +310,7 @@ function Bot_Control() {
                         if [[ ${ServiceNewStatus} == "online" ]]; then
                             echo -e "\n$COMPLETE Telegram Bot 已重启\n"
                         else
-                            echo -e "\n$ERROR 重启失败，请检查原因后重试！\n"
+                            echo -e "\n$FAIL 重启失败，请检查原因后重试！\n"
                         fi
                         ;;
                     stopped)
@@ -320,7 +320,7 @@ function Bot_Control() {
                         if [[ ${ServiceNewStatus} == "online" ]]; then
                             echo -e "\n$COMPLETE Telegram Bot 已重新启动\n"
                         else
-                            echo -e "\n$ERROR 启动失败，请检查原因后重试！\n"
+                            echo -e "\n$FAIL 启动失败，请检查原因后重试！\n"
                         fi
                         ;;
                     errored)
@@ -336,7 +336,7 @@ function Bot_Control() {
                         if [[ ${ServiceNewStatus} == "online" ]]; then
                             echo -e "\n$SUCCESS 修复成功！\n"
                         else
-                            echo -e "\n$ERROR 修复失败，请检查原因后重试！\n"
+                            echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
                         fi
                         ;;
                     esac
@@ -350,7 +350,7 @@ function Bot_Control() {
                     if [[ ${ServiceStatus} == "online" ]]; then
                         echo -e "\n$SUCCESS Telegram Bot 启动成功\n"
                     else
-                        echo -e "\n$ERROR Telegram Bot 启动失败，请检查原因后重试！\n"
+                        echo -e "\n$FAIL Telegram Bot 启动失败，请检查原因后重试！\n"
                     fi
                 fi
                 ;;
