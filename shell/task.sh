@@ -254,7 +254,7 @@ function Find_Script() {
         gitlab)
             RepoJudge=" GitLab "
             ;;
-        cdn.jsdelivr.net/gh/)
+        cdn\.jsdelivr\.net/gh/)
             RepoJudge=" GitHub "
             ;;
         *)
