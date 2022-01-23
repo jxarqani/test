@@ -49,21 +49,37 @@ for author in $author_list; do
   eval url_list=\$scripts_base_url_${index}
   #echo $url_list
 
+  echo ${url_list} | grep -Eq "cdn\.jsdelivr\.net\/gh\/"
+  if [ $? -eq 0 ]; then
+    if [[ ${ProxyJudge} == false ]]; then
+      url_list=$(echo ${url_list} | perl -pe "{s|cdn\.jsdelivr\.net\/gh|raw\.githubusercontent\.com|g; s|\@|\/|g}")
+    fi
+  fi
+
   ## 判断脚本来源仓库
-  format_url=$(echo $url_list | awk -F '.com' '{print$NF}' | sed 's/.$//')
-  if [[ $(echo $url_list | grep -Eo "github|gitee") == "github" ]]; then
+  repository_judge=$(echo $url_list | grep -Eo "github|gitee|jsdelivr")
+  download_judge=""
+  repository_platform=""
+  reformat_url=""
+  if [[ ${repository_judge} == "github" ]]; then
+    repository_platform="https://github.com"
+    repository_branch=$(echo $url_list | awk -F '.com' '{print$NF}' | sed 's/.$//' | awk -F '/' '{print$4}')
+    reformat_url=$(echo $url_list | awk -F '.com' '{print$NF}' | perl -pe "{s|.$||g; s|$repository_branch|tree\/$repository_branch|g}")
+    [[ ${ProxyJudge} == true ]] && download_judge="(代理)"
+  elif [[ ${repository_judge} == "gitee" ]]; then
+    repository_platform="https://gitee.com"
+    reformat_url=$(echo $url_list | awk -F '.com' '{print$NF}' | perl -pe "{s|.$||g; s|\/raw\/|\/tree\/|g}")
+  elif [[ ${repository_judge} == "jsdelivr" ]]; then
     repository_platform="https://github.com"
     repository_branch=$(echo $format_url | awk -F '/' '{print$4}')
-    reformat_url=$(echo $format_url | sed "s|$repository_branch|tree/$repository_branch|g")
-    [[ ${EnableExtraShellProxy} == true ]] && DownloadJudge="(代理)" || DownloadJudge=""
-  elif [[ $(echo $url_list | grep -Eo "github|gitee") == "gitee" ]]; then
-    repository_platform="https://gitee.com"
-    reformat_url=$(echo $format_url | sed "s|/raw/|/tree/|g")
-    DownloadJudge=""
+    reformat_url=$(echo $url_list | awk -F '/gh' '{print$NF}' | perl -pe "{s|.$||g; s|\@|\/tree\/|g}")
+    download_judge="(代理)"
   fi
-  repository_url="$repository_platform$reformat_url"
-  echo -e "[${YELLOW}更新${PLAIN}] ${!author} ${DownloadJudge}"
-  echo -e "[${YELLOW}仓库${PLAIN}] $repository_url"
+  repository_url="${repository_platform}${reformat_url}"
+
+  echo -e "[${YELLOW}更新${PLAIN}] ${!author} ${download_judge}"
+  [[ ${repository_url} ]] && echo -e "[${YELLOW}仓库${PLAIN}] $repository_url"
+
 
   for js in $scripts_list; do
     eval url=$url_list$js

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-22
+## Modified: 2022-01-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -485,12 +485,12 @@ function Update_RawFile() {
                 ;;
             esac
             ## 拉取脚本
-            echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本..."
+            echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
             ## 拉取脚本
             DownloadUrl=${OwnRawFile[i]}
-            echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
+            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         fi
         if [ $? -eq 0 ]; then

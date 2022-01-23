@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-22
+## Modified: 2022-01-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -243,7 +243,7 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库
-        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
+        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|cdn\.jsdelivr\.net\/gh\/")
         case ${RepoName} in
         github)
             RepoJudge=" GitHub "
@@ -253,6 +253,9 @@ function Find_Script() {
             ;;
         gitlab)
             RepoJudge=" GitLab "
+            ;;
+        cdn\.jsdelivr\.net\/gh\/)
+            RepoJudge=" GitHub "
             ;;
         *)
             RepoJudge=""
@@ -358,7 +361,7 @@ function Find_Script() {
     case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
-            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！\n"
+            echo -e "\n$ERROR 检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！\n"
             exit ## 终止退出
         fi
         case ${FileFormat} in
@@ -1520,12 +1523,12 @@ function Add_RawFile() {
             ;;
         esac
         ## 拉取脚本
-        echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     else
         ## 拉取脚本
         DownloadUrl="${InputContent}"
-        echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     fi
 

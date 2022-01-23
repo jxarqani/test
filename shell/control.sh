@@ -481,10 +481,10 @@ function Environment_Deployment() {
             echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
             ;;
         *)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python & TypeScript 运行环境...\n"
+            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
             ;;
         esac
-        echo -e "${GREEN}Tips:${PLAIN} 忽略 ${YELLOW}[WARN]${PLAIN} 警告类输出内容，如有 ${RED}[ERR!]${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
+        echo -e "$TIPS 忽略 ${YELLOW}WARN${PLAIN} 警告类输出内容，如有 ${RED}ERR!${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
         npm install -g npm npm-install-peers
         case ${ARCH} in
         armv7l | armv6l)
