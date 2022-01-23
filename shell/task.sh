@@ -243,9 +243,9 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库
-        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|cdn\.jsdelivr\.net\/gh\/")
+        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|jsdelivr")
         case ${RepoName} in
-        github)
+        github | jsdelivr)
             RepoJudge=" GitHub "
             ;;
         gitee)
@@ -253,9 +253,6 @@ function Find_Script() {
             ;;
         gitlab)
             RepoJudge=" GitLab "
-            ;;
-        cdn\.jsdelivr\.net/gh/)
-            RepoJudge=" GitHub "
             ;;
         *)
             RepoJudge=""
