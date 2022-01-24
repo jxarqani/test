@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-22
+## Modified: 2022-01-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -243,9 +243,9 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库
-        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
+        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|jsdelivr")
         case ${RepoName} in
-        github)
+        github | jsdelivr)
             RepoJudge=" GitHub "
             ;;
         gitee)
@@ -358,7 +358,7 @@ function Find_Script() {
     case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
-            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！\n"
+            echo -e "\n$ERROR 检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！\n"
             exit ## 终止退出
         fi
         case ${FileFormat} in
@@ -1520,12 +1520,12 @@ function Add_RawFile() {
             ;;
         esac
         ## 拉取脚本
-        echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     else
         ## 拉取脚本
         DownloadUrl="${InputContent}"
-        echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     fi
 
@@ -1621,7 +1621,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
+            exit ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1678,7 +1678,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             else
@@ -1692,7 +1692,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             fi
@@ -2013,7 +2013,7 @@ function Manage_Env() {
     esac
 }
 
-## 推送通知功能
+## 自定义推送通知功能
 function SendNotify() {
     Import_Config_Not_Check
     Notify "$1" "$2"
