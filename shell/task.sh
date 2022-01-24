@@ -1621,7 +1621,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
+            exit ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1678,7 +1678,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             else
@@ -1692,7 +1692,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             fi
@@ -2013,7 +2013,7 @@ function Manage_Env() {
     esac
 }
 
-## 推送通知功能
+## 自定义推送通知功能
 function SendNotify() {
     Import_Config_Not_Check
     Notify "$1" "$2"
