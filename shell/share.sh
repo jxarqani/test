@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-22
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -79,6 +79,7 @@ SUCCESS="[${GREEN}OK${PLAIN}]"
 COMPLETE="[${GREEN}DONE${PLAIN}]"
 WARN="[${YELLOW}WARN${PLAIN}]"
 ERROR="[${RED}ERROR${PLAIN}]"
+FAIL="[${RED}FAIL${PLAIN}]"
 WORKING="[${AZURE}*${PLAIN}]"
 EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
@@ -89,7 +90,7 @@ ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_ene
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
 
 ## URL
-GithubProxy=${GITHUB_PROXY:-"https://endpoint.fastgit.org/"}
+GithubProxy=${USER_PROXY_URL:-"https://endpoint.fastgit.org/"}
 ScriptsRepoBranch="jd_scripts"
 ScriptsRepoUrl="https://github.com/Aaron-lv/sync.git"
 BotRepoGitUrl="https://github.com/SuMaiKaDe/bot.git"

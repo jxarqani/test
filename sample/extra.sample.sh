@@ -49,27 +49,46 @@ for author in $author_list; do
   eval url_list=\$scripts_base_url_${index}
   #echo $url_list
 
+  echo ${url_list} | grep -Eq "cdn\.jsdelivr\.net\/gh\/"
+  if [ $? -eq 0 ]; then
+    if [[ ${ProxyJudge} == false ]]; then
+      url_list=$(echo ${url_list} | perl -pe "{s|cdn\.jsdelivr\.net\/gh|raw\.githubusercontent\.com|g; s|\@|\/|g}")
+    fi
+  fi
+
   ## 判断脚本来源仓库
-  format_url=$(echo $url_list | awk -F '.com' '{print$NF}' | sed 's/.$//')
-  if [[ $(echo $url_list | grep -Eo "github|gitee") == "github" ]]; then
+  repository_judge=$(echo $url_list | grep -Eo "github|gitee|jsdelivr")
+  download_judge=""
+  repository_platform=""
+  reformat_url=""
+  if [[ ${repository_judge} == "github" ]]; then
+    repository_platform="https://github.com"
+    repository_branch=$(echo $url_list | awk -F '.com' '{print$NF}' | sed 's/.$//' | awk -F '/' '{print$4}')
+    reformat_url=$(echo $url_list | awk -F '.com' '{print$NF}' | perl -pe "{s|.$||g; s|$repository_branch|tree\/$repository_branch|g}")
+    [[ ${ProxyJudge} == true ]] && download_judge="(代理)"
+  elif [[ ${repository_judge} == "gitee" ]]; then
+    repository_platform="https://gitee.com"
+    reformat_url=$(echo $url_list | awk -F '.com' '{print$NF}' | perl -pe "{s|.$||g; s|\/raw\/|\/tree\/|g}")
+  elif [[ ${repository_judge} == "jsdelivr" ]]; then
     repository_platform="https://github.com"
     repository_branch=$(echo $format_url | awk -F '/' '{print$4}')
-    reformat_url=$(echo $format_url | sed "s|$repository_branch|tree/$repository_branch|g")
-    [[ ${EnableExtraShellProxy} == true ]] && DownloadJudge="(代理)" || DownloadJudge=""
-  elif [[ $(echo $url_list | grep -Eo "github|gitee") == "gitee" ]]; then
-    repository_platform="https://gitee.com"
-    reformat_url=$(echo $format_url | sed "s|/raw/|/tree/|g")
-    DownloadJudge=""
+    reformat_url=$(echo $url_list | awk -F '/gh' '{print$NF}' | perl -pe "{s|.$||g; s|\@|\/tree\/|g}")
+    download_judge="(代理)"
   fi
-  repository_url="$repository_platform$reformat_url"
-  echo -e "[${YELLOW}更新${PLAIN}] ${!author} ${DownloadJudge}"
-  echo -e "[${YELLOW}仓库${PLAIN}] $repository_url"
+  repository_url="${repository_platform}${reformat_url}"
+
+  echo -e "[${YELLOW}更新${PLAIN}] ${!author} ${download_judge}"
+  [[ ${repository_url} ]] && echo -e "[${YELLOW}仓库${PLAIN}] $repository_url"
+
 
   for js in $scripts_list; do
     eval url=$url_list$js
     echo $url
     eval name=$js
-    wget -q --no-check-certificate $url -O scripts/$name.new -T 10
+
+    [[ ${EnableExtraShellProxy} == true ]] && sleep 1s ## 降低使用代理下载脚本的请求频率
+    wget -q --no-check-certificate $url -O "$ScriptsDir/$name.new" -T 20
+
 
     # 如果上一步下载没问题，才去掉后缀".new"，如果上一步下载有问题，就保留之前正常下载的版本
     # 随机添加个cron到crontab.list
@@ -83,7 +102,7 @@ for author in $author_list; do
       croname=$(echo "$name" | awk -F\. '{print $1}' | perl -pe "{s|^jd_||; s|^jx_||; s|^jr_||;}")
       script_cron_standard=$(cat $ScriptsDir/$name | grep "https" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5}' | sort -u | head -n 1)
       if [[ -z ${script_cron_standard} ]]; then
-        tmp1=$(grep -E "cron|script-path|tag|\* \*|$name" $ScriptsDir/$name | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
+        tmp1=$(grep -E "cron|script-path|tag|\* \*|$name" $ScriptsDir/$name | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
         ## 判断开头
         tmp2=$(echo "${tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -106,7 +125,7 @@ for author in $author_list; do
       fi
     else
       [ -f scripts/$name.new ] && rm -f scripts/$name.new
-      echo -e "[${RED}FAIL${PLAIN}] $name 更新失败"
+      echo -e "$FAIL $name 更新失败"
     fi
   done
   let index+=1

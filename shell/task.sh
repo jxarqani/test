@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -243,10 +243,10 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库
-        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab")
+        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|jsdelivr")
         case ${RepoName} in
-        github)
-            RepoJudge=" Github "
+        github | jsdelivr)
+            RepoJudge=" GitHub "
             ;;
         gitee)
             RepoJudge=" Gitee "
@@ -262,7 +262,7 @@ function Find_Script() {
         ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
-            if [[ ${RepoJudge} == " Github " ]]; then
+            if [[ ${RepoJudge} == " GitHub " ]]; then
                 echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
                 if [ $? -eq 0 ]; then
                     FormatInputContent=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
@@ -288,7 +288,7 @@ function Find_Script() {
         fi
 
         ## 拉取脚本
-        echo -en "\n$WORKING 正在从${RepoJudge}远程仓库${ProxyJudge}下载 ${FileNameTmp} 脚本..."
+        echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
         wget -q --no-check-certificate "${DownloadJudge}${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
         echo ''
@@ -322,7 +322,7 @@ function Find_Script() {
             RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
-            echo -e "\n$ERROR 脚本 ${FileNameTmp} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
+            echo -e "\n$FAIL 脚本 ${FileNameTmp} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
             exit ## 终止退出
         fi
     }
@@ -358,7 +358,7 @@ function Find_Script() {
     case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "concurrent" ]]; then
-            echo -e "\n$ERROR 检测到当前使用的是32位处理器，考虑到性能不佳已禁用并发功能！\n"
+            echo -e "\n$ERROR 检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！\n"
             exit ## 终止退出
         fi
         case ${FileFormat} in
@@ -475,7 +475,7 @@ function NoPushNotify() {
 ## 普通执行
 function Run_Normal() {
     local InputContent=$1
-    local UserNum LogFile COOKIE_TMP
+    local UserNum LogFile
     ## 匹配脚本
     Find_Script ${InputContent}
     ## 导入配置文件
@@ -537,7 +537,7 @@ function Run_Normal() {
 
     ## 组合账号变量
     function Combin_Designated_Cookie() {
-        local Num=$1
+        local Num="$1"
         local Tmp1=Cookie$Num
         local Tmp2=${!Tmp1}
         local CombinAll="${COOKIE_TMP}&${Tmp2}"
@@ -546,7 +546,7 @@ function Run_Normal() {
 
     ## 指定运行账号
     function Designated_Account() {
-        local AccountsTmp=$1
+        local AccountsTmp="$1"
         for UserNum in ${AccountsTmp}; do
             echo ${UserNum} | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -593,7 +593,7 @@ function Run_Normal() {
         RunWait
         for g in ${Groups}; do
             local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
-            Designated_Account ${Accounts}
+            Designated_Account "${Accounts}"
             ## 执行脚本
             Main
             ## 重新组合变量
@@ -603,7 +603,7 @@ function Run_Normal() {
         ## 指定账号
         if [[ ${RUN_DESIGNATED} == true ]]; then
             local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
-            Designated_Account ${Accounts}
+            Designated_Account "${Accounts}"
         else
             ## 加载全部账号
             Combin_AllCookie
@@ -759,7 +759,7 @@ function Process_Kill() {
         ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
         if [ $? -eq 0 ]; then
             ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
-            echo -e "\n$ERROR 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
+            echo -e "\n$FAIL 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
         fi
@@ -1147,7 +1147,7 @@ function Cookies_Control() {
                     fi
                     [ -f $FileSendMark ] && rm -rf $FileSendMark
                 else
-                    echo -e "\n$ERROR 签名更新失败，请检查网络环境后重试！\n"
+                    echo -e "\n$FAIL 签名更新失败，请检查网络环境后重试！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 ws_key ！\n"
@@ -1221,7 +1221,7 @@ function Add_OwnRepo() {
             git clone -b ${RepoBranch} ${RepoUrl} $RepoDir
         fi
         if [ $? -ne 0 ]; then
-            echo -e "\n$ERROR 仓库克隆失败，请检查信息是否正确！\n"
+            echo -e "\n$FAIL 仓库克隆失败，请检查信息是否正确！\n"
             exit ## 终止退出
         fi
         ## 确定分支名
@@ -1273,7 +1273,7 @@ function Add_OwnRepo() {
         if [[ $ExitStatus -eq 0 ]]; then
             echo -e "\n$COMPLETE 变量已添加"
         else
-            echo -e "\n$ERROR 变量添加失败"
+            echo -e "\n$FAIL 变量添加失败"
         fi
     }
 
@@ -1428,7 +1428,7 @@ function Add_OwnRepo() {
                     cat $ListCrontabOwnTmp | perl -pe "{s|^|${GREEN}+${PLAIN} |g}"
                     echo -e "\n$COMPLETE 定时任务已添加"
                 else
-                    echo -e "\n$ERROR 定时任务添加失败"
+                    echo -e "\n$FAIL 定时任务添加失败"
                 fi
                 [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
             else
@@ -1471,7 +1471,7 @@ function Add_RawFile() {
         exit ## 终止退出
     fi
     ## 判断脚本来源（ 托管仓库 or 普通网站 ）
-    echo ${InputContent} | grep -Eq "github\.com|gitee\.com|gitlab\.com"
+    echo ${InputContent} | grep -Eq "github|gitee|gitlab"
     if [ $? -eq 0 ]; then
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
@@ -1520,12 +1520,12 @@ function Add_RawFile() {
             ;;
         esac
         ## 拉取脚本
-        echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     else
         ## 拉取脚本
         DownloadUrl="${InputContent}"
-        echo -e "\n$WORKING 开始从网站 $(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}") 下载 ${RawFileName} 脚本..."
+        echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         wget -q --no-check-certificate -O "$RawDir/${RawFileName}.new" ${DownloadUrl} -T 20
     fi
 
@@ -1537,7 +1537,7 @@ function Add_RawFile() {
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -1572,7 +1572,7 @@ function Add_RawFile() {
                     echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
                     echo -e "\n$COMPLETE 定时任务已添加"
                 else
-                    echo -e "\n$ERROR 定时任务添加失败"
+                    echo -e "\n$FAIL 定时任务添加失败"
                 fi
             else
                 echo -e "\n$WARN 该脚本定时任务已存在，跳过添加"
@@ -1594,12 +1594,12 @@ function Add_RawFile() {
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
         else
-            echo -e "\n$ERROR 变量添加失败\n"
+            echo -e "\n$FAIL 变量添加失败\n"
         fi
 
     else
         [ -f "$RawDir/${RawFileName}.new" ] && rm -rf "$RawDir/${RawFileName}.new"
-        echo -e "\n$ERROR 脚本 ${RawFileName} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
+        echo -e "\n$FAIL 脚本 ${RawFileName} 下载失败，请检查网络连通性并对目标 URL 地址是否正确进行验证！\n"
         exit ## 终止退出
     fi
 }
@@ -1621,7 +1621,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
+            exit ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1678,7 +1678,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             else
@@ -1692,7 +1692,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
+                    exit ## 终止退出
                     ;;
                 esac
             fi
@@ -1704,7 +1704,7 @@ function Manage_Env() {
         echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
         ## 结果判定
         if [[ ${OldContent} = ${NewContent} ]]; then
-            echo -e "\n$ERROR 环境变量修改失败\n"
+            echo -e "\n$FAIL 环境变量修改失败\n"
         else
             case ${Mod} in
             enable)
@@ -1771,9 +1771,9 @@ function Manage_Env() {
         grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
         local ExitStatus=$?
         if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n$COMPLETE 修改完毕\n"
+            echo -e "\n$COMPLETE 环境变量修改完毕\n"
         else
-            echo -e "\n$ERROR 修改失败\n"
+            echo -e "\n$FAIL 环境变量修改失败\n"
         fi
     }
 
@@ -2013,7 +2013,7 @@ function Manage_Env() {
     esac
 }
 
-## 推送通知功能
+## 自定义推送通知功能
 function SendNotify() {
     Import_Config_Not_Check
     Notify "$1" "$2"

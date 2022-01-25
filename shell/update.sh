@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-20
+## Modified: 2022-01-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -10,7 +10,7 @@ ScriptsBranch=${ScriptsRepoBranch}
 if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
     ScriptsUrl=${ScriptsRepoUrl}
 else
-    ScriptsUrl="${GithubProxy}${ScriptsRepoUrl}"
+    ScriptsUrl=$(echo ${ScriptsRepoUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}')
 fi
 
 ## 创建日志文件夹
@@ -249,7 +249,7 @@ function Npm_Install_Standard() {
     cd $WorkDir
     echo -e "\n$WORKING 开始执行 npm install ...\n"
     npm install
-    [ $? -ne 0 ] && echo -e "\n$ERROR 检测到脚本所需的依赖模块安装失败，请进入 $WorkDir 目录后手动执行 npm install ...\n"
+    [ $? -ne 0 ] && echo -e "\n$FAIL 检测到脚本所需的依赖模块安装失败，请进入 $WorkDir 目录后手动执行 npm install ...\n"
     cd $CurrentDir
 }
 function Npm_Install_Upgrade() {
@@ -258,7 +258,7 @@ function Npm_Install_Upgrade() {
     cd $WorkDir
     echo -e "\n$WORKING 检测到 $WorkDir 目录脚本所需的依赖模块有所变动，执行 npm install ...\n"
     npm install
-    [ $? -ne 0 ] && echo -e "\n$ERROR 检测到模块安装失败，再次尝试一遍...\n" && Npm_Install_Standard $WorkDir
+    [ $? -ne 0 ] && echo -e "\n$FAIL 检测到模块安装失败，再次尝试一遍...\n" && Npm_Install_Standard $WorkDir
     cd $CurrentDir
 }
 
@@ -350,7 +350,7 @@ function Add_Cron_Own() {
             if [ -f ${FilePath} ]; then
                 if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | grep -Ev "^http.*:" | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
+                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
@@ -414,14 +414,14 @@ function Update_OwnRepo() {
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新完成"
             else
-                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新失败，请检查原因..."
+                echo -e "\n$FAIL ${BLUE}${array_own_repo_dir[i]}${PLAIN} 仓库更新失败，请检查原因..."
             fi
         else
             Git_Clone ${array_own_repo_url[i]} ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$SUCCESS ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库成功"
             else
-                echo -e "\n$ERROR ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库失败，请检查原因..."
+                echo -e "\n$FAIL ${BLUE}${array_own_repo_dir[i]}${PLAIN} 克隆仓库失败，请检查原因..."
             fi
         fi
     done
@@ -485,19 +485,19 @@ function Update_RawFile() {
                 ;;
             esac
             ## 拉取脚本
-            echo -e "\n$WORKING 开始从仓库 ${RepoUrl} 下载 ${RawFileName[$i]} 脚本..."
+            echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
             ## 拉取脚本
-            DownloadUrl="${InputContent}"
-            echo -e "\n$WORKING 开始从网站 $(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}") 下载 ${RawFileName[$i]} 脚本..."
+            DownloadUrl=${OwnRawFile[i]}
+            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         fi
         if [ $? -eq 0 ]; then
             mv -f "$RawDir/${RawFileName[$i]}.new" "$RawDir/${RawFileName[$i]}"
             echo -e "$COMPLETE ${RawFileName[$i]} 下载完成，脚本保存路径：$RawDir/${RawFileName[$i]}"
         else
-            echo -e "$ERROR 下载 ${RawFileName[$i]} 失败，保留之前正常下载的版本...\n"
+            echo -e "$FAIL 下载 ${RawFileName[$i]} 失败，保留之前正常下载的版本...\n"
             [ -f "$RawDir/${RawFileName[$i]}.new" ] && rm -f "$RawDir/${RawFileName[$i]}.new"
         fi
     done
@@ -530,7 +530,7 @@ function Update_Shell() {
     if [[ $ExitStatus -eq 0 ]]; then
         echo -e "\n$COMPLETE 源码更新完成\n"
     else
-        echo -e "\n$ERROR 源码更新失败，请检查原因...\n"
+        echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
     fi
     ## 检测面板模块变动
     [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)
@@ -591,7 +591,7 @@ function Update_Scripts() {
 
         echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
     else
-        echo -e "\n$ERROR Scripts 仓库更新失败，请检查原因...\n"
+        echo -e "\n$FAIL Scripts 仓库更新失败，请检查原因...\n"
     fi
 }
 
@@ -696,9 +696,9 @@ function ExtraShell() {
             sleep 1s
         else
             if [ -f $FileExtra ]; then
-                echo -e "$ERROR 自定义脚本同步失败，保留之前的版本...\n"
+                echo -e "$FAIL 自定义脚本同步失败，保留之前的版本...\n"
             else
-                echo -e "$ERROR 自定义脚本同步失败，请检查原因...\n"
+                echo -e "$FAIL 自定义脚本同步失败，请检查原因...\n"
             fi
             sleep 2s
         fi
@@ -755,7 +755,7 @@ function Update_Designated() {
                 echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
                 echo -e "${YELLOW}注意：此更新模式下不会附带更新定时任务${PLAIN}\n"
             else
-                echo -e "\n$ERROR ${AbsolutePath} 仓库更新失败，请检查原因...\n"
+                echo -e "\n$FAIL ${AbsolutePath} 仓库更新失败，请检查原因...\n"
             fi
             ;;
         esac
