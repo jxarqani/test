@@ -558,12 +558,10 @@ function Update_Scripts() {
     else
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
-
     ## 文件替换
-    for scripts in ${ScriptsReplace}; do
-        [ -f "$UtilsDir/$scripts" ] && cp -rf "$UtilsDir/$scripts" $ScriptsDir
+    for file in ${ScriptsDirReplaceFiles}; do
+        [ -f "$UtilsDir/$file" ] && cp -rf "$UtilsDir/$file" $ScriptsDir
     done
-
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
         [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir

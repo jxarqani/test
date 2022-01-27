@@ -88,7 +88,7 @@ TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
 RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
 ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts"
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
-ScriptsReplace="sendNotify.js"
+ScriptsDirReplaceFiles="sendNotify.js"
 
 ## URL
 GithubProxy=${USER_PROXY_URL:-"https://endpoint.fastgit.org/"}
