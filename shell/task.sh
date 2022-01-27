@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-24
+## Modified: 2022-01-28
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1621,7 +1621,7 @@ function Manage_Env() {
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
-            exit ## 终止退出
+            exit                   ## 终止退出
             ;;
         esac
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -1678,7 +1678,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             else
@@ -1692,7 +1692,7 @@ function Manage_Env() {
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
-                    exit ## 终止退出
+                    exit                   ## 终止退出
                     ;;
                 esac
             fi
@@ -1840,7 +1840,14 @@ function Manage_Env() {
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 echo -e "\n$ERROR 环境变量 ${BLUE}${Variable}${PLAIN} 已经存在，请直接修改！"
-                echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} ${Value}${PLAIN}\n"
+                case $# in
+                3)
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} ${Value}${PLAIN}\n"
+                    ;;
+                4)
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} ${Value} \"$4\"${PLAIN}\n"
+                    ;;
+                esac
             else
                 case $# in
                 3)
@@ -1982,7 +1989,14 @@ function Manage_Env() {
                     ;;
                 *)
                     echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
-                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value}${PLAIN}\n"
+                    case $# in
+                    3)
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value}${PLAIN}\n"
+                        ;;
+                    4)
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value} \"$4\"${PLAIN}\n"
+                        ;;
+                    esac
                     ;;
                 esac
             fi
