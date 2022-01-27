@@ -1842,10 +1842,10 @@ function Manage_Env() {
                 echo -e "\n$ERROR 环境变量 ${BLUE}${Variable}${PLAIN} 已经存在，请直接修改！"
                 case $# in
                 3)
-                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} ${Value}${PLAIN}\n"
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\"${PLAIN}\n"
                     ;;
                 4)
-                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} ${Value} \"$4\"${PLAIN}\n"
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
                     ;;
                 esac
             else
@@ -1991,10 +1991,10 @@ function Manage_Env() {
                     echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
                     case $# in
                     3)
-                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value}${PLAIN}\n"
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\"${PLAIN}\n"
                         ;;
                     4)
-                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} ${Value} \"$4\"${PLAIN}\n"
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
                         ;;
                     esac
                     ;;
@@ -2021,7 +2021,7 @@ function Manage_Env() {
             grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | perl -pe "{s|^|第|g; s|:|行：|g; s|${Keys}|${RED}${Keys}${PLAIN}|g;}"
             echo -e "\n$COMPLETE 查询完毕\n"
         else
-            echo -e "\n$ERROR 未查询到包含 ${BLUE}${Keys}${PLAIN} 的相关环境变量！\n"
+            echo -e "\n$ERROR 未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！\n"
         fi
         ;;
     esac
