@@ -559,10 +559,10 @@ function Update_Scripts() {
         Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
     fi
 
-    ## 更换 sendNotify
-    [ -f $FileSendNotify ] && cp -rf $FileSendNotify $ScriptsDir
-    ## 京享红包
-    [ -f $UtilsDir/jd_nhRedEnvelope.js ] && cp -rf $UtilsDir/jd_nhRedEnvelope.js $ScriptsDir
+    ## 文件替换
+    for scripts in ${ScriptsReplace}; do
+        [ -f "$UtilsDir/$scripts" ] && cp -rf "$UtilsDir/$scripts" $ScriptsDir
+    done
 
     if [[ $ExitStatus -eq 0 ]]; then
         ## 安装模块
