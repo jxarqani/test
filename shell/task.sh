@@ -977,7 +977,7 @@ function Cookies_Control() {
                 ExitStatus=$?
             else
                 cd $SignDir
-                if [[ $(date "+%-H") -eq 9 || $(date "+%-H") -eq 21 ]] && [[ $(date "+%-S") -eq 0 ]]; then
+                if [[ $(date "+%-H") -eq 1 || $(date "+%-H") -eq 9 || $(date "+%-H") -eq 17 ]] && [[ $(date "+%-S") -eq 0 ]]; then
                     local Tmp=$((${RANDOM} % 10))
                     echo -en "\n检测到当前处于整点，已启用随机延迟，此任务将在 $Tmp 秒后开始执行..."
                     sleep $Tmp
@@ -991,26 +991,33 @@ function Cookies_Control() {
 
         ## 更新全部账号
         function UpdateNormal() {
-            local UserNum FormatPin EscapePin EscapePinLength CookieTmp LogFile
+            local UserNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin EscapePinLength CookieTmp LogFile
+            ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
+            local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(jq '.[] | {pt_pin:.pt_pin,}' $FileAccountConf | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | grep -v '^$')
+                $(cat $FileAccountConf | jq '.[] | {pt_pin:.pt_pin,}' | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | grep -v '^$')
             )
-
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
+                UserNum=1
                 ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
                 echo -e "\n$WORKING 检测到已配置 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
                 ## 记录执行开始时间
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
-                for ((i = 1; i <= ${#pt_pin_array[@]}; i++)); do
-                    UserNum=$((i - 1))
+
+                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                    PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    ## 没有配置相应值就跳出当前循环
+                    [ -z ${PT_PIN_TMP} ] && continue
+                    [ -z ${WS_KEY_TMP} ] && continue
                     ## 声明变量
-                    export JD_PT_PIN=${pt_pin_array[$UserNum]}
+                    export JD_PT_PIN=${PT_PIN_TMP}
                     ## 定义格式化后的pt_pin
-                    FormatPin=$(echo ${pt_pin_array[$UserNum]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                    FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
                     ## 转义pt_pin中的汉字
-                    EscapePin=$(printf $(echo ${pt_pin_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
+                    EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的汉字长度
                     EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - 1))
                     ## 执行脚本
@@ -1023,10 +1030,11 @@ function Cookies_Control() {
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$i." "${EscapePin}" "${SUCCESS_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${SUCCESS_ICON}"
                     else
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$i." "${EscapePin}" "${FAIL_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${FAIL_ICON}"
                     fi
+                    let UserNum++
                 done
                 ## 优化日志排版
                 sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
@@ -1050,83 +1058,91 @@ function Cookies_Control() {
                     ## 格式化通知内容
                     perl -pe '{s|Cookie => ||g; s|\[||g; s|\]|\ \ \-|g}' -i $FileSendMark
                     echo "" >>$FileSendMark
-
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
                     echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 pt_pin ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
+                exit ## 终止退出
             fi
         }
 
         ## 更新指定账号
         function UpdateDesignated() {
             local UserNum=$1
-            local pt_pin_tmp FormatPin EscapePin CookieTmp LogFile
+            local ArrayNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin CookieTmp LogFile
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
             Account_ExistenceJudgment $UserNum
-            pt_pin_tmp=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
+            PT_PIN_TMP=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
             ## 定义格式化后的pt_pin
-            FormatPin="$(echo ${pt_pin_tmp} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
-            ## 判定该 pt_pin 对应 Cookie 是否存在
+            FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
+            ## 判定在 account.json 中是否存在该 pt_pin
             grep ${FormatPin} -q $FileAccountConf
             if [ $? -eq 0 ]; then
-                ## 定义日志文件路径
-                LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
-                echo -e "\n$WORKING 开始更新第 ${BLUE}$UserNum${PLAIN} 个账号...\n"
-                ## 声明变量
-                export JD_PT_PIN=${pt_pin_tmp}
-                ## 转义pt_pin中的汉字
-                EscapePin=$(printf $(echo ${pt_pin_tmp} | perl -pe "s|%|\\\x|g;"))
-                ## 记录执行开始时间
-                echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
-                ## 执行脚本
-                if [[ ${EnableGlobalProxy} == true ]]; then
-                    node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
+                ArrayNum=$(($(cat $FileAccountConf | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
+                WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$ArrayNum] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                ## 没有配置 ws_key 就退出
+                if [ -z ${WS_KEY_TMP} ]; then
+                    echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！\n"
+                    exit ## 终止退出
                 else
-                    node ${FileUpdateCookie##*/} &>>${LogFile} &
-                fi
-                wait
-                ## 优化日志排版
-                sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
-                ## 记录执行结束时间
-                echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
-                ## 判断结果
-                if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
-                    echo -e "${BLUE}${EscapePin}${PLAIN}  ${GREEN}${SUCCESS_ICON}${PLAIN}"
-                    ## 打印 Cookie
-                    # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
-                else
-                    echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
-                fi
-                ## 推送通知
-                grep "Cookie => \[" ${LogFile} >>$FileSendMark
-                if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
-                    ## 转义中文用户名
-                    local tmp_pt_pin=$(cat $FileSendMark | grep -o "\[.*\%.*\]" | perl -pe '{s|\[||g; s|\]||g}')
-                    if [[ ${tmp_pt_pin} ]]; then
-                        ## 转义pt_pin中的汉字
-                        EscapePin=$(printf $(echo ${tmp_pt_pin} | perl -pe "s|%|\\\x|g;"))
-                        sed -i "s/${tmp_pt_pin}/${EscapePin}/g" $FileSendMark
+                    ## 定义日志文件路径
+                    LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
+                    echo -e "\n$WORKING 开始更新第 ${BLUE}$UserNum${PLAIN} 个账号...\n"
+                    ## 声明变量
+                    export JD_PT_PIN=${PT_PIN_TMP}
+                    ## 转义pt_pin中的汉字
+                    EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
+                    ## 记录执行开始时间
+                    echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
+                    ## 执行脚本
+                    if [[ ${EnableGlobalProxy} == true ]]; then
+                        node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
+                    else
+                        node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
-                    ## 格式化通知内容
-                    perl -pe '{s|Cookie => ||g; s|\[||g; s|\]|\ \ \-|g}' -i $FileSendMark
-                    echo "" >>$FileSendMark
-
-                    echo -e "\n$COMPLETE 更新完成\n"
-                else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                    wait
+                    ## 优化日志排版
+                    sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
+                    ## 记录执行结束时间
+                    echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+                    ## 判断结果
+                    if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
+                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${GREEN}${SUCCESS_ICON}${PLAIN}"
+                        ## 打印 Cookie
+                        # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
+                    else
+                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
+                    fi
+                    ## 推送通知
+                    grep "Cookie => \[" ${LogFile} >>$FileSendMark
+                    if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
+                        ## 转义中文用户名
+                        local tmp_pt_pin=$(cat $FileSendMark | grep -o "\[.*\%.*\]" | perl -pe '{s|\[||g; s|\]||g}')
+                        if [[ ${tmp_pt_pin} ]]; then
+                            ## 转义pt_pin中的汉字
+                            EscapePin=$(printf $(echo ${tmp_pt_pin} | perl -pe "s|%|\\\x|g;"))
+                            sed -i "s/${tmp_pt_pin}/${EscapePin}/g" $FileSendMark
+                        fi
+                        ## 格式化通知内容
+                        perl -pe '{s|Cookie => ||g; s|\[||g; s|\]|\ \ \-|g}' -i $FileSendMark
+                        echo "" >>$FileSendMark
+                        echo -e "\n$COMPLETE 更新完成\n"
+                    else
+                        echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                    fi
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置该账号的 pt_pin ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置该账号的 ${BLUE}pt_pin${PLAIN} ！\n"
+                exit ## 终止退出
             fi
         }
 
         ## 汇总
         if [ -f $FileUpdateCookie ]; then
-            if [[ $(jq '.[] | {ws_key:.ws_key,}' $FileAccountConf | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
+            if [[ $(cat $FileAccountConf | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
                 UpdateSign
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
@@ -1150,7 +1166,7 @@ function Cookies_Control() {
                     echo -e "\n$FAIL 签名更新失败，请检查网络环境后重试！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 $FileAccountConf 中配置好 ws_key ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}ws_key${PLAIN} ！\n"
             fi
         else
             echo -e "\n$ERROR 账号更新脚本不存在，请确认是否移动！\n"
