@@ -1229,10 +1229,13 @@ try {
 // codemirror中去除解析不了的颜色标记
 function getNeatContent(origin) {
     return (origin || '').replace(/\033\[0m/g, '')
+        .replace(/\033\[1m/g, '')
         .replace(/\033\[31m/g, '')
         .replace(/\033\[32m/g, '')
         .replace(/\033\[33m/g, '')
-        .replace(/\033\[34m/g, '');
+        .replace(/\033\[34m/g, '')
+        .replace(/\033\[35m/g, '')
+        .replace(/\033\[36m/g, '');
 }
 
 
