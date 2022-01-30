@@ -374,7 +374,7 @@
                     '<input class="ace_search_field" placeholder="查找" spellcheck="false"></input>',
                     '<div class="ace_search button">',
                     '<span action="toggleCaseSensitive" class="ace_button" title="区分大小写">𝖠𝖺</span>',
-                    '<span action="toggleWholeWords" class="ace_button" title="全字匹配">🆆</span>',
+                    '<span action="toggleWholeWords" class="ace_button" title="全字匹配">全</span>',
                     '<span action="toggleRegexpMode" class="ace_button" title="使用正则表达式">.*</span>',
                     '</div>',
                     '<div class="ace_search button">',
