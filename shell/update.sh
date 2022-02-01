@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-24
+## Modified: 2022-02-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -147,7 +147,8 @@ function Gen_ListOwn() {
     local CurrentDir=$(pwd)
     ## 导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
-    [ ! -f $ListOwnScripts ] && Make_Dir $LogTmpDir && touch $ListOwnScripts
+    Make_Dir $LogTmpDir
+    [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
     grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
     local ExitStatus=$?
     [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
@@ -210,6 +211,8 @@ function Diff_Cron() {
     if [ -s $ListTask ] && [ -s $ListScripts ]; then
         diff $ListScripts $ListTask | grep "<" | awk '{print $2}' >$ListAdd
         diff $ListScripts $ListTask | grep ">" | awk '{print $2}' >$ListDrop
+        [ ! -f $ListAdd ] && touch $ListAdd
+        [ ! -f $ListDrop ] && touch $ListDrop
     elif [ ! -s $ListTask ] && [ -s $ListScripts ]; then
         cp -f $ListScripts $ListAdd
     elif [ -s $ListTask ] && [ ! -s $ListScripts ]; then
@@ -638,8 +641,8 @@ function Update_Own() {
         ## Own Repo 仓库
         if [[ ${EnableRepoUpdate} == true ]]; then
             ## 比对清单
-            grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
-            grep -v "$RawDir/" $ListOwnDrop >$ListOwnRepoDrop
+            grep -v "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRepoAdd
+            grep -v "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRepoDrop
 
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRepoCron} == true ]] && [ -s $ListOwnRepoDrop ]; then
@@ -657,8 +660,8 @@ function Update_Own() {
         ## Own Raw 脚本
         if [[ ${EnableRawUpdate} == true ]]; then
             ## 比对清单
-            grep "$RawDir/" $ListOwnAdd >$ListOwnRawAdd
-            grep "$RawDir/" $ListOwnDrop >$ListOwnRawDrop
+            grep "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRawAdd
+            grep "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRawDrop
 
             ## 删除定时任务 & 通知
             if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
