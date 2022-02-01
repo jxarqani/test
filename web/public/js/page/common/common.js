@@ -223,7 +223,7 @@ let MenuTools = {
             title: "查看仓库",
             faIcon: "fa-github",
             titleFaIcon: "fa-external-link",
-            subText: "浏览 Scripts 仓库代码",
+            subText: "浏览 Scripts 主要仓库",
             customClass: '',
             path: "javascript:window.open('https://github.com/Aaron-lv/sync')"
         }]
@@ -235,13 +235,6 @@ let MenuTools = {
         subMenuCustomClass: "",
         bottomContent: '',
         children: [{
-            title: "推广",
-            faIcon: "fa-lightbulb-o",
-            titleFaIcon: "fa-external-link",
-            subText: "Please star this repository",
-            customClass: 'gb s',
-            path: "javascript:window.open('https://github.com/SuperManito/LinuxMirrors')"
-        }, {
             title: "修改密码",
             faIcon: "fa-lock",
             titleFaIcon: "fa-arrow-right",
@@ -252,7 +245,7 @@ let MenuTools = {
             title: "退出登陆",
             faIcon: "fa-sign-out",
             titleFaIcon: "fa-hand-o-right",
-            subText: "Sign out",
+            subText: "Sign Out",
             customClass: 'gb r',
             path: "/logout"
         }, {
