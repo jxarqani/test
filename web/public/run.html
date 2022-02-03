@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>快速执行 · 控制面板</title>
     <script type="text/javascript" src="./js/third/jquery.min.js"></script>
     <script type="text/javascript" src="./js/third/codemirror/codemirror.min.js"></script>
@@ -11,7 +11,7 @@
     <script type="text/javascript" src="./js/third/codemirror/modes.min.js"></script>
     <script type="text/javascript" src="./js/third/codemirror/keymap/sublime.js"></script>
     <script type="text/javascript" src="./js/third/codemirror/searchBox.js"></script>
-    <script type="text/javascript" src="./js/third/codemirror/minimap/codemirror-minimap.js" ></script>
+    <script type="text/javascript" src="./js/third/codemirror/minimap/codemirror-minimap.js"></script>
 
     <script type="text/javascript" src="./js/third/sweetalert2.js"></script>
     <script type="text/javascript" src="./js/third/prefixfree.min.js"></script>
@@ -24,73 +24,81 @@
     <link rel="stylesheet" type="text/css" href="./css/main.css">
     <link rel="stylesheet" type="text/css" href="./css/nav.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
-    <link rel="icon" type="image/x-icon" href="./icon/running_joy.gif"/>
+    <link rel="icon" type="image/x-icon" href="./icon/running_joy.gif" />
 </head>
 
 <body>
-<div class="container">
-    <div class="diffs">
-        <nav id="menu"></nav>
-        <div>
-            <div class="new header">
-                <header>
-                    <h1>快速执行</h1>
-                    <div class="multi-button">
-                        <button id="wrap">
-                            <i class="fa fa-exchange"></i>
-                            <span class="animate-normal">自动换行</span>
-                        </button>
-                        <button id="move-bottom" style="border-radius: 0;">
-                            <i class="fa fa-arrow-circle-o-down"></i>
-                            <span class="animate-normal">跳转底部</span>
-                        </button>
-                        <button class="cmd-btn" style="border-radius: 0;" data-cmd="task list 2>&1 | tee log/tasklist.log" data-name="tasklist">
-                            <i class="fa fa-list-alt"></i>
-                            <span class="animate-normal">脚本清单</span>
-                        </button>
-                        <button class="cmd-btn" data-cmd="update 2>&1 | tee -a log/update.log" data-name="update">
-                            <i class="fa fa-rotate-left"></i>
-                            <span class="animate-normal"> 更 新 </span>
-                        </button>
-                    </div>
-                    <div class="run ">
-                        <div class="run-select">
-                            <div class="selectSearchArea">
-                                <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本"
-                                       required/>
+    <div class="container">
+        <div class="diffs">
+            <nav id="menu"></nav>
+            <div>
+                <div class="new header">
+                    <header>
+                        <h1>快速执行</h1>
+                        <div class="multi-button">
+                            <button id="wrap">
+                                <i class="fa fa-exchange"></i>
+                                <span class="animate-normal">自动换行</span>
+                            </button>
+                            <button id="move-bottom" style="border-radius: 0;">
+                                <i class="fa fa-arrow-circle-o-down"></i>
+                                <span class="animate-normal">跳转底部</span>
+                            </button>
+                            <button class="cmd-btn" style="border-radius: 0;"
+                                data-cmd="task list 2>&1 | tee log/tasklist.log" data-name="tasklist">
+                                <i class="fa fa-list-alt"></i>
+                                <span class="animate-normal">脚本清单</span>
+                            </button>
+                            <button class="cmd-btn" data-cmd="update 2>&1 | tee -a log/update.log" data-name="update">
+                                <i class="fa fa-rotate-left"></i>
+                                <span class="animate-normal"> 更 新 </span>
+                            </button>
+                        </div>
+                        <div class="run">
+                            <div class="run-select">
+                                <div class="selectSearchArea">
+                                    <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本" required />
+                                </div>
                             </div>
+                            <button id="runCmd" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 6px 0 0 6px;" type="submit">
+                                <i class="fa fa-rocket"></i> 普通执行
+                            </button>
+                            <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 0 6px 6px 0;" type="submit">
+                                <i class="fa fa-random"></i> 并发执行
+                            </button>
                         </div>
-                        <div class="run-cmd-btn">
-                            <button id="runCmd" class="btn btn-primary btn-ghost btn-shine" type="submit"><i class="fa fa-rocket"></i> 普通执行</button>
-                            <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine" type="submit"><i class="fa fa-random"></i> 并发执行</button>
-                        </div>
-
-                    </div>
-                </header>
-            </div>
-            <div class="fast-run">
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_bean_change now" data-name="jd_bean_change" title="task jd_bean_change now">
-                    <i class="fa fa-bell"></i> 京豆变动
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_get_share_code now" data-name="jd_getShareCodes" title="task jd_get_share_code now">
-                    <i class="fa fa-share-alt-square"></i> 获取互助码
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task exsc" data-name="exsc" title="task exsc">
-                    <i class="fa fa-code"></i> 导出互助码
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task cookie check" data-name="cookiecheck" title="task cookie check">
-                    <i class="fa fa-calendar-check-o"></i> 检测账号
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task rmlog | tee log/rmlog.log" data-name="rmlog" title="task rmlog">
-                    <i class="fa fa-trash"></i> 删除日志
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task ps" data-name="ps" data-refresh-log="false" title="task ps">
-                    <i class="fa fa-tasks"></i> 查看进程
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl jbot start" data-name="jbot" title="task jbot start">
-                    <i class="fa fa-play-circle"></i> 重启机器人
-                </button>
-                <!--
+                    </header>
+                </div>
+                <div class="fast-run">
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_bean_change now"
+                        data-name="jd_bean_change" title="task jd_bean_change now">
+                        <i class="fa fa-bell"></i> 京豆变动
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_get_share_code now"
+                        data-name="jd_getShareCodes" title="task jd_get_share_code now">
+                        <i class="fa fa-share-alt-square"></i> 获取互助码
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task exsc" data-name="exsc"
+                        title="task exsc">
+                        <i class="fa fa-code"></i> 导出互助码
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task cookie check"
+                        data-name="cookiecheck" title="task cookie check">
+                        <i class="fa fa-calendar-check-o"></i> 检测账号
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine"
+                        data-cmd="task rmlog | tee log/rmlog.log" data-name="rmlog" title="task rmlog">
+                        <i class="fa fa-trash"></i> 删除日志
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task ps" data-name="ps"
+                        data-refresh-log="false" title="task ps">
+                        <i class="fa fa-tasks"></i> 查看进程
+                    </button>
+                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl jbot start"
+                        data-name="jbot" title="task jbot start">
+                        <i class="fa fa-play-circle"></i> 重启机器人
+                    </button>
+                    <!--
                 <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl hang up" data-name="hang_up" data-refresh-log="false" title="taskctl hang up">
                     <i class="fa fa-play-circle"></i> 重启挂机程序
                 </button>
@@ -98,16 +106,16 @@
                     <i class="fa fa-power-off"></i> 停止挂机程序
                 </button>
                 -->
+                </div>
+            </div>
+
+            <div class="wrapper">
+                <textarea id="code" name="code" readonly="readonly"></textarea>
             </div>
         </div>
-
-        <div class="wrapper">
-            <textarea id="code" name="code" readonly="readonly"></textarea>
-        </div>
     </div>
-</div>
-<script type="text/javascript" src="./js/page/common/common.js"></script>
-<script type="text/javascript" src="./js/page/run.js"></script>
+    <script type="text/javascript" src="./js/page/common/common.js"></script>
+    <script type="text/javascript" src="./js/page/run.js"></script>
 </body>
 
 </html>

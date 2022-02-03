@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-28
+## Modified: 2022-02-04
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1198,14 +1198,16 @@ function Add_OwnRepo() {
     function CheckFormat() {
         ## 判断仓库地址格式
         echo ${RepoUrl} | grep -Eq "http.*:"
-        if [ $? -eq 0 ]; then
-            echo ${RepoUrl} | grep -Eq "\.git\b"
+        if [ $? -ne 0 ]; then
+            echo ${RepoUrl} | grep -Eq "^git\@"
             if [ $? -ne 0 ]; then
-                echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
+                echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址！\n"
                 exit ## 终止退出
             fi
-        else
-            echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的 URL 链接地址！\n"
+        fi
+        echo ${RepoUrl} | grep -Eq "\.git\b"
+        if [ $? -ne 0 ]; then
+            echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
             exit ## 终止退出
         fi
 
