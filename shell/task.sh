@@ -883,7 +883,7 @@ function Cookies_Control() {
                 ## 转义pt_pin中的汉字
                 EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
                 ## 定义pt_pin中的长度（受限于编码，汉字和短横杠多占1长度）
-                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) + $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
@@ -1019,7 +1019,7 @@ function Cookies_Control() {
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字和短横杠多占1长度）
-                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) + $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == true ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
