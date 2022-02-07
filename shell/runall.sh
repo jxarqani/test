@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-17
+## Modified: 2022-02-07
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -20,7 +20,7 @@ function ChooseRunMod() {
     }
     ## 指定账号参数
     while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否指定账号 [ Y/n ]：${PLAIN}")" Input1
+        read -p "$(echo -e "\n${BOLD}└ 是否指定账号? [Y/n] ${PLAIN}")" Input1
         [ -z ${Input1} ] && Input1=Y
         case $Input1 in
         [Yy] | [Yy][Ee][Ss])
@@ -64,7 +64,7 @@ function ChooseRunMod() {
     done
     ## 迅速模式（组合互助码）参数
     while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否组合互助码 [ Y/n ]：${PLAIN}")" Input3
+        read -p "$(echo -e "\n${BOLD}└ 是否组合互助码? [Y/n] ${PLAIN}")" Input3
         [ -z ${Input3} ] && Input3=Y
         case $Input3 in
         [Yy] | [Yy][Ee][Ss])
@@ -80,7 +80,7 @@ function ChooseRunMod() {
     done
     ## 静默推送通知参数
     while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否推送通知消息 [ Y/n ]：${PLAIN}")" Input4
+        read -p "$(echo -e "\n${BOLD}└ 是否推送通知消息? [Y/n] ${PLAIN}")" Input4
         [ -z ${Input4} ] && Input4=Y
         case $Input4 in
         [Yy] | [Yy][Ee][Ss])
@@ -188,7 +188,7 @@ function Main() {
             echo -e "$(($i + 1)).${ScriptName}：${ListFiles[i]}"
         done
         cd $CurrentDir
-        read -p "$(echo -e "\n${BOLD}└ 请确认是否继续 [ Y/n ]：${PLAIN}")" Input5
+        read -p "$(echo -e "\n${BOLD}└ 请确认是否继续? [Y/n] ${PLAIN}")" Input5
         [ -z ${Input5} ] && Input5=Y
         case $Input5 in
         [Yy] | [Yy][Ee][Ss])
