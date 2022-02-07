@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-04
+## Modified: 2022-02-07
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1650,7 +1650,7 @@ function Manage_Env() {
         1)
             if [[ $ExitStatus -eq 0 ]]; then
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已禁用，是否启用 [ Y/n ]：${PLAIN}")" InputA
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已禁用，是否启用? [Y/n] ${PLAIN}")" InputA
                     [ -z ${InputA} ] && InputA=Y
                     case ${InputA} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1667,7 +1667,7 @@ function Manage_Env() {
                 done
             else
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已启用，是否禁用 [ Y/n ]：${PLAIN}")" InputB
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已启用，是否禁用? [Y/n] ${PLAIN}")" InputB
                     [ -z ${InputB} ] && InputB=Y
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1748,7 +1748,7 @@ function Manage_Env() {
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改 [ Y/n ]：${PLAIN}")" InputB
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改? [Y/n] ${PLAIN}")" InputB
                     [ -z ${InputB} ] && InputB=B
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1807,7 +1807,7 @@ function Manage_Env() {
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 是否继续修改 [ Y/n ]：${PLAIN}")" Input1
+                    read -p "$(echo -e "\n${BOLD}└ 是否继续修改? [Y/n] ${PLAIN}")" Input1
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1827,7 +1827,7 @@ function Manage_Env() {
                 read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的值：${PLAIN}")" Value
                 ## 插入备注
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 是否添加备注 [ Y/n ]：${PLAIN}")" Input2
+                    read -p "$(echo -e "\n${BOLD}└ 是否添加备注? [Y/n] ${PLAIN}")" Input2
                     [ -z ${Input2} ] && Input2=Y
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
@@ -1896,7 +1896,7 @@ function Manage_Env() {
                     echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${VariableTmp}"
                 fi
                 while true; do
-                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除 [ Y/n ]：${PLAIN}")" Input1
+                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除? [Y/n] ${PLAIN}")" Input1
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])

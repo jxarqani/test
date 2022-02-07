@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-02
+## Modified: 2022-02-07
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -832,7 +832,7 @@ function Combin_Function() {
     0)
         Title "all"
         Update_Shell
-        Update_Scripts
+        # Update_Scripts
         Update_Own "all"
         ExtraShell
         Handle_Crontab
@@ -844,7 +844,7 @@ function Combin_Function() {
         all)
             Title $1
             Update_Shell
-            Update_Scripts
+            # Update_Scripts
             Update_Own "all"
             ExtraShell
             ;;
