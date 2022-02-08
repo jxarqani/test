@@ -1060,7 +1060,7 @@ function Cookies_Control() {
                     echo "" >>$FileSendMark
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
@@ -1131,7 +1131,7 @@ function Cookies_Control() {
                         echo "" >>$FileSendMark
                         echo -e "\n$COMPLETE 更新完成\n"
                     else
-                        echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                        echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                     fi
                 fi
             else
