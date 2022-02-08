@@ -185,6 +185,7 @@ function Gen_ListOwn() {
             fi
         fi
     done
+    [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
     ## 汇总去重
     echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
     ## 导入用户的定时
