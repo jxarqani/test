@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-17
+## Modified: 2022-02-10
 
 set -e
 RED='\033[31m'
@@ -17,6 +17,7 @@ WORKING='[\033[34m*\033[0m]'
 TIPS='[\033[32m友情提示\033[0m]'
 TIME="+%Y-%m-%d %T"
 ContrlCmd="taskctl"
+UpdateCmd="update"
 
 if [ ! -d ${WORK_DIR}/config ]; then
   echo -e "$ERROR 没有映射 config 配置文件目录给本容器，请先按教程映射该目录...\n"
@@ -30,7 +31,7 @@ sleep 3
 git fetch --all
 git reset --hard origin/master
 taskctl check files >/dev/null 2>&1
-bash ${WORK_DIR}/shell/update.sh
+${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -90,13 +91,13 @@ fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页终端结束 -----\n"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 五 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装环境开始 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装运行环境开始 -----\n"
 if [[ ${ENABLE_ALL_ENV} == false ]]; then
   echo -e "已设置为不在容器启动时安装环境包"
 else
   $ContrlCmd env install
 fi
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装环境结束 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装运行环境结束 -----\n"
 
 echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
 

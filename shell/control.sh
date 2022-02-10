@@ -24,7 +24,7 @@ function Update_Shell() {
 function Hang_Control() {
     local HangUpScripts=""
     local ScriptFiles ServiceName ScriptFormt LastRunTime ExitStatus
-    [[ -z ${HangUpScripts} ]] && echo -e "\n目前没有挂机类的活动脚本哦~\n" && exit 0
+    [[ -z ${HangUpScripts} ]] && echo -e "\n$TIPS 目前没有挂机类的活动脚本，不启动挂机程序\n" && exit 0
     case $1 in
     ## 开启/重启服务
     up)
