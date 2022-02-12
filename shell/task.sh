@@ -2203,7 +2203,7 @@ function List_Local_Scripts() {
                 fi
             done
         else
-            echo -e "您还没有配置主要仓库"
+            echo -e "请先配置仓库"
         fi
     }
 
