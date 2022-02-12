@@ -32,6 +32,7 @@ git fetch --all
 git reset --hard origin
 ## 检测配置文件
 ${ContrlCmd} check files >/dev/null 2>&1
+sleep 2
 ${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 

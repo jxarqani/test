@@ -2186,21 +2186,25 @@ function List_Local_Scripts() {
         ;;
     esac
 
-    ## 列出 Scripts 仓库中的脚本
+    ## 列出 Scripts 主要仓库中的脚本
     function List_Scripts() {
-        cd $ScriptsDir
-        local ListFiles=($(
-            git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
-        ))
-        echo -e "\n❖ Scripts 仓库的脚本："
-        local NumTmp=0
-        for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            if [ -f ${ListFiles[i]} ]; then
-                Query_Name ${ListFiles[i]}
-                let NumTmp++
-                printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
-            fi
-        done
+        echo -e "\n❖ Scripts 主要仓库脚本："
+        if [ -d $ScriptsDir/.git ]; then
+            cd $ScriptsDir
+            local ListFiles=($(
+                git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
+            ))
+            local NumTmp=0
+            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                if [ -f ${ListFiles[i]} ]; then
+                    Query_Name ${ListFiles[i]}
+                    let NumTmp++
+                    printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
+                fi
+            done
+        else
+            echo -e "您还没有配置主要仓库"
+        fi
     }
 
     ## 列出所有 Own 仓库中的脚本
@@ -2240,7 +2244,7 @@ function List_Local_Scripts() {
                 fi
             ))
 
-            echo -e "\n❖ Own 仓库的脚本："
+            echo -e "\n❖ Own 扩展脚本："
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 FileName=${ListFiles[i]##*/}
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
@@ -2253,16 +2257,18 @@ function List_Local_Scripts() {
 
     ## 列出 scripts 目录下的第三方脚本
     function List_Other() {
-        cd $ScriptsDir
-        local ListFiles=($(
-            ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
-        ))
-        if [ ${#ListFiles[*]} != 0 ]; then
-            echo -e "\n❖ 第三方脚本："
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_Name ${ListFiles[i]}
-                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
-            done
+        if [ -d $ScriptsDir/.git ]; then
+            cd $ScriptsDir
+            local ListFiles=($(
+                ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
+            ))
+            if [ ${#ListFiles[*]} != 0 ]; then
+                echo -e "\n❖ 第三方脚本："
+                for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                    Query_Name ${ListFiles[i]}
+                    printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
+                done
+            fi
         fi
     }
 
@@ -2274,7 +2280,7 @@ function List_Local_Scripts() {
                 if [ "$(ls -A $WorkDir)" = "" ]; then
                     echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
                 else
-                    echo -e "\n$ERROR 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
+                    echo -e "\n$FAIL 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
                 fi
                 exit ## 终止退出
             fi

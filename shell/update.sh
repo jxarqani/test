@@ -687,7 +687,7 @@ function Update_Own() {
         fi
         echo ''
     else
-        perl -i -ne "{print unless / $TaskCmd $OwnDir/}" $ListCrontabUser
+        perl -i -ne "{print unless / $TaskCmd \/jd\/own/}" $ListCrontabUser
     fi
 }
 
