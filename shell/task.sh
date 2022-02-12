@@ -1357,7 +1357,8 @@ function Add_OwnRepo() {
         local CurrentDir=$(pwd)
         ## 导入用户的定时
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
-        [ ! -f $ListOwnScripts ] && Make_Dir $LogTmpDir && touch $ListOwnScripts
+        Make_Dir $LogTmpDir
+        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
         grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
         local ExitStatus=$?
         [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
@@ -1394,6 +1395,7 @@ function Add_OwnRepo() {
                 fi
             fi
         done
+        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
         ## 汇总去重
         echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
         ## 导入用户的定时
@@ -1436,9 +1438,23 @@ function Add_OwnRepo() {
                     for FilePath in $Detail; do
                         local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
                         if [ -f ${FilePath} ]; then
-                            perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                                perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                                sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                            local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | grep -Ev "^\*|^ \*" | head -1)
+                            ## 新增定时任务自动禁用
+                            if [[ ${DisableNewOwnRepoCron} == true ]]; then
+                                echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                            else
+                                grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
+                                if [ $? -eq 0 ]; then
+                                    ## 重复定时任务自动禁用
+                                    if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
+                                        echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                                    else
+                                        echo ${Cron} >>$ListCrontabOwnTmp
+                                    fi
+                                else
+                                    echo ${Cron} >>$ListCrontabOwnTmp
+                                fi
+                            fi
                         fi
                     done
                     perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
