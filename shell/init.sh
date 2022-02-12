@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-10
+## Modified: 2022-02-12
 
 set -e
 RED='\033[31m'
@@ -27,10 +27,11 @@ fi
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码开始 -----\n"
 cd ${WORK_DIR}
-sleep 3
+sleep 2
 git fetch --all
-git reset --hard origin/master
-taskctl check files >/dev/null 2>&1
+git reset --hard origin
+## 检测配置文件
+${ContrlCmd} check files >/dev/null 2>&1
 ${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 

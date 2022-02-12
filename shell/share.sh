@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-22
+## Modified: 2022-02-12
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -37,11 +37,13 @@ FileExtra=$ConfigDir/extra.sh
 FileNotify=$UtilsDir/notify.js
 FileSendNotify=$UtilsDir/sendNotify.js
 FileSendNotifyScripts=$ScriptsDir/sendNotify.js
+FileSendNotifyUser=$ConfigDir/sendNotify.js
 FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
 FileProcessList=$RootDir/.process_list.log
 FileUpdateCookie=$UtilsDir/UpdateCookies.js
 FileScriptDictionary=$ShellDir/script_name.sh
+FileBotSourceCode=$UtilsDir/bot-main.zip
 
 ## 清单
 ListCronScripts=$ScriptsDir/docker/crontab_list.sh
@@ -88,13 +90,10 @@ TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
 RawDirUtils="jdCookie\.js|USER_AGENTS|sendNotify\.js|node_modules|\.json\b"
 ShieldingScripts="\.json\b|jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts"
 ShieldingKeywords="AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|jdEnv|${ShieldingScripts}"
-ScriptsDirReplaceFiles="sendNotify.js"
+CoreFiles="jdCookie.js USER_AGENTS.js"
+ScriptsDirReplaceFiles=""
 
 ## URL
-GithubProxy=${USER_PROXY_URL:-"https://endpoint.fastgit.org/"}
-ScriptsRepoBranch="jd_scripts"
-ScriptsRepoUrl="https://github.com/Aaron-lv/sync.git"
-BotRepoGitUrl="https://github.com/SuMaiKaDe/bot.git"
 SignsRepoGitUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
 
 ## 用于组合互助码的数组（保留部分限时活动变量）
@@ -259,6 +258,16 @@ function Notify() {
     fi
 }
 
+## 应用推送通知模块
+function Apply_SendNotify() {
+    local WorkDir=$1
+    if [[ ${EnableCustomNotify} == true ]] && [ -s $FileSendNotifyUser ]; then
+        cp -rf $FileSendNotifyUser $WorkDir
+    else
+        cp -rf $FileSendNotify $WorkDir
+    fi
+}
+
 ## 创建目录
 function Make_Dir() {
     local Dir=$1
@@ -326,7 +335,7 @@ function Help() {
  ❋ 用于执行脚本的可选参数： 
     ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
     ${BLUE}-w${PLAIN} | ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后面需跟时间值
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
@@ -370,7 +379,7 @@ function Help() {
  ❋ 用于执行脚本的可选参数： 
     ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
     ${BLUE}-w${PLAIN} | ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后面需跟时间值
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于远程仓库的脚本
+    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
     ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
     ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
     ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后面需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数

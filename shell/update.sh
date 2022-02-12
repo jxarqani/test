@@ -1,17 +1,9 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-07
+## Modified: 2022-02-12
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
-
-## 定义 Scripts 仓库
-ScriptsBranch=${ScriptsRepoBranch}
-if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
-    ScriptsUrl=${ScriptsRepoUrl}
-else
-    ScriptsUrl=$(echo ${ScriptsRepoUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}')
-fi
 
 ## 创建日志文件夹
 Make_Dir $LogDir
@@ -361,26 +353,34 @@ function Add_Cron_Own() {
                     local Tmp3=$(echo "${Tmp1}" | grep -Eo "[0-9]" | head -1)
                     ## 判定开头是否为空值
                     if [[ $(echo "${Tmp2}" | perl -pe '{s| ||g;}') = "" ]]; then
-                        cron=$(echo "${Tmp1}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+                        local Cron=$(echo "${Tmp1}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
                     else
-                        cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+                        local Cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
                     fi
                     ## 如果未检测出定时则随机一个
-                    if [ -z "${cron}" ]; then
+                    if [ -z "${Cron}" ]; then
                         echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     else
-                        echo "$cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                        echo "$Cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     fi
                 else
+                    local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | grep -Ev "^\*|^ \*" | head -1)
+
                     ## 新增定时任务自动禁用
                     if [[ ${DisableNewOwnRepoCron} == true ]]; then
-                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                            sort -u | grep -Ev "^\*|^ \*" | head -1 | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                        echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                     else
-                        perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                            perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                            sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                        grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
+                        if [ $? -eq 0 ]; then
+                            ## 重复定时任务自动禁用
+                            if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
+                                echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                            else
+                                echo ${Cron} >>$ListCrontabOwnTmp
+                            fi
+                        else
+                            echo ${Cron} >>$ListCrontabOwnTmp
+                        fi
                     fi
                 fi
             fi
@@ -553,51 +553,59 @@ function Update_Shell() {
 ## 更新 Scripts 仓库
 function Update_Scripts() {
     local ScriptsDependOld ScriptsDependNew
-    echo -e "-------------------------------------------------------------"
-    ## 更新前先存储 package.json
-    [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
     ## 更新仓库
     if [ -d $ScriptsDir/.git ]; then
-        Git_Pull $ScriptsDir $ScriptsBranch
-    else
-        Git_Clone $ScriptsUrl $ScriptsDir $ScriptsBranch
-    fi
-    ## 文件替换
-    for file in ${ScriptsDirReplaceFiles}; do
-        [ -f "$UtilsDir/$file" ] && cp -rf "$UtilsDir/$file" $ScriptsDir
-    done
-    if [[ $ExitStatus -eq 0 ]]; then
-        ## 安装模块
-        [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
-        [ -f $ScriptsDir/package.json ] && ScriptsDependNew=$(cat $ScriptsDir/package.json)
-        [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
-        ## 检测定时清单
-        if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
-            cp -rf $UtilsDir/crontab_list_public.sh $ScriptsDir/docker
-        fi
-        ## 比较定时任务
-        Gen_ListTask
-        Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
+        echo -e "-------------------------------------------------------------"
+        ## 更新前先存储 package.json
+        [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
+        ## 更新仓库
+        local CurrentDir=$(pwd)
+        cd $ScriptsDir
+        echo -e "\n$WORKING 开始更新主要仓库：${BLUE}$ScriptsDir${PLAIN}\n"
+        git fetch --all
+        ExitStatus=$?
+        git pull
+        git reset --hard origin
+        cd $CurrentDir
+        ## 推送通知
+        Apply_SendNotify $ScriptsDir
+        ## 文件替换
+        for file in ${ScriptsDirReplaceFiles}; do
+            [ -f "$UtilsDir/$file" ] && cp -rf "$UtilsDir/$file" $ScriptsDir
+        done
+        if [[ $ExitStatus -eq 0 ]]; then
+            ## 安装模块
+            [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
+            [ -f $ScriptsDir/package.json ] && ScriptsDependNew=$(cat $ScriptsDir/package.json)
+            [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
+            ## 检测定时清单
+            if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
+                cp -rf $UtilsDir/crontab_list_public.sh $ScriptsDir/docker
+            fi
+            ## 比较定时任务
+            Gen_ListTask
+            Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
 
-        ## 删除定时任务 & 通知
-        if [[ ${AutoDelCron} == true ]] && [ -s $ListTaskDrop ]; then
-            Output_List_Add_Drop $ListTaskDrop "失效"
-            Del_Cron $ListTaskDrop $TaskCmd
-        fi
-        ## 新增定时任务 & 通知
-        if [[ ${AutoAddCron} == true ]] && [ -s $ListTaskAdd ]; then
-            Output_List_Add_Drop $ListTaskAdd "新"
-            Add_Cron_Scripts $ListTaskAdd
-            Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
-        fi
+            ## 删除定时任务 & 通知
+            if [[ ${AutoDelCron} == true ]] && [ -s $ListTaskDrop ]; then
+                Output_List_Add_Drop $ListTaskDrop "失效"
+                Del_Cron $ListTaskDrop $TaskCmd
+            fi
+            ## 新增定时任务 & 通知
+            if [[ ${AutoAddCron} == true ]] && [ -s $ListTaskAdd ]; then
+                Output_List_Add_Drop $ListTaskAdd "新"
+                Add_Cron_Scripts $ListTaskAdd
+                Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
+            fi
 
-        echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
-    else
-        echo -e "\n$FAIL Scripts 仓库更新失败，请检查原因...\n"
+            echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
+        else
+            echo -e "\n$FAIL Scripts 仓库更新失败，请检查原因...\n"
+        fi
     fi
 }
 
-## 更新 Own 仓库和 Raw 脚本
+## 更新 Own Repo 仓库和 Own RawFile 脚本
 function Update_Own() {
     Count_OwnRepoSum
     Gen_Own_Dir_And_Path
@@ -621,7 +629,7 @@ function Update_Own() {
         EnableRepoUpdate="false"
         EnableRawUpdate="true"
         if [[ ${#OwnRawFile[*]} -eq 0 ]]; then
-            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Raw 脚本！\n"
+            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Own RawFile 脚本！\n"
             exit ## 终止退出
         fi
         Title $1
@@ -679,7 +687,7 @@ function Update_Own() {
         fi
         echo ''
     else
-        perl -i -ne "{print unless / $TaskCmd \/jd\/own/}" $ListCrontabUser
+        perl -i -ne "{print unless / $TaskCmd $OwnDir/}" $ListCrontabUser
     fi
 }
 
@@ -833,7 +841,7 @@ function Combin_Function() {
     0)
         Title "all"
         Update_Shell
-        # Update_Scripts
+        Update_Scripts
         Update_Own "all"
         ExtraShell
         Handle_Crontab
@@ -845,7 +853,7 @@ function Combin_Function() {
         all)
             Title $1
             Update_Shell
-            # Update_Scripts
+            Update_Scripts
             Update_Own "all"
             ExtraShell
             ;;
@@ -854,8 +862,12 @@ function Combin_Function() {
             Update_Shell
             ;;
         scripts)
-            Title $1
-            Update_Scripts
+            if [ -d $ScriptsDir/.git ]; then
+                Title $1
+                Update_Scripts
+            else
+                echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
+            fi
             ;;
         own)
             Title $1

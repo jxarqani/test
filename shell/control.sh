@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-22
+## Modified: 2022-02-12
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -227,6 +227,12 @@ function Bot_Control() {
 
     ## 安装 Telegram Bot
     function Install_Bot() {
+        ## 解压源码
+        function Decompression() {
+            rm -rf $BotRepoDir
+            unzip $FileBotSourceCode -d $UtilsDir
+            mv -f $UtilsDir/bot-main $BotRepoDir
+        }
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖\n"
         apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
@@ -235,38 +241,19 @@ function Bot_Control() {
         else
             echo -e "\n$FAIL 依赖安装失败，请检查原因后重试！\n"
         fi
-        ## 拉取组件
-        if [ -d $BotRepoDir/.git ]; then
-            cd $BotRepoDir
-            echo -e "$WORKING 开始更新仓库\n"
-            if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
-                git remote set-url origin ${BotRepoGitUrl} >/dev/null
-            else
-                git remote set-url origin $(echo ${BotRepoGitUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}') >/dev/null
-            fi
-            git reset --hard origin/main >/dev/null
-            git fetch --all
-            local ExitStatusBot=$?
-            git reset --hard origin/main
-            git pull
+        ## 解压源码
+        if [ -d $BotRepoDir ]; then
+            echo -e "$WORKING 开始更新源码...\n"
+            Decompression
+            echo -e "\n$SUCCESS 源码更新完成\n"
         else
-            echo -e "$WORKING 开始克隆仓库...\n"
-            rm -rf $BotRepoDir
-            if [[ ${ENABLE_SCRIPTS_PROXY} == false ]]; then
-                git clone -b main ${BotRepoGitUrl} $BotRepoDir
-            else
-                git clone -b main $(echo ${BotRepoGitUrl} | perl -pe '{s|github\.com|github\.com\.cnpmjs\.org|g}') $BotRepoDir
-            fi
-            local ExitStatusBot=$?
+            echo -e "$WORKING 开始解压源码...\n"
+            Decompression
+            echo -e "\n$SUCCESS 源码安装完成\n"
         fi
-        if [[ ${ExitStatusBot} -eq 0 ]]; then
-            echo -e "\n$SUCCESS 仓库更新完成\n"
-            sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
-        else
-            echo -e "\n$FAIL 仓库克隆失败，请检查原因后重试！\n"
-            exit ## 终止退出
-        fi
-
+        ## 处理PM2启动参数
+        sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
+        ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
         fi
@@ -326,9 +313,16 @@ function Bot_Control() {
                     errored)
                         echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                         pm2 delete jbot >/dev/null 2>&1
-                        rm -rf $BotRepoDir $BotDir $RootDir/bot.session
+                        ## 保存用户的bot脚本
+                        mv -f $BotDir/diy/* $RootDir/tmp
+                        rm -rf $BotDir $RootDir/bot.session $RootDir/tmp/__pycache__ $RootDir/tmp/example.py
                         Install_Bot
                         cp -rf $BotRepoDir/jbot $RootDir
+                        if [[ "$(ls -A $RootDir/tmp)" != "" ]]; then
+                            mv -f $RootDir/tmp/* $BotDir/diy
+                        fi
+                        rm -rf $RootDir/tmp
+                        ## 软链接
                         [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                         PM2_List_All_Services
@@ -341,7 +335,6 @@ function Bot_Control() {
                         ;;
                     esac
                 else
-                    rm -rf $BotRepoDir
                     Install_Bot
                     cp -rf $BotRepoDir/jbot $RootDir
                     [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
