@@ -66,7 +66,7 @@ if [[ ${ENABLE_TG_BOT} == true ]]; then
     ;;
   esac
 elif [[ ${ENABLE_TG_BOT} == false ]]; then
-  echo -e "已设置为不启动电报机器人"
+  echo -e "已设置为不自动启动电报机器人"
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 电报机器人结束 -----\n"
 
