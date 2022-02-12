@@ -688,7 +688,6 @@ function Update_Own() {
         echo ''
     else
         perl -i -ne "{print unless / $TaskCmd \/jd\/own/}" $ListCrontabUser
-        echo -e "您还没有配置任何 Own Repo 扩展仓库或 Own RawFile 扩展脚本"
     fi
 }
 
