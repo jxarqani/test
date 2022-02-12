@@ -368,18 +368,18 @@ function Add_Cron_Own() {
 
                     ## 新增定时任务自动禁用
                     if [[ ${DisableNewOwnRepoCron} == true ]]; then
-                        echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                        echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                     else
                         grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
                         if [ $? -eq 0 ]; then
                             ## 重复定时任务自动禁用
                             if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
-                                echo ${Cron} | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                                echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                             else
-                                echo ${Cron} >>$ListCrontabOwnTmp
+                                echo "${Cron}" >>$ListCrontabOwnTmp
                             fi
                         else
-                            echo ${Cron} >>$ListCrontabOwnTmp
+                            echo "${Cron}" >>$ListCrontabOwnTmp
                         fi
                     fi
                 fi
