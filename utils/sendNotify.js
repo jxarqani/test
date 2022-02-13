@@ -208,6 +208,11 @@ if (process.env.TG_ONLY) {
     tg_only = process.env.TG_ONLY;
 }
 
+let notify_skip_text = '';
+// 屏蔽推送的关键词，多个使用&连接
+if (process.env.NOTIFY_MASKING) {
+    notify_skip_text = process.env.NOTIFY_MASKING;
+}
 
 
 function nameConvert(pt_pin, remarks = '', text) {
@@ -244,7 +249,19 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
 
         }
     }
-    console.log('')
+
+    if (notify_skip_text && desp) {
+        const Notify_SkipText = notify_skip_text.split('&');
+        if (Notify_SkipText.length > 0) {
+            for (var Templ in Notify_SkipText) {
+                if (desp.indexOf(Notify_SkipText[Templ]) != -1) {
+                    console.log("检测内容到内容存在屏蔽推送的关键字(" + Notify_SkipText[Templ] + ")，将跳过推送...");
+                    return;
+                }
+            }
+        }
+    }
+
     if (tg_only) {
         text = text.match(/.*?(?=\s?-)/g) ? text.match(/.*?(?=\s?-)/g)[0] : text;
         await Promise.all([
@@ -269,7 +286,6 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
             wxPusherNotify(text,desp) //wxPusher
         ])
     }
-    console.log('')
 }
 
 
