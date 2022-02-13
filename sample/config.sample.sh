@@ -1,4 +1,4 @@
-## Version: v1.11.1
+## Version: v1.11.2
 ## Date: 2022-02-13
 ## Update Content: 1. 新增 "Own 仓库脚本重复定时任务自动禁用功能" 扩展仓库环境变量 2. 新增 "自定义推送通知模块" 项目功能环境变量 3. 新增 "通知屏蔽关键词" 推送通知环境变量 4. 修改部分注释内容，调整排版
 
@@ -27,7 +27,7 @@ Cookie2=""
 # 注意在使用指定账号或分组账号参数运行脚本时所有屏蔽设置均不会生效
 TempBlockCookie=""
 
-# 如果只想屏蔽某账号不执行特定脚本，可以参考下面这个 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
+# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
 # 脚本名称请去掉后缀格式否则不能被识别，若同时与全局屏蔽使用则应确保全局屏蔽的账号也在其中，因为当执行对应脚本时变量会被二次覆盖
 # 代码示例：
 # case $1 in
@@ -42,7 +42,7 @@ TempBlockCookie=""
 
 ## ❖ 自动增加新的账号
 # 控制扫码/验证码登陆或通过调用 OpenApi 后是否自动添加新的 Cookie
-# 如想禁用请修改位 "false"，可避免自动添加陌生人的账号
+# 如想禁用请修改为 "false"，可避免自动添加陌生人的账号
 # export CK_AUTO_ADD="true"
 
 
@@ -72,11 +72,11 @@ DisableNewCron=""
 
 ## ❖ Own Repo 扩展仓库
 # 项目文档：https://supermanito.github.io/Helloworld/#/config/扩展仓库
-# 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方的变量添加更多的仓库到本地
+# 除 Scripts 主库外用户还可以通过定义下方的变量添加更多的仓库到本地
 
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
-# 如果没有外网环境不能有效连通 GitHub 建议加上代理
+# 如果您的设备不能有效连通 GitHub 建议加上代理，否则可能会出现连接缓慢、丢包等情况，非常影响使用
 
 OwnRepoUrl1=""
 OwnRepoUrl2=""
@@ -94,13 +94,13 @@ OwnRepoPath2=""
 #              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中OwnRepoPath3。
 # 所有脚本存放在 own 目录下，三个清单必须一一对应，示例如下：
 # OwnRepoUrl1="https://gitee.com/abc/jdtsa.git"
-# OwnRepoUrl2="https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git"
+# OwnRepoUrl2="https://github.com/nedcd/jxddfsa.git"
 # OwnRepoUrl3="git@github.com:eject/poex.git"
 # OwnRepoBranch1="master"   # 代表第1个仓库 https://gitee.com/abc/jdtsa.git 使用 "master" 主分支
-# OwnRepoBranch2="main"     # 代表第2个仓库 https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
+# OwnRepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
 # OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
 # OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
+# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## ❖ Own Repo 扩展仓库脚本定时任务开关（自动增加/自动删除）
@@ -114,8 +114,8 @@ AutoDelOwnRepoCron="true"
 DisableNewOwnRepoCron=""
 
 ## ❖ Own Repo 扩展仓库脚本重复定时任务自动禁用功能
-# 重复脚本依据脚本名判断，自动检测定时清单中的同名脚本，如需启用该功能请设置为 "true"
-# 启用该功能后如果定时清单中已存在相同脚本名称的定时任务，那么导入的定时任务会被注释，注意只有拉取单个库时有效，同时拉取多个仓库无效
+# 重复脚本依据脚本名判断，自动检测定时清单中 Own 目录下的同名脚本，如需启用该功能请设置为 "true"
+# 启用该功能后如果定时清单中已存在相同脚本名称的定时任务，那么导入的定时任务会被注释，注意只有在拉取单个仓库时有效，同时拉取多个仓库时无效
 DisableDuplicateOwnRepoCron=""
 
 ## ❖ Own Repo 扩展仓库脚本定时任务屏蔽功能
@@ -136,16 +136,17 @@ OwnRepoCronShielding=""
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
 # 导入前请先确认目标脚本中是否含有 `Crontab 表达式`，如若没有或者未识别到那么将随机指定一个每天执行一次的定时
 # 注意缩进和格式，每行开头两个或四个空格，一行一个脚本链接，首尾一对半角括号
-# 如果没有外网环境不能有效连通 GitHub 建议使用代理，推荐 jsDelivr，可使用官方转换工具一键转换为代理链接 https://www.jsdelivr.com/github
+# 如果您的设备不能有效连通 GitHub 则需要使用代理，建议优先使用您的个人代理
+# 如果您没有代理则推荐使用 jsDelivr 公共代理，可使用官方代理链接转换工具 https://www.jsdelivr.com/github
 
 OwnRawFile=(
 )
 
 # 示例：
 # OwnRawFile=(
-#   https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/jd_dudi.js
-#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/z_dida.js
+#   https://gitee.com/wabdwdd/scipts/raw/master/example.js
+#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/test.js
+#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/utils.js
 # )
 
 ## ❖ Own RawFile 扩展脚本定时任务开关（自动增加/自动删除）
@@ -200,13 +201,13 @@ AutoDelRawFiles=""
 # 全局代理，如想全局启用代理请赋值为 "true"
 EnableGlobalProxy=""
 
-# 如果只是想在执行部分脚本时使用代理，可以参考下面 case 这个命令的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
+# 如果只是想在执行部分脚本时使用代理，可以参考下方 case 语句的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
 # case $1 in
-# jd_test)
-#   EnableGlobalProxy="true"    ## 在执行 jd_test 脚本时启用代理
+# test)
+#   EnableGlobalProxy="true"    ## 在执行 test 脚本时启用代理
 #   ;;
-# jd_abc | jd_123)
-#   EnableGlobalProxy="true"    ## 在执行 jd_abc 和 jd_123 脚本时启用代理
+# utils | warp)
+#   EnableGlobalProxy="true"    ## 在执行 utils 和 warp 脚本时启用代理
 #   ;;
 # *)
 #   EnableGlobalProxy="false"
