@@ -210,10 +210,9 @@ if (process.env.TG_ONLY) {
 
 let notify_skip_text = '';
 // 屏蔽推送的关键词，多个使用&连接
-if (process.env.NOTIFY_SKIP_TEXT) {
-    notify_skip_text = process.env.NOTIFY_SKIP_TEXT;
+if (process.env.NOTIFY_MASKING) {
+    notify_skip_text = process.env.NOTIFY_MASKING;
 }
-
 
 
 function nameConvert(pt_pin, remarks = '', text) {

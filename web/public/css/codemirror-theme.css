@@ -64,11 +64,11 @@ panda-syntax：暗黑主题
 
 /*选中内容背景*/
 .cm-s-panda-syntax .CodeMirror-selected {
-    background: rgb(106, 106, 106);
+    background: rgb(87, 87, 87);
 }
 
 .cm-s-juejin .CodeMirror-selected {
-    background: rgb(200, 200, 200);
+    background: rgb(222, 219, 219);
 }
 
 /*对比页面选中内容背景*/

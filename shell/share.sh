@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-12
+## Modified: 2022-02-13
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -261,6 +261,7 @@ function Notify() {
 ## 应用推送通知模块
 function Apply_SendNotify() {
     local WorkDir=$1
+    Import_Config_Not_Check
     if [[ ${EnableCustomNotify} == true ]] && [ -s $FileSendNotifyUser ]; then
         cp -rf $FileSendNotifyUser $WorkDir
     else
