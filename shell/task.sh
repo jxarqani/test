@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-12
+## Modified: 2022-02-14
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -94,7 +94,7 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
