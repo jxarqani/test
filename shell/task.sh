@@ -202,7 +202,7 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
@@ -324,6 +324,8 @@ function Find_Script() {
             done
             FileName=${FileNameTmp%.*}
             FileDir=$ScriptsDir
+            ## 添加依赖文件
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
