@@ -88,33 +88,13 @@ function Count_OwnRepoSum() {
     fi
 }
 
-## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
-## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
-function Gen_Own_Dir_And_Path() {
-    local scripts_path_num="-1"
-    local repo_num Tmp1 Tmp2 Tmp3 Tmp4 Tmp5 dir
-
-    if [[ $OwnRepoSum -ge 1 ]]; then
-        for ((i = 1; i <= $OwnRepoSum; i++)); do
-            repo_num=$((i - 1))
-            ## 仓库地址
-            Tmp1=OwnRepoUrl$i
-            array_own_repo_url[$repo_num]=${!Tmp1}
-            ## 仓库分支
-            Tmp2=OwnRepoBranch$i
-            array_own_repo_branch[$repo_num]=${!Tmp2}
-            ## 仓库文件夹名（作者_仓库名）
-            array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
-            ## 仓库路径
-            array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
-            Tmp3=OwnRepoPath$i
-            if [[ ${!Tmp3} ]]; then
-                for dir in ${!Tmp3}; do
-                    let scripts_path_num++
-                    Tmp4="${array_own_repo_dir[repo_num]}/$dir"
-                    Tmp5=$(echo $Tmp4 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
-                    array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp5"
-                done
+        ## 判定变量是否存在否则报错终止退出
+        if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
+            ## 添加依赖文件
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
+            ## 定义日志路径
+            if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
+                LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
             else
                 let scripts_path_num++
                 array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$repo_num]}"
@@ -696,14 +676,424 @@ function ExtraShell() {
     if [[ ${EnableExtraShell} = true || ${EnableExtraShellSync} = true ]]; then
         echo -e "-------------------------------------------------------------\n"
     fi
-    ## 同步用户的 extra.sh
-    if [[ $EnableExtraShellSync == true ]] && [[ $ExtraShellSyncUrl ]]; then
-        echo -e "$WORKING 开始同步自定义脚本：$ExtraShellSyncUrl\n"
-        wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 20
-        if [ $? -eq 0 ]; then
-            mv -f "$FileExtra.new" "$FileExtra"
-            echo -e "$COMPLETE 自定义脚本同步完成\n"
-            sleep 1s
+}
+
+## 管理全局环境变量功能
+function Manage_Env() {
+    local Variable Value Remarks FullContent Input1 Input2 Keys
+
+    ## 控制变量启用与禁用
+    function ControlEnv() {
+        local VariableTmp Mod OldContent NewContent InputA InputB
+        case $# in
+        1)
+            VariableTmp=$1
+            ;;
+        2)
+            Mod=$1
+            VariableTmp=$2
+            ;;
+        *)
+            Output_Command_Error 1 ## 命令错误
+            exit                   ## 终止退出
+            ;;
+        esac
+        OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
+        ## 判断变量是否被注释
+        grep "[# ]export ${VariableTmp}=" -q $FileConfUser
+        local ExitStatus=$?
+        case $# in
+        1)
+            if [[ $ExitStatus -eq 0 ]]; then
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已禁用，是否启用? [Y/n] ${PLAIN}")" InputA
+                    [ -z ${InputA} ] && InputA=Y
+                    case ${InputA} in
+                    [Yy] | [Yy][Ee][Ss])
+                        sed -i "s/.*export ${VariableTmp}=/export ${VariableTmp}=/g" $FileConfUser
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+            else
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量已启用，是否禁用? [Y/n] ${PLAIN}")" InputB
+                    [ -z ${InputB} ] && InputB=Y
+                    case ${InputB} in
+                    [Yy] | [Yy][Ee][Ss])
+                        sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+            fi
+            ;;
+        2)
+            if [[ $ExitStatus -eq 0 ]]; then
+                case ${Mod} in
+                enable)
+                    sed -i "s/.*export ${VariableTmp}=/export ${VariableTmp}=/g" $FileConfUser
+                    ;;
+                disable)
+                    echo -e "\n$COMPLETE 该环境变量已经禁用，不执行任何操作\n"
+                    exit ## 终止退出
+                    ;;
+                *)
+                    Output_Command_Error 1 ## 命令错误
+                    exit                   ## 终止退出
+                    ;;
+                esac
+            else
+                case ${Mod} in
+                enable)
+                    echo -e "\n$COMPLETE 该环境变量已经启用，不执行任何操作\n"
+                    exit ## 终止退出
+                    ;;
+                disable)
+                    sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
+                    ;;
+                *)
+                    Output_Command_Error 1 ## 命令错误
+                    exit                   ## 终止退出
+                    ;;
+                esac
+            fi
+            ;;
+        esac
+
+        ## 前后对比
+        NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
+        ## 结果判定
+        if [[ ${OldContent} = ${NewContent} ]]; then
+            echo -e "\n$FAIL 环境变量修改失败\n"
+        else
+            case ${Mod} in
+            enable)
+                echo -e "\n$COMPLETE 环境变量已启用\n"
+                ;;
+            disable)
+                echo -e "\n$COMPLETE 环境变量已禁用\n"
+                ;;
+            esac
+        fi
+    }
+
+    ## 修改变量
+    function ModifyEnv() {
+        local VariableTmp=$1
+        local OldContent NewContent Remarks InputA InputB InputC
+        OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
+        Remarks=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$NF}')
+        case $# in
+        1)
+            read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${VariableTmp}${PLAIN} ${BOLD}新的值：${PLAIN}")" InputA
+            local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            ## 判断变量备注内容
+            if [[ ${Remarks} != "" ]]; then
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改? [Y/n] ${PLAIN}")" InputB
+                    [ -z ${InputB} ] && InputB=B
+                    case ${InputB} in
+                    [Yy] | [Yy][Ee][Ss])
+                        read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}新的备注内容：${PLAIN}")" InputC
+                        Remarks=" # ${InputC}"
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+            fi
+            ;;
+        2)
+            local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            ;;
+        3)
+            local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            Remarks=" # $3"
+            ;;
+        *)
+            Output_Command_Error 1 ## 命令错误
+            exit                   ## 终止退出
+            ;;
+        esac
+
+        ## 修改
+        sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
+
+        ## 前后对比
+        NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
+        echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
+        ## 结果判定
+        grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
+        local ExitStatus=$?
+        if [[ $ExitStatus -eq 0 ]]; then
+            echo -e "\n$COMPLETE 环境变量修改完毕\n"
+        else
+            echo -e "\n$FAIL 环境变量修改失败\n"
+        fi
+    }
+
+    case $1 in
+    ## 新增变量
+    add)
+        case $# in
+        1)
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要添加的环境变量名称：${PLAIN}")" Variable
+            ## 检测是否已存在该变量
+            grep ".*export ${Variable}=" -q $FileConfUser
+            local ExitStatus=$?
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 是否继续修改? [Y/n] ${PLAIN}")" Input1
+                    [ -z ${Input1} ] && Input1=Y
+                    case ${Input1} in
+                    [Yy] | [Yy][Ee][Ss])
+                        ModifyEnv "${Variable}"
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        echo -e "\n$COMPLETE 结束，未做任何更改\n"
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+            else
+                read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的值：${PLAIN}")" Value
+                ## 插入备注
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 是否添加备注? [Y/n] ${PLAIN}")" Input2
+                    [ -z ${Input2} ] && Input2=Y
+                    case ${Input2} in
+                    [Yy] | [Yy][Ee][Ss])
+                        read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
+                        FullContent="export ${Variable}=\"${Value}\" # ${Remarks}"
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        FullContent="export ${Variable}=\"${Value}\""
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+                sed -i "9 i ${FullContent}" $FileConfUser
+                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
+                echo -e "\n$COMPLETE 环境变量已添加\n"
+            fi
+            ;;
+        3 | 4)
+            Variable=$2
+            Value=$3
+            ## 检测是否已存在该变量
+            grep ".*export ${Variable}=" -q $FileConfUser
+            local ExitStatus=$?
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
+                echo -e "\n$ERROR 环境变量 ${BLUE}${Variable}${PLAIN} 已经存在，请直接修改！"
+                case $# in
+                3)
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\"${PLAIN}\n"
+                    ;;
+                4)
+                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
+                    ;;
+                esac
+            else
+                case $# in
+                3)
+                    FullContent="export ${Variable}=\"${Value}\""
+                    ;;
+                4)
+                    FullContent="export ${Variable}=\"${Value}\" # $4"
+                    ;;
+                esac
+                sed -i "9 i ${FullContent}" $FileConfUser
+                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
+                echo -e "\n$COMPLETE 环境变量已添加\n"
+            fi
+            ;;
+        esac
+        ;;
+    ## 删除变量
+    del)
+        case $# in
+        1)
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Variable
+            VariableNums=$(grep -c ".*export ${Variable}=" $FileConfUser | head -n 1)
+            local VariableTmp=$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行: |g;}')
+            if [[ ${VariableNums} -ne "0" ]]; then
+                if [[ ${VariableNums} -gt "1" ]]; then
+                    echo -e "\n${BLUE}检测到多个环境变量：${PLAIN}\n${VariableTmp}"
+                elif [[ ${VariableNums} -eq "1" ]]; then
+                    echo -e "\n${BLUE}检测到环境变量：${PLAIN}\n${VariableTmp}"
+                fi
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 是否确认删除? [Y/n] ${PLAIN}")" Input1
+                    [ -z ${Input1} ] && Input1=Y
+                    case ${Input1} in
+                    [Yy] | [Yy][Ee][Ss])
+                        FullContent="$(grep ".*export ${Variable}=" $FileConfUser)"
+                        sed -i "/export ${Variable}=/d" $FileConfUser
+                        if [[ ${VariableNums} -gt "1" ]]; then
+                            echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
+                        elif [[ ${VariableNums} -eq "1" ]]; then
+                            echo -e "\n${RED}-${PLAIN} \033[41;37m${FullContent}${PLAIN}"
+                        fi
+                        echo -e "\n$COMPLETE 环境变量已删除\n"
+                        break
+                        ;;
+                    [Nn] | [Nn][Oo])
+                        echo -e "\n$COMPLETE 结束，未做任何更改\n"
+                        break
+                        ;;
+                    *)
+                        echo -e "\n${YELLOW}----- 输入错误 -----${PLAIN}"
+                        ;;
+                    esac
+                done
+            else
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
+            fi
+            ;;
+        2)
+            Variable=$2
+            ## 检测是否已存在该变量
+            VariableNums=$(grep -c ".*export ${Variable}=" $FileConfUser | head -n 1)
+            if [[ ${VariableNums} -ne "0" ]]; then
+                FullContent="$(grep ".*export ${Variable}=" $FileConfUser)"
+                sed -i "/export ${Variable}=/d" $FileConfUser
+                if [[ ${VariableNums} -gt "1" ]]; then
+                    echo -e "\n$(echo -e "${FullContent}" | perl -pe '{s|^|\033[41;37m|g; s|$|\033[0m|g;}' | sed '$d')"
+                elif [[ ${VariableNums} -eq "1" ]]; then
+                    echo -e "\n${RED}-${PLAIN} \033[41;37m${FullContent}${PLAIN}"
+                fi
+                echo -e "\n$COMPLETE 环境变量 ${BLUE}${Variable}${PLAIN} 已删除\n"
+            else
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
+            fi
+            ;;
+        esac
+        ;;
+    ## 修改变量
+    edit)
+        case $# in
+        1)
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要修改的环境变量名称：${PLAIN}")" Variable
+            ## 检测是否存在该变量
+            grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
+            local ExitStatus=$?
+            if [[ $ExitStatus -eq 0 ]]; then
+                echo -e "\n${BLUE}当前环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')\n"
+                echo -e '1)   启用或禁用'
+                echo -e '2)   修改变量的值'
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}")" Input1
+                    case ${Input1} in
+                    1)
+                        ControlEnv "${Variable}"
+                        break
+                        ;;
+                    2)
+                        ModifyEnv "${Variable}"
+                        break
+                        ;;
+                    esac
+                    echo -e "\n$ERROR 输入错误！"
+                done
+            else
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
+            fi
+            ;;
+        3 | 4)
+            case $2 in
+            enable | disable)
+                Variable=$3
+                ;;
+            *)
+                Variable=$2
+                Value=$3
+                ;;
+            esac
+            grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
+            local ExitStatus=$?
+            if [[ $ExitStatus -eq 0 ]]; then
+                case $2 in
+                enable | disable)
+                    ControlEnv "$2" "${Variable}"
+                    ;;
+                *)
+                    case $# in
+                    3)
+                        ModifyEnv "${Variable}" "${Value}"
+                        ;;
+                    4)
+                        ModifyEnv "${Variable}" "${Value}" "$4"
+                        ;;
+                    esac
+                    ;;
+                esac
+            else
+                case $2 in
+                enable | disable)
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
+                    ;;
+                *)
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
+                    case $# in
+                    3)
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\"${PLAIN}\n"
+                        ;;
+                    4)
+                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
+                        ;;
+                    esac
+                    ;;
+                esac
+            fi
+            ;;
+        esac
+        ;;
+    ## 查询变量
+    search)
+        case $# in
+        1)
+            read -p "$(echo -e "\n${BOLD}└ 请输入需要查询的关键词：${PLAIN}")" Keys
+            ;;
+        2)
+            Keys=$2
+            ;;
+        esac
+        ## 检测搜索结果是否为空
+        grep ".*export.*=" $FileConfUser | grep "${Keys}" -q
+        local ExitStatus=$?
+        if [[ $ExitStatus -eq 0 ]]; then
+            echo -e "\n${BLUE}检测到的环境变量：${PLAIN}"
+            grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | perl -pe "{s|^|第|g; s|:|行：|g; s|${Keys}|${RED}${Keys}${PLAIN}|g;}"
+            echo -e "\n$COMPLETE 查询完毕\n"
         else
             if [ -f $FileExtra ]; then
                 echo -e "$FAIL 自定义脚本同步失败，保留之前的版本...\n"
