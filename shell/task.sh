@@ -1940,7 +1940,7 @@ function Manage_Env() {
                     esac
                 done
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         2)
@@ -1957,7 +1957,7 @@ function Manage_Env() {
                 fi
                 echo -e "\n$COMPLETE 环境变量 ${BLUE}${Variable}${PLAIN} 已删除\n"
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         esac
@@ -1989,7 +1989,7 @@ function Manage_Env() {
                     echo -e "\n$ERROR 输入错误！"
                 done
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         3 | 4)
@@ -2023,7 +2023,7 @@ function Manage_Env() {
             else
                 case $2 in
                 enable | disable)
-                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
                     ;;
                 *)
                     echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"

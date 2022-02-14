@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-12
+## Modified: 2022-02-14
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -565,7 +565,7 @@ function Update_Scripts() {
         git fetch --all
         ExitStatus=$?
         git pull
-        git reset --hard origin
+        git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
         cd $CurrentDir
         ## 推送通知
         Apply_SendNotify $ScriptsDir
@@ -580,7 +580,8 @@ function Update_Scripts() {
             [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
             ## 检测定时清单
             if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
-                cp -rf $UtilsDir/crontab_list_public.sh $ScriptsDir/docker
+                cp -rf $SampleDir/crontab_list_public.sh $ScriptsDir/docker/crontab_list.sh
+                echo -e "\n$WARN 为检测到定时清单，已启用内置模版\n"
             fi
             ## 比较定时任务
             Gen_ListTask
