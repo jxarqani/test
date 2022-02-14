@@ -565,7 +565,7 @@ function Update_Scripts() {
         git fetch --all
         ExitStatus=$?
         git pull
-        git reset --hard origin
+        git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
         cd $CurrentDir
         ## 推送通知
         Apply_SendNotify $ScriptsDir
