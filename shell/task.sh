@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-07
+## Modified: 2022-02-14
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -94,7 +94,7 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
@@ -202,7 +202,7 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && [[ ${FileDir} != $ScriptsDir ]] && Check_Moudules $FileDir
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
@@ -233,7 +233,7 @@ function Find_Script() {
             FileFormat="Shell"
             ;;
         "")
-            echo -e "\n$ERROR 未能识别脚本类型，请检查链接是否正确！\n"
+            echo -e "\n$ERROR 未能识别脚本类型，请检查链接地址是否正确！\n"
             exit ## 终止退出
             ;;
         *)
@@ -242,54 +242,62 @@ function Find_Script() {
             ;;
         esac
 
-        ## 判断来源仓库
+        ## 判断来源仓库并处理链接
         RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|jsdelivr")
         case ${RepoName} in
         github | jsdelivr)
             RepoJudge=" GitHub "
+            ## 地址纠正
+            echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
+            if [ $? -eq 0 ]; then
+                local Tmp=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+            else
+                local Tmp=${InputContent}
+            fi
+            ## 验证 GitHub 地址格式
+            echo ${Tmp} | grep "raw\.githubusercontent\.com" -q
+            if [ $? -ne 0 ]; then
+                echo -e "\n$FAIL 格式错误，请输入正确的 GitHub 地址！\n"
+                exit ## 终止退出
+            fi
+            ## 判定是否使用下载代理参数
+            if [[ ${DOWNLOAD_PROXY} == true ]]; then
+                local Branch=$(echo "${Tmp}" | sed "s/https:\/\/raw\.githubusercontent\.com\///g" | awk -F '/' '{print$3}')
+                FormatInputContent=$(echo "${Tmp}" | perl -pe "{s|raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|g; s|\/${Branch}\/|\@${Branch}\/|g}")
+                ProxyJudge="使用代理"
+            else
+                FormatInputContent="${Tmp}"
+                ProxyJudge=""
+            fi
             ;;
         gitee)
             RepoJudge=" Gitee "
-            ;;
-        gitlab)
-            RepoJudge=" GitLab "
-            ;;
-        *)
-            RepoJudge=""
-            ;;
-        esac
-
-        ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
-        echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
-        if [ $? -eq 0 ]; then
-            if [[ ${RepoJudge} == " GitHub " ]]; then
-                echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
-                if [ $? -eq 0 ]; then
-                    FormatInputContent=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
-                else
-                    FormatInputContent=${InputContent}
-                fi
-            elif [[ ${RepoJudge} == " Gitee " ]]; then
+            ## 地址纠正
+            echo ${InputContent} | grep "gitee\.com\/.*\/blob\/.*" -q
+            if [ $? -eq 0 ]; then
                 FormatInputContent=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
             else
                 FormatInputContent=${InputContent}
             fi
-        else
-            FormatInputContent=${InputContent}
-        fi
-
-        ## 判定是否使用代理
-        if [[ ${DOWNLOAD_PROXY} == true ]]; then
-            ProxyJudge="使用代理"
-            DownloadJudge=${GithubProxy}
-        else
             ProxyJudge=""
-            DownloadJudge=""
-        fi
+            ;;
+        gitlab)
+            RepoJudge=" GitLab "
+            ## 其它托管仓库或链接不进行处理
+            FormatInputContent=${InputContent}
+            ProxyJudge=""
+            ;;
+        *)
+            RepoJudge=""
+            ## 其它托管仓库或链接不进行处理
+            FormatInputContent=${InputContent}
+            ProxyJudge=""
+            ;;
+        esac
 
         ## 拉取脚本
         echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
-        wget -q --no-check-certificate "${DownloadJudge}${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
+        wget -q --no-check-certificate "${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
         echo ''
 
@@ -316,6 +324,8 @@ function Find_Script() {
             done
             FileName=${FileNameTmp%.*}
             FileDir=$ScriptsDir
+            ## 添加依赖文件
+            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             Make_Dir ${LogPath}
@@ -329,15 +339,13 @@ function Find_Script() {
 
     ## 检测环境，添加依赖文件
     function Check_Moudules() {
-        local CurrentDir=$(pwd)
         local WorkDir=$1
-        cd $WorkDir
         ## 拷贝核心组件
-        [ ! -f $WorkDir/jdCookie.js ] && cp -rf $UtilsDir/jdCookie.js .
-        [ ! -f $WorkDir/USER_AGENTS.js ] && cp -rf $UtilsDir/USER_AGENTS.js .
-        ## 拷贝推送通知脚本
-        cp -rf $FileSendNotify .
-        cd $CurrentDir
+        for file in ${CoreFiles}; do
+            [ ! -f $WorkDir/$file ] && cp -rf $UtilsDir/$file $WorkDir
+        done
+        ## 拷贝推送通知模块
+        Apply_SendNotify $WorkDir
     }
 
     ## 根据传入内容判断匹配方式（主要）
@@ -1050,7 +1058,6 @@ function Cookies_Control() {
                     if [[ ${#tmp_array[@]} -ge 1 ]]; then
                         for ((i = 1; i <= ${#tmp_array[@]}; i++)); do
                             UserNum=$((i - 1))
-                            ## 转义pt_pin中的汉字
                             EscapePin=$(printf $(echo ${tmp_array[$UserNum]} | perl -pe "s|%|\\\x|g;"))
                             sed -i "s/${tmp_array[$UserNum]}/${EscapePin}/g" $FileSendMark
                         done
@@ -1060,7 +1067,7 @@ function Cookies_Control() {
                     echo "" >>$FileSendMark
                     echo -e "\n$COMPLETE 更新完成\n"
                 else
-                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                    echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                 fi
             else
                 echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
@@ -1122,7 +1129,6 @@ function Cookies_Control() {
                         ## 转义中文用户名
                         local tmp_pt_pin=$(cat $FileSendMark | grep -o "\[.*\%.*\]" | perl -pe '{s|\[||g; s|\]||g}')
                         if [[ ${tmp_pt_pin} ]]; then
-                            ## 转义pt_pin中的汉字
                             EscapePin=$(printf $(echo ${tmp_pt_pin} | perl -pe "s|%|\\\x|g;"))
                             sed -i "s/${tmp_pt_pin}/${EscapePin}/g" $FileSendMark
                         fi
@@ -1131,7 +1137,7 @@ function Cookies_Control() {
                         echo "" >>$FileSendMark
                         echo -e "\n$COMPLETE 更新完成\n"
                     else
-                        echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看运行日志！\n"
+                        echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                     fi
                 fi
             else
@@ -1353,7 +1359,8 @@ function Add_OwnRepo() {
         local CurrentDir=$(pwd)
         ## 导入用户的定时
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
-        [ ! -f $ListOwnScripts ] && Make_Dir $LogTmpDir && touch $ListOwnScripts
+        Make_Dir $LogTmpDir
+        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
         grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
         local ExitStatus=$?
         [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
@@ -1390,6 +1397,7 @@ function Add_OwnRepo() {
                 fi
             fi
         done
+        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
         ## 汇总去重
         echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
         ## 导入用户的定时
@@ -1432,9 +1440,23 @@ function Add_OwnRepo() {
                     for FilePath in $Detail; do
                         local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
                         if [ -f ${FilePath} ]; then
-                            perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} |
-                                perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" |
-                                sort -u | grep -Ev "^\*|^ \*" | head -1 >>$ListCrontabOwnTmp
+                            local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | grep -Ev "^\*|^ \*" | head -1)
+                            ## 新增定时任务自动禁用
+                            if [[ ${DisableNewOwnRepoCron} == true ]]; then
+                                echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                            else
+                                grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
+                                if [ $? -eq 0 ]; then
+                                    ## 重复定时任务自动禁用
+                                    if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
+                                        echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
+                                    else
+                                        echo "${Cron}" >>$ListCrontabOwnTmp
+                                    fi
+                                else
+                                    echo "${Cron}" >>$ListCrontabOwnTmp
+                                fi
+                            fi
                         fi
                     done
                     perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
@@ -1920,7 +1942,7 @@ function Manage_Env() {
                     esac
                 done
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         2)
@@ -1937,7 +1959,7 @@ function Manage_Env() {
                 fi
                 echo -e "\n$COMPLETE 环境变量 ${BLUE}${Variable}${PLAIN} 已删除\n"
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         esac
@@ -1969,7 +1991,7 @@ function Manage_Env() {
                     echo -e "\n$ERROR 输入错误！"
                 done
             else
-                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
             fi
             ;;
         3 | 4)
@@ -2003,7 +2025,7 @@ function Manage_Env() {
             else
                 case $2 in
                 enable | disable)
-                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请确认是否存在！\n"
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
                     ;;
                 *)
                     echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
@@ -2182,21 +2204,25 @@ function List_Local_Scripts() {
         ;;
     esac
 
-    ## 列出 Scripts 仓库中的脚本
+    ## 列出 Scripts 主要仓库中的脚本
     function List_Scripts() {
-        cd $ScriptsDir
-        local ListFiles=($(
-            git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
-        ))
-        echo -e "\n❖ Scripts 仓库的脚本："
-        local NumTmp=0
-        for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            if [ -f ${ListFiles[i]} ]; then
-                Query_Name ${ListFiles[i]}
-                let NumTmp++
-                printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
-            fi
-        done
+        echo -e "\n❖ Scripts 主要仓库脚本："
+        if [ -d $ScriptsDir/.git ]; then
+            cd $ScriptsDir
+            local ListFiles=($(
+                git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
+            ))
+            local NumTmp=0
+            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                if [ -f ${ListFiles[i]} ]; then
+                    Query_Name ${ListFiles[i]}
+                    let NumTmp++
+                    printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
+                fi
+            done
+        else
+            echo -e "请先配置仓库"
+        fi
     }
 
     ## 列出所有 Own 仓库中的脚本
@@ -2236,7 +2262,7 @@ function List_Local_Scripts() {
                 fi
             ))
 
-            echo -e "\n❖ Own 仓库的脚本："
+            echo -e "\n❖ Own 扩展脚本："
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 FileName=${ListFiles[i]##*/}
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
@@ -2249,16 +2275,18 @@ function List_Local_Scripts() {
 
     ## 列出 scripts 目录下的第三方脚本
     function List_Other() {
-        cd $ScriptsDir
-        local ListFiles=($(
-            ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
-        ))
-        if [ ${#ListFiles[*]} != 0 ]; then
-            echo -e "\n❖ 第三方脚本："
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_Name ${ListFiles[i]}
-                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
-            done
+        if [ -d $ScriptsDir/.git ]; then
+            cd $ScriptsDir
+            local ListFiles=($(
+                ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
+            ))
+            if [ ${#ListFiles[*]} != 0 ]; then
+                echo -e "\n❖ 第三方脚本："
+                for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                    Query_Name ${ListFiles[i]}
+                    printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
+                done
+            fi
         fi
     }
 
@@ -2270,7 +2298,7 @@ function List_Local_Scripts() {
                 if [ "$(ls -A $WorkDir)" = "" ]; then
                     echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
                 else
-                    echo -e "\n$ERROR 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
+                    echo -e "\n$FAIL 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
                 fi
                 exit ## 终止退出
             fi
@@ -2450,12 +2478,12 @@ case $# in
                 exit ## 终止退出
                 ;;
             -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:.*github|http.*:.*gitee|http.*:.*gitlab"
+                echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
                     Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -2604,12 +2632,12 @@ case $# in
                 fi
                 ;;
             -p | --proxy)
-                echo ${RUN_TARGET} | grep -Eq "http.*:.*github|http.*:.*gitee|http.*:.*gitlab"
+                echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
                     Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于远程仓库的脚本，请确认后重新输入！\n"
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
                 ;;

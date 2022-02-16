@@ -1,6 +1,6 @@
-## Version: v1.10.1
-## Date: 2022-01-22
-## Update Content: 1. 更正变量注释
+## Version: v1.11.3
+## Date: 2022-02-14
+## Update Content: 1. 新增 "Own 仓库脚本重复定时任务自动禁用功能" 扩展仓库环境变量 2. 新增 "自定义推送通知模块" 项目功能环境变量 3. 新增 "通知屏蔽关键词" 推送通知环境变量 4. 修改部分注释内容，调整排版
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -27,7 +27,7 @@ Cookie2=""
 # 注意在使用指定账号或分组账号参数运行脚本时所有屏蔽设置均不会生效
 TempBlockCookie=""
 
-# 如果只想屏蔽某账号不执行特定脚本，可以参考下面这个 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
+# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
 # 脚本名称请去掉后缀格式否则不能被识别，若同时与全局屏蔽使用则应确保全局屏蔽的账号也在其中，因为当执行对应脚本时变量会被二次覆盖
 # 代码示例：
 # case $1 in
@@ -40,21 +40,43 @@ TempBlockCookie=""
 # esac
 
 
-## ❖ 自动增加新的账号（已失效，暂时保留）
-# 自动添加新增Cookie，默认启用即扫码登陆后会自动添加新的Cookie，如想禁用请修改位 "false"
-# 如果部署了副容器建议按需启用此功能以此避免被滥用，避免自动添加不认识的人的Cookie账号
+## ❖ 自动增加新的账号
+# 控制扫码/验证码登陆或通过调用 OpenApi 后是否自动添加新的 Cookie
+# 如想禁用请修改为 "false"，可避免自动添加陌生人的账号
 # export CK_AUTO_ADD="true"
+
+
+
+
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 主 要 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
+
+# 项目文档：https://supermanito.github.io/Helloworld/#/config/主要仓库
+
+## ❖ Scripts 主要仓库脚本定时任务开关（自动增加/自动删除）
+# 当启用自动增加时，如果从检测文件中检测到有新的定时任务会自动在本地增加，定时时间为检测文件中定义的时间
+# 当启用自动删除时，会自动从检测文件中读取比对删除的任务，脚本只会删除失效定时任务的所在行
+# 当启用自动删除时，如果您有添加额外脚本是以 "jd_" "jr_" "jx_" 开头的会被自动删除，其它字符开头的任务则不受影响
+# 检测文件：Scripts仓库中的 docker/crontab_list.sh（此清单由仓库开发者维护），如果文件不存在将使用 utils 目录下的公共定时清单
+# "AutoAddCron": 自动增加；"AutoDelCron": 自动删除；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
+AutoAddCron="true"
+AutoDelCron="true"
+
+## ❖ Scripts 主要仓库脚本新增定时任务自动禁用功能
+# 当主要仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
+DisableNewCron=""
 
 
 
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
-# 除项目默认提供的 Scripts 主库外，用户还可以通过定义下方的变量添加更多的仓库到本地
+## ❖ Own Repo 扩展仓库
+# 项目文档：https://supermanito.github.io/Helloworld/#/config/扩展仓库
+# 除 Scripts 主库外用户还可以通过定义下方的变量添加更多的仓库到本地
 
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
-# 如果没有外网环境不能有效连通 Github 建议加上代理，推荐 https://endpoint.fastgit.org/
+# 如果您的设备不能有效连通 GitHub 建议加上代理，否则可能会出现连接缓慢、丢包等情况，非常影响使用
 
 OwnRepoUrl1=""
 OwnRepoUrl2=""
@@ -72,26 +94,31 @@ OwnRepoPath2=""
 #              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中OwnRepoPath3。
 # 所有脚本存放在 own 目录下，三个清单必须一一对应，示例如下：
 # OwnRepoUrl1="https://gitee.com/abc/jdtsa.git"
-# OwnRepoUrl2="https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git"
+# OwnRepoUrl2="https://github.com/nedcd/jxddfsa.git"
 # OwnRepoUrl3="git@github.com:eject/poex.git"
 # OwnRepoBranch1="master"   # 代表第1个仓库 https://gitee.com/abc/jdtsa.git 使用 "master" 主分支
-# OwnRepoBranch2="main"     # 代表第2个仓库 https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
+# OwnRepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
 # OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
 # OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://endpoint.fastgit.org/https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
+# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
-## Own 仓库脚本定时任务开关（自动增加/自动删除）
+## ❖ Own Repo 扩展仓库脚本定时任务开关（自动增加/自动删除）
 # 自动增加: "AutoAddOwnRepoCron"；自动删除: "AutoDelOwnRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"
 # 默认均为 "true"，项目不一定能完全从脚本中识别出有效的 cron 设置，如果发现不能满足您的需要，请修改为 "false" 以取消自动增加或自动删除
 AutoAddOwnRepoCron="true"
 AutoDelOwnRepoCron="true"
 
-## Own 仓库脚本新增定时任务自动禁用
-# 当 Own 扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
+## ❖ Own Repo 扩展仓库脚本新增定时任务自动禁用功能
+# 当扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
 DisableNewOwnRepoCron=""
 
-## Own 仓库脚本定时任务屏蔽功能
+## ❖ Own Repo 扩展仓库脚本重复定时任务自动禁用功能
+# 重复脚本依据脚本名判断，自动检测定时清单中 Own 目录下的同名脚本，如需启用该功能请设置为 "true"
+# 启用该功能后如果定时清单中已存在相同脚本名称的定时任务，那么导入的定时任务会被注释，注意只有在拉取单个仓库时有效，同时拉取多个仓库时无效
+DisableDuplicateOwnRepoCron=""
+
+## ❖ Own Repo 扩展仓库脚本定时任务屏蔽功能
 # 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词仅限英文和数字不支持符号，多个关键词用空格隔开，注意区分大小写
 # 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"
 OwnRepoCronShielding=""
@@ -101,25 +128,28 @@ OwnRepoCronShielding=""
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 脚 本 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
+## ❖ Own RawFile 扩展脚本
+# 项目文档：https://supermanito.github.io/Helloworld/#/config/扩展脚本
 # 用户可以通过定义下方的变量单独添加更多的脚本到本地
 
 # 请先确认您能正常下载目标脚本后再列在下方，位于托管仓库的脚本支持地址纠正功能可不填入 raw 原始文件地址，也支持一般网站
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本始终自动增加定时任务，支持导入 js、py、ts 类型的脚本
 # 导入前请先确认目标脚本中是否含有 `Crontab 表达式`，如若没有或者未识别到那么将随机指定一个每天执行一次的定时
 # 注意缩进和格式，每行开头两个或四个空格，一行一个脚本链接，首尾一对半角括号
-# 如果没有外网环境不能有效连通 Github 建议使用代理，推荐 jsDelivr，可使用官方转换工具一键转换为代理链接 https://www.jsdelivr.com/github
+# 如果您的设备不能有效连通 GitHub 则需要使用代理，建议优先使用您的个人代理
+# 如果您没有代理则推荐使用 jsDelivr 公共代理，可使用官方代理链接转换工具 https://www.jsdelivr.com/github
 
 OwnRawFile=(
 )
 
 # 示例：
 # OwnRawFile=(
-#   https://gitee.com/wabdwdd/scipts/raw/master/jd_abc.js
-#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/jd_dudi.js
-#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/z_dida.js
+#   https://gitee.com/wabdwdd/scipts/raw/master/example.js
+#   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/test.js
+#   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/utils.js
 # )
 
-## Raw 脚本定时任务开关（自动增加/自动删除）
+## ❖ Own RawFile 扩展脚本定时任务开关（自动增加/自动删除）
 # 自动增加: "AutoAddOwnRawCron"；自动删除: "AutoDelOwnRawCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
 AutoAddOwnRawCron="true"
 AutoDelOwnRawCron="true"
@@ -129,34 +159,21 @@ AutoDelOwnRawCron="true"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 项 目 功 能 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
-## ❖ 1. Scripts 仓库脚本定时任务开关（自动增加/自动删除）
-# 当启用自动增加时，如果从检测文件中检测到有新的定时任务会自动在本地增加，定时时间为检测文件中定义的时间
-# 当启用自动删除时，会自动从检测文件中读取比对删除的任务，脚本只会删除失效定时任务的所在行
-# 当启用自动删除时，如果您有添加额外脚本是以 "jd_" "jr_" "jx_" 开头的会被自动删除，其它字符开头的任务则不受影响
-# 检测文件：Scripts仓库中的 docker/crontab_list.sh（此清单由仓库开发者维护），如果文件不存在将使用 utils 目录下的公共定时清单
-# "AutoAddCron": 自动增加；"AutoDelCron": 自动删除；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
-AutoAddCron="true"
-AutoDelCron="true"
-
-## ❖ 2. Scripts 仓库脚本新增定时任务自动禁用
-# 当 Scripts 主库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
-DisableNewCron=""
-
-## ❖ 3. 控制删除日志时间
+## ❖ 1. 控制删除日志时间
 # 定义在运行删除旧的日志任务时要删除多少天以前的日志，请输入正整数，不填则禁用删除日志的功能
 RmLogDaysAgo="7"
 
-## ❖ 4. 控制账号期提醒时间
+## ❖ 2. 控制账号期提醒时间
 # 定义在运行检查本地账号是否有效功能时的检测过期提醒天数，请输入正整数，不填则默认为 3 天
 CheckCookieDaysAgo=""
 
-## ❖ 5. 定义随机延迟时间范围
+## ❖ 3. 定义随机延迟时间范围
 # 如果任务不是必须准点运行的任务，那么给它增加一个随机延迟，由您定义最大延迟时间，单位为秒，如 RandomDelay="300" ，表示任务将在 1-300 秒内随机延迟一个秒数，然后再运行
 # 在crontab.list中，在每小时第的 0~3,30~31,58~59 几个分钟时间内启动的任务，均算作必须准点运行的任务，在启动这些任务时，即使您定义了RandomDelay，也将准点运行，不启用随机延迟
 # 在crontab.list中，除掉每小时上述时间启动的任务外，其他任务在您定义了 RandomDelay 的情况下，一律启用随机延迟，但如果给某些任务添加了 "now"，那么这些任务也将无视随机延迟直接启动
 RandomDelay="300"
 
-## ❖ 6. 自定义 Extra 脚本功能
+## ❖ 4. 自定义 Extra 脚本功能
 # 在每次执行更新脚本时额外运行的 Shell 脚本
 # 必须将脚本命名为 "extra.sh" 并且放置在 config 目录下
 # 如想启用请赋值为 "true"
@@ -167,30 +184,30 @@ EnableExtraShellSync=""
 #   2). 同步地址
 ExtraShellSyncUrl=""
 
-## ❖ 7. 更新账号推送通知功能
+## ❖ 5. 更新账号推送通知功能
 # 当使用 WSKEY 成功更新 Cookie 后是否推送通知
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-## ❖ 8. 控制远程脚本执行完毕后是否删除
+## ❖ 6. 控制远程脚本执行完毕后是否删除
 # 当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 9. 脚本全局代理功能
+## ❖ 7. 脚本全局代理功能
 # Powered by global-agent (仅支持 js 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent
 # 全局代理，如想全局启用代理请赋值为 "true"
 EnableGlobalProxy=""
 
-# 如果只是想在执行部分脚本时使用代理，可以参考下面 case 这个命令的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
+# 如果只是想在执行部分脚本时使用代理，可以参考下方 case 语句的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
 # case $1 in
-# jd_test)
-#   EnableGlobalProxy="true"    ## 在执行 jd_test 脚本时启用代理
+# test)
+#   EnableGlobalProxy="true"    ## 在执行 test 脚本时启用代理
 #   ;;
-# jd_abc | jd_123)
-#   EnableGlobalProxy="true"    ## 在执行 jd_abc 和 jd_123 脚本时启用代理
+# utils | warp)
+#   EnableGlobalProxy="true"    ## 在执行 utils 和 warp 脚本时启用代理
 #   ;;
 # *)
 #   EnableGlobalProxy="false"
@@ -206,6 +223,12 @@ EnableGlobalProxy=""
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTPS_PROXY=""
 
+## ❖ 8. 自定义推送通知模块功能
+# 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/config/推送通知
+# 如想使用第三方推送通知模块请将下方变量赋值为 "true" ，并在 config 目录下存放您的 sendNotify.js 脚本
+# 注意如若使用第三方通知模块可能会出现兼容性问题导致项目部分功能不可用
+EnableCustomNotify=""
+
 
 
 
@@ -217,6 +240,9 @@ EnableGlobalProxy=""
 
 ## ❖ 定义通知尾
 export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
+
+## ❖ 通知屏蔽关键词，多个词用 "&" 连接
+export NOTIFY_MASKING=""
 
 ## ❖ 1. Server酱
 # 官网：https://sct.ftqq.com
@@ -529,12 +555,12 @@ export JDFACTORY_FORBID_ACCOUNT=""
 export TUAN_ACTIVEID=""
 
 
-## ❖  29. 定义京豆变动推送通知单次发送的用户数量（选填）
+## ❖  28. 定义京豆变动推送通知单次发送的用户数量（选填）
 # 默认为 10 个账户，即单次推送内容最多包含10个号的信息，若想指定单次推送的账号数量请赋值下面的变量
 export NOTIFY_PAGE_SIZE=""
 
 
-## ❖  30. 定义东东农场是否储存水滴（选填）
+## ❖  29. 定义东东农场是否储存水滴（选填）
 # 默认为 "true" 不储存水滴，如需启用储存水滴请修改为 "false"，启用储存水滴后仍会使用少量的水滴用于完成任务
 export DO_TEN_WATER_AGAIN=""
 
@@ -547,7 +573,7 @@ export DO_TEN_WATER_AGAIN=""
 # 如想在运行互助类活动脚本时直接从 task exsc 中自动获取互助码并进行互助，请将该变量赋值为 true
 # 工作原理为导入最新的导出互助码日志，日志位于 log/ShareCodes 目录下，当该变量赋值为 true 时会导入最新的导出互助码日志
 # 导出互助码脚本如果检测到某个互助码变量为空将从上一个日志中获取，您还可以通过修改日志解决一直无法获取到互助码的问题
-AutoHelpOther=""
+AutoHelpOther="true"
 
 ## ❖ 2. 定义导出互助码的助力类型
 # 填 0 或不填使用 “按编号优先助力模板” ，此模板为默认助力类型也是最优的选择
