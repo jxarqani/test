@@ -368,7 +368,7 @@ let panelUtils = {
     showAlert(opts) {
         return Swal.fire(opts)
     },
-    showSuccess(msg = "", desc = "", reload = true) {
+    showSuccess(msg = "", desc = "", reload = false) {
         panelUtils.showAlert({
             title: msg,
             html: desc,
