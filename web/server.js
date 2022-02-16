@@ -313,6 +313,21 @@ function bakConfFile(file) {
     return oldConfContent;
 }
 
+function checkConfigSave(oldContent){
+    //判断格式是否正确
+    try {
+        execSync(`bash ${confFile} > ${logPath}.check`, {encoding: 'utf8'});
+    } catch (e) {
+        fs.writeFileSync(confFile, oldContent);
+        let errorMsg,line;
+        try {
+            errorMsg = /(?<=line\s[0-9]*:)([^"]+)/.exec(e.message)[0];
+            line = /(?<=line\s)[0-9]*/.exec(e.message)[0]
+        }catch (e){}
+        throw new Error("<p>" + (errorMsg && line ? `第 ${line} 行:${errorMsg}` : e.message) + "</p>");
+    }
+}
+
 /**
  * 将 post 提交内容写入 config.sh 文件（同时备份旧的 config.sh 文件到 bak 目录）
  * @param file
@@ -323,14 +338,7 @@ function saveNewConf(file, content) {
     switch (file) {
         case 'config.sh':
             fs.writeFileSync(confFile, content);
-            try {
-                execSync("bash /jd/config/config.sh", {encoding: 'utf8'});
-            } catch (e) {
-                fs.writeFileSync(confFile, oldContent);
-                throw new Error(e);
-            }
-
-            //判断格式是否正确
+            checkConfigSave(oldContent);
             break;
         case 'crontab.list':
             fs.writeFileSync(crontabFile, content);
