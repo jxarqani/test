@@ -1577,7 +1577,7 @@ function Add_RawFile() {
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -1588,11 +1588,12 @@ function Add_RawFile() {
         else
             local cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
         fi
-        ## 如果未检测出定时则随机一个
-        if [ -z "${cron}" ]; then
-            local FullContent="$(echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${RawFilePath}" | sort -u | head -1)"
-        else
+        ## 如果未检测出定时就随机一个每天执行1次的定时
+        echo "${Tmp1}" | grep "[0-9]" -q
+        if [ $? -eq 0 ]; then
             local FullContent="$(echo "$cron $TaskCmd ${RawFilePath}" | sort -u | head -1)"
+        else
+            local FullContent="$(echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${RawFilePath}" | sort -u | head -1)"
         fi
 
         ## 导入配置文件

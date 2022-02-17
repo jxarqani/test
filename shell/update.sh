@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-14
+## Modified: 2022-02-16
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -346,7 +346,7 @@ function Add_Cron_Own() {
             if [ -f ${FilePath} ]; then
                 if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "cron|script-path|tag|\* \*|${FileName}" ${FilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
+                    local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${FileName}" ${FilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
@@ -357,11 +357,12 @@ function Add_Cron_Own() {
                     else
                         local Cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
                     fi
-                    ## 如果未检测出定时则随机一个
-                    if [ -z "${Cron}" ]; then
-                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
-                    else
+                    ## 如果未检测出定时就随机一个每天执行1次的定时
+                    echo "${Tmp1}" | grep "[0-9]" -q
+                    if [ $? -eq 0 ]; then
                         echo "$Cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                    else
+                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
                     fi
                 else
                     local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | grep -Ev "^\*|^ \*" | head -1)
@@ -581,7 +582,7 @@ function Update_Scripts() {
             ## 检测定时清单
             if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
                 cp -rf $SampleDir/crontab_list_public.sh $ScriptsDir/docker/crontab_list.sh
-                echo -e "\n$WARN 为检测到定时清单，已启用内置模版\n"
+                echo -e "\n$WARN 未检测到定时清单，已启用内置模版\n"
             fi
             ## 比较定时任务
             Gen_ListTask
@@ -770,7 +771,7 @@ function Update_Designated() {
             ;;
         esac
     else
-        echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在仓库，请重新确认！\n"
+        echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
         exit ## 终止退出
     fi
 }

@@ -316,7 +316,7 @@ function bakConfFile(file) {
 function checkConfigSave(oldContent){
     //判断格式是否正确
     try {
-        execSync(`bash ${confFile} > ${logPath}.check`, {encoding: 'utf8'});
+        execSync(`bash ${confFile} 2> ${logPath}.check`, {encoding: 'utf8'});
     } catch (e) {
         fs.writeFileSync(confFile, oldContent);
         let errorMsg,line;
