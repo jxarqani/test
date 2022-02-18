@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-14
+## Modified: 2022-02-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -383,17 +383,15 @@ function Find_Script() {
 function Random_Delay() {
     if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
         local CurMin=$(date "+%-M")
+        local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
         ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
         case ${CRON_TASK} in
         true)
             if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
-                CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
-                echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
                 sleep ${CurDelay}
             fi
             ;;
         *)
-            CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
             echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
             sleep ${CurDelay}
             ;;
@@ -895,16 +893,16 @@ function Cookies_Control() {
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
-                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="${CookieUpdatedDate}"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                     Tmp2=$(($Tmp1 / 86400))
                     Tmp3=$((30 - $Tmp2))
                     [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                    if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
-                        [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                        echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
+                    if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
+                        [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
+                        echo -e "账号$((m + 1)): ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
                     fi
                 else
                     UpdateTimes="Unknow"
@@ -924,23 +922,23 @@ function Cookies_Control() {
             Account_ExistenceJudgment ${UserNum}
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
-            pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
-            FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
+            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
             ## 查询上次更新时间并计算过期时间
-            CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+            CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
             if [[ ${CookieUpdatedDate} ]]; then
                 UpdateTimes="${CookieUpdatedDate}"
                 Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                 Tmp2=$(($Tmp1 / 86400))
                 Tmp3=$((30 - $Tmp2))
                 [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
-                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                    echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
+                if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
+                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
+                    echo -e "账号${UserNum}: ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
                 fi
             else
                 UpdateTimes="Unknow"
@@ -1082,11 +1080,11 @@ function Cookies_Control() {
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
             Account_ExistenceJudgment $UserNum
-            PT_PIN_TMP=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
+            PT_PIN_TMP=$(echo ${!COOKIE_TMP} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             ## 定义格式化后的pt_pin
             FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
             ## 判定在 account.json 中是否存在该 pt_pin
-            grep ${FormatPin} -q $FileAccountConf
+            grep "${FormatPin}" -q $FileAccountConf
             if [ $? -eq 0 ]; then
                 ArrayNum=$(($(cat $FileAccountConf | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
                 WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$ArrayNum] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
@@ -1163,7 +1161,7 @@ function Cookies_Control() {
                         ;;
                     esac
                     ## 推送通知
-                    [ -f $FileSendMark ] && sed -i "/未设置 ws_key 跳过更新/d" $FileSendMark
+                    [ -f $FileSendMark ] && sed -i "/未设置ws_key跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
                         [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
