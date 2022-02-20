@@ -1,6 +1,6 @@
-## Version: v1.11.3
-## Date: 2022-02-14
-## Update Content: 1. 新增 "Own 仓库脚本重复定时任务自动禁用功能" 扩展仓库环境变量 2. 新增 "自定义推送通知模块" 项目功能环境变量 3. 新增 "通知屏蔽关键词" 推送通知环境变量 4. 修改部分注释内容，调整排版
+## Version: v1.11.4
+## Date: 2022-02-21
+## Update Content: 1. 修改部分注释内容
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -100,7 +100,7 @@ OwnRepoPath2=""
 # OwnRepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
 # OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
 # OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
+# OwnRepoPath2="parse/tc normal"    # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 parse/tc 和 normal 文件夹下，必须输入相对路径
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## ❖ Own Repo 扩展仓库脚本定时任务开关（自动增加/自动删除）
@@ -241,7 +241,7 @@ EnableCustomNotify=""
 ## ❖ 定义通知尾
 export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
 
-## ❖ 通知屏蔽关键词，多个词用 "&" 连接
+## ❖ 通知内容屏蔽关键词，多个词用 "&" 连接，注意屏蔽针对的是内容而不是通知标题
 export NOTIFY_MASKING=""
 
 ## ❖ 1. Server酱
