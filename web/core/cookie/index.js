@@ -1,7 +1,5 @@
 const util = require("../../utils");
-const {API_STATUS_CODE} = require("../http");
-const {saveNewConf} = require("../file");
-const {getFileContentByName, CONFIG_FILE_KEY, getFile} = require("../file");
+const { CONFIG_FILE_KEY, getFile,saveNewConf} = require("../file");
 
 /**
  * 初始化CK
