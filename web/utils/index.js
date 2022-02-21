@@ -28,6 +28,31 @@ function randomNumber(min = 0, max = 100) {
     return Math.min(Math.floor(min + Math.random() * (max - min)), max);
 }
 
+/**
+ * 对象数组排序
+ * @param array 需要排序的数组
+ * @param field 字段
+ * @param isAsc 是否升序
+ * @returns {*[]}
+ */
+function arrayObjectSort(array = [], field, isAsc = true) {
+    field && array.sort((a, b) => {
+        return isAsc ? a[field] - b[field] : b[field] - a[field];
+    })
+    return array;
+}
+
+//console.log(arrayObjectSort([{a: 1, c: '1'}, {a: 3, c: '3'}, {a: 2, c: '2'}],'a',false));
+
+function inArray(search, array) {
+    for (let i in array) {
+        if (array[i] === search) {
+            return true;
+        }
+    }
+    return false;
+}
+
 module.exports = {
-    dateFormat,randomNumber
+    dateFormat, randomNumber, arrayObjectSort, inArray
 }
