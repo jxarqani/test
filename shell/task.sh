@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-14
+## Modified: 2022-02-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -243,19 +243,19 @@ function Find_Script() {
         esac
 
         ## 判断来源仓库并处理链接
-        RepoName=$(echo ${InputContent} | grep -Eo "github|gitee|gitlab|jsdelivr")
+        RepoName=$(echo "${InputContent}" | grep -Eo "github|gitee|gitlab|jsdelivr")
         case ${RepoName} in
         github | jsdelivr)
             RepoJudge=" GitHub "
             ## 地址纠正
-            echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
+            echo "${InputContent}" | grep "github\.com\/.*\/blob\/.*" -q
             if [ $? -eq 0 ]; then
-                local Tmp=$(echo ${InputContent} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                local Tmp=$(echo "${InputContent}" | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
             else
                 local Tmp=${InputContent}
             fi
             ## 验证 GitHub 地址格式
-            echo ${Tmp} | grep "raw\.githubusercontent\.com" -q
+            echo "${Tmp}" | grep "raw\.githubusercontent\.com" -q
             if [ $? -ne 0 ]; then
                 echo -e "\n$FAIL 格式错误，请输入正确的 GitHub 地址！\n"
                 exit ## 终止退出
@@ -273,29 +273,30 @@ function Find_Script() {
         gitee)
             RepoJudge=" Gitee "
             ## 地址纠正
-            echo ${InputContent} | grep "gitee\.com\/.*\/blob\/.*" -q
+            echo "${InputContent}" | grep "gitee\.com\/.*\/blob\/.*" -q
             if [ $? -eq 0 ]; then
-                FormatInputContent=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                FormatInputContent=$(echo "${InputContent}" | sed "s/\/blob\//\/raw\//g")
             else
-                FormatInputContent=${InputContent}
+                FormatInputContent="${InputContent}"
             fi
             ProxyJudge=""
             ;;
         gitlab)
             RepoJudge=" GitLab "
             ## 其它托管仓库或链接不进行处理
-            FormatInputContent=${InputContent}
+            FormatInputContent="${InputContent}"
             ProxyJudge=""
             ;;
         *)
             RepoJudge=""
             ## 其它托管仓库或链接不进行处理
-            FormatInputContent=${InputContent}
+            FormatInputContent="${InputContent}"
             ProxyJudge=""
             ;;
         esac
 
         ## 拉取脚本
+        echo "${FormatInputContent}"
         echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
         wget -q --no-check-certificate "${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local ExitStatus=$?
@@ -383,17 +384,15 @@ function Find_Script() {
 function Random_Delay() {
     if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
         local CurMin=$(date "+%-M")
+        local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
         ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
         case ${CRON_TASK} in
         true)
             if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
-                CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
-                echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
                 sleep ${CurDelay}
             fi
             ;;
         *)
-            CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
             echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
             sleep ${CurDelay}
             ;;
@@ -827,7 +826,7 @@ function Process_CleanUp() {
 }
 
 ## 账号控制功能
-function Cookies_Control() {
+function Accounts_Control() {
     local SUCCESS_ICON="[✔]"
     local FAIL_ICON="[×]"
     local INTERFACE_URL="https://bean.m.jd.com/bean/signIndex.action"
@@ -895,16 +894,16 @@ function Cookies_Control() {
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
-                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+                CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="${CookieUpdatedDate}"
                     Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                     Tmp2=$(($Tmp1 / 86400))
                     Tmp3=$((30 - $Tmp2))
                     [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                    if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
-                        [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                        echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
+                    if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
+                        [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
+                        echo -e "账号$((m + 1)): ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
                     fi
                 else
                     UpdateTimes="Unknow"
@@ -924,23 +923,23 @@ function Cookies_Control() {
             Account_ExistenceJudgment ${UserNum}
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
-            pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
-            FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
+            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
             ## 查询上次更新时间并计算过期时间
-            CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep ${FormatPin} | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
+            CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | perl -pe "{s|pt_pin=.*;||g; s|.*上次更新：||g; s|备注：.*||g; s|[ ]*$||g;}")
             if [[ ${CookieUpdatedDate} ]]; then
                 UpdateTimes="${CookieUpdatedDate}"
                 Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
                 Tmp2=$(($Tmp1 / 86400))
                 Tmp3=$((30 - $Tmp2))
                 [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                if [ $Tmp3 -le $TmpDays ] && [ $Tmp3 -ge 0 ]; then
-                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime="$Tmp3天后"
-                    echo -e "账号$((m + 1))：${EscapePin} 将在$TmpTime过期" >>$FileSendMark
+                if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
+                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
+                    echo -e "账号${UserNum}: ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
                 fi
             else
                 UpdateTimes="Unknow"
@@ -1082,11 +1081,11 @@ function Cookies_Control() {
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
             Account_ExistenceJudgment $UserNum
-            PT_PIN_TMP=$(echo ${!COOKIE_TMP} | grep -o "pt_pin.*;" | perl -pe '{s|pt_pin=||g; s|;||g;}')
+            PT_PIN_TMP=$(echo ${!COOKIE_TMP} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             ## 定义格式化后的pt_pin
             FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
             ## 判定在 account.json 中是否存在该 pt_pin
-            grep ${FormatPin} -q $FileAccountConf
+            grep "${FormatPin}" -q $FileAccountConf
             if [ $? -eq 0 ]; then
                 ArrayNum=$(($(cat $FileAccountConf | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
                 WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$ArrayNum] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
@@ -1163,7 +1162,7 @@ function Cookies_Control() {
                         ;;
                     esac
                     ## 推送通知
-                    [ -f $FileSendMark ] && sed -i "/未设置 ws_key 跳过更新/d" $FileSendMark
+                    [ -f $FileSendMark ] && sed -i "/未设置ws_key跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
                         [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
@@ -1649,7 +1648,7 @@ function Add_RawFile() {
 function Manage_Env() {
     local Variable Value Remarks FullContent Input1 Input2 Keys
 
-    ## 控制变量启用与禁用
+    ## 启用与禁用
     function ControlEnv() {
         local VariableTmp Mod OldContent NewContent InputA InputB
         case $# in
@@ -1758,7 +1757,31 @@ function Manage_Env() {
         fi
     }
 
-    ## 修改变量
+    ## 添加
+    function AddEnv() {
+        local VariableTmp=$1
+        local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        case $# in
+        2)
+            local FullContent="export ${Variable}=\"${Value}\""
+            ;;
+        3)
+            local RemarksTmp="$3"
+            local FullContent="export ${Variable}=\"${Value}\" # ${RemarksTmp}"
+            ;;
+        esac
+        grep "# 可在下方编写您需要用到的额外环境变量" $FileConfUser -q
+        ## 插入内容
+        if [ $? -eq 0 ]; then
+            perl -i -pe "s|(# 可在下方编写您需要用到的额外环境变量.+\n)|\1\n${FullContent}\n|" $FileConfUser
+        else
+            sed -i "9 i ${FullContent}" $FileConfUser
+        fi
+        echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
+        echo -e "\n$COMPLETE 环境变量已添加\n"
+    }
+
+    ## 修改
     function ModifyEnv() {
         local VariableTmp=$1
         local OldContent NewContent Remarks InputA InputB InputC
@@ -1790,21 +1813,15 @@ function Manage_Env() {
             fi
             ;;
         2)
-            local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             ;;
         3)
-            local ValueTmp=$(echo $2 | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
             Remarks=" # $3"
             ;;
-        *)
-            Output_Command_Error 1 ## 命令错误
-            exit                   ## 终止退出
-            ;;
         esac
-
         ## 修改
         sed -i "s/\(export ${VariableTmp}=\).*/\1\"${ValueTmp}\"${Remarks}/" $FileConfUser
-
         ## 前后对比
         NewContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
         echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
@@ -1819,6 +1836,7 @@ function Manage_Env() {
     }
 
     case $1 in
+
     ## 新增变量
     add)
         case $# in
@@ -1826,8 +1844,7 @@ function Manage_Env() {
             read -p "$(echo -e "\n${BOLD}└ 请输入需要添加的环境变量名称：${PLAIN}")" Variable
             ## 检测是否已存在该变量
             grep ".*export ${Variable}=" -q $FileConfUser
-            local ExitStatus=$?
-            if [[ $ExitStatus -eq 0 ]]; then
+            if [ $? -eq 0 ]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 是否继续修改? [Y/n] ${PLAIN}")" Input1
@@ -1855,11 +1872,11 @@ function Manage_Env() {
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
-                        FullContent="export ${Variable}=\"${Value}\" # ${Remarks}"
+                        AddEnv ${Variable} "${Value}" "${Remarks}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
-                        FullContent="export ${Variable}=\"${Value}\""
+                        AddEnv ${Variable} "${Value}"
                         break
                         ;;
                     *)
@@ -1867,9 +1884,6 @@ function Manage_Env() {
                         ;;
                     esac
                 done
-                sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
-                echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
         3 | 4)
@@ -1877,34 +1891,23 @@ function Manage_Env() {
             Value=$3
             ## 检测是否已存在该变量
             grep ".*export ${Variable}=" -q $FileConfUser
-            local ExitStatus=$?
-            if [[ $ExitStatus -eq 0 ]]; then
+            if [ $? -eq 0 ]; then
                 echo -e "\n${BLUE}检测到已存在该环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')"
-                echo -e "\n$ERROR 环境变量 ${BLUE}${Variable}${PLAIN} 已经存在，请直接修改！"
-                case $# in
-                3)
-                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\"${PLAIN}\n"
-                    ;;
-                4)
-                    echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env edit ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
-                    ;;
-                esac
+                echo -e "\n$ERROR 环境变量 ${BLUE}${Variable}${PLAIN} 已经存在，请重新确认！"
             else
                 case $# in
                 3)
-                    FullContent="export ${Variable}=\"${Value}\""
+                    AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     ;;
                 4)
-                    FullContent="export ${Variable}=\"${Value}\" # $4"
+                    AddEnv ${Variable} "${Value}" "$4"
                     ;;
                 esac
-                sed -i "9 i ${FullContent}" $FileConfUser
-                echo -e "\n${GREEN}+${PLAIN} \033[42;30m${FullContent}${PLAIN}"
-                echo -e "\n$COMPLETE 环境变量已添加\n"
             fi
             ;;
         esac
         ;;
+
     ## 删除变量
     del)
         case $# in
@@ -1965,6 +1968,7 @@ function Manage_Env() {
             ;;
         esac
         ;;
+
     ## 修改变量
     edit)
         case $# in
@@ -1972,11 +1976,10 @@ function Manage_Env() {
             read -p "$(echo -e "\n${BOLD}└ 请输入需要修改的环境变量名称：${PLAIN}")" Variable
             ## 检测是否存在该变量
             grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
-            local ExitStatus=$?
-            if [[ $ExitStatus -eq 0 ]]; then
+            if [ $? -eq 0 ]; then
                 echo -e "\n${BLUE}当前环境变量：${PLAIN}\n$(grep -n ".*export ${Variable}=" $FileConfUser | perl -pe '{s|^|第|g; s|:|行：|g;}')\n"
-                echo -e '1)   启用或禁用'
-                echo -e '2)   修改变量的值'
+                echo -e '1)  启用或禁用'
+                echo -e '2)  修改变量的值'
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}")" Input1
                     case ${Input1} in
@@ -1999,51 +2002,41 @@ function Manage_Env() {
             case $2 in
             enable | disable)
                 Variable=$3
+                if [ $ExitStatus -eq 0 ]; then
+                    ControlEnv "$2" "${Variable}"
+                else
+                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
+                fi
                 ;;
             *)
                 Variable=$2
                 Value=$3
+                grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
+                local ExitStatus=$?
+                case $# in
+                3)
+                    if [ $ExitStatus -eq 0 ]; then
+                        ModifyEnv "${Variable}" "${Value}"
+                    else
+                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
+                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                    fi
+                    ;;
+                4)
+                    if [ $ExitStatus -eq 0 ]; then
+                        ModifyEnv "${Variable}" "${Value}" "$4"
+                    else
+                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
+                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                    fi
+                    ;;
+                esac
                 ;;
             esac
-            grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
-            local ExitStatus=$?
-            if [[ $ExitStatus -eq 0 ]]; then
-                case $2 in
-                enable | disable)
-                    ControlEnv "$2" "${Variable}"
-                    ;;
-                *)
-                    case $# in
-                    3)
-                        ModifyEnv "${Variable}" "${Value}"
-                        ;;
-                    4)
-                        ModifyEnv "${Variable}" "${Value}" "$4"
-                        ;;
-                    esac
-                    ;;
-                esac
-            else
-                case $2 in
-                enable | disable)
-                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
-                    ;;
-                *)
-                    echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请先添加！"
-                    case $# in
-                    3)
-                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\"${PLAIN}\n"
-                        ;;
-                    4)
-                        echo -e "\n$EXAMPLE ${BLUE}$TaskCmd env add ${Variable} \"${Value}\" \"$4\"${PLAIN}\n"
-                        ;;
-                    esac
-                    ;;
-                esac
-            fi
             ;;
         esac
         ;;
+
     ## 查询变量
     search)
         case $# in
@@ -2405,7 +2398,7 @@ case $# in
     update | check)
         case $1 in
         cookie)
-            Cookies_Control $2
+            Accounts_Control $2
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
@@ -2546,7 +2539,7 @@ case $# in
         cookie)
             case $3 in
             [1-9] | [1-9][0-9] | [1-9][0-9][0-9])
-                Cookies_Control $2 $3
+                Accounts_Control $2 $3
                 ;;
             *)
                 Output_Command_Error 1 ## 命令错误

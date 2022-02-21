@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-01-09
+## Modified: 2022-02-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -15,10 +15,10 @@ function Gen_pt_pin_Array() {
     Import_Config
     Count_UserSum
     local Tmp1 Tmp2 i pt_pin_temp
-    if [[ $UserSum -le 45 ]]; then
+    if [[ $UserSum -le 55 ]]; then
         local Num=$UserSum
-    elif [[ $UserSum -gt 45 ]]; then
-        local Num=45
+    elif [[ $UserSum -gt 55 ]]; then
+        local Num=55
     fi
     for ((user_num = 1; user_num <= $Num; user_num++)); do
         Tmp1=Cookie$user_num
