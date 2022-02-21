@@ -313,17 +313,18 @@ function bakConfFile(file) {
     return oldConfContent;
 }
 
-function checkConfigSave(oldContent){
+function checkConfigSave(oldContent) {
     //判断格式是否正确
     try {
         execSync(`bash ${confFile} 2>${logPath}.check`, {encoding: 'utf8'});
     } catch (e) {
         fs.writeFileSync(confFile, oldContent);
-        let errorMsg,line;
+        let errorMsg, line;
         try {
             errorMsg = /(?<=line\s[0-9]*:)([^"]+)/.exec(e.message)[0];
             line = /(?<=line\s)[0-9]*/.exec(e.message)[0]
-        }catch (e){}
+        } catch (e) {
+        }
         throw new Error("<p>" + (errorMsg && line ? `第 ${line} 行:${errorMsg}` : e.message) + "</p>");
     }
 }
@@ -1099,6 +1100,61 @@ app.get('/api/scripts/content', function (request, response) {
 
 });
 
+let CookieObj = function (cookie, tips, lineIndex = 0) {
+    let cookieObj = {};
+    cookieObj.id = /(?<=Cookie)([^=]+)/.exec(cookie)[0];
+    cookieObj.ptKey = /(?<=pt_key=)([^;]+)/.exec(cookie)[0]
+    cookieObj.ptPin = /(?<=pt_pin=)([^;]+)/.exec(cookie)[0]
+    cookieObj.lastUpdateTime = /(?<=上次更新：)([^;]+(\s))/.exec(tips)[0];
+    cookieObj.remark = /(?<=备注：)([^;]+)/.exec(tips)[0];
+    cookieObj.lineIndex = lineIndex;
+    cookieObj.cookie = cookie;
+    cookieObj.tips = tips
+    return cookieObj;
+}
+
+/**
+ * 读取本地config.sh中的cookie
+ * @returns {*[]}
+ */
+function readCookies() {
+    const content = getFileContentByName(confFile);
+    const lines = content.split('\n');
+    let cookieList = [];
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        if (line.startsWith('Cookie')) {
+            try {
+                let tips = lines[i + 1];
+                cookieList.push(new CookieObj(line, tips, i))
+            } catch (e) {
+                console.error(`${i}行Cookie读取失败，请检查Cookie或Cookie下方的备注是否有误！`)
+            }
+        }
+    }
+    return cookieList;
+}
+
+/**
+ * 将Cookie数组保存至本地Config.sh
+ * @returns {*[]}
+ */
+function saveCookiesToConfig(cookieList = []) {
+    const content = getFileContentByName(confFile);
+    const lines = content.split('\n');
+    for (const item in cookieList) {
+        let line = lines[item.lineIndex];
+        if (line.startsWith('Cookie')) {
+            lines[item.lineIndex] = item.cookie;
+            lines[item.lineIndex + 1] = item.tips;
+        }else {
+            lines.splice(item.lineIndex, 0, item.cookie);
+            lines.splice(item.lineIndex + 1, 0, item.tips);
+        }
+    }
+
+}
+
 function updateCookie(cookie, userMsg = '无', response) {
     if (cookie) {
         const content = getFileContentByName(confFile);
@@ -1217,6 +1273,13 @@ function updateAccount(body, response) {
  * */
 app.post('/openApi/addOrUpdateAccount', function (request, response) {
     updateAccount(request.body, response)
+});
+
+/**
+ * 获取ck数量
+ * */
+app.get('/openApi/cookie/count', function (request, response) {
+
 });
 
 
