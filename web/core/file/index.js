@@ -1,6 +1,6 @@
 let path = require('path');
 var fs = require('fs');
-var rootPath = path.resolve(__dirname, '../../../')
+var rootPath = path.resolve(__dirname, '../../../');
 // config.sh 文件所在目录
 var confFile = path.join(rootPath, 'config/config.sh');
 // config.sample.sh 文件所在目录
@@ -377,6 +377,7 @@ function saveFile(file, content) {
 
 module.exports = {
     mkdirConfigBakDir,
+    getNeatContent,
     checkConfigFile,
     bakConfFile,
     saveFile,
@@ -389,5 +390,7 @@ module.exports = {
     loadLogTree,
     loadFileTree,
     loadScripts,
-    logPath,ScriptsPath,extraServerFile
+    logPath,
+    ScriptsPath,
+    extraServerFile
 }
