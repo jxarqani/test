@@ -1088,8 +1088,16 @@ h4 {
     margin: 0.7em 0 0.7em 0.7em;
     font-size: 15px;
 }
+
+@media screen and (max-width: 480px) {
+    .sms-login .send-sms-btn {
+        width: 40%;
+        margin: 0.7em 0 0.7em 0.7em;
+        font-size: 15px;
+        padding: 0;
+    }
+}
+
 .sms-login #tips{
 
 }
-
-
