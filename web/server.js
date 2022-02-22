@@ -28,7 +28,8 @@ const {
     getFileContentByName,
     getLastModifyFilePath,
     CONFIG_FILE_KEY,
-    getFile, getNeatContent
+    getFile, 
+    getNeatContent,
 } = require("./core/file");
 
 const {panelSendNotify} = require("./core/notify");
