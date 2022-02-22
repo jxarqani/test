@@ -28,7 +28,7 @@ const {
     getFileContentByName,
     getLastModifyFilePath,
     CONFIG_FILE_KEY,
-    getFile, 
+    getFile,
     getNeatContent,
 } = require("./core/file");
 
@@ -625,7 +625,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
  * */
 app.post('/openApi/updateCookie', function (request, response) {
     try {
-        response.send(API_STATUS_CODE.ok(updateCookie(request.body.cookie, request.body.userMsg)));
+        response.send(API_STATUS_CODE.okData(updateCookie(request.body.cookie, request.body.userMsg)));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
     }
