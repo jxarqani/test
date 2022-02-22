@@ -206,6 +206,7 @@ $(document).ready(function () {
                 panelRequest.post('/api/sms/checkCode', {phone, code, ...sendSmsData}, function (res) {
                     tipsCheckEle.innerText = res.msg;
                     let {cookieCount, cookie} = res.data;
+
                     panelUtils.showAlert({
                         title: "cookie已获取",
                         text: res.msg,
@@ -214,7 +215,8 @@ $(document).ready(function () {
                     }).then((result) => {
                         copyToClip(cookie);
                     });
-
+                    //重新加载一下配置
+                    loadConfig();
 
                 }, (res) => {
                     tipsCheckEle.innerText = res.msg;
