@@ -1,3 +1,5 @@
+const got = require('got');
+
 var s_token, cookies, guid, lsid, lstoken, okl_token, token, userCookie = '';
 
 function parseSetCookies(response) {

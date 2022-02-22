@@ -3,7 +3,7 @@ let BASE_PATH = location.href;
 let BASE_PATH_NAME = location.pathname;
 let editor, lastLoginInfo;
 
-function copyToClip(content, message) {
+function copyToClip(content) {
     var aux = document.createElement("input");
     aux.setAttribute("value", content);
     document.body.appendChild(aux);
@@ -433,11 +433,11 @@ var userAgentTools = {
 };
 
 let panelRequest = {
-    resultCallback(success, result, fail) {
+    resultCallback(success, result, fail, errorShow = true) {
         if (result.code === 1) {
             success && success(result);
         } else if (result.code === 403) {
-            panelUtils.showAlert({
+            errorShow && panelUtils.showAlert({
                 title: "请求出错",
                 html: result.msg,
                 icon: "error"
@@ -446,29 +446,29 @@ let panelRequest = {
             })
         } else {
             if (result.desc) {
-                panelUtils.showError(result.msg, result.msg, result.desc)
+                errorShow && panelUtils.showError(result.msg, result.msg, result.desc)
             } else {
-                panelUtils.showError("请求出错", result.msg)
+                errorShow && panelUtils.showError("请求出错", result.msg)
             }
 
             fail && fail(result);
         }
     },
-    get(url, params = {}, success) {
+    get(url, params = {}, success, fail, errorShow) {
         if (arguments.length === 2 && typeof params === 'function') {
             $.get(BASE_API_PATH + url, {}, (result) => {
                 this.resultCallback(params, result);
             }, "json");
         } else {
             $.get(BASE_API_PATH + url, params, (result) => {
-                this.resultCallback(success, result);
+                this.resultCallback(success, result, fail, errorShow);
             }, "json");
         }
 
     },
-    post(url, data = {}, success, fail) {
+    post(url, data = {}, success, fail, errorShow) {
         $.post(BASE_API_PATH + url, data, (result) => {
-            this.resultCallback(success, result, fail);
+            this.resultCallback(success, result, fail, errorShow);
         }, "json");
     }
 }

@@ -83,7 +83,7 @@ h4 {
     padding-right: 0.6em;
 }
 
-.diffs header>* {
+.diffs header > * {
     display: inline-block;
     line-height: 22px;
 }
@@ -116,7 +116,8 @@ h4 {
     height: 100%;
 }
 
-.CodeMirror-scroll ::-webkit-scrollbar-thumb {}
+.CodeMirror-scroll ::-webkit-scrollbar-thumb {
+}
 
 .sources a {
     font-size: 1rem;
@@ -258,11 +259,11 @@ h4 {
     border-radius: 6px;
 }
 
-.dark .elk-side-nav .metismenu>.nav-item>a.has-arrow {
+.dark .elk-side-nav .metismenu > .nav-item > a.has-arrow {
     color: #ccc !important;
 }
 
-.dark .elk-side-nav ul>.nav-item>a.has-arrow {
+.dark .elk-side-nav ul > .nav-item > a.has-arrow {
     color: #ccc !important;
 }
 
@@ -284,7 +285,7 @@ h4 {
     left: 1.5rem;
 }
 
-.metismenu .mm-active>.has-arrow::after, .metismenu .has-arrow[aria-expanded=true]::after {
+.metismenu .mm-active > .has-arrow::after, .metismenu .has-arrow[aria-expanded=true]::after {
     transform: rotate(225deg) translate(0, -50%);
 }
 
@@ -503,7 +504,7 @@ h4 {
 
 }
 
-.run.run-mobile>div {
+.run.run-mobile > div {
     margin-bottom: 5px;
 }
 
@@ -540,7 +541,7 @@ h4 {
     display: inline-block;
 }
 
-.new.header header>div {
+.new.header header > div {
     /*margin-bottom: 5px;*/
     /*margin-top: 5px;*/
 }
@@ -748,13 +749,13 @@ h4 {
     border-color: #009e90;
 }
 
-.inp-cbx:checked+.cbx span:first-child {
+.inp-cbx:checked + .cbx span:first-child {
     background: #009e90;
     border-color: #009e90;
     animation: wave 0.4s ease;
 }
 
-.inp-cbx:checked+.cbx span:first-child svg {
+.inp-cbx:checked + .cbx span:first-child svg {
     stroke-dashoffset: 0;
 }
 
@@ -899,12 +900,12 @@ h4 {
     border: 5px solid #e3e3c7;
 }
 
-.toggle--daynight .toggle--checkbox:checked+.toggle--btn {
+.toggle--daynight .toggle--checkbox:checked + .toggle--btn {
     background-color: #9ee3fb;
     border: 5px solid #86c3d7;
 }
 
-.toggle--daynight .toggle--checkbox:checked+.toggle--btn:before {
+.toggle--daynight .toggle--checkbox:checked + .toggle--btn:before {
     left: 20px;
     background-color: #ffdf6d;
     border: 5px solid #e1c348;
@@ -989,7 +990,7 @@ h4 {
     border: 1px solid #5a8ab7;
 }
 
-.selectSearchArea>i {
+.selectSearchArea > i {
     position: absolute;
     right: 10px;
     top: 0;
@@ -998,7 +999,7 @@ h4 {
     display: none;
 }
 
-.selectSearchArea>.multiFunctionSelectList {
+.selectSearchArea > .multiFunctionSelectList {
     position: absolute;
     width: 300px;
     max-height: 300px;
@@ -1022,7 +1023,7 @@ h4 {
     text-indent: 0;
 }
 
-.selectSearchArea>.multiFunctionSelectList>li {
+.selectSearchArea > .multiFunctionSelectList > li {
     padding-left: 10px;
     cursor: pointer;
     /*overflow: hidden;*/
@@ -1031,17 +1032,17 @@ h4 {
     white-space: nowrap;
 }
 
-.selectSearchArea>.multiFunctionSelectList>li:hover {
+.selectSearchArea > .multiFunctionSelectList > li:hover {
     background-color: #2da5e6;
     color: #ffffff;
 }
 
-.selectSearchArea>.multiFunctionSelectList>li.active {
+.selectSearchArea > .multiFunctionSelectList > li.active {
     background-color: #2da5e6;
     color: #ffffff;
 }
 
-.selectSearchArea>.maskLayer {
+.selectSearchArea > .maskLayer {
     width: 100%;
     position: absolute;
     left: 0;
@@ -1064,3 +1065,31 @@ h4 {
     font-size: 16px;
     height: 20em;
 }
+
+
+.sms-login > div {
+    display: flex;
+}
+
+.sms-login > div input {
+    margin: 0.5em 0;
+}
+
+.sms-login .send-sms-btn[disabled]{
+    opacity: .4
+}
+
+.sms-login .check-code {
+    width: 60%;
+}
+
+.sms-login .send-sms-btn {
+    width: 40%;
+    margin: 0.7em 0 0.7em 0.7em;
+    font-size: 15px;
+}
+.sms-login #tips{
+
+}
+
+

@@ -1,5 +1,5 @@
 const util = require("../../utils");
-const { CONFIG_FILE_KEY, getFile,saveNewConf} = require("../file");
+const {CONFIG_FILE_KEY, getFile, saveNewConf} = require("../file");
 
 /**
  * 初始化CK
@@ -32,8 +32,16 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         }
         this.ptKey = /(?<=pt_key=)([^;]+)/.exec(cookie)[0]
         this.ptPin = /(?<=pt_pin=)([^;]+)/.exec(cookie)[0]
-        this.lastUpdateTime = /(?<=上次更新：)([^;]+(\s))/.exec(tips)[0];
-        this.remark = /(?<=备注：)([^;]+)/.exec(tips)[0];
+        if (tips && tips.indexOf("上次更新") > 0) {
+            this.lastUpdateTime = /(?<=上次更新：)([^;]+(\s))/.exec(tips)[0];
+            this.remark = /(?<=备注：)([^;]+)/.exec(tips)[0];
+        } else {
+            this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
+            this.remark = tips;
+
+        }
+
+
         return this;
     }
 
@@ -173,8 +181,9 @@ function updateCookie(cookie, userMsg) {
             isUpdate = true;
             //更新ptKey
             item.ptKey = cookieObj.ptKey;
+            item.lastUpdateTime = cookieObj.lastUpdateTime;
             if (userMsg && userMsg !== '') {
-                item.userMsg = cookieObj.userMsg;
+                item.remark = userMsg;
             }
         }
     })

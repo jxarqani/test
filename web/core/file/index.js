@@ -389,5 +389,6 @@ module.exports = {
     loadLogTree,
     loadFileTree,
     loadScripts,
+    getNeatContent,
     logPath,ScriptsPath,extraServerFile
 }

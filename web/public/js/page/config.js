@@ -1,4 +1,4 @@
-var qrcode, userCookie;
+var qrcode, userCookie, sendSmsData;
 $(document).ready(function () {
     editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         minimap: minimapVal,
@@ -121,6 +121,7 @@ $(document).ready(function () {
         });
     }
 
+
     $('.refresh').click(get_code);
 
     $('#cookieTools').click(get_code);
@@ -130,9 +131,103 @@ $(document).ready(function () {
         $("#refresh_qrcode").addClass("hidden");
     });
 
+    function sendBtnStatus(ele, i = 60) {
+        if (i < 1) {
+            ele.removeAttribute("disabled");
+            ele.innerText = "发送验证码";
+            return;
+        }
+        ele.setAttribute("disabled", true);
+        ele.innerText = i;
+        setTimeout(() => {
+            i--;
+            sendBtnStatus(ele, i)
+        }, 1000)
+    }
+
+    $('#smsLogin').click(async function () {
+        const {value: formValues} = await Swal.fire({
+            title: '短信验证码登录',
+            html:
+                '<div class="sms-login">' +
+                '   <div><input id="smsLoginPhone" maxlength="11" autofocus="true" placeholder="请输入11位手机号" class="swal2-input"></div>' +
+                '   <div class="swal2-html-container red-font" id="tips-mobile"></div>' +
+                '   <div><input id="smsLoginCode" maxlength="6" placeholder="6位验证码" class="swal2-input check-code"><button class="swal2-confirm swal2-styled send-sms-btn" id="sendSmsBtn">发送验证码</button></div>' +
+                '   <div class="swal2-html-container red-font" id="tips-check"></div>' +
+                '</div>',
+            focusConfirm: true,
+            cancelButtonText: "取消",
+            showCloseButton: true,
+            confirmButtonText: "确认获取COOKIE",
+            showCancelButton: false,
+            allowOutsideClick: false,
+            confirmButtonColor: "#7066e0",
+            didOpen: () => {
+                let tipsMobileEle = document.getElementById('tips-mobile');
+                let sendSmsBtnEle = document.getElementById('sendSmsBtn');
+                let smsLoginPhoneEle = document.getElementById('smsLoginPhone');
+                sendSmsBtnEle.addEventListener('click', function () {
+                    let phone = smsLoginPhoneEle.value;
+                    if (!new RegExp('\\d{11}').test(phone)) {
+                        tipsMobileEle.innerText = "手机号码格式不正确"
+                    } else {
+                        tipsMobileEle.innerText = "";
+                        //发送验证码
+                        panelRequest.get('/api/sms/send', {phone: phone}, function (res) {
+                            if (res.code === 1) {
+                                sendSmsData = res.data;
+                                sendBtnStatus(sendSmsBtnEle);
+                            } else {
+                                tipsMobileEle.innerText = res.msg
+                            }
+                        }, (res) => {
+                            tipsMobileEle.innerText = res.msg
+                        }, false);
+                    }
+                })
+            },
+            preConfirm: () => {
+                let phone = document.getElementById('smsLoginPhone').value;
+                let code = document.getElementById('smsLoginCode').value;
+                let tipsMobileEle = document.getElementById('tips-mobile');
+                let tipsCheckEle = document.getElementById('tips-check');
+                if (!new RegExp('\\d{11}').test(phone)) {
+                    tipsMobileEle.innerText = "手机号码格式不正确"
+                    return false;
+                } else {
+                    tipsMobileEle.innerText = "";
+                }
+                if (!new RegExp('\\d{6}').test(code)) {
+                    tipsCheckEle.innerText = "请输入6位验证码"
+                    return false;
+                } else {
+                    tipsMobileEle.innerText = "";
+                }
+                panelRequest.post('/api/sms/checkCode', {phone, code, ...sendSmsData}, function (res) {
+                    tipsCheckEle.innerText = res.msg;
+                    let {cookieCount, cookie} = res.data;
+                    panelUtils.showAlert({
+                        title: "cookie已获取",
+                        text: res.msg,
+                        icon: "success",
+                        confirmButtonText: "复制Cookie",
+                    }).then((result) => {
+                        copyToClip(cookie);
+                    });
+
+
+                }, (res) => {
+                    tipsCheckEle.innerText = res.msg;
+                }, false);
+                return false;
+            }
+        })
+
+    })
+
     $('#save').click(function () {
         var confContent = editor.getValue();
-        panelRequest.post( '/api/save', {
+        panelRequest.post('/api/save', {
             content: confContent,
             name: "config.sh"
         }, function (res) {

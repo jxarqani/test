@@ -15,6 +15,7 @@ const {
 } = require('http-proxy-middleware');
 const random = require('string-random');
 const util = require('./utils/index');
+const {checkCode, sendSms} = require("./core/cookie/sms");
 const {
     extraServerFile,
     checkConfigFile,
@@ -551,6 +552,72 @@ app.get('/api/scripts/content', function (request, response) {
 
 
 /**
+ * API 发验证码
+ */
+app.get('/api/sms/send', async function (request, response) {
+    try {
+        const phone = request.query.phone;
+        if (!new RegExp('\\d{11}').test(phone)) {
+            response.send(API_STATUS_CODE.fail("手机号格式错误"));
+            return;
+        }
+        const data = await sendSms(phone);
+        if (data.err_code > 0) {
+            response.send(API_STATUS_CODE.fail('发送验证码失败:' + data.err_msg));
+        } else {
+            response.send(API_STATUS_CODE.okData(data));
+        }
+    } catch (e) {
+        console.log(e);
+        response.send(API_STATUS_CODE.fail("系统错误", 0, e.message));
+    }
+});
+
+app.post('/api/sms/checkCode', async function (request, response) {
+    try {
+        const {gsalt, ck, phone, code} = request.body;
+        if (!new RegExp('\\d{11}').test(phone)) {
+            response.send(API_STATUS_CODE.fail("手机号格式错误"));
+            return;
+        }
+        if (!new RegExp('\\d{6}').test(code)) {
+            response.send(API_STATUS_CODE.fail("验证码格式错误"));
+            return;
+        }
+        const data = await checkCode(phone, code, gsalt, ck);
+        if (data.err_code > 0) {
+            response.send(API_STATUS_CODE.fail('登录失败:' + data.err_msg));
+        } else {
+            const cookie =
+                `pt_key=${data.data.pt_key};pt_pin=${encodeURIComponent(data.data.pt_pin)};`;
+            let cookieCount = 0, updateSuccess = false, errorMsg = "";
+            try {
+                cookieCount = updateCookie(cookie, "无");
+                updateSuccess = true;
+            } catch (e) {
+                errorMsg = e.message;
+                updateSuccess = false;
+            }
+            if (updateSuccess) {
+                response.send(API_STATUS_CODE.ok(`获取/更新ck成功，当前CK数量：${cookieCount}`, {
+                    cookieCount,
+                    cookie: cookie
+                }))
+            } else {
+                response.send(API_STATUS_CODE.failData(`获取/更新ck成功，但更新失败，原因：${errorMsg}`, {
+                    cookie: cookie
+                }))
+            }
+
+        }
+    } catch (e) {
+        console.log(e);
+        response.send(API_STATUS_CODE.fail("系统错误", 0, e.message));
+    }
+});
+
+
+/**
  * 更新已经存在的人的cookie & 自动添加新用户
  *
  * {"cookie":"","userMsg":""}
@@ -605,6 +672,7 @@ app.get('/openApi/count', function (request, response) {
 
 
 checkConfigFile();
+
 
 // 调用自定义api
 try {
