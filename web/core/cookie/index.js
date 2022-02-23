@@ -131,12 +131,18 @@ function ckAutoAddOpen() {
     return CK_AUTO_ADD && CK_AUTO_ADD === 'true';
 }
 
+function getAccount() {
+    let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
+   return  accounts.filter((item) => {
+        return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
+    })
+}
+
 /**
  * 获取cookie数量
  * @return {{accountCount: number, cookieCount: number}}
  */
 function getCount() {
-    let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
     return {cookieCount: readCookies().length, accountCount: accounts.length};
 }
 
@@ -206,7 +212,7 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
         throw new Error("ptPin不正确")
     }
-    let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || [], isUpdate = false;
+    let accounts = getAccount(), isUpdate = false;
     remarks = remarks || ptPin;
     accounts.forEach((account, index) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {

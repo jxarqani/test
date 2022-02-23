@@ -53,6 +53,9 @@ function inArray(search, array) {
     return false;
 }
 
+function isNotEmpty(str){
+    return null !== str && str !== ''
+}
 module.exports = {
-    dateFormat, randomNumber, arrayObjectSort, inArray
+    dateFormat, randomNumber, arrayObjectSort, inArray,isNotEmpty
 }
