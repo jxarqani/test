@@ -1,6 +1,6 @@
-## Version: v1.11.3
-## Date: 2022-02-14
-## Update Content: 1. 新增 "Own 仓库脚本重复定时任务自动禁用功能" 扩展仓库环境变量 2. 新增 "自定义推送通知模块" 项目功能环境变量 3. 新增 "通知屏蔽关键词" 推送通知环境变量 4. 修改部分注释内容，调整排版
+## Version: v1.11.4
+## Date: 2022-02-23
+## Update Content: 1. 修改部分注释内容
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -100,7 +100,7 @@ OwnRepoPath2=""
 # OwnRepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
 # OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
 # OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="scripts/jd normal"  # 代表第2个仓库https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 scripts/jd 和 normal 文件夹下，必须输入相对路径
+# OwnRepoPath2="parse/tc normal"    # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 parse/tc 和 normal 文件夹下，必须输入相对路径
 # OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## ❖ Own Repo 扩展仓库脚本定时任务开关（自动增加/自动删除）
@@ -241,7 +241,7 @@ EnableCustomNotify=""
 ## ❖ 定义通知尾
 export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
 
-## ❖ 通知屏蔽关键词，多个词用 "&" 连接
+## ❖ 通知内容屏蔽关键词，多个词用 "&" 连接，注意屏蔽针对的是内容而不是通知标题
 export NOTIFY_MASKING=""
 
 ## ❖ 1. Server酱
@@ -573,6 +573,7 @@ export DO_TEN_WATER_AGAIN=""
 # 如想在运行互助类活动脚本时直接从 task exsc 中自动获取互助码并进行互助，请将该变量赋值为 true
 # 工作原理为导入最新的导出互助码日志，日志位于 log/ShareCodes 目录下，当该变量赋值为 true 时会导入最新的导出互助码日志
 # 导出互助码脚本如果检测到某个互助码变量为空将从上一个日志中获取，您还可以通过修改日志解决一直无法获取到互助码的问题
+# 由于相关命令处理字符的数量有一定限制，该功能最多支持 55 个账号，超出部分的账号不会参与互助
 AutoHelpOther="true"
 
 ## ❖ 2. 定义导出互助码的助力类型
@@ -595,6 +596,7 @@ BotSubmit=(
 ## ❖ 4. 手动定义互助码环境变量（选填）
 # 请在运行过一次需要互助的活动脚本以后，再运行一次 task exsc 即可获取，将输出内容替换下面自定义互助码填写区域中的内容即可
 # 如果启用了自动互助功能那么下方手动定义的互助码变量和助力规则将不会生效，已默认注释掉相关模板
+# 受限于代码底层相关命令，根据实际测试可能最多支持不超过 60 个账号，否则超出后会导致项目主命令报错无法执行任何脚本，包括定时计划任务
 
 # 互助码是填在My系列变量中的，ForOther系列变量中只要填入My系列的变量名即可，按注释中的例子拼接，以东东农场为例，如下所示。
 # 实际上东东农场一个账号只能给别人助力3次，多写的话只有前几个会被助力。但如果前面的账号获得的助力次数已经达到上限了那么还是会尝试继续给余下的账号助力，所以多填也是有意义的。
