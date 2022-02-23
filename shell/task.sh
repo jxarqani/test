@@ -255,7 +255,7 @@ function Find_Script() {
                 local Tmp=${InputContent}
             fi
             ## 验证 GitHub 地址格式
-            echo "${Tmp}" | grep "raw\.githubusercontent\.com" -q
+            echo "${Tmp}" | grep "raw\.githubusercontent\.com|jsdelivr\.net\/gh" -Eq
             if [ $? -ne 0 ]; then
                 echo -e "\n$FAIL 格式错误，请输入正确的 GitHub 地址！\n"
                 exit ## 终止退出
