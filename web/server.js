@@ -651,8 +651,8 @@ app.post('/openApi/cookie/delete', function (request, response) {
  * ptPin 必填
  * */
 app.post('/openApi/addOrUpdateAccount', function (request, response) {
-    let {ptPin, ptKey, wsKey, remarks} = request.body;
     try {
+        let {ptPin, ptKey, wsKey, remarks} = request.body;
         response.send(API_STATUS_CODE.okData(updateAccount(ptPin, ptKey, wsKey, remarks)))
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
