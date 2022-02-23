@@ -147,7 +147,8 @@ function getAccount() {
  * @return {{accountCount: number, cookieCount: number}}
  */
 function getCount() {
-    return {cookieCount: readCookies().length, accountCount: accounts.length};
+
+    return {cookieCount: readCookies().length, accountCount: getAccount().length};
 }
 
 /**
