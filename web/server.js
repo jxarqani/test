@@ -638,7 +638,7 @@ app.post('/openApi/updateCookie', function (request, response) {
  */
 app.post('/openApi/cookie/delete', function (request, response) {
     try {
-        response.send(removeCookie(request.body.ptPins))
+        response.send(API_STATUS_CODE.okData(removeCookie(request.body.ptPins)));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
     }
