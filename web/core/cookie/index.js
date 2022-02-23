@@ -131,9 +131,13 @@ function ckAutoAddOpen() {
     return CK_AUTO_ADD && CK_AUTO_ADD === 'true';
 }
 
+/**
+ * 获取账号
+ * @return T[]
+ */
 function getAccount() {
     let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
-   return  accounts.filter((item) => {
+    return accounts.filter((item) => {
         return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
     })
 }
