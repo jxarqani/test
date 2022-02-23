@@ -53,9 +53,33 @@ function inArray(search, array) {
     return false;
 }
 
-function isNotEmpty(str){
+/**
+ * 是否为空
+ * @param str
+ * @returns {boolean}
+ */
+function isNotEmpty(str) {
     return null !== str && str !== ''
 }
+
+/**
+ * 去空格
+ */
+function strTrim(str = "") {
+    return str.trim();
+}
+
+/**
+ * 正则匹配
+ */
+function regExecFirst(str = "", reg) {
+    let exec = reg.exec(str);
+    if (exec && exec.length > 0) {
+        return strTrim(exec[0])
+    }
+    return "";
+}
+
 module.exports = {
-    dateFormat, randomNumber, arrayObjectSort, inArray,isNotEmpty
+    dateFormat, randomNumber, arrayObjectSort, inArray, isNotEmpty, strTrim, regExecFirst
 }

@@ -21,20 +21,20 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin}; 上次更新：${this.lastUpdateTime} 备注：${this.remark}`;
+        return `## pt_pin=${this.ptPin}  上次更新：${this.lastUpdateTime}  备注：${this.remark}`;
     };
 
     this.convert = (cookie, tips) => {
         if (cookie.indexOf("Cookie") > 0) {
-            this.id = parseInt(/(?<=Cookie)([^=]+)/.exec(cookie)[0]);
+            this.id = parseInt(util.regExecFirst(cookie, /(?<=Cookie)([^=]+)/));
         } else {
             this.id = 0;
         }
-        this.ptKey = /(?<=pt_key=)([^;]+)/.exec(cookie)[0]
-        this.ptPin = /(?<=pt_pin=)([^;]+)/.exec(cookie)[0]
+        this.ptKey = util.regExecFirst(cookie, /(?<=pt_key=)([^;]+)/)
+        this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
         if (tips && tips.indexOf("上次更新") > 0) {
-            this.lastUpdateTime = /(?<=上次更新：)([^;]+(\s))/.exec(tips)[0];
-            this.remark = /(?<=备注：)([^;]+)/.exec(tips)[0];
+            this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+(\s))/);
+            this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
             this.remark = tips;
@@ -63,7 +63,7 @@ function readCookies() {
                 let tips = lines[i + 1];
                 cookieList.push(new CookieObj(i).convert(line, tips))
             } catch (e) {
-                console.error(`${i}行Cookie读取失败，请检查Cookie或Cookie下方的备注是否有误！`)
+                console.error(`${i + 1}行Cookie读取失败，请检查Cookie或Cookie下方的备注是否有误！`)
             }
         }
     }
@@ -133,13 +133,14 @@ function ckAutoAddOpen() {
 
 /**
  * 获取账号
- * @return T[]
+ * @return
  */
 function getAccount() {
     let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
-    return accounts.filter((item) => {
+    accounts = accounts.filter((item) => {
         return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
     })
+    return accounts;
 }
 
 /**
@@ -147,7 +148,6 @@ function getAccount() {
  * @return {{accountCount: number, cookieCount: number}}
  */
 function getCount() {
-
     return {cookieCount: readCookies().length, accountCount: getAccount().length};
 }
 
@@ -243,7 +243,6 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
 
 
 }
-
 
 module.exports = {
     CookieObj,
