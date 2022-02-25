@@ -1438,7 +1438,7 @@ function Add_OwnRepo() {
                     for FilePath in $Detail; do
                         local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
                         if [ -f ${FilePath} ]; then
-                            local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | grep -Ev "^\* |^ \* " | head -1)
+                            local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | head -1)
                             ## 新增定时任务自动禁用
                             if [[ ${DisableNewOwnRepoCron} == true ]]; then
                                 echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
