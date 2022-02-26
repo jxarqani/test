@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-25
+## Modified: 2022-02-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -148,8 +148,8 @@ function Gen_ListOwn() {
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}"); do
+            if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                     if [ -f $file ]; then
                         echo "$RawDir/$file" >>$ListOwnScripts
                     fi
@@ -164,7 +164,7 @@ function Gen_ListOwn() {
                 local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
             fi
             if [[ $(ls *.js 2>/dev/null) ]]; then
-                ls | grep "\.js\b" -q
+                ls | grep "\.js$" -q
                 if [ $? -eq 0 ]; then
                     for file in ${Matching}; do
                         if [ -f $file ]; then
@@ -622,7 +622,7 @@ function Update_Own() {
         EnableRepoUpdate="true"
         EnableRawUpdate="false"
         if [[ $OwnRepoSum -eq 0 ]]; then
-            Handle_Crontab
+            Processing_Crontab
             Notice
             exit ## 终止退出
         fi
@@ -730,46 +730,47 @@ function ExtraShell() {
 
 ## 更新指定路径下的仓库
 function Update_Designated() {
-    local InputContent=$1
-    local AbsolutePath PwdTmp
-    ## 判定输入的是绝对路径还是相对路径
+    local InputContent AbsolutePath PwdTmp
+    ## 去掉最后一个/
+    echo $1 | grep "/$" -q
+    if [ $? -eq 0 ]; then
+        local InputContent=${1%?}
+    else
+        local InputContent=$1
+    fi
+    ## 判定传入的是绝对路径还是相对路径
     echo ${InputContent} | grep "^$RootDir/" -q
     if [ $? -eq 0 ]; then
         AbsolutePath=${InputContent}
     else
+        ## 处理上级目录
         echo ${InputContent} | grep "\.\./" -q
         if [ $? -eq 0 ]; then
             PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
             AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
         else
-            if [[ $(pwd) == "/root" ]]; then
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
-            else
-                AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
-            fi
+            AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
         fi
     fi
-
+    ## 判定是否存在仓库
     if [ -d ${AbsolutePath}/.git ]; then
-        Title "specify"
-        case ${AbsolutePath} in
-        /jd)
+        if [[ "${AbsolutePath}" = "$RootDir" ]]; then
+            Title "shell"
             Update_Shell
-            ;;
-        /jd/scripts)
+        elif [[ "${AbsolutePath}" = "$ScriptsDir" ]]; then
+            Title "scripts"
             Update_Scripts
-            ;;
-        *)
+        else
+            Title "designated"
             echo -e "-------------------------------------------------------------"
             Git_Pull ${AbsolutePath} $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
-                echo -e "${YELLOW}注意：此更新模式下不会附带更新定时任务${PLAIN}\n"
+                echo -e "$WARN 此更新模式下不会附带更新定时任务\n"
             else
                 echo -e "\n$FAIL ${AbsolutePath} 仓库更新失败，请检查原因...\n"
             fi
-            ;;
-        esac
+        fi
     else
         echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
         exit ## 终止退出
@@ -777,7 +778,7 @@ function Update_Designated() {
 }
 
 ## 处理 Crontab
-function Handle_Crontab() {
+function Processing_Crontab() {
     ## 规范 crontab.list 中的命令
     perl -i -pe "s|( ?&>/dev/null)+||g" $ListCrontabUser
     ## 同步定时清单
@@ -809,17 +810,19 @@ function Title() {
     extra)
         RunMod="仅 Extra 脚本"
         ;;
-    specify)
+    designated)
         RunMod=" 指 定 仓 库 "
         ;;
     esac
     echo -e "\n+----------------- 开 始 执 行 更 新 脚 本 -----------------+"
     echo -e ''
+    echo -e "                   更新模式：${BLUE}${RunMod}${PLAIN}  "
+    echo -e ''
     echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
     echo -e ''
-    echo -e "         更新模式：${BLUE}${RunMod}${PLAIN}     脚本根目录：${BLUE}$RootDir${PLAIN}"
+    echo -e "         脚本根目录：${BLUE}$RootDir${PLAIN}   主要仓库目录：${BLUE}$ScriptsDir${PLAIN}"
     echo -e ''
-    echo -e "    Scripts仓库目录：${BLUE}$ScriptsDir${PLAIN}     Own仓库目录：${BLUE}$OwnDir${PLAIN}"
+    echo -e "      扩展仓库目录：${BLUE}$OwnDir${PLAIN}   扩展脚本目录：${BLUE}$RawDir${PLAIN}"
     echo -e ''
 }
 function Notice() {
@@ -836,81 +839,82 @@ function Notice() {
 +--------------- 请遵循本项目宗旨 - 低调使用 ---------------+\n"
 }
 
-## 组合函数
-function Combin_Function() {
-    case $# in
-    0)
-        Title "all"
+case $# in
+0)
+    Title "all"
+    Update_Shell
+    Update_Scripts
+    Update_Own "all"
+    ExtraShell
+    Processing_Crontab
+    Notice
+    exit ## 终止退出
+    ;;
+1)
+    case $1 in
+    all)
+        Title $1
         Update_Shell
         Update_Scripts
         Update_Own "all"
         ExtraShell
-        Handle_Crontab
-        Notice
-        exit ## 终止退出
         ;;
-    1)
-        case $1 in
-        all)
+    shell)
+        Title $1
+        Update_Shell
+        ;;
+    scripts)
+        if [ -d $ScriptsDir/.git ]; then
             Title $1
-            Update_Shell
             Update_Scripts
-            Update_Own "all"
+        else
+            echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
+        fi
+        ;;
+    own)
+        Title $1
+        Update_Own "all"
+        ;;
+    repo)
+        Title $1
+        Update_Scripts
+        Update_Own "repo"
+        ;;
+    raw)
+        Update_Own "raw"
+        ;;
+    extra)
+        if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then
+            Title $1
             ExtraShell
-            ;;
-        shell)
-            Title $1
-            Update_Shell
-            ;;
-        scripts)
-            if [ -d $ScriptsDir/.git ]; then
-                Title $1
-                Update_Scripts
-            else
-                echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
-            fi
-            ;;
-        own)
-            Title $1
-            Update_Own "all"
-            ;;
-        repo)
-            Title $1
-            Update_Scripts
-            Update_Own "repo"
-            ;;
-        raw)
-            Update_Own "raw"
-            ;;
-        extra)
-            if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then
-                Title $1
-                ExtraShell
-            else
-                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
-            fi
-            ;;
-        *)
-            echo $1 | grep "\/" -q
-            if [ $? -eq 0 ]; then
-                Update_Designated $1
-            else
-                if [ -d "./$2" ]; then
-                    Update_Designated "./$2"
-                else
-                    Output_Command_Error 1 ## 命令错误
-                    exit                   ## 终止退出
-                fi
-            fi
-            ;;
-        esac
-        Handle_Crontab
-        Notice
-        exit ## 终止退出
+        else
+            echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
+        fi
         ;;
     *)
-        Output_Command_Error 2 ## 命令过多
+        ## 判断传入参数
+        echo $1 | grep "\/" -q
+        if [ $? -eq 0 ]; then
+            Update_Designated $1
+        else
+            if [ -d "$(pwd)/$1" ]; then
+                if [[ "$1" = "." ]]; then
+                    Update_Designated "$(pwd)"
+                else
+                    Update_Designated "$(pwd)/$1"
+                fi
+            else
+                Output_Command_Error 1 ## 命令错误
+                exit                   ## 终止退出
+            fi
+        fi
         ;;
     esac
-}
-Combin_Function "$@"
+    Processing_Crontab
+    Notice
+    exit ## 终止退出
+    ;;
+*)
+    Output_Command_Error 2 ## 命令过多
+    ;;
+esac

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-25
+## Modified: 2022-02-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -25,6 +25,14 @@ function Find_Script() {
     ## 匹配指定路径下的脚本
     function MatchingPathFile() {
         local AbsolutePath PwdTmp FileNameTmp FileDirTmp
+
+        ## 判定路径格式
+        echo $1 | grep "/$" -q
+        if [ $? -eq 0 ]; then
+            echo -e "\n$ERROR 请输入正确的脚本路径！\n"
+            exit ## 终止退出
+        fi
+
         ## 判定传入的是绝对路径还是相对路径
         echo ${InputContent} | grep "^$RootDir/" -q
         if [ $? -eq 0 ]; then
@@ -35,6 +43,7 @@ function Find_Script() {
                 PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
+                ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
                 if [[ $(pwd) == "/root" ]]; then
                     AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
                 else
@@ -743,28 +752,28 @@ function Process_Kill() {
     local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
     ## 匹配脚本
     Find_Script ${InputContent}
-    local ProcessKeywords="${FileName}\.${FileSuffix}\b"
+    local ProcessKeywords="${FileName}\.${FileSuffix}\$"
     ## 判定对应脚本是否存在相关进程
-    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}\b" -wq
+    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}$" -wq
     local ExitStatus=$?
     if [[ ${ExitStatus} == 0 ]]; then
         ## 列出检测到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
-        ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
+        ps -axo pid,command | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
         ## 终止前等待确认
         echo -en "\n$WORKING 进程将在 ${BLUE}3${PLAIN} 秒后终止，可通过 ${BLUE}Ctrl + Z${PLAIN} 中断此操作..."
         sleep 3
         echo ''
         ## 杀死进程
-        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
-        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
 
         ## 验证
-        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
+        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}$" -wq
         if [ $? -eq 0 ]; then
-            ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
+            ps -axo pid,command | less | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
             echo -e "\n$FAIL 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
@@ -787,7 +796,7 @@ function Process_CleanUp() {
         ;;
     esac
     ## 生成进程清单
-    ps -axo pid,time,user,start,command | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
+    ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
     if [ -s ${FileProcessList} ]; then
         echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
@@ -1209,7 +1218,7 @@ function Add_OwnRepo() {
                 exit ## 终止退出
             fi
         fi
-        echo ${RepoUrl} | grep -Eq "\.git\b"
+        echo ${RepoUrl} | grep -Eq "\.git$"
         if [ $? -ne 0 ]; then
             echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
             exit ## 终止退出
@@ -1366,8 +1375,8 @@ function Add_OwnRepo() {
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
             if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-                if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                    for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}"); do
+                if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                    for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                         if [ -f $file ]; then
                             echo "$RawDir/$file" >>$ListOwnScripts
                         fi
@@ -1382,7 +1391,7 @@ function Add_OwnRepo() {
                     local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
                 fi
                 if [[ $(ls *.js 2>/dev/null) ]]; then
-                    ls | grep "\.js\b" -q
+                    ls | grep "\.js$" -q
                     if [ $? -eq 0 ]; then
                         for file in ${Matching}; do
                             if [ -f $file ]; then
@@ -2169,7 +2178,7 @@ function Process_Monitor() {
     fi
     ## 列出进程
     echo -e "\n${BLUE}[运行时长]  [CPU]    [内存]    [脚本名称]${PLAIN}"
-    ps -axo user,time,pcpu,user,pmem,user,command --sort -pmem | less | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "\/jd\/web\/server\.js|pm2 |egrep |perl |sed |bash |wget |\<defunct\>" |
+    ps -axo user,time,pcpu,user,pmem,user,command --sort -pmem | less | egrep "\.js$|\.py$|\.ts$" | egrep -v "\/jd\/web\/server\.js|pm2 |egrep |perl |sed |bash |wget |\<defunct\>" |
         perl -pe '{s| root     |% |g; s|\/usr\/bin\/ts-node-transpile-only ||g; s|\/usr\/bin\/ts-node ||g; s|\/usr\/bin\/python3 ||g; s|python3 -u ||g; s|\/usr\/bin\/python ||g; s|\/usr\/bin\/node ||g; s|node -r global-agent/bootstrap |(代理)|g; s|node ||g;  s|root     |#|g; s|#[0-9][0-9]:|#|g;  s|  | |g; s| |     |g; s|#|•  |g; s|/jd/scripts/jd_cfd_loop\.js|jd_cfd_loop\.js|g; s|\./utils/||g;}'
     echo ''
 }
@@ -2180,20 +2189,20 @@ function List_Local_Scripts() {
     ## 根据处理器架构判断匹配脚本类型
     case ${ARCH} in
     armv7l | armv6l)
-        ScriptType="\.js\b"
+        ScriptType="\.js$"
         ;;
     *)
         if [ -x /usr/bin/python3 ]; then
-            Tmp1="|\.py\b"
+            Tmp1="|\.py$"
         else
             Tmp1=""
         fi
         if [ -x /usr/bin/ts-node ]; then
-            Tmp2="|\.ts\b"
+            Tmp2="|\.ts$"
         else
             Tmp2=""
         fi
-        ScriptType="\.js\b${Tmp1}${Tmp2}"
+        ScriptType="\.js\$${Tmp1}${Tmp2}"
         ;;
     esac
 
@@ -2285,7 +2294,39 @@ function List_Local_Scripts() {
 
     ## 列出指定目录下的脚本
     function List_Designated() {
-        local WorkDir=$1
+        local InputContent WorkDir PwdTmp
+        ## 去掉传入参数中的最后一个/
+        echo $1 | grep "/$" -q
+        if [ $? -eq 0 ]; then
+            InputContent=${1%?}
+        else
+            InputContent=$1
+        fi
+        ## 判断传入参数
+        echo ${InputContent} | grep "\/" -q
+        if [ $? -eq 0 ]; then
+            ## 判定传入的是绝对路径还是相对路径
+            echo ${InputContent} | grep "^$RootDir/" -q
+            if [ $? -eq 0 ]; then
+                WorkDir=${InputContent}
+            else
+                ## 处理上级目录
+                echo ${InputContent} | grep "\.\./" -q
+                if [ $? -eq 0 ]; then
+                    PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
+                    WorkDir=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
+                else
+                    WorkDir=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
+                fi
+            fi
+        else
+            if [[ "${InputContent}" = "." ]]; then
+                WorkDir="$(pwd)"
+            else
+                WorkDir="$(pwd)/${InputContent}"
+            fi
+        fi
+        ## 判断路径是否存在
         if [ -d $WorkDir ]; then
             if [ "$(ls -A $WorkDir | grep -E "${ScriptType}")" = "" ]; then
                 if [ "$(ls -A $WorkDir)" = "" ]; then
@@ -2299,6 +2340,7 @@ function List_Local_Scripts() {
             echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！\n"
             exit ## 终止退出
         fi
+
         cd $WorkDir
         local ListFiles=($(
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
@@ -2417,16 +2459,7 @@ case $# in
     *)
         case $1 in
         list)
-            echo $2 | grep "\/" -q
-            if [ $? -eq 0 ]; then
-                List_Local_Scripts $2
-            else
-                if [ -d "./$2" ]; then
-                    List_Local_Scripts "./$2"
-                else
-                    echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的路径，请确认！\n"
-                fi
-            fi
+            List_Local_Scripts $2
             ;;
         repo)
             Add_OwnRepo $2
