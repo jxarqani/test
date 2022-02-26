@@ -730,7 +730,7 @@ function ExtraShell() {
 
 ## 更新指定路径下的仓库
 function Update_Designated() {
-    local InputContent=${1%*/}
+    local InputContent=$1
     local AbsolutePath PwdTmp
     ## 判定输入的是绝对路径还是相对路径
     echo ${InputContent} | grep "^$RootDir/" -q
