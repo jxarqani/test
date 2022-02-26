@@ -891,12 +891,16 @@ function Combin_Function() {
             fi
             ;;
         *)
-            echo $1 | grep "/" -q
+            echo $1 | grep "\/" -q
             if [ $? -eq 0 ]; then
                 Update_Designated $1
             else
-                Output_Command_Error 1 ## 命令错误
-                exit                   ## 终止退出
+                if [ -d "./$2" ]; then
+                    Update_Designated "./$2"
+                else
+                    Output_Command_Error 1 ## 命令错误
+                    exit                   ## 终止退出
+                fi
             fi
             ;;
         esac
