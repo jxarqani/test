@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-26
+## Modified: 2022-02-28
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -894,7 +894,7 @@ function Accounts_Control() {
             ## 汇总输出
             for ((m = 0; m < $UserSum; m++)); do
                 ## 定义格式化后的pt_pin
-                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                 ## 转义pt_pin中的汉字
                 EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
                 ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
@@ -932,7 +932,7 @@ function Accounts_Control() {
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
-            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
             ## 定义账号状态
@@ -1030,7 +1030,7 @@ function Accounts_Control() {
                     ## 声明变量
                     export JD_PT_PIN=${PT_PIN_TMP}
                     ## 定义格式化后的pt_pin
-                    FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+                    FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
@@ -1091,7 +1091,7 @@ function Accounts_Control() {
             Account_ExistenceJudgment $UserNum
             PT_PIN_TMP=$(echo ${!COOKIE_TMP} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             ## 定义格式化后的pt_pin
-            FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')"
+            FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')"
             ## 判定在 account.json 中是否存在该 pt_pin
             grep "${FormatPin}" -q $FileAccountConf
             if [ $? -eq 0 ]; then
@@ -1270,8 +1270,8 @@ function Add_OwnRepo() {
         Import_Config_Not_Check
 
         ## 格式化特殊符号用于sed命令
-        FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
-        FormatRepoPath=$(echo ${RepoPath} | perl -pe '{s|[\ \.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+        FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+        FormatRepoPath=$(echo ${RepoPath} | perl -pe '{s|[\ \.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
 
         if [[ -z ${OwnRepoUrl1} ]]; then
             ## 没有 Own 仓库
@@ -1608,7 +1608,7 @@ function Add_RawFile() {
 
         ## 添加定时任务
         if [[ ${AutoAddOwnRawCron} == true ]]; then
-            FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
                 perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
                 ## 判断添加结果
@@ -1637,7 +1637,7 @@ function Add_RawFile() {
                 exit ## 终止退出
             fi
         done
-        FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+        FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
         sed -i "/^OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
@@ -1768,7 +1768,7 @@ function Manage_Env() {
     ## 添加
     function AddEnv() {
         local VariableTmp=$1
-        local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+        local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
         case $# in
         2)
             local FullContent="export ${Variable}=\"${Value}\""
@@ -1798,7 +1798,7 @@ function Manage_Env() {
         case $# in
         1)
             read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${VariableTmp}${PLAIN} ${BOLD}新的值：${PLAIN}")" InputA
-            local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
@@ -1821,10 +1821,10 @@ function Manage_Env() {
             fi
             ;;
         2)
-            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ;;
         3)
-            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             Remarks=" # $3"
             ;;
         esac
@@ -2675,7 +2675,7 @@ case $# in
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[a-zA-Z\.;:/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                    echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
                         Help
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2701,7 +2701,7 @@ case $# in
                 case ${RUN_MODE} in
                 normal)
                     if [[ $4 ]]; then
-                        echo "$4" | grep -Eq "[a-zA-Z\.;:/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                        echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
                             Help
                             echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
