@@ -346,7 +346,7 @@ function Add_Cron_Own() {
             if [ -f ${FilePath} ]; then
                 if [ ${FilePath} = "$RawDir/${FileName}" ]; then
                     ## 判断表达式所在行
-                    local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${FileName}" ${FilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
+                    local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${FileName}" ${FilePath} | grep -Ev "^https\?:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
                     ## 判断开头
                     local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
                     ## 判断表达式的第一个数字（分钟）
