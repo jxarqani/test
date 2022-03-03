@@ -231,7 +231,7 @@ EnableCustomNotify=""
 
 ## ❖ 9. 启用自定义 Telegram Bot 功能
 # 仓库：https://github.com/chiupam/JD_Diy
-# 项目默认使用官方作者的原版 Bot，如想使用功能更丰富的 Diy Bot 请将下方变量赋值为 "true"，适合专业用户 
+# 项目默认使用官方作者的原版 Bot，如想使用功能更丰富的 Diy Bot 请将下方变量赋值为 "true"，适合专业用户
 EnableDiyBotModule=""
 
 
