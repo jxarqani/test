@@ -257,7 +257,9 @@ function Bot_Control() {
             if [[ ${EnableDiyBotModule} == true ]]; then
                 unzip $FileDiyBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/JD_Diy-main $BotRepoDir
+                [ ! -f $ConfigDir/botset.json ] && cp -f $BotRepoDir/config/botset.json $ConfigDir
                 [ ! -f $ConfigDir/diybotset.json ] && cp -f $BotRepoDir/config/diybotset.json $ConfigDir
+                sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/__init__.py
             else
                 unzip $FileBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/bot-main $BotRepoDir
@@ -289,6 +291,14 @@ function Bot_Control() {
         sed -i "s/mtask任务区域/用户定时任务区/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
+        ## 命令适配
+        local CurrentDir=$(pwd)
+        cd $BotRepoDir/jbot/bot
+        local TargetFiles="cron.py setshort.py start.py utils.py"
+        for file in $TargetFiles; do
+            sed -i "s/jtask/$TaskCmd/g" $file
+        done
+        cd $CurrentDir
         ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
