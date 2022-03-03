@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-25
+## Modified: 2022-03-03
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -25,6 +25,14 @@ function Find_Script() {
     ## 匹配指定路径下的脚本
     function MatchingPathFile() {
         local AbsolutePath PwdTmp FileNameTmp FileDirTmp
+
+        ## 判定路径格式
+        echo $1 | grep "/$" -q
+        if [ $? -eq 0 ]; then
+            echo -e "\n$ERROR 请输入正确的脚本路径！\n"
+            exit ## 终止退出
+        fi
+
         ## 判定传入的是绝对路径还是相对路径
         echo ${InputContent} | grep "^$RootDir/" -q
         if [ $? -eq 0 ]; then
@@ -35,6 +43,7 @@ function Find_Script() {
                 PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
+                ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
                 if [[ $(pwd) == "/root" ]]; then
                     AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
                 else
@@ -743,28 +752,28 @@ function Process_Kill() {
     local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
     ## 匹配脚本
     Find_Script ${InputContent}
-    local ProcessKeywords="${FileName}\.${FileSuffix}\b"
+    local ProcessKeywords="${FileName}\.${FileSuffix}\$"
     ## 判定对应脚本是否存在相关进程
-    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}\b" -wq
+    ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}$" -wq
     local ExitStatus=$?
     if [[ ${ExitStatus} == 0 ]]; then
         ## 列出检测到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
-        ps -axo pid,command | grep -E "${FileName}\.${FileSuffix}\b" | grep -Ev "${ProcessShielding}"
+        ps -axo pid,command | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
         ## 终止前等待确认
         echo -en "\n$WORKING 进程将在 ${BLUE}3${PLAIN} 秒后终止，可通过 ${BLUE}Ctrl + Z${PLAIN} 中断此操作..."
         sleep 3
         echo ''
         ## 杀死进程
-        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
-        kill -9 $(ps -ef | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
 
         ## 验证
-        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}\b" -wq
+        ps -ef | grep -Ev "grep|pkill" | grep "\.${FileSuffix}$" -wq
         if [ $? -eq 0 ]; then
-            ps -axo pid,command | less | grep -E "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
+            ps -axo pid,command | less | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
             echo -e "\n$FAIL 进程终止失败，请尝试手动终止 ${BLUE}kill -9 <pid>${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已终止相关进程\n"
@@ -787,7 +796,7 @@ function Process_CleanUp() {
         ;;
     esac
     ## 生成进程清单
-    ps -axo pid,time,user,start,command | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
+    ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
     if [ -s ${FileProcessList} ]; then
         echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
@@ -885,7 +894,7 @@ function Accounts_Control() {
             ## 汇总输出
             for ((m = 0; m < $UserSum; m++)); do
                 ## 定义格式化后的pt_pin
-                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                FormatPin=$(echo ${pt_pin[m]} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                 ## 转义pt_pin中的汉字
                 EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
                 ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
@@ -923,7 +932,7 @@ function Accounts_Control() {
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
-            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
             ## 定义账号状态
@@ -1021,7 +1030,7 @@ function Accounts_Control() {
                     ## 声明变量
                     export JD_PT_PIN=${PT_PIN_TMP}
                     ## 定义格式化后的pt_pin
-                    FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+                    FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
@@ -1082,7 +1091,7 @@ function Accounts_Control() {
             Account_ExistenceJudgment $UserNum
             PT_PIN_TMP=$(echo ${!COOKIE_TMP} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             ## 定义格式化后的pt_pin
-            FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')"
+            FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')"
             ## 判定在 account.json 中是否存在该 pt_pin
             grep "${FormatPin}" -q $FileAccountConf
             if [ $? -eq 0 ]; then
@@ -1209,7 +1218,7 @@ function Add_OwnRepo() {
                 exit ## 终止退出
             fi
         fi
-        echo ${RepoUrl} | grep -Eq "\.git\b"
+        echo ${RepoUrl} | grep -Eq "\.git$"
         if [ $? -ne 0 ]; then
             echo -e "\n$ERROR ${BLUE}${RepoUrl}${PLAIN} 不是一个有效的仓库地址，链接必须以 ${BLUE}.git${PLAIN} 为结尾！\n"
             exit ## 终止退出
@@ -1261,8 +1270,8 @@ function Add_OwnRepo() {
         Import_Config_Not_Check
 
         ## 格式化特殊符号用于sed命令
-        FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
-        FormatRepoPath=$(echo ${RepoPath} | perl -pe '{s|[\ \.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        FormatRepoUrl=$(echo ${RepoUrl} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+        FormatRepoPath=$(echo ${RepoPath} | perl -pe '{s|[\ \.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
 
         if [[ -z ${OwnRepoUrl1} ]]; then
             ## 没有 Own 仓库
@@ -1366,8 +1375,8 @@ function Add_OwnRepo() {
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
             if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-                if [[ $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                    for file in $(ls | grep -E "\.js\b|\.py\b|\.ts\b" | grep -Ev "${RawDirUtils}"); do
+                if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                    for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                         if [ -f $file ]; then
                             echo "$RawDir/$file" >>$ListOwnScripts
                         fi
@@ -1382,7 +1391,7 @@ function Add_OwnRepo() {
                     local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
                 fi
                 if [[ $(ls *.js 2>/dev/null) ]]; then
-                    ls | grep "\.js\b" -q
+                    ls | grep "\.js$" -q
                     if [ $? -eq 0 ]; then
                         for file in ${Matching}; do
                             if [ -f $file ]; then
@@ -1575,7 +1584,7 @@ function Add_RawFile() {
         ## 定义脚本路径
         RawFilePath="$RawDir/${RawFileName}"
         ## 判断表达式所在行
-        local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${RawFileName}" ${RawFilePath} | grep -Ev "^http.*:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
+        local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${RawFileName}" ${RawFilePath} | grep -Ev "^https\?:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\:\_]||g;}')
         ## 判断开头
         local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
         ## 判断表达式的第一个数字（分钟）
@@ -1599,7 +1608,7 @@ function Add_RawFile() {
 
         ## 添加定时任务
         if [[ ${AutoAddOwnRawCron} == true ]]; then
-            FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
                 perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
                 ## 判断添加结果
@@ -1628,7 +1637,7 @@ function Add_RawFile() {
                 exit ## 终止退出
             fi
         done
-        FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
         sed -i "/^OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
@@ -1652,11 +1661,11 @@ function Manage_Env() {
         local VariableTmp Mod OldContent NewContent InputA InputB
         case $# in
         1)
-            VariableTmp=$1
+            VariableTmp="$1"
             ;;
         2)
-            Mod=$1
-            VariableTmp=$2
+            Mod="$1"
+            VariableTmp="$2"
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
@@ -1758,8 +1767,8 @@ function Manage_Env() {
 
     ## 添加
     function AddEnv() {
-        local VariableTmp=$1
-        local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+        local VariableTmp="$1"
+        local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
         case $# in
         2)
             local FullContent="export ${Variable}=\"${Value}\""
@@ -1782,19 +1791,19 @@ function Manage_Env() {
 
     ## 修改
     function ModifyEnv() {
-        local VariableTmp=$1
+        local VariableTmp="$1"
         local OldContent NewContent Remarks InputA InputB InputC
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
         Remarks=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$NF}')
         case $# in
         1)
             read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${VariableTmp}${PLAIN} ${BOLD}新的值：${PLAIN}")" InputA
-            local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            local ValueTmp=$(echo "${InputA}" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改? [Y/n] ${PLAIN}")" InputB
-                    [ -z ${InputB} ] && InputB=B
+                    [ -z ${InputB} ] && InputB=Y
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}新的备注内容：${PLAIN}")" InputC
@@ -1812,10 +1821,10 @@ function Manage_Env() {
             fi
             ;;
         2)
-            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ;;
         3)
-            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\/\[\]\!\@\#\$\%\^\&\*\(\)]|\\$&|g;}')
+            local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             Remarks=" # $3"
             ;;
         esac
@@ -1871,11 +1880,11 @@ function Manage_Env() {
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
-                        AddEnv ${Variable} "${Value}" "${Remarks}"
+                        AddEnv "${Variable}" "${Value}" "${Remarks}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
-                        AddEnv ${Variable} "${Value}"
+                        AddEnv "${Variable}" "${Value}"
                         break
                         ;;
                     *)
@@ -1896,10 +1905,10 @@ function Manage_Env() {
             else
                 case $# in
                 3)
-                    AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                    AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     ;;
                 4)
-                    AddEnv ${Variable} "${Value}" "$4"
+                    AddEnv "${Variable}" "${Value}" "$4"
                     ;;
                 esac
             fi
@@ -2018,7 +2027,7 @@ function Manage_Env() {
                         ModifyEnv "${Variable}" "${Value}"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
-                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 4)
@@ -2026,7 +2035,7 @@ function Manage_Env() {
                         ModifyEnv "${Variable}" "${Value}" "$4"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
-                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 esac
@@ -2169,7 +2178,7 @@ function Process_Monitor() {
     fi
     ## 列出进程
     echo -e "\n${BLUE}[运行时长]  [CPU]    [内存]    [脚本名称]${PLAIN}"
-    ps -axo user,time,pcpu,user,pmem,user,command --sort -pmem | less | egrep "\.js\b|\.py\b|\.ts\b" | egrep -v "\/jd\/web\/server\.js|pm2 |egrep |perl |sed |bash |wget |\<defunct\>" |
+    ps -axo user,time,pcpu,user,pmem,user,command --sort -pmem | less | egrep "\.js$|\.py$|\.ts$" | egrep -v "\/jd\/web\/server\.js|pm2 |egrep |perl |sed |bash |wget |\<defunct\>" |
         perl -pe '{s| root     |% |g; s|\/usr\/bin\/ts-node-transpile-only ||g; s|\/usr\/bin\/ts-node ||g; s|\/usr\/bin\/python3 ||g; s|python3 -u ||g; s|\/usr\/bin\/python ||g; s|\/usr\/bin\/node ||g; s|node -r global-agent/bootstrap |(代理)|g; s|node ||g;  s|root     |#|g; s|#[0-9][0-9]:|#|g;  s|  | |g; s| |     |g; s|#|•  |g; s|/jd/scripts/jd_cfd_loop\.js|jd_cfd_loop\.js|g; s|\./utils/||g;}'
     echo ''
 }
@@ -2180,20 +2189,20 @@ function List_Local_Scripts() {
     ## 根据处理器架构判断匹配脚本类型
     case ${ARCH} in
     armv7l | armv6l)
-        ScriptType="\.js\b"
+        ScriptType="\.js$"
         ;;
     *)
         if [ -x /usr/bin/python3 ]; then
-            Tmp1="|\.py\b"
+            Tmp1="|\.py$"
         else
             Tmp1=""
         fi
         if [ -x /usr/bin/ts-node ]; then
-            Tmp2="|\.ts\b"
+            Tmp2="|\.ts$"
         else
             Tmp2=""
         fi
-        ScriptType="\.js\b${Tmp1}${Tmp2}"
+        ScriptType="\.js\$${Tmp1}${Tmp2}"
         ;;
     esac
 
@@ -2285,7 +2294,39 @@ function List_Local_Scripts() {
 
     ## 列出指定目录下的脚本
     function List_Designated() {
-        local WorkDir=$1
+        local InputContent WorkDir PwdTmp
+        ## 去掉传入参数中的最后一个/
+        echo $1 | grep "/$" -q
+        if [ $? -eq 0 ]; then
+            InputContent=${1%?}
+        else
+            InputContent=$1
+        fi
+        ## 判断传入参数
+        echo ${InputContent} | grep "\/" -q
+        if [ $? -eq 0 ]; then
+            ## 判定传入的是绝对路径还是相对路径
+            echo ${InputContent} | grep "^$RootDir/" -q
+            if [ $? -eq 0 ]; then
+                WorkDir=${InputContent}
+            else
+                ## 处理上级目录
+                echo ${InputContent} | grep "\.\./" -q
+                if [ $? -eq 0 ]; then
+                    PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
+                    WorkDir=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
+                else
+                    WorkDir=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
+                fi
+            fi
+        else
+            if [[ "${InputContent}" = "." ]]; then
+                WorkDir="$(pwd)"
+            else
+                WorkDir="$(pwd)/${InputContent}"
+            fi
+        fi
+        ## 判断路径是否存在
         if [ -d $WorkDir ]; then
             if [ "$(ls -A $WorkDir | grep -E "${ScriptType}")" = "" ]; then
                 if [ "$(ls -A $WorkDir)" = "" ]; then
@@ -2299,6 +2340,7 @@ function List_Local_Scripts() {
             echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！\n"
             exit ## 终止退出
         fi
+
         cd $WorkDir
         local ListFiles=($(
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
@@ -2417,16 +2459,7 @@ case $# in
     *)
         case $1 in
         list)
-            echo $2 | grep "\/" -q
-            if [ $? -eq 0 ]; then
-                List_Local_Scripts $2
-            else
-                if [ -d "./$2" ]; then
-                    List_Local_Scripts "./$2"
-                else
-                    echo -e "\n$ERROR ${BLUE}$2${PLAIN} 不是一个有效的路径，请确认！\n"
-                fi
-            fi
+            List_Local_Scripts $2
             ;;
         repo)
             Add_OwnRepo $2
@@ -2608,7 +2641,7 @@ case $# in
                 ;;
             -w | --wait)
                 if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    echo "$4" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
                         Help
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2642,7 +2675,7 @@ case $# in
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[a-zA-Z\.;:/\!@#$^&*|]|\(|\)|\[|\]|\{|\}"
+                    echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
                         Help
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2668,7 +2701,7 @@ case $# in
                 case ${RUN_MODE} in
                 normal)
                     if [[ $4 ]]; then
-                        echo "$4" | grep -Eq "[a-zA-Z\.;:/\!#$^&*|]|\(|\)|\[|\]|\{|\}"
+                        echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
                             Help
                             echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
@@ -2743,7 +2776,7 @@ case $# in
                 Manage_Env $2 $3 "$4"
                 ;;
             5)
-                Manage_Env $2 $3 "$4" $5
+                Manage_Env $2 $3 "$4" "$5"
                 ;;
             *)
                 Output_Command_Error 2 ## 命令过多

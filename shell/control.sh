@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-12
+## Modified: 2022-02-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -253,6 +253,9 @@ function Bot_Control() {
         fi
         ## 处理PM2启动参数
         sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
+        ## 适配添加定时任务
+        sed -i "s/mtask任务区域/用户定时任务区/g" $BotRepoDir/jbot/bot/utils.py
+        sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
@@ -313,7 +316,7 @@ function Bot_Control() {
                     errored)
                         echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                         pm2 delete jbot >/dev/null 2>&1
-                        ## 保存用户的bot脚本
+                        ## 保存用户的diy脚本
                         mv -f $BotDir/diy/* $RootDir/tmp
                         rm -rf $BotDir $RootDir/bot.session $RootDir/tmp/__pycache__ $RootDir/tmp/example.py
                         Install_Bot
@@ -335,7 +338,19 @@ function Bot_Control() {
                         ;;
                     esac
                 else
-                    Install_Bot
+                    ## 保存用户的diy脚本
+                    if [ -d $BotDir ]; then
+                        mv -f $BotDir/diy/* $RootDir/tmp
+                        rm -rf $BotDir $RootDir/bot.session $RootDir/tmp/__pycache__ $RootDir/tmp/example.py
+                        Install_Bot
+                        cp -rf $BotRepoDir/jbot $RootDir
+                        if [[ "$(ls -A $RootDir/tmp)" != "" ]]; then
+                            mv -f $RootDir/tmp/* $BotDir/diy
+                        fi
+                        rm -rf $RootDir/tmp
+                    else
+                        Install_Bot
+                    fi
                     cp -rf $BotRepoDir/jbot $RootDir
                     [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
