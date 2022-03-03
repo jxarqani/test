@@ -230,6 +230,7 @@ function Detect_Config_Version() {
             local NotifyContent="更新日期: $UpdateDate\n当前版本: $VerConfUser\n新的版本: $VerConfSample\n更新内容: $UpdateContent\n"
             echo -e $NotifyContent
             Notify "$NotifyTitle" "$NotifyContent"
+            echo ''
             [ $? -eq 0 ] && echo $VerConfSample >$FileSendMark
         fi
     else

@@ -2351,7 +2351,7 @@ function List_Local_Scripts() {
         if [ $? -eq 0 ]; then
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 Query_Name ${ListFiles[i]}
-                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]:8}" "${ScriptName}"
+                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
             done
         else
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
