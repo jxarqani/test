@@ -229,7 +229,7 @@ function Bot_Control() {
     function BackUpUserFiles() {
         if [[ ${EnableDiyBotModule} == true ]]; then
             local UserFiles=($(
-                ls $BotDir/diy/* | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
+                ls $BotDir/diy | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
@@ -238,7 +238,7 @@ function Bot_Control() {
             fi
         else
             local UserFiles=($(
-                ls $BotDir/diy/* | grep -Ev "__pycache__|example.py"
+                ls $BotDir/diy | grep -Ev "__pycache__|example.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
@@ -352,7 +352,7 @@ function Bot_Control() {
                         ## 保存用户的diy脚本
                         if [ -d $BotDir ]; then
                             BackUpUserFiles
-                            rm -rf $BotDir $RootDir/bot.session
+                            rm -rf $BotDir/* $RootDir/bot.session
                             Install_Bot
                             if [[ -d $RootDir/tmp ]]; then
                                 mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
@@ -377,7 +377,7 @@ function Bot_Control() {
                     ## 保存用户的diy脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        rm -rf $BotDir $RootDir/bot.session
+                        rm -rf $BotDir/* $RootDir/bot.session
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
@@ -415,6 +415,7 @@ function Bot_Control() {
             update)
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
                     ## 下载最新的 Bot 源码
+                    echo -e "\n$WORKING 开始拉取最新源码...\n"
                     if [[ ${EnableDiyBotModule} == true ]]; then
                         wget --no-check-certificate "https://ghproxy.com/https://github.com/chiupam/JD_Diy/archive/refs/heads/main.zip" -O $FileDiyBotSourceCode -T 20
                     else
@@ -422,10 +423,12 @@ function Bot_Control() {
                     fi
                     [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 Ghproxy 代理），请检查原因后重试！\n" && exit ## 终止退出
                     pm2 delete jbot >/dev/null 2>&1
+                    ## 删除日志
+                    rm -rf $BotLogDir/up.log
                     ## 保存用户的diy脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        rm -rf $BotDir $RootDir/bot.session
+                        rm -rf $BotDir/* $RootDir/bot.session
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
