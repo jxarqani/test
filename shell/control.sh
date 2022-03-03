@@ -246,7 +246,6 @@ function Bot_Control() {
                 done
             fi
         fi
-
     }
 
     ## 安装 Telegram Bot
@@ -257,7 +256,7 @@ function Bot_Control() {
             if [[ ${EnableDiyBotModule} == true ]]; then
                 unzip $FileDiyBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/JD_Diy-main $BotRepoDir
-                [ ! -f $ConfigDir/botset.json ] && cp -f $BotRepoDir/config/botset.json $ConfigDir/set.json
+                [ ! -f $ConfigDir/botset.json ] && cp -f $BotRepoDir/config/botset.json $ConfigDir
                 [ ! -f $ConfigDir/diybotset.json ] && cp -f $BotRepoDir/config/diybotset.json $ConfigDir
                 sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/__init__.py
                 sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/bot/getfile.py
