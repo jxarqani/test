@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-28
+## Modified: 2022-03-03
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1661,11 +1661,11 @@ function Manage_Env() {
         local VariableTmp Mod OldContent NewContent InputA InputB
         case $# in
         1)
-            VariableTmp=$1
+            VariableTmp="$1"
             ;;
         2)
-            Mod=$1
-            VariableTmp=$2
+            Mod="$1"
+            VariableTmp="$2"
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
@@ -1767,7 +1767,7 @@ function Manage_Env() {
 
     ## 添加
     function AddEnv() {
-        local VariableTmp=$1
+        local VariableTmp="$1"
         local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
         case $# in
         2)
@@ -1791,19 +1791,19 @@ function Manage_Env() {
 
     ## 修改
     function ModifyEnv() {
-        local VariableTmp=$1
+        local VariableTmp="$1"
         local OldContent NewContent Remarks InputA InputB InputC
         OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
         Remarks=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$NF}')
         case $# in
         1)
             read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${VariableTmp}${PLAIN} ${BOLD}新的值：${PLAIN}")" InputA
-            local ValueTmp=$(echo ${InputA} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
+            local ValueTmp=$(echo "${InputA}" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 判断变量备注内容
             if [[ ${Remarks} != "" ]]; then
                 while true; do
                     read -p "$(echo -e "\n${BOLD}└ 检测到该变量存在备注内容，是否修改? [Y/n] ${PLAIN}")" InputB
-                    [ -z ${InputB} ] && InputB=B
+                    [ -z ${InputB} ] && InputB=Y
                     case ${InputB} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}新的备注内容：${PLAIN}")" InputC
@@ -1880,11 +1880,11 @@ function Manage_Env() {
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
-                        AddEnv ${Variable} "${Value}" "${Remarks}"
+                        AddEnv "${Variable}" "${Value}" "${Remarks}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
-                        AddEnv ${Variable} "${Value}"
+                        AddEnv "${Variable}" "${Value}"
                         break
                         ;;
                     *)
@@ -1905,10 +1905,10 @@ function Manage_Env() {
             else
                 case $# in
                 3)
-                    AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                    AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     ;;
                 4)
-                    AddEnv ${Variable} "${Value}" "$4"
+                    AddEnv "${Variable}" "${Value}" "$4"
                     ;;
                 esac
             fi
@@ -2027,7 +2027,7 @@ function Manage_Env() {
                         ModifyEnv "${Variable}" "${Value}"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
-                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 4)
@@ -2035,7 +2035,7 @@ function Manage_Env() {
                         ModifyEnv "${Variable}" "${Value}" "$4"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
-                        AddEnv ${Variable} "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 esac
@@ -2776,7 +2776,7 @@ case $# in
                 Manage_Env $2 $3 "$4"
                 ;;
             5)
-                Manage_Env $2 $3 "$4" $5
+                Manage_Env $2 $3 "$4" "$5"
                 ;;
             *)
                 Output_Command_Error 2 ## 命令过多
