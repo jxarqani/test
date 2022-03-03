@@ -257,6 +257,7 @@ function Bot_Control() {
             if [[ ${EnableDiyBotModule} == true ]]; then
                 unzip $FileDiyBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/JD_Diy-main $BotRepoDir
+                [ ! -f $ConfigDir/diybotset.json ] && cp -f $BotRepoDir/config/diybotset.json $ConfigDir
             else
                 unzip $FileBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/bot-main $BotRepoDir
