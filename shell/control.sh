@@ -310,7 +310,7 @@ function Bot_Control() {
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotRepoDir/jbot $RootDir
         cd $BotDir
-        pip3 --default-timeout=300 install -r requirements.txt --no-cache-dir
+        pip3 --default-timeout=300 install -r requirements.txt
         pip3 install aiohttp Telethon==1.24.0
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
