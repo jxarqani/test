@@ -232,6 +232,7 @@ function Bot_Control() {
                 ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
+                Make_Dir $RootDir/tmp
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
                     mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
                 done
@@ -241,6 +242,7 @@ function Bot_Control() {
                 ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
+                Make_Dir $RootDir/tmp
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
                     mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
                 done
