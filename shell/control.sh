@@ -294,13 +294,11 @@ function Bot_Control() {
         sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
         ## 命令适配
-        local CurrentDir=$(pwd)
         cd $BotRepoDir/jbot/bot
         local TargetFiles="cron.py setshort.py start.py utils.py"
         for file in $TargetFiles; do
             sed -i "s/jtask/$TaskCmd/g" $file
         done
-        cd $CurrentDir
         ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
