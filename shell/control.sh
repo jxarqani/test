@@ -229,7 +229,7 @@ function Bot_Control() {
     function BackUpUserFiles() {
         if [[ ${EnableDiyBotModule} == true ]]; then
             local UserFiles=($(
-                ls $BotDir/diy | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
+                ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
@@ -238,7 +238,7 @@ function Bot_Control() {
             fi
         else
             local UserFiles=($(
-                ls $BotDir/diy | grep -Ev "__pycache__|example.py"
+                ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
             ))
             if [ ${#UserFiles[@]} -gt 0 ]; then
                 for ((i = 0; i < ${#UserFiles[*]}; i++)); do
