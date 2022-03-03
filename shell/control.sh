@@ -263,10 +263,10 @@ function Bot_Control() {
             fi
         }
         ## 安装依赖
-        echo -e "\n$WORKING 开始安装依赖\n"
+        echo -e "\n$WORKING 开始安装依赖...\n"
         apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
         if [ $? -eq 0 ]; then
-            echo -e "\n$SUCCESS 依赖安装完成\n"
+            echo -e "\n$COMPLETE 依赖安装完成\n"
         else
             echo -e "\n$FAIL 依赖安装失败，请检查原因后重试！\n"
         fi
@@ -274,11 +274,11 @@ function Bot_Control() {
         if [ -d $BotRepoDir ]; then
             echo -e "$WORKING 开始更新源码...\n"
             Decompression
-            echo -e "\n$SUCCESS 源码更新完成\n"
+            echo -e "\n$COMPLETE 源码更新完成\n"
         else
             echo -e "$WORKING 开始解压源码...\n"
             Decompression
-            echo -e "\n$SUCCESS 源码安装完成\n"
+            echo -e "\n$COMPLETE 源码安装完成\n"
         fi
         ## 处理PM2启动参数
         if [[ ${EnableDiyBotModule} != true ]]; then
@@ -292,6 +292,7 @@ function Bot_Control() {
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
         fi
+        Make_Dir $BotLogDir
         ## 安装模块
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotRepoDir/jbot $RootDir
@@ -299,7 +300,7 @@ function Bot_Control() {
         pip3 --default-timeout=300 install -r requirements.txt --no-cache-dir
         pip3 install aiohttp
         if [[ $? -eq 0 ]]; then
-            echo -e "\n$SUCCESS 模块安装完成\n"
+            echo -e "\n$COMPLETE 模块安装完成\n"
         else
             echo -e "\n$FAIL 模块安装失败，请检查原因后重试！\n"
         fi
