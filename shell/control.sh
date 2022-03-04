@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-03
+## Modified: 2022-03-05
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -225,6 +225,14 @@ function Panel_Control() {
 ## Telegram Bot 功能
 function Bot_Control() {
 
+    ## 卸载
+    function Remove() {
+        echo -e "\n$WORKING 开始卸载...\n"
+        pip3 uninstall -y -r $BotDir/requirements.txt
+        rm -rf $BotDir/* $RootDir/bot.session
+        echo -e "\n$COMPLETE 卸载完成"
+    }
+
     ## 备份用户的diy脚本
     function BackUpUserFiles() {
         if [[ ${EnableDiyBotModule} == true ]]; then
@@ -366,7 +374,7 @@ function Bot_Control() {
                         ## 保存用户的diy脚本
                         if [ -d $BotDir ]; then
                             BackUpUserFiles
-                            rm -rf $BotDir/* $RootDir/bot.session
+                            Remove
                             Install_Bot
                             if [[ -d $RootDir/tmp ]]; then
                                 mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
@@ -391,7 +399,7 @@ function Bot_Control() {
                     ## 保存用户的diy脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        rm -rf $BotDir/* $RootDir/bot.session
+                        Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
@@ -442,7 +450,7 @@ function Bot_Control() {
                     ## 保存用户的diy脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        rm -rf $BotDir/* $RootDir/bot.session
+                        Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
