@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-03
+## Modified: 2022-03-07
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -264,7 +264,7 @@ function Find_Script() {
                 local Tmp=${InputContent}
             fi
             ## 验证 GitHub 地址格式
-            echo "${Tmp}" | grep "raw\.githubusercontent\.com|jsdelivr\.net\/gh" -Eq
+            echo "${Tmp}" | grep "raw\.githubusercontent\.com|github\.io|jsdelivr\.net\/gh" -Eq
             if [ $? -ne 0 ]; then
                 echo -e "\n$FAIL 格式错误，请输入正确的 GitHub 地址！\n"
                 exit ## 终止退出
