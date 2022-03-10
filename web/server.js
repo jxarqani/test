@@ -593,7 +593,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
                 `pt_key=${data.data.pt_key};pt_pin=${encodeURIComponent(data.data.pt_pin)};`;
             let cookieCount = 0, updateSuccess = false, errorMsg = "";
             try {
-                cookieCount = updateCookie(cookie, "无");
+                cookieCount = updateCookie(cookie, "");
                 updateSuccess = true;
             } catch (e) {
                 errorMsg = e.message;
