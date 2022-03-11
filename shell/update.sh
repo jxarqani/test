@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-26
+## Modified: 2022-03-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -446,7 +446,6 @@ function Update_RawFile() {
             ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
             echo ${OwnRawFile[i]} | grep "\.com\/.*\/blob\/.*" -q
             if [ $? -eq 0 ]; then
-                ## 纠正链接
                 case $(echo ${OwnRawFile[i]} | grep -Eo "github|gitee|gitlab") in
                 github)
                     echo ${OwnRawFile[i]} | grep "github\.com\/.*\/blob\/.*" -q
@@ -457,10 +456,20 @@ function Update_RawFile() {
                     fi
                     ;;
                 gitee)
-                    DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                    echo ${OwnRawFile[i]} | grep "gitee\.com\/.*\/blob\/.*" -q
+                    if [ $? -eq 0 ]; then
+                        DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                    else
+                        DownloadUrl=${OwnRawFile[i]}
+                    fi
                     ;;
                 gitlab)
-                    DownloadUrl=${OwnRawFile[i]}
+                    echo ${OwnRawFile[i]} | grep "gitlab\.com\/.*\/blob\/.*" -q
+                    if [ $? -eq 0 ]; then
+                        DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                    else
+                        DownloadUrl=${OwnRawFile[i]}
+                    fi
                     ;;
                 esac
             else

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-03
+## Modified: 2022-03-08
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -315,7 +315,7 @@ function Help() {
  ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                        ✧ 删除一定天数的由项目和运行脚本产生的各类日志文件
  ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                      ✧ 检测并终止卡死状态的脚本进程，以释放内存占用提高运行效率
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
@@ -360,7 +360,7 @@ function Help() {
  ❖  ${BLUE}$TaskCmd rmlog${PLAIN}                        ✧ 删除一定天数的由项目和运行脚本产生的各类日志文件
  ❖  ${BLUE}$TaskCmd cleanup${PLAIN}                      ✧ 检测并终止卡死状态的脚本进程，以释放内存占用提高运行效率
 
- ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单，扩展用法(加在末尾): ${BLUE}<path>${PLAIN} 列出指定路径下的脚本
+ ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
  ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用WSKEY更新CK ${BLUE}update${PLAIN}
  ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令

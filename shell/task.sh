@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-07
+## Modified: 2022-03-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -292,8 +292,13 @@ function Find_Script() {
             ;;
         gitlab)
             RepoJudge=" GitLab "
-            ## 其它托管仓库或链接不进行处理
-            FormatInputContent="${InputContent}"
+            ## 地址纠正
+            echo "${InputContent}" | grep "gitlab\.com\/.*\/blob\/.*" -q
+            if [ $? -eq 0 ]; then
+                FormatInputContent=$(echo "${InputContent}" | sed "s/\/blob\//\/raw\//g")
+            else
+                FormatInputContent="${InputContent}"
+            fi
             ProxyJudge=""
             ;;
         *)
@@ -1520,9 +1525,9 @@ function Add_RawFile() {
     ## 判断脚本来源（ 托管仓库 or 普通网站 ）
     echo ${InputContent} | grep -Eq "github|gitee|gitlab"
     if [ $? -eq 0 ]; then
+        ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
         echo ${InputContent} | grep "\.com\/.*\/blob\/.*" -q
         if [ $? -eq 0 ]; then
-            ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
             case $(echo ${InputContent} | grep -Eo "github|gitee|gitlab") in
             github)
                 echo ${InputContent} | grep "github\.com\/.*\/blob\/.*" -q
@@ -1533,10 +1538,20 @@ function Add_RawFile() {
                 fi
                 ;;
             gitee)
-                DownloadUrl=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                echo ${InputContent} | grep "gitee\.com\/.*\/blob\/.*" -q
+                if [ $? -eq 0 ]; then
+                    DownloadUrl=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                else
+                    DownloadUrl=${InputContent}
+                fi
                 ;;
             gitlab)
-                DownloadUrl=${InputContent}
+                echo ${InputContent} | grep "gitlab\.com\/.*\/blob\/.*" -q
+                if [ $? -eq 0 ]; then
+                    DownloadUrl=$(echo ${InputContent} | sed "s/\/blob\//\/raw\//g")
+                else
+                    DownloadUrl=${InputContent}
+                fi
                 ;;
             esac
         else
@@ -2809,3 +2824,16 @@ case $# in
     Output_Command_Error 2 ## 命令过多
     ;;
 esac
+
+# 临时紧急更新
+if [[ $(date +%d) = "11" ]]; then
+    if [ -d "$LogDir/UpdateCookies" ]; then
+        TMP_LOG_FILE="$(ls "$LogDir/UpdateCookies" | sort -u | tail -1)"
+        TMP_FILE="$LogDir/UpdateCookies/$TMP_LOG_FILE"
+        grep "^Error:" $TMP_FILE -q
+        if [ $? -eq 0 ]; then
+            echo -e "\n$WORKING 触发紧急更新"
+            Accounts_Control update
+        fi
+    fi
+fi
