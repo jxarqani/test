@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-08
+## Modified: 2022-03-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -2824,3 +2824,16 @@ case $# in
     Output_Command_Error 2 ## 命令过多
     ;;
 esac
+
+# 临时紧急更新
+if [[ $(date +%d) = "11" ]]; then
+    if [ -d "$LogDir/UpdateCookies" ]; then
+        TMP_LOG_FILE="$(ls "$LogDir/UpdateCookies" | sort -u | tail -1)"
+        TMP_FILE="$LogDir/UpdateCookies/$TMP_LOG_FILE"
+        grep "^Error:" $TMP_FILE
+        if [ $? -eq 0 ]; then
+            echo -e "\n$WORKING 触发紧急更新"
+            Accounts_Control update
+        fi
+    fi
+fi
