@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-08
+## Modified: 2022-03-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -734,6 +734,17 @@ function ExtraShell() {
             echo -e "\n$COMPLETE 自定义脚本执行完毕\n"
         else
             echo -e "$ERROR 自定义脚本不存在，跳过执行...\n"
+        fi
+    fi
+    # 临时紧急更新
+    if [ $(date +%d) = "11" ]; then
+        if [ -d $LogDir/UpdateCookies ]; then
+            TMP_LOG_FILE="$(ls "$LogDir/UpdateCookies" | sort -u | tail -1)"
+            TMP_FILE="$LogDir/UpdateCookies/$TMP_LOG_FILE"
+            grep "^Error:" $TMP_FILE
+            if [ $? -eq 0 ]; then
+                bash -c "$TaskCmd cookie update" >/dev/null 2>&1
+            fi
         fi
     fi
 }
