@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-11
+## Modified: 2022-03-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -568,8 +568,18 @@ function Run_Normal() {
     function Designated_Account() {
         local AccountsTmp="$1"
         for UserNum in ${AccountsTmp}; do
-            echo ${UserNum} | grep "-" -q
+            echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
+                ## 格式检测
+                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -gt 2 ]]; then
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个连接符(${BLUE}-${PLAIN})！\n"
+                    exit ## 终止退出
+                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -gt 2 ]]; then
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个账号总数代符(${BLUE}%${PLAIN})！\n"
+                    exit ## 终止退出
+                fi
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
@@ -703,8 +713,18 @@ function Run_Concurrent() {
         ## 判定账号是否存在
         local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
         for UserNum in ${Accounts}; do
-            echo ${UserNum} | grep "-" -q
+            echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
+                ## 格式检测
+                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -gt 2 ]]; then
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个连接符(${BLUE}-${PLAIN})！\n"
+                    exit ## 终止退出
+                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -gt 2 ]]; then
+                    Help
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个账号总数代符(${BLUE}%${PLAIN})！\n"
+                    exit ## 终止退出
+                fi
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
@@ -723,7 +743,7 @@ function Run_Concurrent() {
 
         ## 指定运行账号
         for UserNum in ${Accounts}; do
-            echo ${UserNum} | grep "-" -q
+            echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                     Main $i
