@@ -36,7 +36,7 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
         if (util.isNotEmpty(this.ptPin)) {
             let account = getAccountByPtPin(this.ptPin);
-            this.sort = account['sort'] || 999
+            this.sort = account['sort'] || (this.id !== 0 ? this.id : 999)
             this.disable = account['disable'] || false
         }
         if (tips && tips.indexOf("上次更新") > 0) {
@@ -86,7 +86,8 @@ function saveCookiesToConfig(cookieList = []) {
     if (accountEnableSort()) {
         cookieList = util.arrayObjectSort(cookieList, "sort", true);
     }
-    let disableCookieIdArr = getTempBlockCookieId();
+    let disableCookiePtPinArr = getTempBlockCookie();
+    let cookieIdMap = {};
     const content = getFile(CONFIG_FILE_KEY.CONFIG);
     const lines = content.split('\n');
     //写入的下标
@@ -121,21 +122,31 @@ function saveCookiesToConfig(cookieList = []) {
                     lines[writeIndex] = item.tipStr();
                     writeIndex++
                 }
-                if (item.disable && disableCookieIdArr.indexOf(item.id) === -1) {
-                    disableCookieIdArr.push(item.id);
+                cookieIdMap[item.ptPin] = item.id;
+                if (item.disable && disableCookiePtPinArr.indexOf(item.ptPin) === -1) {
+                    disableCookiePtPinArr.push(item.ptPin);
                 }
                 id++;
             })
             over = true;
             i = writeIndex - 1;
         } else if (line.startsWith('TempBlockCookie')) {
-            //升序
+            let disableCookieIdArr = disableCookiePtPinArr.map((ptPin)=>{
+                return cookieIdMap[ptPin]
+            })
             disableCookieIdArr.sort((a, b) => a - b);
             lines[i] = `TempBlockCookie="${disableCookieIdArr.join(" ")}"`;
         }
     }
     saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'));
     return cookieList;
+}
+
+/**
+ * 账号刷新
+ */
+function cookieReload() {
+    saveCookiesToConfig(readCookies())
 }
 
 /**
@@ -163,9 +174,9 @@ function accountEnableSort() {
 }
 
 /**
- * 判断账号是否开启排序
+ * 获取已经禁用的cookie
  */
-function getTempBlockCookieId() {
+function getTempBlockCookie() {
     let tempBlockCookie = ""
     const content = getFile(CONFIG_FILE_KEY.CONFIG);
     if (content.match(/\nTempBlockCookie=".+?"/)) {
@@ -174,10 +185,16 @@ function getTempBlockCookieId() {
     if (tempBlockCookie === "") {
         return [];
     }
-    let tempBlockCookieArr = tempBlockCookie.split(" ");
-    tempBlockCookieArr = tempBlockCookieArr.map(item => {
-        return +item;
-    });
+    let cookieList = readCookies();
+    let tempBlockCookieIdArr = tempBlockCookie.split(" ");
+    let tempBlockCookieArr = []
+    cookieList.map((cookie) => {
+        tempBlockCookieIdArr.map(cookieId => {
+            if (cookieId === cookie.id.toString()) {
+                tempBlockCookieArr.push(cookie.ptPin);
+            }
+        });
+    })
     return tempBlockCookieArr;
 }
 
@@ -383,5 +400,6 @@ module.exports = {
     updateAccountSort,
     getAccount,
     saveAccount,
-    getTempBlockCookieId
+    getTempBlockCookie,
+    cookieReload
 }

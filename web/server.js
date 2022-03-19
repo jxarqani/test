@@ -41,6 +41,7 @@ const {
     updateAccount,
     updateAccountStatus,
     updateAccountSort,
+    cookieReload
 } = require("./core/cookie");
 const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
 const {API_STATUS_CODE, userAgentTools, getClientIP} = require("./core/http");
@@ -197,7 +198,7 @@ app.get('/', function (request, response) {
 
 app.get(`/:page`, (request, response) => {
     let page = request.params.page;
-    const pageList = ['bot', 'crontab', 'config', 'diff', 'extra', 'changePwd', 'remarks', 'run', 'taskLog', 'terminal', 'viewScripts'];
+    const pageList = ['bot', 'crontab', 'config', 'diff', 'extra', 'changePwd', 'account', 'run', 'taskLog', 'terminal', 'viewScripts'];
     if (page && pageList.includes(page)) {
         response.sendFile(getPath(request, `${page}.html`));
     } else {
@@ -493,6 +494,19 @@ app.post('/api/save', function (request, response) {
 
 });
 
+/**
+ * cookie 重新加载
+ */
+
+app.post('/api/cookie/reload', function (request, response) {
+    try {
+        cookieReload();
+        response.send(API_STATUS_CODE.ok("处理成功", {}, "账号配置已生效"));
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail("处理失败", 0, e.message));
+    }
+
+});
 
 /**
  * 日志列表
@@ -721,13 +735,7 @@ try {
     }
 } catch (e) {
 }
-// const cookieUtil = require("./core/cookie");
-// //let accounts = getAccount(true);
-// //saveAccount(accounts)
-// //updateAccountSort("",123)
-// //updateAccountStatus("",true)
-// let cookies = cookieUtil.readCookies();
-// cookieUtil.saveCookiesToConfig(cookies)
+
 app.listen(5678, '0.0.0.0', () => {
     console.log('应用正在监听 5678 端口!');
 });

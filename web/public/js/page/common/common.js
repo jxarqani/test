@@ -139,7 +139,7 @@ let MenuTools = {
                 titleFaIcon: "fa-arrow-right",
                 subText: "编辑账号配置文件",
                 customClass: 'gb e',
-                path: "/remarks"
+                path: "/account"
             }, {
                 title: "定时任务",
                 faIcon: "fa-clock-o",
