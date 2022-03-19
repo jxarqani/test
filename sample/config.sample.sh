@@ -45,7 +45,10 @@ TempBlockCookie=""
 # 如想禁用请修改为 "false"，可避免自动添加陌生人的账号
 export CK_AUTO_ADD="true"
 
-
+## ❖ 账号是否开启排序功能
+# 开启排序之后 可在账号配置中的账号添加“sort”字段，值为数字，进行排序，排序方式为升序
+# 如想禁用请修改为 "false"
+export ACCOUNT_SORT="false"
 
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 主 要 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -268,7 +271,7 @@ export BARK_SOUND=""
 export BARK_GROUP=""
 
 
-## ❖ 3. Telegram 
+## ❖ 3. Telegram
 # 具体教程：https://github.com/chinnkarahoi/jd_scripts/blob/master/backUp/TG_PUSH.md
 # 需设备可连接外网，"TG_BOT_TOKEN" 和 "TG_USER_ID" 必须同时赋值
 # 下方填写自己申请 @BotFather 的 Token，如 10xxx4:AAFcqxxxxgER5uw
@@ -292,7 +295,7 @@ export TG_USER_ID=""
 # export TG_API_HOST=""
 
 
-## ❖ 4. 钉钉 
+## ❖ 4. 钉钉
 # 官方文档：https://developers.dingtalk.com/document/app/custom-robot-access
 # 参考图片：https://github.com/chinnkarahoi/jd_scripts/blob/master/icon/DD_bot.png
 # "DD_BOT_TOKEN" 和 "DD_BOT_SECRET" 必须同时赋值
@@ -328,7 +331,7 @@ export IGOT_PUSH_KEY=""
 export PUSH_PLUS_TOKEN=""
 # 一对一多推送（选填）
 # 下方填写您的一对多推送的 "群组编码" ，（一对多推送下面->您的群组(如无则新建)->群组编码）
-# 注 1. 需订阅者扫描二维码 
+# 注 1. 需订阅者扫描二维码
 #    2、如果您是创建群组所属人，也需点击“查看二维码”扫描绑定，否则不能接受群组消息推送
 export PUSH_PLUS_USER=""
 

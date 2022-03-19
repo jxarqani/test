@@ -15,6 +15,7 @@ const {
 } = require('http-proxy-middleware');
 const random = require('string-random');
 const util = require('./utils/index');
+
 const {checkCode, sendSms} = require("./core/cookie/sms");
 const {
     extraServerFile,
@@ -33,7 +34,14 @@ const {
 } = require("./core/file");
 
 const {panelSendNotify} = require("./core/notify");
-const {getCount, removeCookie, updateCookie, updateAccount} = require("./core/cookie");
+const {
+    getCount,
+    removeCookie,
+    updateCookie,
+    updateAccount,
+    updateAccountStatus,
+    updateAccountSort,
+} = require("./core/cookie");
 const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
 const {API_STATUS_CODE, userAgentTools, getClientIP} = require("./core/http");
 const {getLocalIp} = require("./core");
@@ -672,6 +680,34 @@ app.get('/openApi/count', function (request, response) {
 });
 
 
+/**
+ * 修改账号状态
+ * body: {"ptPin":"", "disable":false}
+ * */
+app.post('/openApi/account/status', function (request, response) {
+    try {
+        let {ptPin, disable} = request.body;
+        updateAccountStatus(ptPin, disable);
+        response.send(API_STATUS_CODE.okData(getCount()))
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
+    }
+});
+
+/**
+ * 修改账号排序
+ * body: {"ptPin":"", "sort":1}
+ * */
+app.post('/openApi/account/sort', function (request, response) {
+    try {
+        let {ptPin, sort} = request.body;
+        updateAccountSort(ptPin, sort);
+        response.send(API_STATUS_CODE.okData(getCount()))
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
+    }
+});
+
 checkConfigFile();
 
 
@@ -685,8 +721,13 @@ try {
     }
 } catch (e) {
 }
-
-
+// const cookieUtil = require("./core/cookie");
+// //let accounts = getAccount(true);
+// //saveAccount(accounts)
+// //updateAccountSort("",123)
+// //updateAccountStatus("",true)
+// let cookies = cookieUtil.readCookies();
+// cookieUtil.saveCookiesToConfig(cookies)
 app.listen(5678, '0.0.0.0', () => {
     console.log('应用正在监听 5678 端口!');
 });

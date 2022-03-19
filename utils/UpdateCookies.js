@@ -1,4 +1,5 @@
 const fs = require("fs");
+const {getAccount, updateCookie} = require("../web/core/cookie");
 const vm = new Env('更新Cookies');
 
 if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {
@@ -60,28 +61,20 @@ let globalOptions = {
     curEp: null,
     firstEp: null,
     curUuid: "",
+    signPath: "./.sign/",
 }
 
 globalOptions.curEp = defaultEps[random(0, defaultEps.length - 1)];
 
-const globalConfig = {
-    configShPath: "../config/config.sh",
-    accountPath: "../config/account.json",
-    signPath: "./.sign/",
-}
 const getUa = () => {
     return `okhttp/3.12.1;jdmall;android;version/${globalOptions.clientVersion};build/${globalOptions.build};`
 }
 
 const loadAccount = () => {
-    try {
-        fs.accessSync(globalConfig.accountPath)
-        globalOptions.accountsList = JSON.parse(fs.readFileSync(globalConfig.accountPath).toString())
-    } catch (e) {
-    }
+    globalOptions.accountsList = getAccount(true);
 }
 const loadLocalSign = () => {
-    let signFile = `${globalConfig.signPath}/${globalOptions.clientVersion}/${(random(1, globalOptions.signJsonFileCount))}.json`;
+    let signFile = `${globalOptions.signPath}/${globalOptions.clientVersion}/${(random(1, globalOptions.signJsonFileCount))}.json`;
     try {
         fs.accessSync(signFile)
         globalOptions.signList = JSON.parse(fs.readFileSync(signFile).toString())
@@ -105,65 +98,6 @@ const pre = () => {
         loadLocalSign();
     }
     loadAccount();
-}
-const updateLocalCookie = (cookie, remarks) => {
-    fs.accessSync(globalConfig.configShPath)
-    const content = fs.readFileSync(globalConfig.configShPath, 'utf8').toString();
-    const lines = content.split('\n');
-    const pt_pin = cookie.match(/pt_pin=.+?;/)[0];
-    let lastIndex = 0;
-    let maxCookieCount = 0;
-    let updateFlag = false;
-    let success = false;
-    let CK_AUTO_ADD = false
-    if (content.match(/CK_AUTO_ADD=".+?"/)) {
-        CK_AUTO_ADD = content.match(/CK_AUTO_ADD=".+?"/)[0].split('"')[1]
-    }
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        if (line.startsWith('Cookie')) {
-            maxCookieCount = Math.max(
-                Number(line.split('=')[0].split('Cookie')[1]),
-                maxCookieCount
-            );
-            lastIndex = i;
-            if (line.match(/pt_pin=.+?;/) && line.match(/pt_pin=.+?;/)[0] === pt_pin) {
-                const head = line.split('=')[0];
-                lines[i] = [head, '=', '"', cookie, '"'].join('');
-                let lineNext = lines[i + 1];
-                updateFlag = true;
-                if (
-                    lineNext.match(/上次更新：/)
-                ) {
-                    // 统一使用account.json中备注配置
-                    lines[i + 1] = ['## ', pt_pin, ' 上次更新：', dateFormat("YYYY-mm-dd HH:MM:SS", new Date()), ' 备注：', remarks].join('');
-                } else {
-                    const newLine = ['## ', pt_pin, ' 上次更新：', dateFormat("YYYY-mm-dd HH:MM:SS", new Date()), ' 备注：', remarks].join('');
-                    lines.splice(lastIndex + 1, 0, newLine);
-                }
-                success = true;
-            }
-        }
-    }
-    let cookieCount = Number(maxCookieCount) + 1;
-    if (!updateFlag && CK_AUTO_ADD === 'true') {
-        lastIndex++;
-        let newLine = [
-            'Cookie',
-            cookieCount,
-            '=',
-            '"',
-            cookie,
-            '"',
-        ].join('');
-        //提交备注
-        lines.splice(lastIndex + 1, 0, newLine);
-        newLine = ['## ', pt_pin, ' 上次更新：', dateFormat("YYYY-mm-dd HH:MM:SS", new Date()), ' 备注：', remarks].join('');
-        lines.splice(lastIndex + 2, 0, newLine);
-        success = true;
-    }
-    fs.writeFileSync(globalConfig.configShPath, lines.join('\n'));
-    return {success, updateFlag, maxCookieCount, cookieCount, CK_AUTO_ADD}
 }
 
 
@@ -190,8 +124,8 @@ const updateCookies = async (pt_pin) => {
                 if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("pt_key=;") === -1) {
                     let checkResult = await checkCookie(ck);
                     if (checkResult) {
-                        let result = updateLocalCookie(ck, remarks);
-                        success = result.success;
+                        updateCookie(ck, remarks);
+                        success = true;
                         globalOptions.successCount++;
                         globalOptions.message += `${headerMsg} ${success ? '更新成功' : '更新失败'}\n`;
                     } else if (!checkResult) {

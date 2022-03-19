@@ -17,6 +17,8 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
     this.ptPin = ptPin
     this.lastUpdateTime = lastUpdateTime;
     this.remark = remark;
+    this.disable = true;
+    this.sort = 999;
     this.cookieStr = () => {
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
@@ -32,6 +34,11 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         }
         this.ptKey = util.regExecFirst(cookie, /(?<=pt_key=)([^;]+)/)
         this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
+        if (util.isNotEmpty(this.ptPin)) {
+            let account = getAccountByPtPin(this.ptPin);
+            this.sort = account['sort'] || 999
+            this.disable = account['disable'] || false
+        }
         if (tips && tips.indexOf("上次更新") > 0) {
             this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+(\s))/);
             this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
@@ -75,6 +82,11 @@ function readCookies() {
  * @returns {*[]}
  */
 function saveCookiesToConfig(cookieList = []) {
+    //开启排序
+    if (accountEnableSort()) {
+        cookieList = util.arrayObjectSort(cookieList, "sort", true);
+    }
+    let disableCookieIdArr = getTempBlockCookieId();
     const content = getFile(CONFIG_FILE_KEY.CONFIG);
     const lines = content.split('\n');
     //写入的下标
@@ -109,10 +121,17 @@ function saveCookiesToConfig(cookieList = []) {
                     lines[writeIndex] = item.tipStr();
                     writeIndex++
                 }
+                if (item.disable && disableCookieIdArr.indexOf(item.id) === -1) {
+                    disableCookieIdArr.push(item.id);
+                }
                 id++;
             })
             over = true;
             i = writeIndex - 1;
+        } else if (line.startsWith('TempBlockCookie')) {
+            //升序
+            disableCookieIdArr.sort((a, b) => a - b);
+            lines[i] = `TempBlockCookie="${disableCookieIdArr.join(" ")}"`;
         }
     }
     saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'));
@@ -132,12 +151,47 @@ function ckAutoAddOpen() {
 }
 
 /**
- * 获取账号
+ * 判断账号是否开启排序
+ */
+function accountEnableSort() {
+    let ACCOUNT_SORT = 'false'
+    const content = getFile(CONFIG_FILE_KEY.CONFIG);
+    if (content.match(/ACCOUNT_SORT=".+?"/)) {
+        ACCOUNT_SORT = content.match(/ACCOUNT_SORT=".+?"/)[0].split('"')[1]
+    }
+    return ACCOUNT_SORT && ACCOUNT_SORT === 'true';
+}
+
+/**
+ * 判断账号是否开启排序
+ */
+function getTempBlockCookieId() {
+    let tempBlockCookie = ""
+    const content = getFile(CONFIG_FILE_KEY.CONFIG);
+    if (content.match(/\nTempBlockCookie=".+?"/)) {
+        tempBlockCookie = content.match(/\nTempBlockCookie=".+?"/)[0].split('"')[1]
+    }
+    if (tempBlockCookie === "") {
+        return [];
+    }
+    let tempBlockCookieArr = tempBlockCookie.split(" ");
+    tempBlockCookieArr = tempBlockCookieArr.map(item => {
+        return +item;
+    });
+    return tempBlockCookieArr;
+}
+
+/**
+ * 获取可用的账号
+ * @param checkEnable 是否返回过滤禁用账号
  * @return
  */
-function getAccount() {
+function getAccount(checkEnable = true) {
     let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
     accounts = accounts.filter((item) => {
+        if (checkEnable && item.disable) {
+            return false;
+        }
         return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
     })
     return accounts;
@@ -145,16 +199,20 @@ function getAccount() {
 
 /**
  * 获取cookie数量
- * @return {{accountCount: number, cookieCount: number}}
+ * @return {{enableAccountCount: number,accountCount: number, cookieCount: number}}
  */
 function getCount() {
-    return {cookieCount: readCookies().length, accountCount: getAccount().length};
+    return {
+        cookieCount: readCookies().length,
+        accountCount: getAccount(false).length,
+        enableAccountCount: getAccount(true).length,
+    };
 }
 
 /**
  * 删除指定CK
  * @param ptPins 一个或者多个ptPins
- * @return {{accountCount: number, cookieCount: number, deleteCount: number}}
+ * @return {{enableAccountCount: number,accountCount: number, cookieCount: number}}
  */
 function removeCookie(ptPins) {
     if (typeof ptPins === 'string') {
@@ -210,14 +268,67 @@ function updateCookie(cookie, userMsg) {
     return cookieList.length;
 }
 
+/**
+ * 修改账号状态
+ * @param ptPin
+ * @param disable 是否禁用
+ */
+function updateAccountStatus(ptPin, disable = false) {
+    let accounts = getAccount(false);
+    accounts.forEach((account) => {
+        if (account['pt_pin'] && account['pt_pin'] === ptPin) {
+            account["disable"] = disable;
+        }
+    })
+    saveAccount(accounts);
+}
+
+/**
+ * 修改账号排序
+ * @param ptPin
+ * @param sort 排序
+ */
+function updateAccountSort(ptPin, sort = 999) {
+    let accounts = getAccount(false);
+    accounts.forEach((account) => {
+        if (account['pt_pin'] && account['pt_pin'] === ptPin) {
+            account["sort"] = sort;
+        }
+    })
+    saveAccount(accounts);
+}
+
+/**
+ * 根据ptPin获取账号
+ * @param ptPin
+ * @returns 账号信息
+ */
+function getAccountByPtPin(ptPin) {
+    let accounts = getAccount(false), res = {};
+    accounts.forEach((account) => {
+        if (account['pt_pin'] && account['pt_pin'] === ptPin) {
+            res = account
+        }
+    })
+    return res;
+}
+
+/**
+ * 更新账号
+ * @param ptPin
+ * @param ptKey
+ * @param wsKey
+ * @param remarks
+ * @returns {{enableAccountCount: number, accountCount: number, cookieCount: number}}
+ */
 function updateAccount(ptPin, ptKey, wsKey, remarks) {
-    if (!ptPin || ptPin === '') {
+    if (util.isNotEmpty(ptPin)) {
         throw new Error("ptPin不能为空")
     }
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
         throw new Error("ptPin不正确")
     }
-    let accounts = getAccount(), isUpdate = false;
+    let accounts = getAccount(false), isUpdate = false;
     remarks = remarks || ptPin;
     accounts.forEach((account, index) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
@@ -233,9 +344,8 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
             "remarks": remarks
         })
     }
-    saveNewConf("account.json", JSON.stringify(accounts, null, 2))
-    let cookieCount = 0
-    if (ptKey && ptKey !== '') {
+    saveAccount(accounts);
+    if (util.isNotEmpty(ptKey)) {
         updateCookie(`pt_key=${ptKey};pt_pin=${ptPin};`, remarks);
     }
     console.log(`ptPin：${ptPin} 更新完成`)
@@ -244,6 +354,23 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
 
 }
 
+/**
+ * 保存账号到文件
+ * @param accounts
+ */
+function saveAccount(accounts = []) {
+    accounts.forEach((account, index) => {
+        if (undefined === account['disable']) {
+            account['disable'] = false;
+        }
+        if (undefined === account['sort']) {
+            account['sort'] = 999;
+        }
+    })
+    saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
+}
+
+
 module.exports = {
     CookieObj,
     getCount,
@@ -251,5 +378,10 @@ module.exports = {
     saveCookiesToConfig,
     updateAccount,
     updateCookie,
-    removeCookie
+    removeCookie,
+    updateAccountStatus,
+    updateAccountSort,
+    getAccount,
+    saveAccount,
+    getTempBlockCookieId
 }
