@@ -1144,7 +1144,7 @@ function Accounts_Control() {
                         ## 账号更新异常告警
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
-                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 ws_key 可能失效导致更新出现异常，请尽快处理"
+                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
                         fi
                     fi
                     let UserNum++
@@ -1229,7 +1229,7 @@ function Accounts_Control() {
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
                         ## 账号更新异常告警
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
-                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 ws_key 可能失效导致更新出现异常，请尽快处理"
+                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
                         fi
                     fi
                     ## 推送通知
