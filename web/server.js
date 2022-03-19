@@ -41,7 +41,8 @@ const {
     updateAccount,
     updateAccountStatus,
     updateAccountSort,
-    cookieReload
+    cookieReload,
+    saveAccount
 } = require("./core/cookie");
 const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
 const {API_STATUS_CODE, userAgentTools, getClientIP} = require("./core/http");
@@ -486,7 +487,11 @@ app.post('/api/save', function (request, response) {
     let postContent = request.body.content;
     let postFile = request.body.name;
     try {
-        saveNewConf(postFile, postContent);
+        if (postFile === "account.json") {
+            saveAccount(JSON.parse(postContent));
+        } else {
+            saveNewConf(postFile, postContent);
+        }
         response.send(API_STATUS_CODE.ok("保存成功", {}, `将自动刷新页面查看修改后的 ${postFile} 文件<br>每次保存都会生成备份`));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));

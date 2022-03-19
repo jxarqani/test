@@ -78,6 +78,23 @@ function readCookies() {
 }
 
 /**
+ * 根据ptpin获取cookie
+ * @param ptPin
+ * @returns {{}}
+ */
+function getCookieByPtPin(ptPin) {
+    let cookieList = readCookies();
+    let cookie = {};
+    cookieList.forEach((item) => {
+        if (item.ptPin === ptPin) {
+            cookie = item;
+        }
+    })
+    return cookie;
+}
+
+
+/**
  * 将Cookie数组保存至本地Config.sh
  * @returns {*[]}
  */
@@ -131,7 +148,7 @@ function saveCookiesToConfig(cookieList = []) {
             over = true;
             i = writeIndex - 1;
         } else if (line.startsWith('TempBlockCookie')) {
-            let disableCookieIdArr = disableCookiePtPinArr.map((ptPin)=>{
+            let disableCookieIdArr = disableCookiePtPinArr.map((ptPin) => {
                 return cookieIdMap[ptPin]
             })
             disableCookieIdArr.sort((a, b) => a - b);
@@ -383,6 +400,7 @@ function saveAccount(accounts = []) {
         if (undefined === account['sort']) {
             account['sort'] = 999;
         }
+
     })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
