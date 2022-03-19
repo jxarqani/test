@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-11
+## Modified: 2022-03-19
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -305,19 +305,19 @@ function Del_Cron() {
 ## 注释  $1：新任务清单文件路径
 function Add_Cron_Scripts() {
     local ListAdd=$1
-    if [[ ${AutoAddCron} == true ]] && [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
+    if [[ ${AutoAddCron} == "true" ]] && [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
         echo -e "$WORKING 开始尝试自动添加 Scipts 仓库的定时任务...\n"
         local Detail=$(cat $ListAdd)
         for cron in $Detail; do
             ## 新增定时任务自动禁用
             if [[ $cron == jd_bean_sign ]]; then
-                if [[ ${DisableNewCron} == true ]]; then
+                if [[ ${DisableNewCron} == "true" ]]; then
                     echo "# 4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
                 else
                     echo "4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
                 fi
             else
-                if [[ ${DisableNewCron} == true ]]; then
+                if [[ ${DisableNewCron} == "true" ]]; then
                     cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
                 else
                     cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|" >>$ListCrontabUser
@@ -369,13 +369,13 @@ function Add_Cron_Own() {
                     local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | head -1)
 
                     ## 新增定时任务自动禁用
-                    if [[ ${DisableNewOwnRepoCron} == true ]]; then
+                    if [[ ${DisableNewOwnRepoCron} == "true" ]]; then
                         echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                     else
                         grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
                         if [ $? -eq 0 ]; then
                             ## 重复定时任务自动禁用
-                            if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
+                            if [[ ${DisableDuplicateOwnRepoCron} == "true" ]]; then
                                 echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                             else
                                 echo "${Cron}" >>$ListCrontabOwnTmp
@@ -599,12 +599,12 @@ function Update_Scripts() {
             Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
 
             ## 删除定时任务 & 通知
-            if [[ ${AutoDelCron} == true ]] && [ -s $ListTaskDrop ]; then
+            if [[ ${AutoDelCron} == "true" ]] && [ -s $ListTaskDrop ]; then
                 Output_List_Add_Drop $ListTaskDrop "失效"
                 Del_Cron $ListTaskDrop $TaskCmd
             fi
             ## 新增定时任务 & 通知
-            if [[ ${AutoAddCron} == true ]] && [ -s $ListTaskAdd ]; then
+            if [[ ${AutoAddCron} == "true" ]] && [ -s $ListTaskAdd ]; then
                 Output_List_Add_Drop $ListTaskAdd "新"
                 Add_Cron_Scripts $ListTaskAdd
                 Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
@@ -650,46 +650,46 @@ function Update_Own() {
     if [[ ${#array_own_scripts_path[*]} -gt 0 ]]; then
         echo -e "-------------------------------------------------------------"
         ## 更新仓库
-        if [[ ${EnableRepoUpdate} == true ]]; then
+        if [[ ${EnableRepoUpdate} == "true" ]]; then
             Update_OwnRepo
         fi
-        if [[ ${EnableRawUpdate} == true ]]; then
+        if [[ ${EnableRawUpdate} == "true" ]]; then
             Update_RawFile
         fi
         ## 比较定时任务
         Gen_ListOwn
         Diff_Cron $ListOwnAll $ListOwnUser $ListOwnAdd $ListOwnDrop
         ## Own Repo 仓库
-        if [[ ${EnableRepoUpdate} == true ]]; then
+        if [[ ${EnableRepoUpdate} == "true" ]]; then
             ## 比对清单
             grep -v "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRepoAdd
             grep -v "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRepoDrop
 
             ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRepoCron} == true ]] && [ -s $ListOwnRepoDrop ]; then
+            if [[ ${AutoDelOwnRepoCron} == "true" ]] && [ -s $ListOwnRepoDrop ]; then
                 Output_List_Add_Drop $ListOwnRepoDrop "失效"
                 Del_Cron $ListOwnRepoDrop $TaskCmd
             fi
             ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRepoCron} == true ]] && [ -s $ListOwnRepoAdd ]; then
+            if [[ ${AutoAddOwnRepoCron} == "true" ]] && [ -s $ListOwnRepoAdd ]; then
                 Output_List_Add_Drop $ListOwnRepoAdd "新"
                 Add_Cron_Own $ListOwnRepoAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRepoAdd " Own 仓库脚本"
             fi
         fi
         ## Own Raw 脚本
-        if [[ ${EnableRawUpdate} == true ]]; then
+        if [[ ${EnableRawUpdate} == "true" ]]; then
             ## 比对清单
             grep "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRawAdd
             grep "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRawDrop
 
             ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
+            if [[ ${AutoDelOwnRawCron} == "true" ]] && [ -s $ListOwnRawDrop ]; then
                 Output_List_Add_Drop $ListOwnRawDrop "失效"
                 Del_Cron $ListOwnRawDrop $TaskCmd
             fi
             ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRawCron} == true ]] && [ -s $ListOwnRawAdd ]; then
+            if [[ ${AutoAddOwnRawCron} == "true" ]] && [ -s $ListOwnRawAdd ]; then
                 Output_List_Add_Drop $ListOwnRawAdd "新"
                 Add_Cron_Own $ListOwnRawAdd
                 Add_Cron_Notify $ExitStatus $ListOwnRawAdd " Raw 脚本"
@@ -708,7 +708,7 @@ function ExtraShell() {
         echo -e "-------------------------------------------------------------\n"
     fi
     ## 同步用户的 extra.sh
-    if [[ $EnableExtraShellSync == true ]] && [[ $ExtraShellSyncUrl ]]; then
+    if [[ $EnableExtraShellSync == "true" ]] && [[ $ExtraShellSyncUrl ]]; then
         echo -e "$WORKING 开始同步自定义脚本：$ExtraShellSyncUrl\n"
         wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 20
         if [ $? -eq 0 ]; then
@@ -726,7 +726,7 @@ function ExtraShell() {
         [ -f "$FileExtra.new" ] && rm -rf "$FileExtra.new"
     fi
     ## 执行用户的 extra.sh
-    if [[ $EnableExtraShell == true ]]; then
+    if [[ $EnableExtraShell == "true" ]]; then
         ## 执行
         if [ -f $FileExtra ]; then
             echo -e "$WORKING 开始执行自定义脚本：$FileExtra\n"
@@ -894,7 +894,7 @@ case $# in
         Update_Own "raw"
         ;;
     extra)
-        if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then
+        if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
             Title $1
             ExtraShell
         else

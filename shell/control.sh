@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-05
+## Modified: 2022-03-19
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -111,6 +111,8 @@ function Panel_Control() {
     case $1 in
     ## 开启/重启服务
     on)
+        ## 删除日志
+        rm -rf /root/.pm2/logs/server-*.log /root/.pm2/logs/ttyd-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
             local ServiceStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
             case ${ServiceStatus} in
@@ -235,7 +237,7 @@ function Bot_Control() {
 
     ## 备份用户的diy脚本
     function BackUpUserFiles() {
-        if [[ ${EnableDiyBotModule} == true ]]; then
+        if [[ ${EnableDiyBotModule} == "true" ]]; then
             local UserFiles=($(
                 ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
             ))
@@ -263,7 +265,7 @@ function Bot_Control() {
         ## 解压源码
         function Decompression() {
             rm -rf $BotRepoDir
-            if [[ ${EnableDiyBotModule} == true ]]; then
+            if [[ ${EnableDiyBotModule} == "true" ]]; then
                 unzip $FileDiyBotSourceCode -d $UtilsDir
                 mv -f $UtilsDir/JD_Diy-main $BotRepoDir
                 [ ! -f $ConfigDir/botset.json ] && cp -f $BotRepoDir/config/botset.json $ConfigDir
@@ -295,7 +297,7 @@ function Bot_Control() {
             echo -e "\n$COMPLETE 源码安装完成\n"
         fi
         ## 处理PM2启动参数
-        if [[ ${EnableDiyBotModule} != true ]]; then
+        if [[ ${EnableDiyBotModule} != "true" ]]; then
             sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
         fi
         ## 适配添加定时任务
@@ -342,7 +344,7 @@ function Bot_Control() {
             ## 开启/重启服务
             start)
                 ## 删除日志
-                rm -rf $BotLogDir/up.log
+                rm -rf $BotLogDir/up.log /root/.pm2/logs/jbot-*.log
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
                     local ServiceStatus=$(cat $FilePm2List | grep "jbot" -w | awk -F '|' '{print$10}')
                     case ${ServiceStatus} in
@@ -438,7 +440,7 @@ function Bot_Control() {
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
                     ## 下载最新的 Bot 源码
                     echo -e "\n$WORKING 开始拉取最新源码...\n"
-                    if [[ ${EnableDiyBotModule} == true ]]; then
+                    if [[ ${EnableDiyBotModule} == "true" ]]; then
                         wget --no-check-certificate "https://ghproxy.com/https://github.com/chiupam/JD_Diy/archive/refs/heads/main.zip" -O $FileDiyBotSourceCode -T 20
                     else
                         wget --no-check-certificate "https://ghproxy.com/https://github.com/SuMaiKaDe/bot/archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
@@ -605,7 +607,7 @@ function Environment_Deployment() {
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests
-            npm install -g got@11.8.3 date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
+            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
             ;;
         esac
         echo -e "\n$SUCCESS 安装完成\n"

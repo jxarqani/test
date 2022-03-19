@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-17
+## Modified: 2022-03-19
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -270,7 +270,7 @@ function Find_Script() {
                 exit ## 终止退出
             fi
             ## 判定是否使用下载代理参数
-            if [[ ${DOWNLOAD_PROXY} == true ]]; then
+            if [[ ${DOWNLOAD_PROXY} == "true" ]]; then
                 local Branch=$(echo "${Tmp}" | sed "s/https:\/\/raw\.githubusercontent\.com\///g" | awk -F '/' '{print$3}')
                 FormatInputContent=$(echo "${Tmp}" | perl -pe "{s|raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|g; s|\/${Branch}\/|\@${Branch}\/|g}")
                 ProxyJudge="使用代理"
@@ -395,28 +395,30 @@ function Find_Script() {
 
 ## 随机延迟
 function Random_Delay() {
-    if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
-        local CurMin=$(date "+%-M")
-        local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
-        ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
-        case ${CRON_TASK} in
-        true)
-            if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
+    if [[ ${RUN_DELAY} == "true" ]]; then
+        if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
+            local CurMin=$(date "+%-M")
+            local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
+            ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
+            case ${CRON_TASK} in
+            true)
+                if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
+                    sleep ${CurDelay}
+                fi
+                ;;
+            *)
+                echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
                 sleep ${CurDelay}
-            fi
-            ;;
-        *)
-            echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
-            sleep ${CurDelay}
-            ;;
-        esac
+                ;;
+            esac
+        fi
     fi
 }
 
 ## 等待执行
 function RunWait() {
     local FormatPrint
-    if [[ ${RUN_WAIT} == true ]]; then
+    if [[ ${RUN_WAIT} == "true" ]]; then
         echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
         if [ $? -eq 0 ]; then
             echo -e "\n$ERROR 等待时间值格式有误！\n"
@@ -503,16 +505,16 @@ function Run_Normal() {
     ## 统计账号数量
     Count_UserSum
     ## 静默运行
-    [[ ${RUN_MUTE} == true ]] && NoPushNotify
+    [[ ${RUN_MUTE} == "true" ]] && NoPushNotify
 
     ## 运行主命令
     function Main() {
-        if [[ ${RUN_BACKGROUND} == true ]]; then
+        if [[ ${RUN_BACKGROUND} == "true" ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
             case ${FileFormat} in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
+                if [[ ${EnableGlobalProxy} == "true" ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
                 else
                     node ${FileName}.js 2>&1 &>>${LogFile} &
@@ -534,7 +536,7 @@ function Run_Normal() {
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
             case ${FileFormat} in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
+                if [[ ${EnableGlobalProxy} == "true" ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
                 else
                     node ${FileName}.js 2>&1 | tee -a ${LogFile}
@@ -602,50 +604,74 @@ function Run_Normal() {
     }
 
     ## 迅速模式
-    if [[ ${RUN_RAPID} != true ]]; then
+    if [[ ${RUN_RAPID} != "true" ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
         Combin_ShareCodes
     fi
-    ## 随机延迟
-    [[ ${RUN_DELAY} == true ]] && Random_Delay
     ## 进入脚本所在目录
     cd ${FileDir}
     ## 定义日志文件路径
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
 
     ## 账号分组
-    if [[ ${RUN_GROUPING} == true ]]; then
+    if [[ ${RUN_GROUPING} == "true" ]]; then
         ## 定义分组
         local Groups=$(echo ${GROUPING_VALUE} | perl -pe "{s|@| |g}")
-        ## 等待执行
-        RunWait
         for g in ${Groups}; do
             local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account "${Accounts}"
+
             ## 执行脚本
-            Main
+            if [[ ${RUN_LOOP} == "true" ]]; then
+                ## 循环运行
+                Run_Times=${RUN_LOOP_TIMES}
+            else
+                Run_Times=1
+            fi
+            for ((i = 1; i <= ${Run_Times}; i++)); do
+                ## 随机延迟
+                Random_Delay
+                ## 等待执行
+                RunWait
+                ## 运行
+                Main
+            done
+
             ## 重新组合变量
             COOKIE_TMP=""
         done
     else
         ## 指定账号
-        if [[ ${RUN_DESIGNATED} == true ]]; then
+        if [[ ${RUN_DESIGNATED} == "true" ]]; then
             local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account "${Accounts}"
         else
             ## 加载全部账号
             Combin_AllCookie
         fi
-        ## 等待执行
-        RunWait
+
         ## 执行脚本
-        Main
+        if [[ ${RUN_LOOP} == "true" ]]; then
+            ## 循环运行
+            Run_Times=${RUN_LOOP_TIMES}
+        else
+            Run_Times=1
+        fi
+        for ((i = 1; i <= ${Run_Times}; i++)); do
+            ## 随机延迟
+            Random_Delay
+            ## 等待执行
+            RunWait
+            ## 运行
+            Main
+        done
+
     fi
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
+    if [[ ${RUN_REMOTE} == "true" && ${AutoDelRawFiles} == "true" ]]; then
         rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
@@ -661,7 +687,7 @@ function Run_Concurrent() {
     ## 统计账号数量
     Count_UserSum
     ## 静默运行参数
-    [[ ${RUN_MUTE} == true ]] && NoPushNotify
+    [[ ${RUN_MUTE} == "true" ]] && NoPushNotify
 
     ## 运行主命令
     function Main() {
@@ -675,7 +701,7 @@ function Run_Concurrent() {
         ## 执行脚本
         case ${FileFormat} in
         JavaScript)
-            if [[ ${EnableGlobalProxy} == true ]]; then
+            if [[ ${EnableGlobalProxy} == "true" ]]; then
                 node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
             else
                 node ${FileName}.js 2>&1 &>>${LogFile} &
@@ -695,21 +721,17 @@ function Run_Concurrent() {
 
     ## 处理其它参数：
     ## 迅速模式
-    if [[ ${RUN_RAPID} != true ]]; then
+    if [[ ${RUN_RAPID} != "true" ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
         Combin_ShareCodes
     fi
-    ## 随机延迟
-    [[ ${RUN_DELAY} == true ]] && Random_Delay
 
     ## 进入脚本所在目录
     cd ${FileDir}
-    ## 等待执行
-    RunWait
     ## 加载账号并执行
-    if [[ ${RUN_DESIGNATED} == true ]]; then
+    if [[ ${RUN_DESIGNATED} == "true" ]]; then
         ## 判定账号是否存在
         local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
         for UserNum in ${Accounts}; do
@@ -746,11 +768,42 @@ function Run_Concurrent() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
-                    Main $i
+
+                    ## 执行脚本
+                    if [[ ${RUN_LOOP} == "true" ]]; then
+                        ## 循环运行
+                        Run_Times=${RUN_LOOP_TIMES}
+                    else
+                        Run_Times=1
+                    fi
+                    for ((i = 1; i <= ${Run_Times}; i++)); do
+                        ## 随机延迟
+                        Random_Delay
+                        ## 等待执行
+                        RunWait
+                        ## 运行
+                        Main $i
+                    done
+
                 done
             else
+
                 ## 执行脚本
-                Main ${UserNum}
+                if [[ ${RUN_LOOP} == "true" ]]; then
+                    ## 循环运行
+                    Run_Times=${RUN_LOOP_TIMES}
+                else
+                    Run_Times=1
+                fi
+                for ((i = 1; i <= ${Run_Times}; i++)); do
+                    ## 随机延迟
+                    Random_Delay
+                    ## 等待执行
+                    RunWait
+                    ## 运行
+                    Main ${UserNum}
+                done
+
             fi
         done
     else
@@ -759,14 +812,29 @@ function Run_Concurrent() {
             for num in ${TempBlockCookie}; do
                 [[ $UserNum -eq $num ]] && continue 2
             done
+
             ## 执行脚本
-            Main ${UserNum}
+            if [[ ${RUN_LOOP} == "true" ]]; then
+                ## 循环运行
+                Run_Times=${RUN_LOOP_TIMES}
+            else
+                Run_Times=1
+            fi
+            for ((i = 1; i <= ${Run_Times}; i++)); do
+                ## 随机延迟
+                Random_Delay
+                ## 等待执行
+                RunWait
+                ## 运行
+                Main ${UserNum}
+            done
+
         done
     fi
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
+    if [[ ${RUN_REMOTE} == "true" && ${AutoDelRawFiles} == "true" ]]; then
         rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
@@ -1061,7 +1129,7 @@ function Accounts_Control() {
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
                     EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 执行脚本
-                    if [[ ${EnableGlobalProxy} == true ]]; then
+                    if [[ ${EnableGlobalProxy} == "true" ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1073,6 +1141,11 @@ function Accounts_Control() {
                         printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${SUCCESS_ICON}"
                     else
                         printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${FAIL_ICON}"
+                        ## 账号更新异常告警
+                        local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
+                        if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
+                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 ws_key 可能失效导致更新出现异常，请尽快处理"
+                        fi
                     fi
                     let UserNum++
                 done
@@ -1137,7 +1210,7 @@ function Accounts_Control() {
                     ## 记录执行开始时间
                     echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                     ## 执行脚本
-                    if [[ ${EnableGlobalProxy} == true ]]; then
+                    if [[ ${EnableGlobalProxy} == "true" ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1154,6 +1227,10 @@ function Accounts_Control() {
                         # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
                     else
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
+                        ## 账号更新异常告警
+                        if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
+                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 ws_key 可能失效导致更新出现异常，请尽快处理"
+                        fi
                     fi
                     ## 推送通知
                     grep "Cookie => \[" ${LogFile} >>$FileSendMark
@@ -1197,7 +1274,7 @@ function Accounts_Control() {
                     ## 推送通知
                     [ -f $FileSendMark ] && sed -i "/未设置ws_key跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
-                        [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
+                        [[ ${EnableCookieUpdateNotify} == "true" ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
                     [ -f $FileSendMark ] && rm -rf $FileSendMark
                 else
@@ -1465,7 +1542,7 @@ function Add_OwnRepo() {
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
         if [ -s $ListOwnRepoAdd ]; then
-            if [[ ${AutoAddOwnRepoCron} == true ]]; then
+            if [[ ${AutoAddOwnRepoCron} == "true" ]]; then
                 echo ''
                 if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
                     local Detail=$(cat $ListOwnRepoAdd)
@@ -1474,13 +1551,13 @@ function Add_OwnRepo() {
                         if [ -f ${FilePath} ]; then
                             local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | head -1)
                             ## 新增定时任务自动禁用
-                            if [[ ${DisableNewOwnRepoCron} == true ]]; then
+                            if [[ ${DisableNewOwnRepoCron} == "true" ]]; then
                                 echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                             else
                                 grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
                                 if [ $? -eq 0 ]; then
                                     ## 重复定时任务自动禁用
-                                    if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
+                                    if [[ ${DisableDuplicateOwnRepoCron} == "true" ]]; then
                                         echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                                     else
                                         echo "${Cron}" >>$ListCrontabOwnTmp
@@ -1642,7 +1719,7 @@ function Add_RawFile() {
         Import_Config_Not_Check
 
         ## 添加定时任务
-        if [[ ${AutoAddOwnRawCron} == true ]]; then
+        if [[ ${AutoAddOwnRawCron} == "true" ]]; then
             FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
                 perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
@@ -2538,6 +2615,11 @@ case $# in
                 echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                 exit ## 终止退出
                 ;;
+            -l | --loop)
+                Help
+                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                exit ## 终止退出
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                 if [ $? -eq 0 ]; then
@@ -2655,7 +2737,7 @@ case $# in
     ;;
 
 ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
-4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13)
+4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)
     case $2 in
     now | conc)
         ## 定义执行内容，下面的判断会把参数打乱
@@ -2692,6 +2774,24 @@ case $# in
                     exit ## 终止退出
                 fi
                 ;;
+            -l | --loop)
+                if [[ $4 ]]; then
+                    echo "$4" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                    if [ $? -eq 0 ]; then
+                        Help
+                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                        exit ## 终止退出
+                    else
+                        RUN_LOOP="true"
+                        RUN_LOOP_TIMES="$4"
+                        shift
+                    fi
+                else
+                    Help
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                    exit ## 终止退出
+                fi
+                ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                 if [ $? -eq 0 ]; then
@@ -2716,7 +2816,7 @@ case $# in
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                         exit ## 终止退出
                     else
-                        if [[ ${RUN_GROUPING} == true ]]; then
+                        if [[ ${RUN_GROUPING} == "true" ]]; then
                             Help
                             echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
                             exit ## 终止退出
@@ -2742,7 +2842,7 @@ case $# in
                             echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                             exit ## 终止退出
                         else
-                            if [[ ${RUN_DESIGNATED} == true ]]; then
+                            if [[ ${RUN_DESIGNATED} == "true" ]]; then
                                 Help
                                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
                                 exit ## 终止退出

@@ -39,7 +39,6 @@ const {
     removeCookie,
     updateCookie,
     updateAccount,
-    updateAccountStatus,
     updateAccountSort,
     cookieReload,
     saveAccount
