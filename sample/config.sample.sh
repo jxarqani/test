@@ -1,6 +1,6 @@
-## Version: v1.12.1
+## Version: v1.13.0
 ## Date: 2022-03-19
-## Update Content: 1. 新增定义 "账号是否开启排序功能" 项目功能变量 2. 账号新增排序字段(sort)
+## Update Content: 1. 新增定义 "更新账号异常告警功能" 项目功能变量 2. 新增定义 "账号排序功能" 项目功能变量
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -42,12 +42,12 @@ TempBlockCookie=""
 
 ## ❖ 自动增加新的账号
 # 控制扫码/验证码登陆或通过调用 OpenApi 后是否自动添加新的 Cookie
-# 如想禁用请修改为 "false"，可避免自动添加陌生人的账号
+# 默认已启用，如想禁用请修改为 "false"，可避免自动添加陌生人的账号
 export CK_AUTO_ADD="true"
 
-## ❖ 账号是否开启排序功能
-# 开启排序之后 可在账号配置中的账号添加“sort”字段，值为数字，进行排序，排序方式为升序
-# 如想禁用请修改为 "false"
+## ❖ 账号排序功能
+# 开启排序之后可在账号配置中的账号添加 "sort" 字段进行排序，值为正整数，排序方式为升序
+# 默认已禁用，如想启用请修改为 "false"
 export ACCOUNT_SORT="false"
 
 
@@ -188,16 +188,21 @@ EnableExtraShellSync=""
 ExtraShellSyncUrl=""
 
 ## ❖ 5. 更新账号推送通知功能
-# 当使用 WSKEY 成功更新 Cookie 后是否推送通知
+# 控制当使用 WSKEY 更新 Cookie 后是否推送更新结果内容
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-## ❖ 6. 控制远程脚本执行完毕后是否删除
-# 当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
+## ❖ 6. 更新账号异常告警功能
+# 控制当使用 WSKEY 更新 Cookie 失败后是否推送通知提醒，以用于快速处理失效的 WSKEY
+# 默认不推送，如想要接收推送通知提醒请赋值为 "true"
+EnableCookieUpdateFailureNotify=""
+
+## ❖ 7. 控制是否保存远程执行的脚本
+# 控制当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 7. 脚本全局代理功能
+## ❖ 8. 脚本全局代理功能
 # Powered by global-agent (仅支持 js 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent
@@ -226,13 +231,13 @@ EnableGlobalProxy=""
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTPS_PROXY=""
 
-## ❖ 8. 自定义推送通知模块功能
+## ❖ 9. 自定义推送通知模块功能
 # 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/config/推送通知
 # 如想使用第三方推送通知模块请将下方变量赋值为 "true" ，并在 config 目录下存放您的 sendNotify.js 脚本
 # 注意如若使用第三方通知模块可能会出现兼容性问题导致项目部分功能不可用
 EnableCustomNotify=""
 
-## ❖ 9. 启用自定义 Telegram Bot 功能
+## ❖ 10. 启用自定义 Telegram Bot 功能
 # 仓库：https://github.com/chiupam/JD_Diy
 # 项目默认使用官方作者的原版 Bot，如想使用功能更丰富的 Diy 魔改版 Bot 请将下方变量赋值为 "true"，适合专业用户
 EnableDiyBotModule=""
