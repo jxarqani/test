@@ -17,7 +17,6 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
     this.ptPin = ptPin
     this.lastUpdateTime = lastUpdateTime;
     this.remark = remark;
-    this.disable = true;
     this.sort = 999;
     this.cookieStr = () => {
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
@@ -37,7 +36,6 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         if (util.isNotEmpty(this.ptPin)) {
             let account = getAccountByPtPin(this.ptPin);
             this.sort = account['sort'] || (this.id !== 0 ? this.id : 999)
-            this.disable = account['disable'] || false
         }
         if (tips && tips.indexOf("上次更新") > 0) {
             this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+(\s))/);
@@ -103,7 +101,6 @@ function saveCookiesToConfig(cookieList = []) {
     if (accountEnableSort()) {
         cookieList = util.arrayObjectSort(cookieList, "sort", true);
     }
-    let disableCookiePtPinArr = getTempBlockCookie();
     let cookieIdMap = {};
     const content = getFile(CONFIG_FILE_KEY.CONFIG);
     const lines = content.split('\n');
@@ -140,19 +137,10 @@ function saveCookiesToConfig(cookieList = []) {
                     writeIndex++
                 }
                 cookieIdMap[item.ptPin] = item.id;
-                if (item.disable && disableCookiePtPinArr.indexOf(item.ptPin) === -1) {
-                    disableCookiePtPinArr.push(item.ptPin);
-                }
                 id++;
             })
             over = true;
             i = writeIndex - 1;
-        } else if (line.startsWith('TempBlockCookie')) {
-            let disableCookieIdArr = disableCookiePtPinArr.map((ptPin) => {
-                return cookieIdMap[ptPin]
-            })
-            disableCookieIdArr.sort((a, b) => a - b);
-            lines[i] = `TempBlockCookie="${disableCookieIdArr.join(" ")}"`;
         }
     }
     saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'));
@@ -217,15 +205,11 @@ function getTempBlockCookie() {
 
 /**
  * 获取可用的账号
- * @param checkEnable 是否返回过滤禁用账号
  * @return
  */
-function getAccount(checkEnable = true) {
+function getAccount() {
     let accounts = JSON.parse(getFile(CONFIG_FILE_KEY.ACCOUNT)) || []
     accounts = accounts.filter((item) => {
-        if (checkEnable && item.disable) {
-            return false;
-        }
         return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
     })
     return accounts;
@@ -238,8 +222,7 @@ function getAccount(checkEnable = true) {
 function getCount() {
     return {
         cookieCount: readCookies().length,
-        accountCount: getAccount(false).length,
-        enableAccountCount: getAccount(true).length,
+        accountCount: getAccount().length
     };
 }
 
@@ -303,27 +286,12 @@ function updateCookie(cookie, userMsg) {
 }
 
 /**
- * 修改账号状态
- * @param ptPin
- * @param disable 是否禁用
- */
-function updateAccountStatus(ptPin, disable = false) {
-    let accounts = getAccount(false);
-    accounts.forEach((account) => {
-        if (account['pt_pin'] && account['pt_pin'] === ptPin) {
-            account["disable"] = disable;
-        }
-    })
-    saveAccount(accounts);
-}
-
-/**
  * 修改账号排序
  * @param ptPin
  * @param sort 排序
  */
 function updateAccountSort(ptPin, sort = 999) {
-    let accounts = getAccount(false);
+    let accounts = getAccount();
     accounts.forEach((account) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
             account["sort"] = sort;
@@ -338,7 +306,7 @@ function updateAccountSort(ptPin, sort = 999) {
  * @returns 账号信息
  */
 function getAccountByPtPin(ptPin) {
-    let accounts = getAccount(false), res = {};
+    let accounts = getAccount(), res = {};
     accounts.forEach((account) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
             res = account
@@ -362,7 +330,7 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
         throw new Error("ptPin不正确")
     }
-    let accounts = getAccount(false), isUpdate = false;
+    let accounts = getAccount(), isUpdate = false;
     remarks = remarks || ptPin;
     accounts.forEach((account, index) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
@@ -394,13 +362,9 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
  */
 function saveAccount(accounts = []) {
     accounts.forEach((account, index) => {
-        if (undefined === account['disable']) {
-            account['disable'] = false;
-        }
         if (undefined === account['sort']) {
             account['sort'] = 999;
         }
-
     })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }

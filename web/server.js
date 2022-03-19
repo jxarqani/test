@@ -700,20 +700,6 @@ app.get('/openApi/count', function (request, response) {
 
 
 /**
- * 修改账号状态
- * body: {"ptPin":"", "disable":false}
- * */
-app.post('/openApi/account/status', function (request, response) {
-    try {
-        let {ptPin, disable} = request.body;
-        updateAccountStatus(ptPin, disable);
-        response.send(API_STATUS_CODE.okData(getCount()))
-    } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
-    }
-});
-
-/**
  * 修改账号排序
  * body: {"ptPin":"", "sort":1}
  * */

@@ -71,7 +71,7 @@ const getUa = () => {
 }
 
 const loadAccount = () => {
-    globalOptions.accountsList = getAccount(true);
+    globalOptions.accountsList = getAccount();
 }
 const loadLocalSign = () => {
     let signFile = `${globalOptions.signPath}/${globalOptions.clientVersion}/${(random(1, globalOptions.signJsonFileCount))}.json`;
