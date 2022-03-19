@@ -378,7 +378,6 @@ module.exports = {
     updateAccount,
     updateCookie,
     removeCookie,
-    updateAccountStatus,
     updateAccountSort,
     getAccount,
     saveAccount,
