@@ -626,7 +626,7 @@ function Run_Normal() {
             ## 执行脚本
             if [[ ${RUN_LOOP} == "true" ]]; then
                 ## 循环运行
-                Run_Times=${RUN_LOOP_TIMES}
+                Run_Times=$(($RUN_LOOP_TIMES + 1))
             else
                 Run_Times=1
             fi
@@ -655,7 +655,7 @@ function Run_Normal() {
         ## 执行脚本
         if [[ ${RUN_LOOP} == "true" ]]; then
             ## 循环运行
-            Run_Times=${RUN_LOOP_TIMES}
+            Run_Times=$(($RUN_LOOP_TIMES + 1))
         else
             Run_Times=1
         fi
