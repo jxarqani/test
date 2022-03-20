@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-19
+## Modified: 2022-03-20
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -626,7 +626,7 @@ function Run_Normal() {
             ## 执行脚本
             if [[ ${RUN_LOOP} == "true" ]]; then
                 ## 循环运行
-                Run_Times=${RUN_LOOP_TIMES}
+                Run_Times=$(($RUN_LOOP_TIMES + 1))
             else
                 Run_Times=1
             fi
@@ -655,7 +655,7 @@ function Run_Normal() {
         ## 执行脚本
         if [[ ${RUN_LOOP} == "true" ]]; then
             ## 循环运行
-            Run_Times=${RUN_LOOP_TIMES}
+            Run_Times=$(($RUN_LOOP_TIMES + 1))
         else
             Run_Times=1
         fi
@@ -730,6 +730,10 @@ function Run_Concurrent() {
 
     ## 进入脚本所在目录
     cd ${FileDir}
+    ## 随机延迟
+    Random_Delay
+    ## 等待执行
+    RunWait
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == "true" ]]; then
         ## 判定账号是否存在
@@ -768,67 +772,32 @@ function Run_Concurrent() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
-
                     ## 执行脚本
-                    if [[ ${RUN_LOOP} == "true" ]]; then
-                        ## 循环运行
-                        Run_Times=${RUN_LOOP_TIMES}
-                    else
-                        Run_Times=1
-                    fi
-                    for ((i = 1; i <= ${Run_Times}; i++)); do
-                        ## 随机延迟
-                        Random_Delay
-                        ## 等待执行
-                        RunWait
-                        ## 运行
-                        Main $i
-                    done
-
+                    Main $i
                 done
             else
-
                 ## 执行脚本
-                if [[ ${RUN_LOOP} == "true" ]]; then
-                    ## 循环运行
-                    Run_Times=${RUN_LOOP_TIMES}
-                else
-                    Run_Times=1
-                fi
-                for ((i = 1; i <= ${Run_Times}; i++)); do
-                    ## 随机延迟
-                    Random_Delay
-                    ## 等待执行
-                    RunWait
-                    ## 运行
-                    Main ${UserNum}
-                done
-
+                Main ${UserNum}
             fi
         done
     else
         ## 加载全部账号
+        ## 全局屏蔽
+        grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
+        if [ $? -eq 0 ]; then
+            local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | awk -F "[\"\']" '{print$2}')
+        fi
         for ((UserNum = 1; UserNum <= ${UserSum}; UserNum++)); do
+            if [[ ${GlobalBlockCookie} ]]; then
+                for num1 in ${GlobalBlockCookie}; do
+                    [[ $i -eq $num1 ]] && continue 2
+                done
+            fi
             for num in ${TempBlockCookie}; do
                 [[ $UserNum -eq $num ]] && continue 2
             done
-
             ## 执行脚本
-            if [[ ${RUN_LOOP} == "true" ]]; then
-                ## 循环运行
-                Run_Times=${RUN_LOOP_TIMES}
-            else
-                Run_Times=1
-            fi
-            for ((i = 1; i <= ${Run_Times}; i++)); do
-                ## 随机延迟
-                Random_Delay
-                ## 等待执行
-                RunWait
-                ## 运行
-                Main ${UserNum}
-            done
-
+            Main ${UserNum}
         done
     fi
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
@@ -1144,7 +1113,9 @@ function Accounts_Control() {
                         ## 账号更新异常告警
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
+                            echo ''
                             Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
+                            echo ''
                         fi
                     fi
                     let UserNum++
@@ -1229,7 +1200,9 @@ function Accounts_Control() {
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
                         ## 账号更新异常告警
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
+                            echo ''
                             Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
+                            echo ''
                         fi
                     fi
                     ## 推送通知
@@ -2607,6 +2580,18 @@ case $# in
         ## 判断参数
         while [ $# -gt 2 ]; do
             case $3 in
+            -l | --loop)
+                Help
+                case ${RUN_MODE} in
+                normal)
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                    ;;
+                concurrent)
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    ;;
+                esac
+                exit ## 终止退出
+                ;;
             -m | --mute)
                 RUN_MUTE="true"
                 ;;
@@ -2615,10 +2600,8 @@ case $# in
                 echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                 exit ## 终止退出
                 ;;
-            -l | --loop)
-                Help
-                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
-                exit ## 终止退出
+            -d | --delay)
+                RUN_DELAY="true"
                 ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
@@ -2632,9 +2615,6 @@ case $# in
                 ;;
             -r | --rapid)
                 RUN_RAPID="true"
-                ;;
-            -d | --delay)
-                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 Help
@@ -2753,6 +2733,33 @@ case $# in
         ## 判断参数
         while [ $# -gt 2 ]; do
             case $3 in
+            -l | --loop)
+                case ${RUN_MODE} in
+                normal)
+                    if [[ $4 ]]; then
+                        echo "$4" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                        if [ $? -eq 0 ]; then
+                            Help
+                            echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                            exit ## 终止退出
+                        else
+                            RUN_LOOP="true"
+                            RUN_LOOP_TIMES="$4"
+                            shift
+                        fi
+                    else
+                        Help
+                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                        exit ## 终止退出
+                    fi
+                    ;;
+                concurrent)
+                    Help
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    exit ## 终止退出
+                    ;;
+                esac
+                ;;
             -m | --mute)
                 RUN_MUTE="true"
                 ;;
@@ -2774,23 +2781,8 @@ case $# in
                     exit ## 终止退出
                 fi
                 ;;
-            -l | --loop)
-                if [[ $4 ]]; then
-                    echo "$4" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
-                    if [ $? -eq 0 ]; then
-                        Help
-                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                        exit ## 终止退出
-                    else
-                        RUN_LOOP="true"
-                        RUN_LOOP_TIMES="$4"
-                        shift
-                    fi
-                else
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
-                    exit ## 终止退出
-                fi
+            -d | --delay)
+                RUN_DELAY="true"
                 ;;
             -p | --proxy)
                 echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
@@ -2804,9 +2796,6 @@ case $# in
                 ;;
             -r | --rapid)
                 RUN_RAPID="true"
-                ;;
-            -d | --delay)
-                RUN_DELAY="true"
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then

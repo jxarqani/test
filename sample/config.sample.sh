@@ -24,11 +24,11 @@ Cookie2=""
 ## ❖ 账号临时屏蔽功能（选填）
 # 如果某些 Cookie 已经失效了但暂时还没法更新，可以使用此功能在不做任何更改的前提下临时屏蔽掉某些编号的 Cookie
 # 全局屏蔽 Cookie，举例：TempBlockCookie="2 4" 临时屏蔽掉 Cookie2 和 Cookie4
-# 注意在使用指定账号或分组账号参数运行脚本时所有屏蔽设置均不会生效
+# 注意在使用指定账号参数或分组账号参数运行脚本时所有屏蔽设置均不会生效
 TempBlockCookie=""
 
-# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
-# 脚本名称请去掉后缀格式否则不能被识别，若同时与全局屏蔽使用则应确保全局屏蔽的账号也在其中，因为当执行对应脚本时变量会被二次覆盖
+# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制
+# 注意代码缩进和该 case 语句的语法，脚本名称请去掉后缀格式否则不能被识别
 # 代码示例：
 # case $1 in
 # test)
@@ -252,7 +252,7 @@ EnableDiyBotModule=""
 # 项目文档：https://supermanito.github.io/Helloworld/#/config/推送通知
 
 ## ❖ 定义通知尾
-export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
+export NOTIFY_TAIL="❖ 本通知 By：https://supermanito.github.io/Helloworld"
 
 ## ❖ 通知内容屏蔽关键词，多个词用 "&" 连接，注意屏蔽针对的是内容而不是通知标题
 export NOTIFY_MASKING=""
