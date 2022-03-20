@@ -714,7 +714,6 @@ app.post('/openApi/account/sort', function (request, response) {
 
 checkConfigFile();
 
-
 // 调用自定义api
 try {
     require.resolve(extraServerFile);

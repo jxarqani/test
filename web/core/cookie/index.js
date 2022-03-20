@@ -292,12 +292,20 @@ function updateCookie(cookie, userMsg) {
  */
 function updateAccountSort(ptPin, sort = 999) {
     let accounts = getAccount();
+    let updated = false;
     accounts.forEach((account) => {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
             account["sort"] = sort;
+            updated = true;
         }
     })
-    saveAccount(accounts);
+    if(updated){
+        saveAccount(accounts);
+    }else{
+        throw new Error(`账号 ${ptPin} 不存在`)
+    }
+
+
 }
 
 /**
