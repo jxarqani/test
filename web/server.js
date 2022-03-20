@@ -15,6 +15,7 @@ const {
 } = require('http-proxy-middleware');
 const random = require('string-random');
 const util = require('./utils/index');
+
 const {checkCode, sendSms} = require("./core/cookie/sms");
 const {
     extraServerFile,
@@ -33,7 +34,15 @@ const {
 } = require("./core/file");
 
 const {panelSendNotify} = require("./core/notify");
-const {getCount, removeCookie, updateCookie, updateAccount} = require("./core/cookie");
+const {
+    getCount,
+    removeCookie,
+    updateCookie,
+    updateAccount,
+    updateAccountSort,
+    cookieReload,
+    saveAccount
+} = require("./core/cookie");
 const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
 const {API_STATUS_CODE, userAgentTools, getClientIP} = require("./core/http");
 const {getLocalIp} = require("./core");
@@ -189,7 +198,7 @@ app.get('/', function (request, response) {
 
 app.get(`/:page`, (request, response) => {
     let page = request.params.page;
-    const pageList = ['bot', 'crontab', 'config', 'diff', 'extra', 'changePwd', 'remarks', 'run', 'taskLog', 'terminal', 'viewScripts'];
+    const pageList = ['bot', 'crontab', 'config', 'diff', 'extra', 'changePwd', 'account', 'run', 'taskLog', 'terminal', 'viewScripts'];
     if (page && pageList.includes(page)) {
         response.sendFile(getPath(request, `${page}.html`));
     } else {
@@ -477,7 +486,11 @@ app.post('/api/save', function (request, response) {
     let postContent = request.body.content;
     let postFile = request.body.name;
     try {
-        saveNewConf(postFile, postContent);
+        if (postFile === "account.json") {
+            saveAccount(JSON.parse(postContent));
+        } else {
+            saveNewConf(postFile, postContent);
+        }
         response.send(API_STATUS_CODE.ok("保存成功", {}, `将自动刷新页面查看修改后的 ${postFile} 文件<br>每次保存都会生成备份`));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
@@ -485,6 +498,19 @@ app.post('/api/save', function (request, response) {
 
 });
 
+/**
+ * cookie 重新加载
+ */
+
+app.post('/api/cookie/reload', function (request, response) {
+    try {
+        cookieReload();
+        response.send(API_STATUS_CODE.ok("处理成功", {}, "账号配置已生效"));
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail("处理失败", 0, e.message));
+    }
+
+});
 
 /**
  * 日志列表
@@ -672,8 +698,21 @@ app.get('/openApi/count', function (request, response) {
 });
 
 
-checkConfigFile();
+/**
+ * 修改账号排序
+ * body: {"ptPin":"", "sort":1}
+ * */
+app.post('/openApi/account/sort', function (request, response) {
+    try {
+        let {ptPin, sort} = request.body;
+        updateAccountSort(ptPin, sort);
+        response.send(API_STATUS_CODE.okData(getCount()))
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
+    }
+});
 
+checkConfigFile();
 
 // 调用自定义api
 try {
@@ -685,7 +724,6 @@ try {
     }
 } catch (e) {
 }
-
 
 app.listen(5678, '0.0.0.0', () => {
     console.log('应用正在监听 5678 端口!');

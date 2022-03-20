@@ -10,7 +10,7 @@ $(document).ready(function () {
         theme: themeChange.getAndUpdateEditorTheme(),
         keyMap: 'sublime'
     });
-    panelRequest.get( '/api/config/account', {},function (res) {
+    panelRequest.get('/api/config/account', {}, function (res) {
         try {
             let accountArr = JSON.parse(res.data);
             for (const account of accountArr) {
@@ -59,6 +59,12 @@ $(document).ready(function () {
         var lineWrapping = editor.getOption('lineWrapping');
         editor.setOption('lineWrapping', !lineWrapping);
     });
+
+    $("#reload").click(() => {
+        panelRequest.post('/api/cookie/reload', {}, function (res) {
+            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc)
+        });
+    })
 
     let openTools = (value = '') => {
         Swal.fire({

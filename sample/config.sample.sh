@@ -1,6 +1,6 @@
-## Version: v1.12.0
-## Date: 2022-03-03
-## Update Content: 1. 新增定义 "启用自定义 Telegram Bot 功能" 项目功能变量 2. 修改部分注释内容
+## Version: v1.13.0
+## Date: 2022-03-19
+## Update Content: 1. 新增定义 "更新账号异常告警功能" 项目功能变量 2. 新增定义 "账号排序功能" 项目功能变量
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -24,11 +24,11 @@ Cookie2=""
 ## ❖ 账号临时屏蔽功能（选填）
 # 如果某些 Cookie 已经失效了但暂时还没法更新，可以使用此功能在不做任何更改的前提下临时屏蔽掉某些编号的 Cookie
 # 全局屏蔽 Cookie，举例：TempBlockCookie="2 4" 临时屏蔽掉 Cookie2 和 Cookie4
-# 注意在使用指定账号或分组账号参数运行脚本时所有屏蔽设置均不会生效
+# 注意在使用指定账号参数或分组账号参数运行脚本时所有屏蔽设置均不会生效
 TempBlockCookie=""
 
-# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制，注意代码缩进和该 case 语句的语法
-# 脚本名称请去掉后缀格式否则不能被识别，若同时与全局屏蔽使用则应确保全局屏蔽的账号也在其中，因为当执行对应脚本时变量会被二次覆盖
+# 如果只想屏蔽某账号不执行特定脚本，可以参考下方 case 语句的例子来控制
+# 注意代码缩进和该 case 语句的语法，脚本名称请去掉后缀格式否则不能被识别
 # 代码示例：
 # case $1 in
 # test)
@@ -42,10 +42,13 @@ TempBlockCookie=""
 
 ## ❖ 自动增加新的账号
 # 控制扫码/验证码登陆或通过调用 OpenApi 后是否自动添加新的 Cookie
-# 如想禁用请修改为 "false"，可避免自动添加陌生人的账号
+# 默认已启用，如想禁用请修改为 "false"，可避免自动添加陌生人的账号
 export CK_AUTO_ADD="true"
 
-
+## ❖ 账号排序功能
+# 开启排序之后可在账号配置中的账号添加 "sort" 字段进行排序，值为正整数，排序方式为升序
+# 默认已禁用，如想启用请修改为 "false"
+export ACCOUNT_SORT="false"
 
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 主 要 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -185,16 +188,21 @@ EnableExtraShellSync=""
 ExtraShellSyncUrl=""
 
 ## ❖ 5. 更新账号推送通知功能
-# 当使用 WSKEY 成功更新 Cookie 后是否推送通知
+# 控制当使用 WSKEY 更新 Cookie 后是否推送更新结果内容
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-## ❖ 6. 控制远程脚本执行完毕后是否删除
-# 当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
+## ❖ 6. 更新账号异常告警功能
+# 控制当使用 WSKEY 更新 Cookie 失败后是否推送通知提醒，以用于快速处理失效的 WSKEY
+# 默认不推送，如想要接收推送通知提醒请赋值为 "true"
+EnableCookieUpdateFailureNotify=""
+
+## ❖ 7. 控制是否保存远程执行的脚本
+# 控制当 task <url> now 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 7. 脚本全局代理功能
+## ❖ 8. 脚本全局代理功能
 # Powered by global-agent (仅支持 js 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent
@@ -223,13 +231,13 @@ EnableGlobalProxy=""
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTPS_PROXY=""
 
-## ❖ 8. 自定义推送通知模块功能
+## ❖ 9. 自定义推送通知模块功能
 # 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/config/推送通知
 # 如想使用第三方推送通知模块请将下方变量赋值为 "true" ，并在 config 目录下存放您的 sendNotify.js 脚本
 # 注意如若使用第三方通知模块可能会出现兼容性问题导致项目部分功能不可用
 EnableCustomNotify=""
 
-## ❖ 9. 启用自定义 Telegram Bot 功能
+## ❖ 10. 启用自定义 Telegram Bot 功能
 # 仓库：https://github.com/chiupam/JD_Diy
 # 项目默认使用官方作者的原版 Bot，如想使用功能更丰富的 Diy 魔改版 Bot 请将下方变量赋值为 "true"，适合专业用户
 EnableDiyBotModule=""
@@ -244,7 +252,7 @@ EnableDiyBotModule=""
 # 项目文档：https://supermanito.github.io/Helloworld/#/config/推送通知
 
 ## ❖ 定义通知尾
-export NOTIFY_TAIL="本通知 By：https://supermanito.github.io/Helloworld"
+export NOTIFY_TAIL="❖ 本通知 By：https://supermanito.github.io/Helloworld"
 
 ## ❖ 通知内容屏蔽关键词，多个词用 "&" 连接，注意屏蔽针对的是内容而不是通知标题
 export NOTIFY_MASKING=""
@@ -268,7 +276,7 @@ export BARK_SOUND=""
 export BARK_GROUP=""
 
 
-## ❖ 3. Telegram 
+## ❖ 3. Telegram
 # 具体教程：https://github.com/chinnkarahoi/jd_scripts/blob/master/backUp/TG_PUSH.md
 # 需设备可连接外网，"TG_BOT_TOKEN" 和 "TG_USER_ID" 必须同时赋值
 # 下方填写自己申请 @BotFather 的 Token，如 10xxx4:AAFcqxxxxgER5uw
@@ -292,7 +300,7 @@ export TG_USER_ID=""
 # export TG_API_HOST=""
 
 
-## ❖ 4. 钉钉 
+## ❖ 4. 钉钉
 # 官方文档：https://developers.dingtalk.com/document/app/custom-robot-access
 # 参考图片：https://github.com/chinnkarahoi/jd_scripts/blob/master/icon/DD_bot.png
 # "DD_BOT_TOKEN" 和 "DD_BOT_SECRET" 必须同时赋值
@@ -328,7 +336,7 @@ export IGOT_PUSH_KEY=""
 export PUSH_PLUS_TOKEN=""
 # 一对一多推送（选填）
 # 下方填写您的一对多推送的 "群组编码" ，（一对多推送下面->您的群组(如无则新建)->群组编码）
-# 注 1. 需订阅者扫描二维码 
+# 注 1. 需订阅者扫描二维码
 #    2、如果您是创建群组所属人，也需点击“查看二维码”扫描绑定，否则不能接受群组消息推送
 export PUSH_PLUS_USER=""
 

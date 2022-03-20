@@ -3,6 +3,8 @@
     "pt_pin": "ptpin的值",
     "ws_key": "wskey的值",
     "remarks": "备注内容",
+    "disable": false,
+    "sort": 1,
     "config": {
       "ep": {}
     }
@@ -15,6 +17,8 @@
       "remarks2",
       "remarks3"
     ],
+    "disable": false,
+    "sort": 2,
     "config": {
       "ep": {}
     }
