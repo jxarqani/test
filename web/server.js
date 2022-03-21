@@ -39,8 +39,6 @@ const {
     removeCookie,
     updateCookie,
     updateAccount,
-    updateAccountSort,
-    cookieReload,
     saveAccount
 } = require("./core/cookie");
 const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
@@ -498,19 +496,6 @@ app.post('/api/save', function (request, response) {
 
 });
 
-/**
- * cookie 重新加载
- */
-
-app.post('/api/cookie/reload', function (request, response) {
-    try {
-        cookieReload();
-        response.send(API_STATUS_CODE.ok("处理成功", {}, "账号配置已生效"));
-    } catch (e) {
-        response.send(API_STATUS_CODE.fail("处理失败", 0, e.message));
-    }
-
-});
 
 /**
  * 日志列表
