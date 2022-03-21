@@ -209,7 +209,7 @@ function updateCookie(cookie, userMsg) {
 }
 
 function updateAccount(ptPin, ptKey, wsKey, remarks) {
-    if (util.isNotEmpty(ptPin)) {
+    if (!util.isNotEmpty(ptPin)) {
         throw new Error("ptPin不能为空")
     }
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
