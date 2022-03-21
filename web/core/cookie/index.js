@@ -41,7 +41,6 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
             this.remark = tips;
-
         }
         return this;
     }
