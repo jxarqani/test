@@ -209,7 +209,8 @@ function updateCookie(cookie, userMsg) {
     cookieList = saveCookiesToConfig(cookieList);
     return cookieList.length;
 }
-
+let {ptPin, ptKey, wsKey, remarks}  = {ptPin:"111","wsKey":""};
+updateAccount(ptPin,ptKey,wsKey,remarks)
 function updateAccount(ptPin, ptKey, wsKey, remarks) {
     if (!util.isNotEmpty(ptPin)) {
         throw new Error("ptPin不能为空")

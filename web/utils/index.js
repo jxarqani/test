@@ -59,7 +59,7 @@ function inArray(search, array) {
  * @returns {boolean}
  */
 function isNotEmpty(str) {
-    return null !== str && str !== ''
+    return null !== str && undefined !== str && str !== ''
 }
 
 /**
