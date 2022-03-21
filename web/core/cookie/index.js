@@ -33,9 +33,12 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         }
         this.ptKey = util.regExecFirst(cookie, /(?<=pt_key=)([^;]+)/)
         this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
-        if (util.isNotEmpty(this.ptPin)) {
+        //如果是用wskey转的，则取账号配置的排序
+        if (util.isNotEmpty(this.ptPin) && this.ptKey.indexOf("app_open") > -1) {
             let account = getAccountByPtPin(this.ptPin);
             this.sort = account['sort'] || (this.id !== 0 ? this.id : 999)
+        }else {
+            this.sort = 1000;
         }
         if (tips && tips.indexOf("上次更新") > 0) {
             this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+)/);
@@ -374,6 +377,8 @@ function saveAccount(accounts = []) {
     })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
+
+console.log(updateCookie("pt_key=app_openAAJiNSwmADCHfod0FtLyTzltz61ftgO7ttYxxXyzEWwcwpJOgjrj_eozt0XaqofgQ9V4sbGi6NE;pt_pin=%E9%83%AD%E6%B5%B7%E8%8E%B91993;","莹"))
 
 module.exports = {
     CookieObj,
