@@ -34,6 +34,9 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
         if (tips && tips.indexOf("上次更新") > 0) {
             this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+)/);
+            if(this.lastUpdateTime.length > 19){
+                this.lastUpdateTime =  this.lastUpdateTime.substring(0,19);
+            }
             this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
