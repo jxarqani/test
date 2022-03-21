@@ -246,6 +246,10 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
  * @param accounts
  */
 function saveAccount(accounts = []) {
+    accounts.forEach((account, index) => {
+        delete account["sort"];
+        delete account["disable"];
+    })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
 
