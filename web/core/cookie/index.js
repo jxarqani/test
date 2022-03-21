@@ -22,11 +22,11 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin}  上次更新：${this.lastUpdateTime}  备注：${this.remark}`;
+        return `## pt_pin=${this.ptPin};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
     };
 
     this.convert = (cookie, tips) => {
-        if (cookie.indexOf("Cookie") > 0) {
+        if (cookie.indexOf("Cookie") > -1) {
             this.id = parseInt(util.regExecFirst(cookie, /(?<=Cookie)([^=]+)/));
         } else {
             this.id = 0;
@@ -38,15 +38,13 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
             this.sort = account['sort'] || (this.id !== 0 ? this.id : 999)
         }
         if (tips && tips.indexOf("上次更新") > 0) {
-            this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+(\s))/);
+            this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+)/);
             this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
             this.remark = tips;
 
         }
-
-
         return this;
     }
 
@@ -299,9 +297,9 @@ function updateAccountSort(ptPin, sort = 999) {
             updated = true;
         }
     })
-    if(updated){
+    if (updated) {
         saveAccount(accounts);
-    }else{
+    } else {
         throw new Error(`账号 ${ptPin} 不存在`)
     }
 
@@ -376,7 +374,6 @@ function saveAccount(accounts = []) {
     })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
-
 
 module.exports = {
     CookieObj,
