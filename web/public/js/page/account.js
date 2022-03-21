@@ -60,10 +60,23 @@ $(document).ready(function () {
         editor.setOption('lineWrapping', !lineWrapping);
     });
 
-    $("#reload").click(() => {
-        panelRequest.post('/api/cookie/reload', {}, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc)
-        });
+    $("#create").click(() => {
+        let confContent = editor.getValue();
+        try {
+            let accountArr = JSON.parse(confContent);
+            accountArr.push({
+                "pt_pin": "ptpin的值",
+                "ws_key": "wskey的值",
+                "remarks": "备注内容",
+                "config": {
+                    "ep": {}
+                }
+            })
+            editor.setValue(JSON.stringify(accountArr, null, 2));
+            editor.execCommand('goDocEnd');
+        }catch (e) {
+            panelUtils.showError("创建失败，请检查当前配置的格式是否正确")
+        }
     })
 
     let openTools = (value = '') => {
