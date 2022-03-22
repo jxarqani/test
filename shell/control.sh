@@ -305,7 +305,7 @@ function Bot_Control() {
         sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
         ## 去除cmd命令返回日志的颜色标记
-        sed -i "17c \            await cmd(text+\"| sed 's/\\\[31m//g; s/\\\[32m//g; s/\\\[33m//g; s/\\\[34m//g; s/\\\[35m//g; s/\\\[36m//g; s/\\\[0m//g; s/\\\[1m//g'\")" $BotRepoDir/jbot/bot/cmd.py
+        sed -i "17c \            await cmd(text+\"| sed 's/\\\[31m//g; s/\\\[32m//g; s/\\\[33m//g; s/\\\[34m//g; s/\\\[35m//g; s/\\\[36m//g; s/\\\[0m//g; s/\\\[1m//g; s/\\\[1\;34m//g'\")" $BotRepoDir/jbot/bot/cmd.py
         ## 命令适配
         cd $BotRepoDir/jbot/bot
         local TargetFiles="cron.py setshort.py start.py utils.py"
