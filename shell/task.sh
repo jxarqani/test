@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-20
+## Modified: 2022-03-23
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1450,8 +1450,8 @@ function Add_OwnRepo() {
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
             if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-                if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                    for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
+                if [[ $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                    for file in $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                         if [ -f $file ]; then
                             echo "$RawDir/$file" >>$ListOwnScripts
                         fi
@@ -2189,7 +2189,7 @@ function Remove_LogFiles() {
         ;;
     esac
     function Rm_JsLog() {
-        LogFileList=$(ls -l $LogDir/*/*.log | awk '{print $9}' | grep -v "log/bot")
+        LogFileList=$(ls -l $LogDir/*/*.log 2>/dev/null | awk '{print $9}' | grep -v "log/bot")
         for log in ${LogFileList}; do
             ## 文件名比文件属性获得的日期要可靠
             LogDate=$(echo ${log} | awk -F '/' '{print $NF}' | grep -Eo "20[2-9][0-9]-[0-1][0-9]-[0-3][0-9]")
@@ -2342,10 +2342,10 @@ function List_Local_Scripts() {
             local ListFiles=($(
                 for ((i = 1; i <= $OwnRepoSum; i++)); do
                     repo_num=$((i - 1))
-                    ls ${array_own_repo_path[repo_num]} | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${array_own_repo_path[repo_num]}/|g;}"
+                    ls ${array_own_repo_path[repo_num]} 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${array_own_repo_path[repo_num]}/|g;}"
                 done
                 if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
-                    ls $RawDir | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
+                    ls $RawDir 2>/dev/null  | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
                 fi
             ))
 
