@@ -782,7 +782,11 @@ function Update_Designated() {
             fi
         fi
     else
-        echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
+        if [ -d ${AbsolutePath} ]; then
+            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
+        else
+            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径不存在，请重新确认！\n"
+        fi
         exit ## 终止退出
     fi
 }
