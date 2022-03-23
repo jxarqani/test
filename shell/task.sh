@@ -1450,8 +1450,8 @@ function Add_OwnRepo() {
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
             if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-                if [[ $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                    for file in $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
+                if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                    for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                         if [ -f $file ]; then
                             echo "$RawDir/$file" >>$ListOwnScripts
                         fi
