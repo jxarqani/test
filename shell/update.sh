@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-19
+## Modified: 2022-03-23
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -516,7 +516,7 @@ function Update_RawFile() {
             [ -f "$RawDir/${RawFileName[$i]}.new" ] && rm -f "$RawDir/${RawFileName[$i]}.new"
         fi
     done
-    for file in $(ls $RawDir | grep -Ev "${RawDirUtils}"); do
+    for file in $(ls $RawDir 2>/dev/null | grep -Ev "${RawDirUtils}"); do
         RemoveMark="yes"
         for ((i = 0; i < ${#RawFileName[*]}; i++)); do
             if [[ $file == ${RawFileName[$i]} ]]; then
@@ -782,7 +782,11 @@ function Update_Designated() {
             fi
         fi
     else
-        echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
+        if [ -d ${AbsolutePath} ]; then
+            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
+        else
+            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径不存在，请重新确认！\n"
+        fi
         exit ## 终止退出
     fi
 }
