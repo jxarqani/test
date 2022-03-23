@@ -9,7 +9,7 @@ $(document).ready(function () {
         viewportMargin: viewportMargin,
         readOnly: true,
         cursorHeight: 0,
-        mode: 'shell',
+        mode: 'text',
         theme: themeChange.getAndUpdateEditorTheme(),
     });
     var $menuTree = $('#menuTree');
