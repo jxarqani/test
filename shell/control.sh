@@ -440,11 +440,12 @@ function Bot_Control() {
             ## 更新
             update)
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
-                    ## 下载最新的 Bot 源码
-                    echo -e "\n$WORKING 开始拉取最新源码...\n"
                     if [[ ${EnableDiyBotModule} == "true" ]]; then
-                        wget --no-check-certificate "https://ghproxy.com/https://github.com/chiupam/JD_Diy/archive/refs/heads/main.zip" -O $FileDiyBotSourceCode -T 20
+                        echo -e "\n$WARN 作者跑路了，暂不支持更新操作...\n"
+                        exit
                     else
+                        ## 下载最新的 Bot 源码
+                        echo -e "\n$WORKING 开始拉取最新源码...\n"
                         wget --no-check-certificate "https://ghproxy.com/https://github.com/SuMaiKaDe/bot/archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
                     fi
                     [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 Ghproxy 代理），请检查原因后重试！\n" && exit ## 终止退出
