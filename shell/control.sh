@@ -446,9 +446,9 @@ function Bot_Control() {
                     else
                         ## 下载最新的 Bot 源码
                         echo -e "\n$WORKING 开始拉取最新源码...\n"
-                        wget --no-check-certificate "https://ghproxy.com/https://github.com/SuMaiKaDe/bot/archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
+                        wget --no-check-certificate "https://cdn.jsdelivr.net/gh/SuMaiKaDe/bot@archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
                     fi
-                    [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 Ghproxy 代理），请检查原因后重试！\n" && exit ## 终止退出
+                    [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 jsDelivr 代理），请检查原因后重试！\n" && exit ## 终止退出
                     pm2 delete jbot >/dev/null 2>&1
                     ## 删除日志
                     rm -rf $BotLogDir/up.log
