@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-23
+## Modified: 2022-04-01
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -34,7 +34,7 @@ function Find_Script() {
         fi
 
         ## 判定传入的是绝对路径还是相对路径
-        echo ${InputContent} | grep "^$RootDir/" -q
+        echo ${InputContent} | grep "^$RootDir" -q
         if [ $? -eq 0 ]; then
             AbsolutePath=${InputContent}
         else
@@ -2391,7 +2391,7 @@ function List_Local_Scripts() {
         echo ${InputContent} | grep "\/" -q
         if [ $? -eq 0 ]; then
             ## 判定传入的是绝对路径还是相对路径
-            echo ${InputContent} | grep "^$RootDir/" -q
+            echo ${InputContent} | grep "^$RootDir" -q
             if [ $? -eq 0 ]; then
                 WorkDir=${InputContent}
             else
@@ -2406,6 +2406,8 @@ function List_Local_Scripts() {
             fi
         else
             if [[ "${InputContent}" = "." ]]; then
+                WorkDir="$(pwd)"
+            elif [[ "${InputContent}" = "./" ]]; then
                 WorkDir="$(pwd)"
             else
                 WorkDir="$(pwd)/${InputContent}"

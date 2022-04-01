@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-24
+## Modified: 2022-04-01
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -305,7 +305,7 @@ function Bot_Control() {
         sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
         ## 去除cmd命令返回日志的颜色标记
-        sed -i "s#cmdtext,#cmdtext+\"| sed 's/\\\[31m//g; s/\\\[32m//g; s/\\\[33m//g; s/\\\[34m//g; s/\\\[35m//g; s/\\\[36m//g; s/\\\[0m//g; s/\\\[1m//g; s/\\\[1\;34m//g'\",#g" $BotRepoDir/jbot/bot/cmd.py
+        sed -i "s#cmdtext,#cmdtext+\"| sed 's/\\\[3\\\[0-9\\\]m//g; s/\\\[\\\[0-1\\\]m//g'\",#g" $BotRepoDir/jbot/bot/utils.py
         ## 命令适配
         cd $BotRepoDir/jbot/bot
         local TargetFiles="cron.py setshort.py start.py utils.py"
@@ -440,11 +440,12 @@ function Bot_Control() {
             ## 更新
             update)
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
-                    ## 下载最新的 Bot 源码
-                    echo -e "\n$WORKING 开始拉取最新源码...\n"
                     if [[ ${EnableDiyBotModule} == "true" ]]; then
-                        wget --no-check-certificate "https://ghproxy.com/https://github.com/chiupam/JD_Diy/archive/refs/heads/main.zip" -O $FileDiyBotSourceCode -T 20
+                        echo -e "\n$WARN 作者跑路了，暂不支持更新操作...\n"
+                        exit
                     else
+                        ## 下载最新的 Bot 源码
+                        echo -e "\n$WORKING 开始拉取最新源码...\n"
                         wget --no-check-certificate "https://ghproxy.com/https://github.com/SuMaiKaDe/bot/archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
                     fi
                     [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 Ghproxy 代理），请检查原因后重试！\n" && exit ## 终止退出

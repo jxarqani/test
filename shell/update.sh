@@ -749,7 +749,7 @@ function Update_Designated() {
         local InputContent=$1
     fi
     ## 判定传入的是绝对路径还是相对路径
-    echo ${InputContent} | grep "^$RootDir/" -q
+    echo ${InputContent} | grep "^$RootDir" -q
     if [ $? -eq 0 ]; then
         AbsolutePath=${InputContent}
     else
@@ -913,6 +913,8 @@ case $# in
         else
             if [ -d "$(pwd)/$1" ]; then
                 if [[ "$1" = "." ]]; then
+                    Update_Designated "$(pwd)"
+                elif [[ "$1" = "./" ]]; then
                     Update_Designated "$(pwd)"
                 else
                     Update_Designated "$(pwd)/$1"
