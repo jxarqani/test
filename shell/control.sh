@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-01
+## Modified: 2022-04-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -305,7 +305,7 @@ function Bot_Control() {
         sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
         sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
         ## 去除cmd命令返回日志的颜色标记
-        sed -i "s#cmdtext,#cmdtext+\"| sed 's/\\\[3[0-9]m//g; s/\\\[[0-1]m//g'\",#g" $BotRepoDir/jbot/bot/utils.py
+        sed -i "s#cmdtext,#cmdtext+\"| sed 's/\\\[3\[0-9\]m//g; s/\\\[4\[0-9\];3\[0-9\]m//g; s/\\\[\[0-1\]m//g'\",#g" $BotRepoDir/jbot/bot/utils.py
         ## 命令适配
         cd $BotRepoDir/jbot/bot
         local TargetFiles="cron.py setshort.py start.py utils.py"
