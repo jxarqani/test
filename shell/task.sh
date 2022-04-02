@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-01
+## Modified: 2022-04-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -2243,7 +2243,7 @@ function Process_Monitor() {
     MemoryUsed=$(free -m | grep Mem | awk -F ' ' '{print$3}')
     MemoryFree=$(free -m | grep Mem | awk -F ' ' '{print$4}')
     MemoryAvailable=$(free -m | grep Mem | awk -F ' ' '{print$7}')
-    MemoryUsage=$(awk 'BEGIN{printf "%.1f%%\n",('$MemoryUsed'/'$MemoryTotal')*100}')
+    MemoryUsage=$(awk 'BEGIN{printf "%.1f%\n",('$MemoryUsed'/'$MemoryTotal')*100}')
     CPUUsage=$(busybox top -n 1 | grep CPU | head -1 | awk -F ' ' '{print$2}')
     ConfigSpaceUsage=$(du -sm $ConfigDir | awk -F ' ' '{print$1}')
     LogFilesSpaceUsage=$(du -sm $LogDir | awk -F ' ' '{print$1}')
