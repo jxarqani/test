@@ -114,6 +114,7 @@ const updateCookies = async (pt_pin) => {
         await epInit();
         if (pt_pin === account.pt_pin) {
             let remarks = account.remarks || '无';
+            let phone = account.phone || '无';
             if (typeof remarks === 'object' && Array.isArray(remarks) && remarks.length > 0) {
                 remarks = remarks[0];
             }
@@ -124,7 +125,7 @@ const updateCookies = async (pt_pin) => {
                 if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("pt_key=;") === -1) {
                     let checkResult = await checkCookie(ck);
                     if (checkResult) {
-                        updateCookie(ck, remarks);
+                        updateCookie({ck, remarks, phone});
                         success = true;
                         globalOptions.successCount++;
                         globalOptions.message += `${headerMsg} ${success ? '更新成功' : '更新失败'}\n`;
