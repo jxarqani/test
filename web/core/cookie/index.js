@@ -5,26 +5,28 @@ const {CONFIG_FILE_KEY, getFile, saveNewConf} = require("../file");
  * 初始化CK
  * @param ptKey
  * @param ptPin
+ * @param phone
  * @param lastUpdateTime
  * @param remark
  * @param id
  * @returns {{}}
  * @constructor
  */
-function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date()), remark = '无') {
+function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date()), remark = '无', phone = '无') {
     this.id = id;
     this.ptKey = ptKey;
-    this.ptPin = ptPin
+    this.ptPin = ptPin;
+    this.phone = phone;
     this.lastUpdateTime = lastUpdateTime;
     this.remark = remark;
     this.cookieStr = () => {
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
+        return `## pt_pin=${this.ptPin};  手机号：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
     };
 
-    this.convert = (cookie, tips) => {
+    this.convert = (cookie, tips, phone = '无') => {
         if (cookie.indexOf("Cookie") > -1) {
             this.id = parseInt(util.regExecFirst(cookie, /(?<=Cookie)([^=]+)/));
         } else {
@@ -37,10 +39,12 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
             if(this.lastUpdateTime.length > 19){
                 this.lastUpdateTime =  this.lastUpdateTime.substring(0,19);
             }
+            this.phone = util.regExecFirst(tips, /(?<=手机号：)([^;]+)/);
             this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
             this.remark = tips;
+            this.phone = phone;
         }
         return this;
     }
@@ -97,7 +101,7 @@ function saveCookiesToConfig(cookieList = []) {
                         lines[writeIndex] = item.cookieStr();
                         writeIndex++;
                         lines[writeIndex] = item.tipStr();
-                        writeIndex++
+                        writeIndex++;
                     } else {
                         lines.splice(writeIndex, 0, item.cookieStr(), item.tipStr());
                         writeIndex = writeIndex + 2;
@@ -107,7 +111,7 @@ function saveCookiesToConfig(cookieList = []) {
                     lines[writeIndex] = item.cookieStr();
                     writeIndex++;
                     lines[writeIndex] = item.tipStr();
-                    writeIndex++
+                    writeIndex++;
                 }
                 id++;
             })
@@ -179,13 +183,14 @@ function removeCookie(ptPins) {
 
 /**
  * 更新ck
- * @param cookie pt_key=xxx;pt_pin=xxx;
- * @param userMsg 备注
+ * @param ck pt_key=xxx;pt_pin=xxx;
+ * @param remarks 备注
+ * @param phone 手机号
  * @return {number} ck数量
  */
-function updateCookie(cookie, userMsg) {
+function updateCookie({ck, remarks, phone}) {
     let cookieList = readCookies();
-    let cookieObj = new CookieObj().convert(cookie, userMsg);
+    let cookieObj = new CookieObj().convert(ck, remarks, phone);
     let isUpdate = false;
     cookieList.forEach((item) => {
         if (item.ptPin === cookieObj.ptPin) {
@@ -193,8 +198,11 @@ function updateCookie(cookie, userMsg) {
             //更新ptKey
             item.ptKey = cookieObj.ptKey;
             item.lastUpdateTime = cookieObj.lastUpdateTime;
-            if (userMsg && userMsg !== '') {
-                item.remark = userMsg;
+            if (remarks) {
+                item.remark = remarks;
+            }
+            if (phone) {
+                item.phone = phone;
             }
         }
     })
@@ -210,7 +218,7 @@ function updateCookie(cookie, userMsg) {
     return cookieList.length;
 }
 
-function updateAccount(ptPin, ptKey, wsKey, remarks) {
+function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
     if (!util.isNotEmpty(ptPin)) {
         throw new Error("ptPin不能为空")
     }
@@ -223,6 +231,7 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
         if (account['pt_pin'] && account['pt_pin'] === ptPin) {
             account['ws_key'] = wsKey || '';
             account['remarks'] = remarks;
+            account['phone'] = phone;
             isUpdate = true;
         }
     })
@@ -230,12 +239,13 @@ function updateAccount(ptPin, ptKey, wsKey, remarks) {
         accounts.push({
             "pt_pin": ptPin,
             "ws_key": wsKey,
-            "remarks": remarks
+            "remarks": remarks,
+            phone: phone
         })
     }
     saveAccount(accounts);
     if (util.isNotEmpty(ptKey)) {
-        updateCookie(`pt_key=${ptKey};pt_pin=${ptPin};`, remarks);
+        updateCookie({ck: `pt_key=${ptKey};pt_pin=${ptPin};`, remarks, phone});
     }
     console.log(`ptPin：${ptPin} 更新完成`)
     return getCount();

@@ -172,7 +172,7 @@ app.all('/*', function (req, res, next) {
                     res.redirect('/auth');  // 将用户重定向到登录页面
                 }
             } else if (arr[1] === "api") {
-                if ((arr[2] === 'captcha' || arr[2] === 'auth' || arr[2] === 'sharecode')) {
+                if ((arr[2] === 'captcha' || arr[2] === 'auth' || arr[2] === 'extra')) {
                     next();
                 } else {
                     res.send(API_STATUS_CODE.API.NEED_LOGIN);
@@ -253,7 +253,7 @@ app.get('/api/cookie', function (request, response) {
                 let ucookie = getCookie(cookie);
                 let autoReplace = request.query.autoReplace && request.query.autoReplace === 'true';
                 if (autoReplace) {
-                    updateCookie(ucookie);
+                    updateCookie({ck: ucookie});
                 }
                 response.send(API_STATUS_CODE.okData({cookie: ucookie}))
             } else {
@@ -604,7 +604,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
                 `pt_key=${data.data.pt_key};pt_pin=${encodeURIComponent(data.data.pt_pin)};`;
             let cookieCount = 0, updateSuccess = false, errorMsg = "";
             try {
-                cookieCount = updateCookie(cookie, "");
+                cookieCount = updateCookie({ck: cookie, remarks: "", phone});
                 updateSuccess = true;
             } catch (e) {
                 errorMsg = e.message;
@@ -632,11 +632,15 @@ app.post('/api/sms/checkCode', async function (request, response) {
 /**
  * 更新已经存在的人的cookie & 自动添加新用户
  *
- * {"cookie":"","userMsg":""}
+ * {"cookie":"","userMsg":""， phone: ""}
  * */
 app.post('/openApi/updateCookie', function (request, response) {
     try {
-        response.send(API_STATUS_CODE.okData(updateCookie(request.body.cookie, request.body.userMsg)));
+        response.send(API_STATUS_CODE.okData(updateCookie({
+            ck: request.body.cookie,
+            remarks: request.body.userMsg,
+            phone: request.body.phone
+        })));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
     }
