@@ -172,7 +172,7 @@ app.all('/*', function (req, res, next) {
                     res.redirect('/auth');  // 将用户重定向到登录页面
                 }
             } else if (arr[1] === "api") {
-                if ((arr[2] === 'captcha' || arr[2] === 'auth' || arr[2] === 'sharecode')) {
+                if ((arr[2] === 'captcha' || arr[2] === 'auth' || arr[2] === 'extra')) {
                     next();
                 } else {
                     res.send(API_STATUS_CODE.API.NEED_LOGIN);
