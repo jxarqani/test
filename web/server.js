@@ -722,7 +722,7 @@ app.post('/openApi/cookie/webhook', function (request, response) {
             phone: phone
         })));
     } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
+        response.send(API_STATUS_CODE.webhookFail(e.message));
     }
 });
 
