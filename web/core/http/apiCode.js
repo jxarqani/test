@@ -25,6 +25,13 @@ const API_STATUS_CODE = {
             msg: msg,
         }
     },
+    webhook(data) {
+        return {
+            code: 200,
+            data: data,
+            msg: "您的账号已成功同步至服务器"
+        }
+    },
     API: {
         NEED_LOGIN: {
             code: 403,
