@@ -29,7 +29,7 @@ const API_STATUS_CODE = {
         return {
             code: 200,
             data: data,
-            msg: "您的账号已成功同步至服务器"
+            message: "您的账号已成功同步至服务器"
         }
     },
     API: {
