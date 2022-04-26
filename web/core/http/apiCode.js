@@ -25,17 +25,17 @@ const API_STATUS_CODE = {
             msg: msg,
         }
     },
-    webhook(data) {
+    webhookok(msg = 'success', data) {
         return {
             code: 200,
             data: data,
             message: msg
         }
     },
-    webhookFail() {
+    webhookfail() {
         return {
             code: 400,
-            message: '未能将您的账号同步至服务器，请联系管理员进行处理！'
+            message: '已成功获取到您的账号信息但未能将其同步至服务器，请联系管理员进行处理！'
         }
     },
     API: {
