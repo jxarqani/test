@@ -715,14 +715,14 @@ app.post('/openApi/account/sort', function (request, response) {
  */
 app.post('/openApi/cookie/webhook', function (request, response) {
     try {
-        let {ck,remarks,phone} = request.body;
-        response.send(API_STATUS_CODE.okData(updateCookie({
+        let {ck,remarks = 'from-webhook',phone} = request.body;
+        response.send(API_STATUS_CODE.webhook(updateCookie({
             ck: ck,
             remarks: remarks,
             phone: phone
         })));
     } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
+        response.send(API_STATUS_CODE.webhookFail(e.message));
     }
 });
 
