@@ -157,6 +157,10 @@ app.all('/*', function (req, res, next) {
                 // openApi
                 let authFileJson = JSON.parse(getFile(CONFIG_FILE_KEY.AUTH));
                 let token = req.headers["api-token"]
+                if(!token || token === ''){
+                    //取URL中的TOKEN
+                    token = req.query['api-token'];
+                }
                 if (token && token !== '' && token === authFileJson.openApiToken) {
                     next();
                 } else {
@@ -694,8 +698,29 @@ app.get('/openApi/count', function (request, response) {
 app.post('/openApi/account/sort', function (request, response) {
     try {
         let {ptPin, sort} = request.body;
-        updateAccountSort(ptPin, sort);
         response.send(API_STATUS_CODE.okData(getCount()))
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
+    }
+});
+
+/**
+ * CK 回调
+ * Body 内容为 {
+            ck: "",
+            remarks: "",
+            phone: ""
+        }
+ 其中 ck为必须项，remarks和phone为非必须
+ */
+app.post('/openApi/cookie/webhook', function (request, response) {
+    try {
+        let {ck,remarks,phone} = request.body;
+        response.send(API_STATUS_CODE.okData(updateCookie({
+            ck: ck,
+            remarks: remarks,
+            phone: phone
+        })));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
     }

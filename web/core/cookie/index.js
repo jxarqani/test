@@ -188,7 +188,7 @@ function removeCookie(ptPins) {
  * @param phone 手机号
  * @return {number} ck数量
  */
-function updateCookie({ck, remarks, phone}) {
+function updateCookie({ck, remarks = '无', phone = '无'}) {
     let cookieList = readCookies();
     let cookieObj = new CookieObj().convert(ck, remarks, phone);
     let isUpdate = false;
