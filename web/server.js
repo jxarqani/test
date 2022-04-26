@@ -715,7 +715,7 @@ app.post('/openApi/account/sort', function (request, response) {
  */
 app.post('/openApi/cookie/webhook', function (request, response) {
     try {
-        let {ck,remarks = 'from-webhook',phone} = request.body;
+        let {ck,remarks = '',phone} = request.body;
         response.send(API_STATUS_CODE.webhookok(updateCookie({
             ck: ck,
             remarks: remarks,
