@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-02
+## Modified: 2022-04-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1586,6 +1586,7 @@ function Add_RawFile() {
     ## 定义脚本名称
     RawFileName=$(echo ${InputContent} | awk -F "/" '{print $NF}')
 
+    Make_Dir $RawDir
     ## 格式检测
     echo ${InputContent} | grep -Eq "http.*:"
     if [ $? -ne 0 ]; then

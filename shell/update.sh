@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-25
+## Modified: 2022-04-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -516,16 +516,18 @@ function Update_RawFile() {
             [ -f "$RawDir/${RawFileName[$i]}.new" ] && rm -f "$RawDir/${RawFileName[$i]}.new"
         fi
     done
-    for file in $(ls $RawDir 2>/dev/null | grep -Ev "${RawDirUtils}"); do
-        RemoveMark="yes"
-        for ((i = 0; i < ${#RawFileName[*]}; i++)); do
-            if [[ $file == ${RawFileName[$i]} ]]; then
-                RemoveMark="no"
-                break
-            fi
+    if [[ $(ls $RawDir 2>/dev/null | grep -Ev "${RawDirUtils}") ]]; then
+        for file in $(ls $RawDir 2>/dev/null | grep -Ev "${RawDirUtils}"); do
+            RemoveMark="yes"
+            for ((i = 0; i < ${#RawFileName[*]}; i++)); do
+                if [[ $file == ${RawFileName[$i]} ]]; then
+                    RemoveMark="no"
+                    break
+                fi
+            done
+            [[ $RemoveMark == yes ]] && rm -f $RawDir/$file 2>/dev/null
         done
-        [[ $RemoveMark == yes ]] && rm -f $RawDir/$file 2>/dev/null
-    done
+    fi
 }
 
 ## 更新项目源码
@@ -619,9 +621,9 @@ function Update_Scripts() {
 
 ## 更新 Own Repo 仓库和 Own RawFile 脚本
 function Update_Own() {
+    Make_Dir $RawDir
     Count_OwnRepoSum
     Gen_Own_Dir_And_Path
-    Make_Dir $RawDir
     local EnableRepoUpdate EnableRawUpdate
     case $1 in
     all)
