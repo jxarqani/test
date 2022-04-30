@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-27
+## Modified: 2022-04-30
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -859,7 +859,7 @@ function Process_CleanUp() {
     esac
     ## 生成进程清单
     ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
-    if [ -s ${FileProcessList} ]; then
+    if [[ "$(cat ${FileProcessList})" != "" ]]; then
         echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
         ProcessArray=($(
@@ -2347,7 +2347,7 @@ function List_Local_Scripts() {
                     ls ${array_own_repo_path[repo_num]} 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${array_own_repo_path[repo_num]}/|g;}"
                 done
                 if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
-                    ls $RawDir 2>/dev/null  | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
+                    ls $RawDir 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
                 fi
             ))
 
