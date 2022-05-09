@@ -21,7 +21,7 @@ $(document).ready(function () {
             content: confContent,
             name: "crontab.list"
         }, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc + '<br>定时任务已同步更新');
+            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc + '<br><br>定时任务已同步更新');
         });
     });
 
