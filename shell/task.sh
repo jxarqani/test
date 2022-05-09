@@ -1001,7 +1001,7 @@ function Accounts_Control() {
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
                     EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 打印
-                    printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
+                    printf "%-3s ${BLUE}%-$((19 + ${EscapePinLength}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
                     sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                     let num++
                 done
