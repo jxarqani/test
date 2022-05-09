@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-02
+## Modified: 2022-05-10
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -491,7 +491,7 @@ function Bot_Control() {
             ## 删除 PM2 进程日志清单
             [ -f $FilePm2List ] && rm -rf $FilePm2List
         else
-            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Bot ！\n"
+            echo -e "\n$ERROR 请先在 $ConfigDir/bot.json 中配置好您的 Bot ！\n"
             exit ## 终止退出
         fi
         ;;
