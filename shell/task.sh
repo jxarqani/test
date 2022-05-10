@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-04-27
+## Modified: 2022-05-10
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -859,7 +859,7 @@ function Process_CleanUp() {
     esac
     ## 生成进程清单
     ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
-    if [ -s ${FileProcessList} ]; then
+    if [[ "$(cat ${FileProcessList})" != "" ]]; then
         echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
         ProcessArray=($(
@@ -899,7 +899,22 @@ function Process_CleanUp() {
 function Accounts_Control() {
     local SUCCESS_ICON="[✔]"
     local FAIL_ICON="[×]"
-    local INTERFACE_URL="https://bean.m.jd.com/bean/signIndex.action"
+    local Valid="${GREEN}${SUCCESS_ICON}${PLAIN}"
+    local Invalid="${RED}${FAIL_ICON}${PLAIN}"
+    local INTERFACE_URL="https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
+
+    ## 检测
+    function CheckCookie() {
+        local InputContent=$1
+        local Check="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" | jq '.retcode' | sed "s/\"//g")"
+        if [[ ${Check} == "0" ]]; then
+            echo -e ${Valid}
+        elif [[ ${Check} == "1001" ]]; then
+            echo -e ${Invalid}
+        else
+            echo -e "${RED}未知${PLAIN}"
+        fi
+    }
 
     case $1 in
     ## 检测账号是否有效
@@ -907,33 +922,6 @@ function Accounts_Control() {
         ## 导入配置文件
         Import_Config
         [ -f $FileSendMark ] && rm -rf $FileSendMark
-
-        ## 检测
-        function CheckCookie() {
-            local InputContent=$1
-            local ConnectionTest="$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)"
-            local CookieValidityTest="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
-            if [[ ${ConnectionTest} == 302 ]]; then
-                if [[ ${CookieValidityTest} ]]; then
-                    echo -e "${GREEN}${SUCCESS_ICON}${PLAIN}"
-                else
-                    echo -e "${RED}${FAIL_ICON}${PLAIN}"
-                fi
-            else
-                sleep 2
-                local ConnectionTestAgain="$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n1)"
-                local CookieValidityTestAgain="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}")"
-                if [[ ${ConnectionTestAgain} == 302 ]]; then
-                    if [[ ${CookieValidityTestAgain} ]]; then
-                        echo -e "${GREEN}${SUCCESS_ICON}${PLAIN}"
-                    else
-                        echo -e "${RED}${FAIL_ICON}${PLAIN}"
-                    fi
-                else
-                    echo -e "${RED}[ API 请求失败 ]${PLAIN}"
-                fi
-            fi
-        }
 
         ## 检测全部账号
         function Print_Info_Normal() {
@@ -981,8 +969,43 @@ function Accounts_Control() {
                 sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                 num=$((m + 1))
                 ## 格式化输出
-                printf "%-3s ${BLUE}%-$((35 + ${EscapePinLength}))s${PLAIN} 更新日期：${BLUE}%-s${PLAIN}\n" "$num." "${EscapePin} ${State}" "${UpdateTimes}"
+                printf "%-3s ${BLUE}%-$((18 + ${EscapePinLength}))s${PLAIN} %-s${BLUE}%-s${PLAIN}\n" "$num." "${EscapePin}" " ${State}   上次更新: " "${UpdateTimes}"
             done
+
+            ## 检测 wskey
+            ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
+            local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
+            if [[ ${ArrayLength} -ge 1 ]]; then
+                num=1
+                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                    PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    ## 没有配置相应值就跳出当前循环
+                    [ -z ${PT_PIN_TMP} ] && continue
+                    if [ -z ${WS_KEY_TMP} ]; then
+                        continue
+                    else
+                        echo -e "\n$WORKING 开始检测 wskey 状态...\n"
+                        break
+                    fi
+                done
+
+                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                    local PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    ## 没有配置相应值就跳出当前循环
+                    [ -z ${PT_PIN_TMP} ] && continue
+                    [ -z ${WS_KEY_TMP} ] && continue
+                    ## 转义pt_pin中的汉字
+                    EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
+                    ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
+                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    ## 打印
+                    printf "%-3s ${BLUE}%-$((19 + ${EscapePinLength}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
+                    sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
+                    let num++
+                done
+            fi
         }
 
         ## 检测指定账号
@@ -997,6 +1020,7 @@ function Accounts_Control() {
             FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
+            echo -e "${BLUE}${EscapePin}${PLAIN}\n"
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
             ## 查询上次更新时间并计算过期时间
@@ -1015,8 +1039,44 @@ function Accounts_Control() {
                 UpdateTimes="Unknow"
             fi
             ## 输出
-            echo -e "${BLUE}${EscapePin}${PLAIN} ${State}    更新日期：${BLUE}${UpdateTimes}${PLAIN}"
+            echo -en "Cookie => ${State}"
+
+            ## 检测 wskey
+            grep -q "${pt_pin}" $FileAccountConf
+            if [[ $? -eq 0 ]]; then
+                ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
+                local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
+
+                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                    local PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    ## 没有配置相应值就跳出当前循环
+                    [ -z ${PT_PIN_TMP} ] && continue
+                    if [[ ${PT_PIN_TMP} == ${pt_pin} ]]; then
+                        ## 输出
+                        echo -en "   ws_key => $(CheckCookie "wskey=${WS_KEY_TMP}")"
+                        break
+                    else
+                        continue
+                    fi
+                    [ -z ${WS_KEY_TMP} ] && continue
+                done
+            fi
+            echo ''
+            echo -e "上次更新: ${BLUE}${UpdateTimes}${PLAIN}"
         }
+
+        ## 先检测网络环境
+        for ((n = 1; n <= 3; n++)); do
+            if [[ "$(curl -I -s --connect-timeout 5 ${INTERFACE_URL} -w %{http_code} | tail -n 1)" == "200" ]]; then
+                break
+            fi
+            sleep 0.5
+            if [[ $n -eq 3 ]]; then
+                echo -e "$ERROR API 请求失败，请检查当前网络环境！"
+                exit
+            fi
+        done
 
         ## 汇总
         case $# in
@@ -1110,11 +1170,22 @@ function Accounts_Control() {
                         printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${SUCCESS_ICON}"
                     else
                         printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${FAIL_ICON}"
-                        ## 账号更新异常告警
+                        ## 账号更新异常告警与状态检测
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
+                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
+                        if [[ ${CheckTmp} == "0" ]]; then
+                            echo -e "    该账号的WSKEY状态 => ${Valid}\n"
+                        elif [[ ${CheckTmp} == "1001" ]]; then
+                            echo -e "    该账号的WSKEY状态 => ${Invalid}\n"
+                        else
+                            echo -e "    该账号的WSKEY状态 => ${RED}未知${PLAIN}\n"
+                        fi
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
-                            echo ''
-                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
+                            if [[ ${CheckTmp} == "1001" ]]; then
+                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
+                            else
+                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 更新出现异常，请尽快处理"
+                            fi
                             echo ''
                         fi
                     fi
@@ -1193,15 +1264,26 @@ function Accounts_Control() {
                     echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
-                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${GREEN}${SUCCESS_ICON}${PLAIN}"
+                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${Valid}"
                         ## 打印 Cookie
                         # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
                     else
-                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${RED}${FAIL_ICON}${PLAIN}"
-                        ## 账号更新异常告警
+                        echo -e "${BLUE}${EscapePin}${PLAIN}  ${Invalid}"
+                        ## 账号更新异常告警与状态检测
+                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
+                        if [[ ${CheckTmp} == "0" ]]; then
+                            echo -e "该账号WSKEY状态 => ${Valid}\n"
+                        elif [[ ${CheckTmp} == "1001" ]]; then
+                            echo -e "该账号WSKEY状态 => ${Invalid}\n"
+                        else
+                            echo -e "该账号WSKEY状态 => ${RED}未知${PLAIN}\n"
+                        fi
                         if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
-                            echo ''
-                            Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 可能失效导致更新出现异常，请尽快处理"
+                            if [[ ${CheckTmp} == "1001" ]]; then
+                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
+                            else
+                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 更新出现异常，请尽快处理"
+                            fi
                             echo ''
                         fi
                     fi
@@ -1446,6 +1528,7 @@ function Add_OwnRepo() {
         grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
         local ExitStatus=$?
         [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
+        [ ! -f $ListCrontabOwnTmp ] && touch $ListCrontabOwnTmp
         rm -rf $LogTmpDir/own*.list
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
@@ -2346,7 +2429,7 @@ function List_Local_Scripts() {
                     ls ${array_own_repo_path[repo_num]} 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${array_own_repo_path[repo_num]}/|g;}"
                 done
                 if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
-                    ls $RawDir 2>/dev/null  | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
+                    ls $RawDir 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
                 fi
             ))
 

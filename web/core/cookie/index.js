@@ -1,3 +1,4 @@
+const got = require('got');
 const util = require("../../utils");
 const {CONFIG_FILE_KEY, getFile, saveNewConf} = require("../file");
 
@@ -188,7 +189,7 @@ function removeCookie(ptPins) {
  * @param phone 手机号
  * @return {number} ck数量
  */
-function updateCookie({ck, remarks = '无', phone = '无'}) {
+function updateCookie({ck, remarks = '无', phone}) {
     let cookieList = readCookies();
     let cookieObj = new CookieObj().convert(ck, remarks, phone);
     let isUpdate = false;
@@ -265,6 +266,23 @@ function saveAccount(accounts = []) {
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
 
+/**
+ * 检测账号是否有效（pt_key or wskey）
+ * 无需提供 pt_pin
+ * @param  ck pt_key=xxx; 或 wskey=xxx;
+ */
+async function checkCookieSatus(ck) {
+    res = await got.get('https://me-api.jd.com/user_new/info/GetJDUserInfoUnion', {
+        method: 'get',
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            cookie: ck,
+        }
+    });
+    data = res.body;
+    return data
+};
+
 module.exports = {
     CookieObj,
     getCount,
@@ -274,5 +292,6 @@ module.exports = {
     updateCookie,
     removeCookie,
     getAccount,
-    saveAccount
+    saveAccount,
+    checkCookieSatus
 }

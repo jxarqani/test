@@ -16,7 +16,10 @@ const {
 const random = require('string-random');
 const util = require('./utils/index');
 
-const {checkCode, sendSms} = require("./core/cookie/sms");
+const {
+    checkCode,
+    sendSms
+} = require("./core/cookie/sms");
 const {
     extraServerFile,
     checkConfigFile,
@@ -33,19 +36,34 @@ const {
     getNeatContent,
 } = require("./core/file");
 
-const {panelSendNotify} = require("./core/notify");
+const {
+    panelSendNotify
+} = require("./core/notify");
 const {
     getCount,
     removeCookie,
     updateCookie,
     updateAccount,
-    saveAccount
+    saveAccount,
+    checkCookieSatus
 } = require("./core/cookie");
-const {getCookie, step1, step2, checkLogin} = require("./core/cookie/qrcode");
-const {API_STATUS_CODE, userAgentTools, getClientIP} = require("./core/http");
-const {getLocalIp} = require("./core");
+const {
+    getCookie,
+    step1,
+    step2,
+    checkLogin
+} = require("./core/cookie/qrcode");
+const {
+    API_STATUS_CODE,
+    userAgentTools,
+    getClientIP
+} = require("./core/http");
+const {
+    getLocalIp
+} = require("./core");
 
-let authError = '错误的用户名密码，请重试', errorCount = 1;
+let authError = '错误的用户名密码，请重试',
+    errorCount = 1;
 
 function getPath(request, page) {
     let userAgent = request.headers["user-agent"];
@@ -108,7 +126,9 @@ app.use(
         name: `panel-connect-name-${getLocalIp().replace(/\./g, '_')}`,
         resave: true,
         saveUninitialized: true,
-        cookie: {maxAge: fileStoreOptions.ttl * 1000},
+        cookie: {
+            maxAge: fileStoreOptions.ttl * 1000
+        },
     })
 );
 app.use(bodyParser.json({
@@ -157,7 +177,7 @@ app.all('/*', function (req, res, next) {
                 // openApi
                 let authFileJson = JSON.parse(getFile(CONFIG_FILE_KEY.AUTH));
                 let token = req.headers["api-token"]
-                if(!token || token === ''){
+                if (!token || token === '') {
                     //取URL中的TOKEN
                     token = req.query['api-token'];
                 }
@@ -172,8 +192,8 @@ app.all('/*', function (req, res, next) {
                     next();
                 } else {
                     // API拦截
-                    req.session.originalUrl = req.originalUrl ? req.originalUrl : null;  // 记录用户原始请求路径
-                    res.redirect('/auth');  // 将用户重定向到登录页面
+                    req.session.originalUrl = req.originalUrl ? req.originalUrl : null; // 记录用户原始请求路径
+                    res.redirect('/auth'); // 将用户重定向到登录页面
                 }
             } else if (arr[1] === "api") {
                 if ((arr[2] === 'captcha' || arr[2] === 'auth' || arr[2] === 'extra')) {
@@ -183,8 +203,8 @@ app.all('/*', function (req, res, next) {
                 }
             } else {
                 // API拦截
-                req.session.originalUrl = req.originalUrl ? req.originalUrl : null;  // 记录用户原始请求路径
-                res.redirect('/auth');  // 将用户重定向到登录页面
+                req.session.originalUrl = req.originalUrl ? req.originalUrl : null; // 记录用户原始请求路径
+                res.redirect('/auth'); // 将用户重定向到登录页面
             }
         }
     }
@@ -222,7 +242,9 @@ app.get('/api/captcha/flag', function (request, response) {
     let data = getFile(CONFIG_FILE_KEY.AUTH);
     let con = JSON.parse(data);
     let authErrorCount = con['authErrorCount'] || 0;
-    response.send(API_STATUS_CODE.okData({showCaptcha: authErrorCount >= errorCount}));
+    response.send(API_STATUS_CODE.okData({
+        showCaptcha: authErrorCount >= errorCount
+    }));
 });
 
 /**
@@ -235,7 +257,9 @@ app.get('/api/qrcode', function (request, response) {
             await step1();
             const qrUrl = await step2();
             if (qrUrl !== 0) {
-                response.send(API_STATUS_CODE.okData({qrCode: qrUrl}));
+                response.send(API_STATUS_CODE.okData({
+                    qrCode: qrUrl
+                }));
             } else {
                 response.send(API_STATUS_CODE.fail("出现错误"));
             }
@@ -257,9 +281,13 @@ app.get('/api/cookie', function (request, response) {
                 let ucookie = getCookie(cookie);
                 let autoReplace = request.query.autoReplace && request.query.autoReplace === 'true';
                 if (autoReplace) {
-                    updateCookie({ck: ucookie});
+                    updateCookie({
+                        ck: ucookie
+                    });
                 }
-                response.send(API_STATUS_CODE.okData({cookie: ucookie}))
+                response.send(API_STATUS_CODE.okData({
+                    cookie: ucookie
+                }))
             } else {
                 response.send(API_STATUS_CODE.fail(cookie.body.message, cookie.body.errcode))
             }
@@ -363,7 +391,10 @@ app.get('/api/runLog', function (request, response) {
  * 验证码
  */
 app.get('/api/captcha', function (req, res) {
-    var captcha = svgCaptcha.createMathExpr({width: 120, height: 50});
+    var captcha = svgCaptcha.createMathExpr({
+        width: 120,
+        height: 50
+    });
     req.session.captcha = captcha.text;
     res.type('svg');
     res.status(200).send(captcha.data);
@@ -375,7 +406,9 @@ app.get('/api/captcha', function (req, res) {
  */
 async function ip2Address(ip) {
     try {
-        const {body} = await got.get(`https://ip.cn/api/index?ip=${ip}&type=1`, {
+        const {
+            body
+        } = await got.get(`https://ip.cn/api/index?ip=${ip}&type=1`, {
             encoding: 'utf-8',
             responseType: 'json',
             timeout: 2000,
@@ -383,44 +416,67 @@ async function ip2Address(ip) {
         if (body.code === 0 && body.address) {
             let address = body.address;
             if (address.indexOf("内网IP") > -1) {
-                return {ip: ip, address: "局域网"};
+                return {
+                    ip: ip,
+                    address: "局域网"
+                };
             }
             let type = address.substring(address.lastIndexOf(" "));
             address = address.replace(type, '').replace(/\s*/g, '');
-            return {ip: ip, address: address + type};
+            return {
+                ip: ip,
+                address: address + type
+            };
         }
     } catch (e) {
         console.error("IP 转为地址失败", e);
     }
-    return {ip: ip, address: "未知"};
+    return {
+        ip: ip,
+        address: "未知"
+    };
 }
 
 /**
  * auth
  */
 app.post('/api/auth', async function (request, response) {
-    let {username, password, captcha = ''} = request.body;
+    let {
+        username,
+        password,
+        captcha = ''
+    } = request.body;
     let con = JSON.parse(getFile(CONFIG_FILE_KEY.AUTH));
     let authErrorCount = con['authErrorCount'] || 0;
     if (authErrorCount >= 30) {
         //错误次数超过30次，直接禁止登录
-        response.send(API_STATUS_CODE.failData('面板错误登录次数到达30次，已禁止登录!', {showCaptcha: true}))
+        response.send(API_STATUS_CODE.failData('面板错误登录次数到达30次，已禁止登录!', {
+            showCaptcha: true
+        }))
         return;
     }
     let showCaptcha = authErrorCount >= errorCount;
     if (captcha === '' && showCaptcha) {
-        response.send(API_STATUS_CODE.failData('请输入验证码!', {showCaptcha: true}))
+        response.send(API_STATUS_CODE.failData('请输入验证码!', {
+            showCaptcha: true
+        }))
         return;
     }
     if (showCaptcha && captcha !== request.session.captcha) {
-        response.send(API_STATUS_CODE.failData('验证码不正确!', {showCaptcha: showCaptcha}))
+        response.send(API_STATUS_CODE.failData('验证码不正确!', {
+            showCaptcha: showCaptcha
+        }))
         return;
     }
     if (username && password) {
         if (username === con.user && password === con.password) {
             request.session.loggedin = true;
             request.session.username = username;
-            const result = {err: 0, lastLoginInfo: {}, redirect: '/run'};
+            const result = {
+                err: 0,
+                lastLoginInfo: {},
+                redirect: '/run'
+            };
             Object.assign(result.lastLoginInfo, con.lastLoginInfo || {});
             if (password === "supermanito") {
                 //如果是默认密码
@@ -432,7 +488,10 @@ app.post('/api/auth', async function (request, response) {
             }
             con['authErrorCount'] = 0;
             //记录本次登录信息
-            await ip2Address(getClientIP(request)).then(({ip, address}) => {
+            await ip2Address(getClientIP(request)).then(({
+                ip,
+                address
+            }) => {
                 con.lastLoginInfo = {
                     loginIp: ip,
                     loginAddress: address,
@@ -451,7 +510,9 @@ app.post('/api/auth', async function (request, response) {
             }
             con['authErrorCount'] = authErrorCount;
             saveNewConf(CONFIG_FILE_KEY.AUTH, JSON.stringify(con), false);
-            response.send(API_STATUS_CODE.failData(authError, {showCaptcha: authErrorCount >= errorCount}))
+            response.send(API_STATUS_CODE.failData(authError, {
+                showCaptcha: authErrorCount >= errorCount
+            }))
         }
     } else {
         response.send(API_STATUS_CODE.fail("请输入用户名密码！"))
@@ -493,7 +554,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {}, `将自动刷新页面查看修改后的 ${postFile} 文件<br>每次保存都会生成备份`));
+        response.send(API_STATUS_CODE.ok("保存成功", {}, `<div style=\"padding: .3em\">已在本地生成当前 <strong>${postFile}</strong> 内容的备份文件</div>`));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }
@@ -566,6 +627,37 @@ app.get('/api/scripts/content', function (request, response) {
 
 });
 
+/**
+ * 检测账号状态
+ */
+app.post("/api/checkCookie", async function (request, response) {
+    let ck = request.body.cookie;
+    var data = await checkCookieSatus(ck).then(function (req) {
+        return req
+    })
+    var status_code = JSON.parse(data).retcode;
+    if (status_code) {
+        if (status_code == "0") {
+            // 有效
+            var send_content = {
+                "code": "1",
+                "status": "1",
+            };
+        } else {
+            // 无效
+            var send_content = {
+                "code": "1",
+                "status": "0",
+            };
+        }
+    } else {
+        var send_content = {
+            "code": "0",
+            "msg": "网络环境异常"
+        };
+    }
+    response.send(send_content);
+});
 
 /**
  * API 发验证码
@@ -591,7 +683,12 @@ app.get('/api/sms/send', async function (request, response) {
 
 app.post('/api/sms/checkCode', async function (request, response) {
     try {
-        const {gsalt, ck, phone, code} = request.body;
+        const {
+            gsalt,
+            ck,
+            phone,
+            code
+        } = request.body;
         if (!new RegExp('\\d{11}').test(phone)) {
             response.send(API_STATUS_CODE.fail("手机号格式错误"));
             return;
@@ -606,9 +703,15 @@ app.post('/api/sms/checkCode', async function (request, response) {
         } else {
             const cookie =
                 `pt_key=${data.data.pt_key};pt_pin=${encodeURIComponent(data.data.pt_pin)};`;
-            let cookieCount = 0, updateSuccess = false, errorMsg = "";
+            let cookieCount = 0,
+                updateSuccess = false,
+                errorMsg = "";
             try {
-                cookieCount = updateCookie({ck: cookie, remarks: "", phone});
+                cookieCount = updateCookie({
+                    ck: cookie,
+                    remarks: "",
+                    phone
+                });
                 updateSuccess = true;
             } catch (e) {
                 errorMsg = e.message;
@@ -636,7 +739,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
 /**
  * 更新已经存在的人的cookie & 自动添加新用户
  *
- * {"cookie":"","userMsg":""， phone: ""}
+ * {"cookie":"","userMsg":""}
  * */
 app.post('/openApi/updateCookie', function (request, response) {
     try {
@@ -663,7 +766,6 @@ app.post('/openApi/cookie/delete', function (request, response) {
     }
 });
 
-
 /**
  * 添加或者更新账号
  * {"ptPin":"",ptKey:"",wsKey:"","remarks":""}
@@ -671,12 +773,18 @@ app.post('/openApi/cookie/delete', function (request, response) {
  * */
 app.post('/openApi/addOrUpdateAccount', function (request, response) {
     try {
-        let {ptPin, ptKey, wsKey, remarks} = request.body;
+        let {
+            ptPin,
+            ptKey,
+            wsKey,
+            remarks
+        } = request.body;
         response.send(API_STATUS_CODE.okData(updateAccount({
             ptPin: ptPin,
             ptKey: ptKey,
             wsKey: wsKey,
-            remarks: remarks
+            remarks: remarks,
+            phone: phone
         })))
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
@@ -695,14 +803,16 @@ app.get('/openApi/count', function (request, response) {
     }
 });
 
-
 /**
  * 修改账号排序
  * body: {"ptPin":"", "sort":1}
  * */
 app.post('/openApi/account/sort', function (request, response) {
     try {
-        let {ptPin, sort} = request.body;
+        let {
+            ptPin,
+            sort
+        } = request.body;
         response.send(API_STATUS_CODE.okData(getCount()))
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
@@ -720,7 +830,11 @@ app.post('/openApi/account/sort', function (request, response) {
  */
 app.post('/openApi/cookie/webhook', function (request, response) {
     try {
-        let {ck,remarks = '',phone} = request.body;
+        let {
+            ck,
+            remarks = '',
+            phone
+        } = request.body;
         response.send(API_STATUS_CODE.webhookok(updateCookie({
             ck: ck,
             remarks: remarks,
@@ -741,10 +855,8 @@ try {
         extraServer(app);
         console.log('自定义api初始化成功');
     }
-} catch (e) {
-}
+} catch (e) {}
 
 app.listen(5678, '0.0.0.0', () => {
     console.log('应用正在监听 5678 端口!');
 });
-

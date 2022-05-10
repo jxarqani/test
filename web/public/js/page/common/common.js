@@ -19,7 +19,7 @@ function showLastLoginInfo() {
         panelUtils.showAlert({
             position: 'top-end',
             //title: '登录成功',
-            //icon:'info',
+            icon:'info',
             backdrop: false,
             toast: true,
             timer: 10000,

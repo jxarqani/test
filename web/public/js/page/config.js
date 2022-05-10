@@ -53,7 +53,9 @@ $(document).ready(function () {
     function checkLogin() {
         var isAutoReplace = $('#autoReplace').prop('checked');
         var timeId = setInterval(() => {
-            panelRequest.get('/api/cookie', {autoReplace: isAutoReplace}, function (res) {
+            panelRequest.get('/api/cookie', {
+                autoReplace: isAutoReplace
+            }, function (res) {
                 if (res.code === 1) {
                     clearInterval(timeId);
                     $("#qrcontainer").addClass("hidden");
@@ -146,10 +148,11 @@ $(document).ready(function () {
     }
 
     $('#smsLogin').click(async function () {
-        const {value: formValues} = await Swal.fire({
+        const {
+            value: formValues
+        } = await Swal.fire({
             title: '短信验证码登录',
-            html:
-                '<div class="sms-login">' +
+            html: '<div class="sms-login">' +
                 '   <div><input id="smsLoginPhone" maxlength="11" autofocus="true" placeholder="请输入11位手机号" class="swal2-input"></div>' +
                 '   <div class="swal2-html-container red-font" id="tips-mobile"></div>' +
                 '   <div><input id="smsLoginCode" maxlength="6" placeholder="6位验证码" class="swal2-input check-code"><button class="swal2-confirm swal2-styled send-sms-btn" id="sendSmsBtn">发送验证码</button></div>' +
@@ -173,7 +176,9 @@ $(document).ready(function () {
                     } else {
                         tipsMobileEle.innerText = "";
                         //发送验证码
-                        panelRequest.get('/api/sms/send', {phone: phone}, function (res) {
+                        panelRequest.get('/api/sms/send', {
+                            phone: phone
+                        }, function (res) {
                             if (res.code === 1) {
                                 sendSmsData = res.data;
                                 sendBtnStatus(sendSmsBtnEle);
@@ -203,9 +208,16 @@ $(document).ready(function () {
                 } else {
                     tipsMobileEle.innerText = "";
                 }
-                panelRequest.post('/api/sms/checkCode', {phone, code, ...sendSmsData}, function (res) {
+                panelRequest.post('/api/sms/checkCode', {
+                    phone,
+                    code,
+                    ...sendSmsData
+                }, function (res) {
                     tipsCheckEle.innerText = res.msg;
-                    let {cookieCount, cookie} = res.data;
+                    let {
+                        cookieCount,
+                        cookie
+                    } = res.data;
 
                     panelUtils.showAlert({
                         title: "cookie已获取",
@@ -241,4 +253,74 @@ $(document).ready(function () {
         var lineWrapping = editor.getOption('lineWrapping');
         editor.setOption('lineWrapping', !lineWrapping);
     });
+
+    $('#checkAccount').click(async function () {
+        Swal.fire({
+            title: "检测 pt_key 有效性",
+            input: "text",
+            inputAttributes: {
+                autocapitalize: "off",
+            },
+            width: 800,
+            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong> 的值",
+            confirmButtonText: "检测",
+            confirmButtonColor: "#2D70F9",
+            allowOutsideClick: false,
+            showCancelButton: true,
+            showCloseButton: true,
+            cancelButtonText: "取消",
+            preConfirm: async (key) => {
+                Swal.showLoading()
+                if (key == "") {
+                    Swal.showValidationMessage(`不能检测空气！`);
+                } else {
+                    if ((RegExp(/pt_key=.*/).test(key)) == true) {
+                        key = key.match(/(pt_key=)([^;]+)/)[0].split("=")[1];
+                    }
+                    var key_type = "unknown";
+                    var judge_ptkey_length = key.length == 75 || key.length == 83 || key.length == 96 || key.length == 104;
+                    var judge_key_type = RegExp(/[^A-Za-z0-9-_]/).test(key);
+                    var judge_key_format = RegExp(/^AAJ[a-z].*/).test(key) || RegExp(/^app_openAAJ[a-z].*/).test(key);
+                    if (judge_key_format == true && judge_key_type == false) {
+                        if (judge_ptkey_length == true) {
+                            key_type = "pt_key";
+                        }
+                    }
+                    if (key_type == "unknown") {
+                        Swal.showValidationMessage(`格式有误，请验证后重试`);
+                    } else {
+                        var myHeaders = new Headers();
+                        myHeaders.append("Content-Type", "application/json");
+                        var raw = JSON.stringify({
+                            "cookie": "pt_key=" + key + ";"
+                        });
+                        var requestOptions = {
+                            method: 'POST',
+                            headers: myHeaders,
+                            body: raw,
+                            redirect: 'follow'
+                        };
+                        const response = await fetch("/api/checkCookie", requestOptions);
+                        const data = await response.text();
+                        var code = JSON.parse(data).code;
+                        if (code == "1") {
+                            var status = JSON.parse(data).status;
+                            if (status == "1") {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "帐号有效",
+                                    allowOutsideClick: false,
+                                });
+                            } else if (status == "0") {
+                                Swal.showValidationMessage("账号无效");
+                            }
+                        } else {
+                            Swal.showValidationMessage("网络环境异常")
+                        }
+                    }
+                }
+            },
+        })
+    });
+
 });

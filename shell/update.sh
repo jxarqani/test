@@ -144,6 +144,7 @@ function Gen_ListOwn() {
     grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
     local ExitStatus=$?
     [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
+    [ ! -f $ListCrontabOwnTmp ] && touch $ListCrontabOwnTmp
     rm -rf $LogTmpDir/own*.list
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
