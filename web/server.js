@@ -493,7 +493,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {}, `已将本次保存前的 <strong>${postFile}</strong> 版本备份至 <strong>config/bak</strong> 目录`));
+        response.send(API_STATUS_CODE.ok("保存成功", {}, `已在本地生成当前 <strong>${postFile}</strong> 内容的备份文件`));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }
@@ -636,14 +636,13 @@ app.post('/api/sms/checkCode', async function (request, response) {
 /**
  * 更新已经存在的人的cookie & 自动添加新用户
  *
- * {"cookie":"","userMsg":""， phone: ""}
+ * {"cookie":"","userMsg":""}
  * */
 app.post('/openApi/updateCookie', function (request, response) {
     try {
         response.send(API_STATUS_CODE.okData(updateCookie({
             ck: request.body.cookie,
-            remarks: request.body.userMsg,
-            phone: request.body.phone
+            remarks: request.body.userMsg
         })));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
@@ -713,8 +712,7 @@ app.post('/openApi/account/sort', function (request, response) {
  * CK 回调
  * Body 内容为 {
             ck: "",
-            remarks: "",
-            phone: ""
+            remarks: ""
         }
  其中 ck为必须项，remarks和phone为非必须
  */
@@ -724,7 +722,6 @@ app.post('/openApi/cookie/webhook', function (request, response) {
         response.send(API_STATUS_CODE.webhookok(updateCookie({
             ck: ck,
             remarks: remarks,
-            phone: phone
         })));
     } catch (e) {
         response.send(API_STATUS_CODE.webhookfail(e.message));
