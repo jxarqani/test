@@ -18,19 +18,24 @@ function showLastLoginInfo() {
     if (lastLoginInfo && lastLoginInfo.loginIp) {
         panelUtils.showAlert({
             position: 'top-end',
-            //title: '登录成功',
-            //icon:'info',
+            title: '最后一次登录',
+            icon:'info',
+            width: 360,
             backdrop: false,
             toast: true,
-            timer: 10000,
+            timer: 8000,
             grow: 'row',
-            showConfirmButton: true,
-            confirmButtonText: '知道了',
+            showConfirmButton: false,
             timerProgressBar: true,
+            customClass: {
+                title: 'login-toast-title',
+                popup: 'swal2-toast login-toast-popup',
+                icon: 'login-toast-icon',
+            },
             html:
-                `<div class="login-toast"><div><b>上次登录时间</b>：${lastLoginInfo.loginTime}</div>` +
-                `<div><b>上次登录IP</b>：${lastLoginInfo.loginIp || '未知'}</div>` +
-                `<div><b>上次登录地点</b>：${lastLoginInfo.loginAddress || '未知'}</div></div>`
+                `<div class="login-toast"><div>${lastLoginInfo.loginTime}</div>` +
+                `<div>${lastLoginInfo.loginIp || '未知'}</div>` +
+                `<div>${lastLoginInfo.loginAddress || '未知'}</div></div>`
         })
         localStorage.removeItem("lastLoginInfo");
     }
@@ -365,7 +370,12 @@ let panelUtils = {
         panelUtils.showAlert({
             title: msg,
             html: desc,
-            icon: 'success'
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
         }).then((result) => {
             reload && window.location.reload(true);
         })

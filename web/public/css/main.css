@@ -965,6 +965,19 @@ h4 {
     padding: 5px 0;
 }
 
+.swal2-toast.login-toast-popup {
+    padding: 5px;
+}
+
+.login-toast-title {
+    top: 1px;
+}
+
+.login-toast-icon {
+    font-size: 1.4em;
+    left: 0.6em;
+}
+
 
 /*搜索*/
 .selectSearchArea {
