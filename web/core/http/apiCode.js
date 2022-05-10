@@ -47,8 +47,7 @@ const API_STATUS_CODE = {
     OPEN_API: {
         AUTH_FAIL: {
             code: 4403,
-            msg: "认证失败!",
-            desc: "注意，新版本将'cookieApiToken'改名为'openApiToken',请及时重置修改密码重置此token"
+            msg: "认证失败!"
         }
     }
 }

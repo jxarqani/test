@@ -493,7 +493,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {}, `已在本地生成当前 <strong>${postFile}</strong> 内容的备份文件`));
+        response.send(API_STATUS_CODE.ok("保存成功", {}, `<div style=\"padding: .3em\">已在本地生成当前 <strong>${postFile}</strong> 内容的备份文件</div>`));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }
