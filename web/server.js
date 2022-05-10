@@ -554,7 +554,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {},  {}));
+        response.send(API_STATUS_CODE.ok("保存成功", {},  ''));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }

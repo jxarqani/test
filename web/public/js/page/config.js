@@ -245,7 +245,7 @@ $(document).ready(function () {
             content: confContent,
             name: "config.sh"
         }, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc)
+            res.code === 1 && panelUtils.showSuccess(res.msg)
         });
     });
 
