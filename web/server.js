@@ -554,7 +554,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {},  ''));
+        response.send(API_STATUS_CODE.ok("保存成功", {}, {}));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }
@@ -605,7 +605,7 @@ app.post('/api/scripts/save', function (request, response) {
     let postContent = request.body.content;
     let postFile = request.body.name;
     saveFile(postFile, postContent);
-    response.send(API_STATUS_CODE.ok("保存成功!", {}, '注意：脚本库更新可能会导致修改的内容丢失'));
+    response.send(API_STATUS_CODE.ok("保存成功", {}, '注意：脚本库更新可能会导致修改的内容丢失'));
 });
 
 /**

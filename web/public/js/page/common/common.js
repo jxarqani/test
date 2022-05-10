@@ -373,8 +373,9 @@ let panelUtils = {
             toast: true,
             icon: 'success',
             position: 'top-end',
+            width: 300,
             showConfirmButton: false,
-            timer: 5000,
+            timer: 4000,
             timerProgressBar: true,
         }).then((result) => {
             reload && window.location.reload(true);
