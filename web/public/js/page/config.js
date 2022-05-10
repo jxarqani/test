@@ -254,105 +254,73 @@ $(document).ready(function () {
         editor.setOption('lineWrapping', !lineWrapping);
     });
 
-
-    $('#check').click(async function () {
-
+    $('#checkAccount').click(async function () {
         Swal.fire({
-            title: "您的账号",
+            title: "检测 pt_key 有效性",
             input: "text",
             inputAttributes: {
                 autocapitalize: "off",
             },
             width: 800,
-            html: "<div style=\"padding: .2em\">请在下方粘贴刚刚复制的 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong> 或 <strong>wskey</strong> 的值</div>",
-            confirmButtonText: "下一步",
+            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong>的值",
+            confirmButtonText: "检测",
             confirmButtonColor: "#2D70F9",
             allowOutsideClick: false,
             showCancelButton: true,
-            cancelButtonText: "取 消",
-            customClass: {
-                title: 'step-title',
-                input: 'input-background'
-            },
+            showCloseButton: true,
+            cancelButtonText: "取消",
             preConfirm: async (key) => {
+                Swal.showLoading()
                 if (key == "") {
-                    Swal.showValidationMessage(`不能检测空气`);
+                    Swal.showValidationMessage(`不能检测空气！`);
                 } else {
-                    // 从标准格式中提取 pt_key 或 wskey
                     if ((RegExp(/pt_key=.*/).test(key)) == true) {
                         key = key.match(/(pt_key=)([^;]+)/)[0].split("=")[1];
-                    } else if ((RegExp(/wskey=.*/).test(key)) == true) {
-                        key = key.match(/(wskey=)([^;]+)/)[0].split("=")[1];
                     }
-                    // 判断提交的类型，并验证格式是否正确
-
                     var key_type = "unknown";
-                    // 根据长度判断是否 pt_key 还是 wskey
                     var judge_ptkey_length = key.length == 75 || key.length == 83 || key.length == 96 || key.length == 104;
-                    var judge_wskey_length = key.length == 96 || key.length == 118;
-                    // 判断类型（大小写字母、数字、下划线、连字符）
-                    var judge_key_type = RegExp(/[^A-Za-z0-9-_]/).test(key); // true 为匹配到了以外的字符，证明格式错误，反之 fasle 表示格式正确
-                    var judge_key_format =
-                        RegExp(/^AAJ[a-z].*/).test(key) || RegExp(/^app_openAAJ[a-z].*/).test(key);
-
+                    var judge_key_type = RegExp(/[^A-Za-z0-9-_]/).test(key);
+                    var judge_key_format = RegExp(/^AAJ[a-z].*/).test(key) || RegExp(/^app_openAAJ[a-z].*/).test(key);
                     if (judge_key_format == true && judge_key_type == false) {
                         if (judge_ptkey_length == true) {
                             key_type = "pt_key";
-                        } else if (judge_wskey_length == true) {
-                            key_type = "wskey";
                         }
                     }
-
                     if (key_type == "unknown") {
-                        Swal.showValidationMessage(`账号格式有误，请验证后重试`);
+                        Swal.showValidationMessage(`格式有误，请验证后重试`);
                     } else {
-                        Swal.update({
-                            showConfirmButton: false,
-                        });
-                        Swal.showLoading()
-                        // 检测账号状态
-                        // 请求头
                         var myHeaders = new Headers();
-                        var sendkey = key_type + "=" + key + ";";
-                        myHeaders.append("Cookie", sendkey);
-                        myHeaders.append("Referer", "https://home.m.jd.com/myJd/home.action");
-                        // 请求配置
+                        myHeaders.append("Content-Type", "application/json");
+                        var raw = JSON.stringify({
+                            "cookie": "pt_key=" + key + ";"
+                        });
                         var requestOptions = {
-                            method: "GET",
+                            method: 'POST',
                             headers: myHeaders,
-                            redirect: "follow",
-                            credentials: "include",
+                            body: raw,
+                            redirect: 'follow'
                         };
-
-                        await fetch("https://me-api.jd.com/user_new/info/GetJDUserInfoUnion", requestOptions)
-                            .then(response => response.text())
-                            .then(async data => {
-                                var code = JSON.parse(data).retcode;
-
-                                // 控制台打印日志
-                                console.log(
-                                    "请求接口 => https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
-                                );
-                                console.log("\n请求内容 => " + sendkey);
-                                console.log("接口回传 => " + data);
-
-                                if (code == "0") {
-                                    await Swal.fire({
-                                        icon: "success",
-                                        title: "帐号有效",
-                                        allowOutsideClick: false,
-                                    });
-                                } else if (code == "1001") {
-                                    Swal.showValidationMessage("经过官方接口查询该账号无效");
-                                } else {
-                                    Swal.showValidationMessage("未知状态")
-                                }
-                            })
-                            .catch(error => Swal.showValidationMessage("请检查当前网络环境"));
+                        const response = await fetch("/api/checkCookie", requestOptions);
+                        const data = await response.text();
+                        var code = JSON.parse(data).code;
+                        if (code == "1") {
+                            var status = JSON.parse(data).status;
+                            if (status == "1") {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "帐号有效",
+                                    allowOutsideClick: false,
+                                });
+                            } else if (status == "0") {
+                                Swal.showValidationMessage("账号无效");
+                            }
+                        } else {
+                            Swal.showValidationMessage("网络环境异常")
+                        }
                     }
                 }
             },
         })
-
     });
+
 });

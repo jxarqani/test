@@ -113,4 +113,74 @@ $(document).ready(function () {
     $("#urlDecodeEncode").click(async function () {
         openTools();
     })
+
+    $('#checkAccount').click(async function () {
+        Swal.fire({
+            title: "检测 wskey 有效性",
+            input: "text",
+            inputAttributes: {
+                autocapitalize: "off",
+            },
+            width: 800,
+            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>wskey</strong>的值",
+            confirmButtonText: "检测",
+            confirmButtonColor: "#2D70F9",
+            allowOutsideClick: false,
+            showCancelButton: true,
+            showCloseButton: true,
+            cancelButtonText: "取消",
+            preConfirm: async (key) => {
+                Swal.showLoading()
+                if (key == "") {
+                    Swal.showValidationMessage(`不能检测空气！`);
+                } else {
+                    if ((RegExp(/wskey=.*/).test(key)) == true) {
+                        key = key.match(/(wskey=)([^;]+)/)[0].split("=")[1];
+                    }
+                    var key_type = "unknown";
+                    var judge_wskey_length = key.length == 96 || key.length == 118;
+                    var judge_key_type = RegExp(/[^A-Za-z0-9-_]/).test(key);
+                    var judge_key_format = RegExp(/^AAJ[a-z].*/).test(key) || RegExp(/^app_openAAJ[a-z].*/).test(key);
+                    if (judge_key_format == true && judge_key_type == false) {
+                        if (judge_wskey_length == true) {
+                            key_type = "wskey";
+                        }
+                    }
+                    if (key_type == "unknown") {
+                        Swal.showValidationMessage(`格式有误，请验证后重试`);
+                    } else {
+                        var myHeaders = new Headers();
+                        myHeaders.append("Content-Type", "application/json");
+                        var raw = JSON.stringify({
+                            "cookie": "wskey=" + key + ";"
+                        });
+                        var requestOptions = {
+                            method: 'POST',
+                            headers: myHeaders,
+                            body: raw,
+                            redirect: 'follow'
+                        };
+                        const response = await fetch("/api/checkCookie", requestOptions);
+                        const data = await response.text();
+                        var code = JSON.parse(data).code;
+                        if (code == "1") {
+                            var status = JSON.parse(data).status;
+                            if (status == "1") {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "帐号有效",
+                                    allowOutsideClick: false,
+                                });
+                            } else if (status == "0") {
+                                Swal.showValidationMessage("账号无效");
+                            }
+                        } else {
+                            Swal.showValidationMessage("网络环境异常")
+                        }
+                    }
+                }
+            },
+        })
+    });
+
 });
