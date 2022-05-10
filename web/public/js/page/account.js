@@ -122,7 +122,7 @@ $(document).ready(function () {
                 autocapitalize: "off",
             },
             width: 800,
-            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>wskey</strong>的值",
+            html: "请在下方输入 <strong>Cookie</strong> 内容或 <strong>JSON</strong> 格式内容，也可以直接输入 <strong>wskey</strong> 的值",
             confirmButtonText: "检测",
             confirmButtonColor: "#2D70F9",
             allowOutsideClick: false,
@@ -136,6 +136,8 @@ $(document).ready(function () {
                 } else {
                     if ((RegExp(/wskey=.*/).test(key)) == true) {
                         key = key.match(/(wskey=)([^;]+)/)[0].split("=")[1];
+                    } else if ((RegExp(/\"ws_key\"\:/).test(key)) == true) {
+                        key = key.split("\"")[3];
                     }
                     var key_type = "unknown";
                     var judge_wskey_length = key.length == 96 || key.length == 118;

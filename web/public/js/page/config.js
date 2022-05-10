@@ -262,7 +262,7 @@ $(document).ready(function () {
                 autocapitalize: "off",
             },
             width: 800,
-            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong>的值",
+            html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong> 的值",
             confirmButtonText: "检测",
             confirmButtonColor: "#2D70F9",
             allowOutsideClick: false,
