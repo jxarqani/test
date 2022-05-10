@@ -642,7 +642,8 @@ app.post('/openApi/updateCookie', function (request, response) {
     try {
         response.send(API_STATUS_CODE.okData(updateCookie({
             ck: request.body.cookie,
-            remarks: request.body.userMsg
+            remarks: request.body.userMsg,
+            phone: request.body.phone
         })));
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
@@ -662,7 +663,6 @@ app.post('/openApi/cookie/delete', function (request, response) {
     }
 });
 
-
 /**
  * 添加或者更新账号
  * {"ptPin":"",ptKey:"",wsKey:"","remarks":""}
@@ -675,7 +675,8 @@ app.post('/openApi/addOrUpdateAccount', function (request, response) {
             ptPin: ptPin,
             ptKey: ptKey,
             wsKey: wsKey,
-            remarks: remarks
+            remarks: remarks,
+            phone: phone
         })))
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
@@ -694,7 +695,6 @@ app.get('/openApi/count', function (request, response) {
     }
 });
 
-
 /**
  * 修改账号排序
  * body: {"ptPin":"", "sort":1}
@@ -712,7 +712,8 @@ app.post('/openApi/account/sort', function (request, response) {
  * CK 回调
  * Body 内容为 {
             ck: "",
-            remarks: ""
+            remarks: "",
+            phone: ""
         }
  其中 ck为必须项，remarks和phone为非必须
  */
@@ -722,6 +723,7 @@ app.post('/openApi/cookie/webhook', function (request, response) {
         response.send(API_STATUS_CODE.webhookok(updateCookie({
             ck: ck,
             remarks: remarks,
+            phone: phone
         })));
     } catch (e) {
         response.send(API_STATUS_CODE.webhookfail(e.message));
