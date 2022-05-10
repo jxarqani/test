@@ -534,9 +534,9 @@ app.post('/api/changePwd', function (request, response) {
     };
     if (username && password) {
         saveNewConf(CONFIG_FILE_KEY.AUTH, JSON.stringify(config), false);
-        response.send(API_STATUS_CODE.ok("修改成功！"));
+        response.send(API_STATUS_CODE.ok("修改成功"));
     } else {
-        response.send(API_STATUS_CODE.fail("请输入用户名密码!"));
+        response.send(API_STATUS_CODE.fail("请输入用户名密码！"));
     }
 
 });
@@ -554,7 +554,7 @@ app.post('/api/save', function (request, response) {
         } else {
             saveNewConf(postFile, postContent);
         }
-        response.send(API_STATUS_CODE.ok("保存成功", {}, `<div style=\"padding: .3em\">已在本地生成当前 <strong>${postFile}</strong> 内容的备份文件</div>`));
+        response.send(API_STATUS_CODE.ok("保存成功", {}, {}));
     } catch (e) {
         response.send(API_STATUS_CODE.fail("保存失败", 0, e.message));
     }
@@ -605,7 +605,7 @@ app.post('/api/scripts/save', function (request, response) {
     let postContent = request.body.content;
     let postFile = request.body.name;
     saveFile(postFile, postContent);
-    response.send(API_STATUS_CODE.ok("保存成功!", {}, '注意：脚本库更新可能会导致修改的内容丢失'));
+    response.send(API_STATUS_CODE.ok("保存成功", {}, '注意：脚本库更新可能会导致修改的内容丢失'));
 });
 
 /**
