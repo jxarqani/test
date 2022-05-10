@@ -970,11 +970,11 @@ h4 {
 }
 
 .login-toast-title {
-    top: 1px;
+    top: 3px;
 }
 
 .login-toast-icon {
-    font-size: 1.4em;
+    font-size: 1.2em;
     left: 0.6em;
 }
 

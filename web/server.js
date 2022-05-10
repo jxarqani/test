@@ -534,9 +534,9 @@ app.post('/api/changePwd', function (request, response) {
     };
     if (username && password) {
         saveNewConf(CONFIG_FILE_KEY.AUTH, JSON.stringify(config), false);
-        response.send(API_STATUS_CODE.ok("修改成功！"));
+        response.send(API_STATUS_CODE.ok("修改成功"));
     } else {
-        response.send(API_STATUS_CODE.fail("请输入用户名密码!"));
+        response.send(API_STATUS_CODE.fail("请输入用户名密码！"));
     }
 
 });

@@ -48,7 +48,7 @@ $("#changeBtn").click(function () {
         password: $password
     }, function (res) {
         res.code === 1 && panelUtils.showAlert({
-            text: res.msg,
+            title: res.msg,
             icon: 'success'
         })
     });
