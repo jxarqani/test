@@ -20,7 +20,7 @@ function showLastLoginInfo() {
             position: 'top-end',
             title: '最后一次登录',
             icon:'info',
-            width: 360,
+            width: 320,
             backdrop: false,
             toast: true,
             timer: 8000,
