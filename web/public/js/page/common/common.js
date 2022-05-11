@@ -377,6 +377,12 @@ let panelUtils = {
             showConfirmButton: false,
             timer: 4000,
             timerProgressBar: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeInRight animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutRight animate__faster'
+            },
         }).then((result) => {
             reload && window.location.reload(true);
         })
@@ -384,7 +390,13 @@ let panelUtils = {
     showError(title, text, desc) {
         let options = {
             text: title,
-            icon: 'error'
+            icon: 'error',
+            showClass: {
+                popup: 'animate__animated animate__tada animate__fast'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__zoomOut animate__faster'
+            },
         }
         if (text) {
             options.text = text;
