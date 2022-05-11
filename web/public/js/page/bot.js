@@ -21,7 +21,7 @@ $(document).ready(function () {
             content: confContent,
             name: "bot.json"
         }, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, "注意重启后才能生效")
+            res.code === 1 && panelUtils.showSuccess(res.msg, '修改的内容会在重启服务后生效')
         });
     });
 
