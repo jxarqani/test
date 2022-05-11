@@ -777,7 +777,8 @@ app.post('/openApi/addOrUpdateAccount', function (request, response) {
             ptPin,
             ptKey,
             wsKey,
-            remarks
+            remarks,
+            phone
         } = request.body;
         response.send(API_STATUS_CODE.okData(updateAccount({
             ptPin: ptPin,
