@@ -375,7 +375,6 @@ let panelUtils = {
             position: 'top-end',
             width: 300,
             showConfirmButton: false,
-            showCloseButton: true,
             timer: 4000,
             timerProgressBar: true,
             showClass: {
