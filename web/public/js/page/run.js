@@ -23,11 +23,11 @@ $(document).ready(function () {
      */
     function runCmd(jsName, cmd, refreshLog = true) {
         if (!jsName || !cmd) {
-            panelUtils.showError('Oops...', '请选择您需要执行的脚本！');
+            panelUtils.showError('未选择脚本', '请在上方下拉菜单选择您需要执行的脚本');
             return;
         }
         if (timer) {
-            panelUtils.showError('Oops...', '请等待上一条任务执行完毕！');
+            panelUtils.showError('点击太快了', '请先等待上一条任务执行完毕或刷新页面');
             return;
         }
         editor.setValue('');

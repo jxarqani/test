@@ -66,7 +66,7 @@ $(document).ready(function () {
             content: editor.getValue(),
             name: curPath
         }, function (res) {
-            res.code === 1 && panelUtils.showSuccess(res.msg, res.desc,false);
+            res.code === 1 && panelUtils.showSuccess(res.msg);
         });
     });
 
