@@ -375,8 +375,7 @@ let panelUtils = {
             position: 'top-end',
             width: 300,
             showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true,
+            timer: 3500,
             showClass: {
                 popup: 'animate__animated animate__fadeInRight animate__faster'
             },
