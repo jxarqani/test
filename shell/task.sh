@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-10
+## Modified: 2022-05-25
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1528,7 +1528,6 @@ function Add_OwnRepo() {
         grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
         local ExitStatus=$?
         [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
-        [ ! -f $ListCrontabOwnTmp ] && touch $ListCrontabOwnTmp
         rm -rf $LogTmpDir/own*.list
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
