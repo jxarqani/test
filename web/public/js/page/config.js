@@ -265,13 +265,21 @@ $(document).ready(function () {
             html: "请在下方输入 <strong>Cookie</strong> 内容，也可以直接输入 <strong>pt_key</strong> 的值",
             confirmButtonText: "检测",
             confirmButtonColor: "#2D70F9",
+            showLoaderOnConfirm: true,
             allowOutsideClick: false,
             showCancelButton: true,
             showCloseButton: true,
             cancelButtonText: "取消",
             preConfirm: async (key) => {
-                Swal.showLoading()
+                Swal.showLoading(Swal.getCancelButton())
                 if (key == "") {
+                    Swal.update({
+                        showCloseButton: true,
+                        showConfirmButton: false,
+                        cancelButtonText: "关闭",
+                        cancelButtonColor: "#dc3545",
+                    });
+                    Swal.disableInput()
                     Swal.showValidationMessage(`不能检测空气！`);
                 } else {
                     if ((RegExp(/pt_key=.*/).test(key)) == true) {
@@ -287,6 +295,13 @@ $(document).ready(function () {
                         }
                     }
                     if (key_type == "unknown") {
+                        Swal.update({
+                            showCloseButton: true,
+                            showConfirmButton: false,
+                            cancelButtonText: "关闭",
+                            cancelButtonColor: "#dc3545",
+                        });
+                        Swal.disableInput()
                         Swal.showValidationMessage(`格式有误，请验证后重试`);
                     } else {
                         var myHeaders = new Headers();
@@ -312,6 +327,13 @@ $(document).ready(function () {
                                     allowOutsideClick: false,
                                 });
                             } else if (status == "0") {
+                                Swal.update({
+                                    showCloseButton: true,
+                                    showConfirmButton: false,
+                                    cancelButtonText: "关闭",
+                                    cancelButtonColor: "#dc3545",
+                                });
+                                Swal.disableInput()
                                 Swal.showValidationMessage("账号无效");
                             }
                         } else {
