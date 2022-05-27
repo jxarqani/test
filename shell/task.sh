@@ -2523,14 +2523,14 @@ function List_Local_Scripts() {
                 Query_ScriptName ${ListFiles[i]}
                 Query_ScriptSize ${ListFiles[i]}
                 Query_ScriptEditTimes ${ListFiles[i]}
-                printf "%-6s %-38s %5s %6s    %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
+                printf "%-6s %-38s %6s %6s    %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
             done
         else
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 Query_ScriptName ${ListFiles[i]}
                 Query_ScriptSize ${ListFiles[i]}
                 Query_ScriptEditTimes ${ListFiles[i]}
-                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
+                printf "%-5s %-28s %6s %6s    \n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
             done
         fi
     }
