@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-25
+## Modified: 2022-05-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1544,7 +1544,7 @@ function Add_OwnRepo() {
                 if [[ -z ${OwnRepoCronShielding} ]]; then
                     local Matching=$(ls *.js 2>/dev/null)
                 else
-                    local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|\" |\"|g; s| \"|\"|g; s# #\|#g;}')
+                    local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|^ ||g; s| $||g; s# #\|#g;}')
                     local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
                 fi
                 if [[ $(ls *.js 2>/dev/null) ]]; then
@@ -1949,7 +1949,7 @@ function Manage_Env() {
         grep "# 可在下方编写您需要用到的额外环境变量" $FileConfUser -q
         ## 插入内容
         if [ $? -eq 0 ]; then
-            perl -i -pe "s|(# 可在下方编写您需要用到的额外环境变量.+\n)|\1\n${FullContent}\n|" $FileConfUser
+            perl -i -pe "s|(# 可在下方编写您需要用到的额外环境变量.+\n)|\1\n${FullContent}|" $FileConfUser
         else
             sed -i "9 i ${FullContent}" $FileConfUser
         fi
@@ -2385,7 +2385,7 @@ function List_Local_Scripts() {
             local NumTmp=0
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 if [ -f ${ListFiles[i]} ]; then
-                    Query_Name ${ListFiles[i]}
+                    Query_ScriptName ${ListFiles[i]}
                     let NumTmp++
                     printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
                 fi
@@ -2437,7 +2437,7 @@ function List_Local_Scripts() {
                 FileName=${ListFiles[i]##*/}
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
                 cd $FileDir
-                Query_Name $FileName
+                Query_ScriptName $FileName
                 printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]:8}" "${ScriptName}"
             done
         fi
@@ -2453,7 +2453,7 @@ function List_Local_Scripts() {
             if [ ${#ListFiles[*]} != 0 ]; then
                 echo -e "\n❖ 第三方脚本："
                 for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                    Query_Name ${ListFiles[i]}
+                    Query_ScriptName ${ListFiles[i]}
                     printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
                 done
             fi
@@ -2500,9 +2500,9 @@ function List_Local_Scripts() {
         if [ -d $WorkDir ]; then
             if [ "$(ls -A $WorkDir | grep -E "${ScriptType}")" = "" ]; then
                 if [ "$(ls -A $WorkDir)" = "" ]; then
-                    echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
+                    echo -e "\n$ERROR 路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
                 else
-                    echo -e "\n$FAIL 在目标路径 ${BLUE}$WorkDir${PLAIN} 下未检测到任何脚本！\n"
+                    echo -e "\n$FAIL 在 ${BLUE}$WorkDir${PLAIN} 路径下未检测到任何脚本！\n"
                 fi
                 exit ## 终止退出
             fi
@@ -2516,19 +2516,22 @@ function List_Local_Scripts() {
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
         ))
         [ ${#ListFiles[*]} = 0 ] && exit ## 终止退出
-        echo -e "\n❖ 检测到的脚本："
-        echo $WorkDir | grep -Eq "^$OwnDir.*"
-        if [ $? -eq 0 ]; then
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_Name ${ListFiles[i]}
-                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
-            done
+        if [[ ${#ListFiles[*]} -ge "10" ]]; then
+            if [[ ${#ListFiles[*]} -ge "100" ]]; then
+                TmpNum="3"
+            else
+                TmpNum="2"
+            fi
         else
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_Name ${ListFiles[i]}
-                printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
-            done
+            TmpNum="1"
         fi
+        printf "\n%$((13 + ${TmpNum}))s %40s %s %s\n" "[脚本名]" "[修改时间]" " [大小]" "[活动名称]"
+        for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+            Query_ScriptName ${ListFiles[i]}
+            Query_ScriptSize ${ListFiles[i]}
+            Query_ScriptEditTimes ${ListFiles[i]}
+            printf "%${TmpNum}s  %-34s %s %5s  %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
+        done
     }
 
     case $# in
