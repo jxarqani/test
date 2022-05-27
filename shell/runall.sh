@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-02-07
+## Modified: 2022-05-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -184,7 +184,7 @@ function Main() {
         ))
         echo -e "\n❖ 当前选择的脚本："
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            Query_Name ${ListFiles[i]}
+            Query_ScriptName ${ListFiles[i]}
             echo -e "$(($i + 1)).${ScriptName}：${ListFiles[i]}"
         done
         cd $CurrentDir
