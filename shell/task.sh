@@ -2516,23 +2516,22 @@ function List_Local_Scripts() {
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
         ))
         [ ${#ListFiles[*]} = 0 ] && exit ## 终止退出
-        echo -e "\n❖ 检测到的脚本："
-        echo $WorkDir | grep -Eq "^$OwnDir.*"
-        if [ $? -eq 0 ]; then
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_ScriptName ${ListFiles[i]}
-                Query_ScriptSize ${ListFiles[i]}
-                Query_ScriptEditTimes ${ListFiles[i]}
-                printf "%-6s %-38s %6s %6s    %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
-            done
+        if [[ ${#ListFiles[*]} -ge "10" ]]; then
+            if [[ ${#ListFiles[*]} -ge "100" ]]; then
+                TmpNum="3"
+            else
+                TmpNum="2"
+            fi
         else
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                Query_ScriptName ${ListFiles[i]}
-                Query_ScriptSize ${ListFiles[i]}
-                Query_ScriptEditTimes ${ListFiles[i]}
-                printf "%-5s %-28s %6s %6s    \n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
-            done
+            TmpNum="1"
         fi
+        printf "\n%$((13 + ${TmpNum}))s %40s %s %s\n" "[脚本名]" "[修改时间]" " [大小]" "[活动名称]"
+        for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+            Query_ScriptName ${ListFiles[i]}
+            Query_ScriptSize ${ListFiles[i]}
+            Query_ScriptEditTimes ${ListFiles[i]}
+            printf "%${TmpNum}s  %-34s %s %5s  %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
+        done
     }
 
     case $# in
