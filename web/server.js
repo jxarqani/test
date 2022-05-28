@@ -406,28 +406,23 @@ app.get('/api/captcha', function (req, res) {
  */
 async function ip2Address(ip) {
     try {
-        const {
-            body
-        } = await got.get(`https://ip.cn/api/index?ip=${ip}&type=1`, {
-            encoding: 'utf-8',
+        const { body } = await got(`http://ip.360.cn/IPShare/info?ip=${ip}`, {
             responseType: 'json',
             timeout: 2000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53',
+                Referer: 'http://ip.360.cn/',
+                Host: 'ip.360.cn',
+            },
         });
-        if (body.code === 0 && body.address) {
-            let address = body.address;
-            if (address.indexOf("内网IP") > -1) {
-                return {
-                    ip: ip,
-                    address: "局域网"
-                };
-            }
-            let type = address.substring(address.lastIndexOf(" "));
-            address = address.replace(type, '').replace(/\s*/g, '');
-            return {
-                ip: ip,
-                address: address + type
-            };
-        }
+        let address = body.location;
+        address === '* ' ? '未知' : address;
+        address = address.replace(/\t/g, ' ');
+
+        return {
+            ip: ip,
+            address: address,
+        };
     } catch (e) {
         console.error("IP 转为地址失败", e);
     }
