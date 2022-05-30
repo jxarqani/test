@@ -119,18 +119,19 @@ let MenuTools = {
         customClass: "highlight",
         subMenuCustomClass: "double",
         bottomContent: '<div class="content">' +
-            // '<div class="item bottom-left" ><img class="qr-img" src="/icon/jx.png"/><a target="_blank" href="https://"><span class="title red-font">打开京东/微信扫码，每日可领取三次红包！</span></a></div>' +
-            '<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
+            //'<div class="item bottom-left"><img class="qr-img" src="/icon/jx.jpg"/><span class="title red-font">打开京东/11111</span><a target="_blank" href="https://u.jd.com/JK9b2xd"></a></div></div>',
+            '<div class="item bottom-right"><span class="title"><i class="fa fa-spinner fa-spin"></i> 京东618每天领红包，最高19618元🧧哟～</span><a class="link-btn" href="https://u.jd.com/JK9b2xd">立即领取</a></div></div>',
+            //'<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
         children: [
-            // {
-            //     title: "京东1111红包",
-            //     faIcon: "fa-thumbs-up",
-            //     titleFaIcon: "fa-hand-o-right",
-            //     subText: "京东1111红包",
-            //     platform: "mobile",
-            //     customClass: 'red-font',
-            //     path: "https://",
-            // },
+            {
+                title: "🧧 领红包",
+                faIcon: "",
+                titleFaIcon: "fa-hand-o-right",
+                subText: "🧧 领红包",
+                platform: "mobile",
+                customClass: 'red-font',
+                path: "https://u.jd.com/JK9b2xd",
+            },
             {
                 title: "环境变量",
                 faIcon: "fa-home",
