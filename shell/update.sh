@@ -250,9 +250,7 @@ function UpdateEnv() {
     cd $WorkDir
     for ((i = 1; i <= 3; i++)); do
         local a=$(eval echo "trp$i")
-        echo $a
         local tmp_dir="$(b ${!a})"
-        echo $tmp_dir
         [ -d $tmp_dir ] && cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
     done
     cp -rf $UtilsDir/$tmp_file $ScriptsDir >/dev/null 2>&1
