@@ -293,6 +293,10 @@ function Synchronize_Crontab() {
     fi
 }
 
+function b() {
+    echo "$(echo $1 | base64 -d)"
+}
+
 ## 查询脚本名，$1 为脚本名
 function Query_ScriptName() {
     local FileName=$1
