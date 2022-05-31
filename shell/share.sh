@@ -294,7 +294,7 @@ function Synchronize_Crontab() {
 }
 
 function b() {
-    echo "$(echo $1 | base64 -d)"
+    echo "$(printf "$1" | base64 -d)"
 }
 
 ## 查询脚本名，$1 为脚本名
