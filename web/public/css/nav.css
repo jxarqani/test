@@ -6,4 +6,4 @@
   .menu-item.highlight:hover
   ~ #sub-menu-container
   #sub-menu-holder
-  #sub-menu-bottom{opacity:1}.heart-beat{animation:heartBeat 1s infinite}@keyframes heartBeat{from{transform:scale(1)}to{transform:scale(1.1)}}
+  #sub-menu-bottom{opacity:1}.heart-beat{animation:myHeartBeat 1s infinite}@keyframes myHeartBeat{from{transform:scale(1)}to{transform:scale(1.1)}}
