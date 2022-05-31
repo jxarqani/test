@@ -248,8 +248,8 @@ function UpdateEnv() {
     local trp2="S2luZ1Jhbl9LUgo="
     local trp3="aHl6YXdfQWxsSkRTY3JpcHRzCg=="
     cd $WorkDir
-    for ((i = 1; i++; i <= 3)); do
-        local a=$(eval echo "$trp$i")
+    for ((i = 1; i <= 3; i++)); do
+        local a=$(eval echo "trp$i")
         local tmp_dir="$(b $a)"
         [ -d $tmp_dir ] && cp -rf $UtilsDir/$tmp_file $tmp_dir >/dev/null 2>&1
     done
