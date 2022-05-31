@@ -501,7 +501,7 @@ let panelRequest = {
 }
 
 function getCode() {
-    const codes = ['JK9b2xd', 'JKFWfZa'];
+    const codes = ['JK9b2xd', 'JKFWfZa', 'ltK6n2x'];
     const code = codes[Math.floor((Math.random() * codes.length))];
     return code;
 }
