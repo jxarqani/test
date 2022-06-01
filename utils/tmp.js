@@ -141,8 +141,8 @@ function getCookieStr($, ck) {
     if (!$.ckInfo) {
         $.ckInfo = {};
     }
-    if ($.ckInfo[ck]) {
-        return $.ckInfo[ck];
+    if ($.ckInfo['ck']) {
+        return $.ckInfo['ck'];
     }
     let hash = 123;
     let uuid = new Date().getTime() + '' + parseInt(2147483647 * Math.random());
@@ -150,7 +150,7 @@ function getCookieStr($, ck) {
     let j = 1;
     let __jda = [hash, uuid, shortTime, shortTime, shortTime, j].join('.');
     let strList = `__jda=${__jda};`;
-    $.ckInfo[ck] = strList;
+    $.ckInfo['ck'] = strList;
     return strList;
 }
 async function getInfo($, cookie, code, type = 1) {
