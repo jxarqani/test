@@ -23,7 +23,7 @@ let appId, fingerprint, token, enCryptMethodJD;
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
         return;
     }
-    if ($.CODE618) {
+    if ($.CODE618 && /^[A-Za-z0-9]{7}$/.test($.CODE618)) {
         $.show = true;
     } else {
         $.show = false;
@@ -55,10 +55,9 @@ let appId, fingerprint, token, enCryptMethodJD;
 })().catch((e) => { $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '') }).finally(() => { $.done(); })
 
 async function main(ck) {
-    
-    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxKS0ZXZlphLGxJSTRYMEEsbEtpTEFPaixsdEs2bjJ4LGx0SzZuMngsbHRLNm4yeCxsTUllRmVkLGxLaWkxN3QsbENpdEJJcg=='; // 已授权使用
+    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxKS0ZXZlphLGxJSTRYMEEsbEtpTEFPaixsdEs2bjJ4LGxNaURIMGYsbGRpWXlrOSxsTUllRmVkLGxLaWkxN3QsbENpdEJJcg=='; // 已授权使用
     const codes = Buffer.from(str, 'base64').toString().split(',');
-    const code = $.CODE618 ? $.CODE618 : codes[random(0, (codes.length - 1))];
+    const code = $.CODE618 ? $.CODE618 : codes[random(0, codes.length)];
     // console.log(code)
     let userName = decodeURIComponent(ck.match(/pt_pin=([^; ]+)(?=;?)/) && ck.match(/pt_pin=([^; ]+)(?=;?)/)[1])
     let jfInfo = await getInfoByUrl($, ck, code);
