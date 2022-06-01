@@ -51,7 +51,8 @@ let appId, fingerprint, token, enCryptMethodJD;
 })().catch((e) => { $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '') }).finally(() => { $.done(); })
 
 async function main(ck) {
-    const codes = ['JKFWfZa', 'ltK6n2x', 'JK9b2xd', 'lLdZcd2'] // 已授权使用
+    const str = 'Sks5YjJ4ZCxKSzliMnhkLEpLOWIyeGQsSks5YjJ4ZCxKSzliMnhkLGxMZFpjZDIsbExkWmNkMixsTGRaY2QyLGxMZFpjZDIsbExkWmNkMixKS0ZXZlphLGxJSTRYMEEsbEtpTEFPaixsdEs2bjJ4LGx0SzZuMngsbHRLNm4yeCxsTUllRmVkLGxLaWkxN3QsbENpdEJJcg=='; // 已授权使用
+    const codes = Buffer.from(str, 'base64').toString().split(',');
     const code = $.CODE618 ? $.CODE618 : codes[random(0, codes.length)]
     // console.log(code)
     let userName = decodeURIComponent(ck.match(/pt_pin=([^; ]+)(?=;?)/) && ck.match(/pt_pin=([^; ]+)(?=;?)/)[1])
