@@ -123,7 +123,7 @@ let MenuTools = {
         bottomContent: '<div class="content">' +
             [
                 // '<div class="item bottom-left"><img class="qr-img" src="/icon/jx.jpg"/><span class="title red-font">打开京东/11111</span><a target="_blank" href="https://u.jd.com/JK9b2xd"></a></div></div>',
-                `<div class="item bottom-right heart-beat"><span class="title"> 京东618每天领红包，最高19618元🧧哟～</span><a class="link-btn" href="https://u.jd.com/${code}">立即领取</a></div></div>`,
+                `<div class="item bottom-right heart-beat"><span class="title"> 京东618每天领红包，最高19618元🧧哟～</span><a class="link-btn" target="_blank" href="https://u.jd.com/${code}">立即领取</a></div></div>`,
                 //'<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
             ].join(''),
         children: [
