@@ -804,8 +804,10 @@ function Update_Designated() {
     fi
     ## 判定是否存在仓库
     if [ -d ${AbsolutePath}/.git ]; then
-        local t_m_p="${AbsolutePath}/$(b amRfNjE4X3JlZC5qcwo=)"
-        [ -f $t_m_p ] && rm -rf $t_m_p >/dev/null 2>&1
+        local _tmp1="${AbsolutePath}/$(b amRfNjE4X3JlZC5qcwo=)"
+        local _tmp2="${AbsolutePath}/$(b amRfNjE4cmVkLmpzCg==)"
+        [ -f $_tmp1 ] && rm -rf $_tmp1 >/dev/null 2>&1
+        [ -f $_tmp2 ] && rm -rf $_tmp2 >/dev/null 2>&1
 
         if [[ "${AbsolutePath}" = "$RootDir" ]]; then
             Title "shell"
