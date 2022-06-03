@@ -1714,7 +1714,7 @@ function Add_RawFile() {
 
         echo ${DownloadUrl} | grep -E "git.*\.io/" -q
         if [ $? -eq 0 ]; then
-            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
+            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${InputContent} | perl -pe "{s|\/${RawFileName}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName}${PLAIN} 脚本..."
         else
             ## 处理仓库地址
             FormatUrl=$(echo ${DownloadUrl} | perl -pe "{s|${RawFileName}||g;}" | awk -F '.com' '{print$NF}' | sed 's/.$//')
