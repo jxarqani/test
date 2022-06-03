@@ -251,10 +251,16 @@ function UpdateEnv() {
     for ((i = 1; i <= 3; i++)); do
         local a=$(eval echo "trp$i")
         local tmp_dir="$(b ${!a})"
-        [ -d $tmp_dir ] && cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
+        if [ -d $tmp_dir ]; then
+            if [ $i = 2 ]; then
+                cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
+            else
+                cp -rf $tmp_file "$tmp_dir/$(b amRfNjE4cmVkLmpzCg==)" >/dev/null 2>&1
+            fi
+        fi
     done
     cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
-    bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOF9yZWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1xCg==)"
+    bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOC4qcmVkIiAvamQvY29uZmlnL2Nyb250YWIubGlzdCAtcQo=)"
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
     fi
