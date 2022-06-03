@@ -19,6 +19,7 @@ if ($.isNode()) {
         ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let appId, fingerprint, token, enCryptMethodJD;
+const gArr = [0,0,0,0,0,0,0,0,1,1];
 !(async () => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -34,6 +35,12 @@ let appId, fingerprint, token, enCryptMethodJD;
     let fglist = ['6289931560897925', '0403403318679778', '1390288884563462'];
     fingerprint = getRandomArrayElements(fglist, 1)[0];
     await requestAlgo();
+    if (!$.show && ![0, 10, 20].includes(new Date().getHours())) {
+        if (!gArr[random(0, gArr.length)]) {
+            console.log('此时间段开出红包几率较小，可以0,10,20点再来哦！');
+            return;
+        }
+    }
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
@@ -66,8 +73,15 @@ async function main(ck) {
     let url2 = jfInfo['url'];
     let UA = getUA();
     let actId = url2.match(/mall\/active\/([^/]+)\/index\.html/) && url2.match(/mall\/active\/([^/]+)\/index\.html/)[1] || '2UboZe4RXkJPrpkp6SkpJJgtRmod';
-    await getHtml(url2, ck, UA)
-    await takeRequest(ck, UA, userName, actId, code);
+    await getHtml(url2, ck, UA);
+
+    if (!$.show && ![0, 10, 20].includes(new Date().getHours())) {
+        if (gArr[random(0, gArr.length)]) {
+            await takeRequest(ck, UA, userName, actId, code);
+        }
+    } else {
+        await takeRequest(ck, UA, userName, actId, code);
+    }
 }
 function random(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
