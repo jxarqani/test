@@ -19,7 +19,8 @@ if ($.isNode()) {
         ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let appId, fingerprint, token, enCryptMethodJD;
-const gArr = [0,0,0,0,0,0,0,0,1,1];
+const gArr = [0,0,0,0,0,0,0,0,0,1];
+const hour = new Date().getHours();
 !(async () => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -35,8 +36,19 @@ const gArr = [0,0,0,0,0,0,0,0,1,1];
     let fglist = ['6289931560897925', '0403403318679778', '1390288884563462'];
     fingerprint = getRandomArrayElements(fglist, 1)[0];
     await requestAlgo();
-    if (!$.show && ![0, 10, 20].includes(new Date().getHours())) {
-        if (!gArr[random(0, gArr.length)]) {
+    if (!$.show && ![0, 10, 20].includes(hour)) {
+        let flag = false;
+        if (hour < 9) {
+            flag = !!gArr[random(0, gArr.length)];
+        } else if (hour >= 9 && hour <= 14) {
+            flag = !!gArr[random(1, gArr.length)];
+        } else if (hour >= 15 && hour <= 20) {
+            flag = !!gArr[random(2, gArr.length)];
+        } else {
+            flag = !!gArr[random(4, gArr.length)];
+        }
+
+        if (!flag) {
             console.log('此时间段开出红包几率较小，可以0,10,20点再来哦！');
             return;
         }
@@ -75,7 +87,7 @@ async function main(ck) {
     let actId = url2.match(/mall\/active\/([^/]+)\/index\.html/) && url2.match(/mall\/active\/([^/]+)\/index\.html/)[1] || '2UboZe4RXkJPrpkp6SkpJJgtRmod';
     await getHtml(url2, ck, UA);
 
-    if (!$.show && ![0, 10, 20].includes(new Date().getHours())) {
+    if (!$.show && ![0, 10, 20].includes(hour)) {
         if (gArr[random(0, gArr.length)]) {
             await takeRequest(ck, UA, userName, actId, code);
         }
