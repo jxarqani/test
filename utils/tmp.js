@@ -21,7 +21,10 @@ if ($.isNode()) {
 // let appId, fingerprint, token, enCryptMethodJD;
 const gArr = [0,0,0,0,0,0,0,0,0,1];
 const hour = new Date().getHours();
-let UA = getUA();
+// let UA = getUA();
+$.ADID = getUUID('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', 1);
+$.UUID = getUUID('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+let UA = `jdapp;iPhone;9.5.4;13.6;${$.UUID};network/wifi;ADID/${$.ADID};model/iPhone10,3;addressid/0;appBuild/167668;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1`;
 !(async () => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -101,6 +104,19 @@ async function main(ck) {
     }
 
 }
+
+function getUUID(format = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', UpperCase = 0) {
+    return format.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        if (UpperCase) {
+            uuid = v.toString(36).toUpperCase();
+        } else {
+            uuid = v.toString(36)
+        }
+        return uuid;
+    });
+}
+
 function random(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
@@ -138,7 +154,6 @@ function getEid(arr) {
                 if (err) {
                     throw new Error(err);
                 } else {
-                    console.log(data);
                     if (data.indexOf("*_*") > 0) {
                         data = data.split("*_*", 2);
                         data = JSON.parse(data[1]);
