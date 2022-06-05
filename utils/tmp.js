@@ -80,7 +80,7 @@ let UA = `jdapp;iPhone;9.5.4;13.6;${$.UUID};network/wifi;ADID/${$.ADID};model/iP
 })().catch((e) => { $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '') }).finally(() => { $.done(); })
 
 async function main(ck) {
-    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsd1NrVkhRLGxJSTRYMEEsbEtpTEFPaixsdEs2bjJ4LGxNaURIMGYsbGRpWXlrOSxsTUllRmVkLGxLaWkxN3QsbENpdEJJcg=='; // 已授权使用
+    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsbHRaQ1FUWixsZFpHRjVPLGxMWkdyVzcsbE1aTG5YeCxsTUllRmVkLGxLaWkxN3QsbENpdEJJcg=='; // 已授权使用
     const codes = Buffer.from(str, 'base64').toString().split(',');
     const code = $.CODE618 ? $.CODE618 : codes[random(0, codes.length)];
     // console.log(code)
