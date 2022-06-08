@@ -28,7 +28,7 @@ if ($.isNode()) {
 }
 let cookie = '';
 $.shareCode = '';
-const gArr = [0,0,0,0,0,0,0,0,0,0,0,1,1];
+const gArr = [0,0,0,0,0,0,0,0,0,1,1];
 const hour = new Date().getHours();
 !(async () => {
     if (!cookiesArr[0]) {
@@ -93,7 +93,7 @@ async function main() {
     $.UA = `jdapp;iPhone;10.2.0;13.1.2;${randomString(40)};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460622;appBuild/167853;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
     $.max = false;
     $.hotFlag = false;
-    for (let i = 0; i < 10 && !$.max; i++) {
+    for (let i = 0; i < 2 && !$.max; i++) {
         $.newCookie = '';
         $.jfCk = '';
         $.url1 = '';
@@ -211,11 +211,11 @@ function getHash() {
 }
 
 function getCookieStr($, ck) {
-    if (!$.ckInfo) {
-        $.ckInfo = {};
+    if (!$.ckInArr) {
+        $.ckInArr = [];
     }
-    if ($.ckInfo['ck']) {
-        return $.ckInfo['ck'];
+    if ($.ckInArr.length > 4) {
+        return $.ckInArr[random(0, $.ckInArr.length)];
     }
     let hash = getHash();
     // let hash = 123;
@@ -225,7 +225,7 @@ function getCookieStr($, ck) {
     let j = 1;
     let __jda = [hash, uuid, shortTime, shortTime, shortTime, j].join('.');
     let strList = `__jda=${__jda};__jdc=${hash};`;
-    $.ckInfo['ck'] = strList;
+    $.ckInArr.push(strList);
     return strList;
 }
 
