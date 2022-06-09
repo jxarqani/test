@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-27
+## Modified: 2022-06-09
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -180,6 +180,29 @@ function Import_Config_Not_Check() {
     if [ -f $FileConfUser ]; then
         . $FileConfUser >/dev/null 2>&1
     fi
+}
+
+## URL编码
+function UrlEncode() {
+    local LANG=C
+    local length="${#1}"
+    i=0
+    while :; do
+        [ $length -gt $i ] && {
+            local c="${1:$i:1}"
+            case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+            esac
+        } || break
+        let i++
+    done
+}
+
+## URL解码
+function UrlDecode() {
+    u="${1//+/ }"
+    echo -e "${u//%/\\x}"
 }
 
 ## 输出命令错误提示
