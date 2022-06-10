@@ -2538,7 +2538,7 @@ function List_Local_Scripts() {
         else
             TmpNum="1"
         fi
-        printf "\n%$((13 + ${TmpNum}))s %40s %s %s\n" "[脚本名]" "[修改时间]" " [大小]" "[活动名称]"
+        printf "\n${BLUE}%$((13 + ${TmpNum}))s${PLAIN} ${BLUE}%40s${PLAIN} ${BLUE}%s${PLAIN} ${BLUE}%s${PLAIN}\n" "[脚本名]" "[修改时间]" " [大小]" "[活动名称]"
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
             Query_ScriptName ${ListFiles[i]}
             Query_ScriptSize ${ListFiles[i]}
