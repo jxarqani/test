@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-27
+## Modified: 2022-06-11
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -2517,6 +2517,14 @@ function List_Local_Scripts() {
         fi
 
         cd $WorkDir
+        ## 打印仓库地址
+        if [ -d .git ]; then
+            local RemoteUrl=$(git remote -v | head -n 1 | awk -F ' ' '{print$2}')
+            echo "$RemoteUrl" | grep "git@" -q
+            if [ $? -ne 0 ]; then
+                echo -e "\n❖ 远程仓库地址: ${BLUE}${RemoteUrl%\.*}${PLAIN}"
+            fi
+        fi
         local ListFiles=($(
             ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
         ))
