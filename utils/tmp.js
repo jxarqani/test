@@ -7,7 +7,7 @@
 const $ = new Env('京东领红包');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 
-const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsbHRaQ1FUWixsZFpHRjVPLGxMWkdyVzcsbE1aTG5YeCxsTFpJNVA1LGxDWndOZnosbGRaOHZ1Sg=='; // 已授权使用
+const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsTmQxc1l5eixOZDFJUnlKLGxMWkdyVzcsbE1aTG5YeCxsTFpJNVA1LGxDWndOZnosbGRaOHZ1Sg=='; // 已授权使用
 const codes = Buffer.from(str, 'base64').toString().split(',');
 let flCode = codes[random(0, codes.length)];
 if ($.isNode() && process.env.CODE618) {
