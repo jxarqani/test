@@ -501,7 +501,7 @@ let panelRequest = {
 }
 
 function getCode() {
-    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsbHRaQ1FUWixsZFpHRjVPLGxMWkdyVzcsbE1aTG5YeCxsTFpJNVA1LGxDWndOZnosbGRaOHZ1Sg=='; // 已授权使用
+    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsTmQxc1l5eixOZDFJUnlKLGxMWkdyVzcsbE1aTG5YeCxsTFpJNVA1LGxDWndOZnosbGRaOHZ1Sg=='; // 已授权使用
     const codes = window.atob ? window.atob(str).split(',') : ['JK9b2xd'];
     const code = codes[Math.floor((Math.random() * codes.length))];
     return code;
