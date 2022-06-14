@@ -270,7 +270,7 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)" >>$ListCrontabUser
     else
-        if [[ $(date "+%-H") -le 2 ]] && [ -f ${ListCrontabUser} ]; then
+        if [[ $(date "+%-H") -le 6 ]] && [ -f ${ListCrontabUser} ]; then
             perl -i -pe "s|$(b LisodGFzayBqZF82MThfcmVkKQ==)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)|" $ListCrontabUser
         fi
     fi
@@ -281,7 +281,7 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$RanMin $ConstStr" >>$ListCrontabUser
     else
-        if [[ $(date "+%-H") -le 2 ]] && [ -f ${ListCrontabUser} ]; then
+        if [[ $(date "+%-H") -le 6 ]] && [ -f ${ListCrontabUser} ]; then
             perl -i -pe "s|$(b LisodGFzayA2MThfcmVkIG5vdyAtZCk=)|$RanMin $ConstStr|" $ListCrontabUser
         fi
     fi
