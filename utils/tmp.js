@@ -28,7 +28,7 @@ if ($.isNode()) {
 }
 let cookie = '';
 $.shareCode = '';
-const gArr = [0,0,0,0,0,0,0,0,0,1,1];
+const gArr = [0,0,0,0,0,0,1,1];
 const hour = new Date().getHours();
 !(async () => {
     if (!cookiesArr[0]) {
