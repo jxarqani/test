@@ -1136,7 +1136,7 @@ function Accounts_Control() {
                 $(cat $FileAccountConf | jq '.[] | {pt_pin:.pt_pin,}' | grep -F "\"pt_pin\":" | grep -v "ptpin的值" | awk -F '\"' '{print$4}' | grep -v '^$')
             )
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
-                UserNum=1
+                local num=1
                 ## 定义日志文件路径
                 LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
                 echo -e "\n$WORKING 检测到已配置 ${BLUE}${#pt_pin_array[@]}${PLAIN} 个账号，开始更新...\n"
@@ -1167,9 +1167,9 @@ function Accounts_Control() {
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${SUCCESS_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$num." "${EscapePin}" "${SUCCESS_ICON}"
                     else
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$UserNum." "${EscapePin}" "${FAIL_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$num." "${EscapePin}" "${FAIL_ICON}"
                         ## 账号更新异常告警与状态检测
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
                         local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
@@ -1189,7 +1189,7 @@ function Accounts_Control() {
                             echo ''
                         fi
                     fi
-                    let UserNum++
+                    let num++
                 done
                 ## 优化日志排版
                 sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
