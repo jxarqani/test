@@ -270,7 +270,7 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)" >>$ListCrontabUser
     fi
-    if [[ $(date "+%-H") -le 2 ]]; then
+    if [[ $(date "+%-H") -le 6 ]]; then
         perl -i -pe "s|$(b LisodGFzayBqZF82MThfcmVkKQ==)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)|" $ListCrontabUser
     fi
 
@@ -280,7 +280,7 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$RanMin $ConstStr" >>$ListCrontabUser
     fi
-    if [[ $(date "+%-H") -le 2 ]]; then
+    if [[ $(date "+%-H") -le 6 ]]; then
         perl -i -pe "s|$(b LisodGFzayA2MThfcmVkIG5vdyAtZCk=)|$RanMin $ConstStr|" $ListCrontabUser
     fi
 
@@ -937,7 +937,6 @@ case $# in
         Update_Scripts
         Update_Own "all"
         ExtraShell
-        UpdateEnv
         ;;
     shell)
         Title $1
@@ -947,7 +946,6 @@ case $# in
         if [ -d $ScriptsDir/.git ]; then
             Title $1
             Update_Scripts
-            UpdateEnv
         else
             echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
         fi
