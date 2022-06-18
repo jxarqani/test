@@ -111,8 +111,6 @@ let themeChange = {
     }
 }
 
-var code = getCode();
-
 let MenuTools = {
     menuList: [{
         title: "编辑配置",
@@ -121,21 +119,8 @@ let MenuTools = {
         customClass: "highlight",
         subMenuCustomClass: "double",
         bottomContent: '<div class="content">' +
-            [
-                // '<div class="item bottom-left"><img class="qr-img" src="/icon/jx.jpg"/><span class="title red-font">打开京东/11111</span><a target="_blank" href="https://u.jd.com/JK9b2xd"></a></div></div>',
-                `<div class="item bottom-right heart-beat"><span class="title"> 京东618每天领红包，最高19618元🧧哟～</span><a class="link-btn" target="_blank" href="https://u.jd.com/${code}">立即领取</a></div></div>`,
-                //'<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
-            ].join(''),
+            '<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
         children: [
-            {
-                title: "🧧 领红包",
-                faIcon: "",
-                titleFaIcon: "fa-hand-o-right",
-                subText: "🧧 领红包",
-                platform: "mobile",
-                customClass: 'red-font heart-beat',
-                path: `https://u.jd.com/${code}`,
-            },
             {
                 title: "环境变量",
                 faIcon: "fa-home",
@@ -498,13 +483,6 @@ let panelRequest = {
             this.resultCallback(success, result, fail, errorShow);
         }, "json");
     }
-}
-
-function getCode() {
-    const str = 'Sks5YjJ4ZCxsTGlqdWE3LGx0aUJwSGksbExpMDl1QSxsQ2lsUmZCLGxMZFpjZDIsbExpU1NCUyxsS2lwdk5DLGx0aUFaVXosbEtpQmVJUyxsSVp1a2hTLGxLWnpSMnMsTktKTnF0UCxOZDFJUnlKLGxMWkdyVzcsbE1aTG5YeCxOQ0pqWVlMLGxDWndOZnosbGRaOHZ1Sg=='; // 已授权使用
-    const codes = window.atob ? window.atob(str).split(',') : ['JK9b2xd'];
-    const code = codes[Math.floor((Math.random() * codes.length))];
-    return code;
 }
 
 // codeMirror指定当前滚动到视图中内容上方和下方要渲染的行数，pc端适当调大，便于文本搜索
