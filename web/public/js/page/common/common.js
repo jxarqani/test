@@ -119,7 +119,7 @@ let MenuTools = {
         customClass: "highlight",
         subMenuCustomClass: "double",
         bottomContent: '<div class="content">' +
-            '<div class="item bottom-right"><span class="title"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
+            '<div class="item bottom-right"><span class="title" style="margin:.25em 0"><i class="fa fa-comments"></i> 关注官方 Telegram 频道获取最新消息 </span><a class="link-btn" href="https://t.me/jdhelloworld">立即关注</a></div></div>',
         children: [
             {
                 title: "环境变量",
