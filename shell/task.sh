@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-06-11
+## Modified: 2022-06-22
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1020,7 +1020,7 @@ function Accounts_Control() {
             FormatPin=$(echo ${pt_pin} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             ## 转义 pt_pin 中的 UrlEncode 输出中文
             EscapePin=$(printf $(echo ${FormatPin} | perl -pe "s|%|\\\x|g;"))
-            echo -e "${BLUE}${EscapePin}${PLAIN}\n"
+            echo -e "账号：${BLUE}${EscapePin}${PLAIN}\n"
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
             ## 查询上次更新时间并计算过期时间
