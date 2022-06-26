@@ -595,7 +595,6 @@ app.get('/api/scripts', function (request, response) {
 /**
  * save scripts
  */
-
 app.post('/api/scripts/save', function (request, response) {
     let postContent = request.body.content;
     let postFile = request.body.name;
@@ -732,7 +731,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
 
 
 /**
- * 更新已经存在的人的cookie & 自动添加新用户
+ * 更新已经存在的cookie & 自动添加新用户
  *
  * {"cookie":"","userMsg":""}
  * */
@@ -800,22 +799,6 @@ app.get('/openApi/count', function (request, response) {
 });
 
 /**
- * 修改账号排序
- * body: {"ptPin":"", "sort":1}
- * */
-app.post('/openApi/account/sort', function (request, response) {
-    try {
-        let {
-            ptPin,
-            sort
-        } = request.body;
-        response.send(API_STATUS_CODE.okData(getCount()))
-    } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
-    }
-});
-
-/**
  * CK 回调
  * Body 内容为 {
             ck: "",
@@ -849,7 +832,7 @@ try {
     const extraServer = require(extraServerFile);
     if (typeof extraServer === 'function') {
         extraServer(app);
-        console.log('自定义api初始化成功');
+        console.log('用户自定义API => 初始化成功');
     }
 } catch (e) {}
 

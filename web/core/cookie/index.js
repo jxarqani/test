@@ -209,13 +209,25 @@ function updateCookie({ck, remarks = '无', phone}) {
     })
     if (!isUpdate) {
         if (!ckAutoAddOpen()) {
-            throw new Error(`【添加COOKIE失败】\n服务器配置不自动添加Cookie\n如需启用请添加export CK_AUTO_ADD="true"`);
+            throw new Error(`添加 Cookie 失败，当前服务器已关闭自动添加`);
         } else {
             //新增CK
             cookieList.push(cookieObj)
         }
     }
     cookieList = saveCookiesToConfig(cookieList);
+
+    // 打印日志
+    var UpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
+    var remark_tmp = '';
+    if (remarks) remark_tmp += ` · ${remarks}`;
+    if (phone) remark_tmp += ` · ${phone}`;
+    if (isUpdate) {
+        console.log(`[${UpdateTime}] - 更新账号(Cookie) => ${ptPin}${remark_tmp}`);
+    } else {
+        console.log(`[${UpdateTime}] - 新增账号(Cookie) => ${ptPin}${remark_tmp}`);
+    }
+
     return cookieList.length;
 }
 
@@ -223,35 +235,53 @@ function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
     if (!util.isNotEmpty(ptPin)) {
         throw new Error("ptPin不能为空")
     }
+    if (!util.isNotEmpty(wsKey) && !util.isNotEmpty(ptKey)) {
+        throw new Error("账号不能为空")
+    }
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
         throw new Error("ptPin不正确")
     }
-    let accounts = getAccount(), isUpdate = false;
-    remarks = remarks || ptPin;
-    accounts.forEach((account, index) => {
-        if (account['pt_pin'] && account['pt_pin'] === ptPin) {
-            account['ws_key'] = wsKey || '';
-            account['remarks'] = remarks;
-            account['phone'] = phone;
-            isUpdate = true;
-        }
-    })
-    if (!isUpdate) {
-        accounts.push({
-            "pt_pin": ptPin,
-            "ws_key": wsKey,
-            "remarks": remarks,
-            phone: phone
-        })
-    }
-    saveAccount(accounts);
     if (util.isNotEmpty(ptKey)) {
         updateCookie({ck: `pt_key=${ptKey};pt_pin=${ptPin};`, remarks, phone});
     }
-    console.log(`ptPin：${ptPin} 更新完成`)
+    if (util.isNotEmpty(wsKey)) {
+        let accounts = getAccount(), isUpdate = false;
+        accounts.forEach((account, index) => {
+            if (account['pt_pin'] && account['pt_pin'] === ptPin) {
+                account['ws_key'] = wsKey || '';
+                if (remarks) {
+                    account['remarks'] = remarks;
+                }
+                if (phone) {
+                    account['phone'] = phone;
+                }
+                isUpdate = true;
+            }
+        })
+        if (!isUpdate) {
+            remarks = remarks || ptPin;
+            accounts.push({
+                "pt_pin": ptPin,
+                "ws_key": wsKey,
+                "remarks": remarks,
+                "phone": phone
+            })
+        }
+        saveAccount(accounts);
+
+        // 打印日志
+        var UpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
+        var remark_tmp = '';
+        if (remarks) remark_tmp += ` · ${remarks}`;
+        if (phone) remark_tmp += ` · ${phone}`;
+        if (isUpdate) {
+            console.log(`[${UpdateTime}] - 更新账号(wskey) => ${ptPin}${remark_tmp}`);
+        } else {
+            console.log(`[${UpdateTime}] - 新增账号(wskey) => ${ptPin}${remark_tmp}`);
+        }
+
+    }
     return getCount();
-
-
 }
 
 /**
@@ -259,10 +289,6 @@ function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
  * @param accounts
  */
 function saveAccount(accounts = []) {
-    accounts.forEach((account, index) => {
-        delete account["sort"];
-        delete account["disable"];
-    })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, JSON.stringify(accounts, null, 2))
 }
 
