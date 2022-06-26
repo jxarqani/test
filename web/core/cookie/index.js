@@ -223,9 +223,9 @@ function updateCookie({ck, remarks = '无', phone}) {
     if (remarks) remark_tmp += ` · ${remarks}`;
     if (phone) remark_tmp += ` · ${phone}`;
     if (isUpdate) {
-        console.log(`[${UpdateTime}] - 更新账号(Cookie) => ${ptPin}${remark_tmp}`);
+        console.log(`[${UpdateTime}] - 更新账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`);
     } else {
-        console.log(`[${UpdateTime}] - 新增账号(Cookie) => ${ptPin}${remark_tmp}`);
+        console.log(`[${UpdateTime}] - 新增账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`);
     }
 
     return cookieList.length;
