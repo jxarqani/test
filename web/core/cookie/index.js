@@ -216,12 +216,18 @@ function updateCookie({ck, remarks = '无', phone}) {
         }
     }
     cookieList = saveCookiesToConfig(cookieList);
+
+    // 打印日志
     var UpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
+    var remark_tmp = '';
+    if (remarks) remark_tmp += ` · ${remarks}`;
+    if (phone) remark_tmp += ` · ${phone}`;
     if (isUpdate) {
-        console.log(`[${UpdateTime}] 更新Cookie => " + ${ptPin}`);
+        console.log(`[${UpdateTime}] 更新账号(Cookie) => ${ptPin}${remark_tmp}`);
     } else {
-        console.log(`[${UpdateTime}] 新增Cookie => " + ${ptPin}`);
+        console.log(`[${UpdateTime}] 新增账号(Cookie) => ${ptPin}${remark_tmp}`);
     }
+
     return cookieList.length;
 }
 
@@ -262,12 +268,18 @@ function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
             })
         }
         saveAccount(accounts);
+
+        // 打印日志
         var UpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
+        var remark_tmp = '';
+        if (remarks) remark_tmp += ` · ${remarks}`;
+        if (phone) remark_tmp += ` · ${phone}`;
         if (isUpdate) {
-            console.log(`[${UpdateTime}] 更新wskey => " + ${ptPin}`);
+            console.log(`[${UpdateTime}] 更新账号(wskey) => ${ptPin}${remark_tmp}`);
         } else {
-            console.log(`[${UpdateTime}] 新增wskey => " + ${ptPin}`);
+            console.log(`[${UpdateTime}] 新增账号(wskey) => ${ptPin}${remark_tmp}`);
         }
+
     }
     return getCount();
 }
