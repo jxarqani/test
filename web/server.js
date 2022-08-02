@@ -406,7 +406,7 @@ app.get('/api/captcha', function (req, res) {
  */
 async function ip2Address(ip) {
     try {
-        const { body } = await got(`http://ip.360.cn/IPShare/info?ip=${ip}`, {
+        const {body} = await got(`http://ip.360.cn/IPShare/info?ip=${ip}`, {
             responseType: 'json',
             timeout: 2000,
             headers: {
@@ -484,9 +484,9 @@ app.post('/api/auth', async function (request, response) {
             con['authErrorCount'] = 0;
             //记录本次登录信息
             await ip2Address(getClientIP(request)).then(({
-                ip,
-                address
-            }) => {
+                                                             ip,
+                                                             address
+                                                         }) => {
                 con.lastLoginInfo = {
                     loginIp: ip,
                     loginAddress: address,
@@ -834,7 +834,8 @@ try {
         extraServer(app);
         console.log('用户自定义API => 初始化成功');
     }
-} catch (e) {}
+} catch (e) {
+}
 
 app.listen(5678, '0.0.0.0', () => {
     console.log('应用正在监听 5678 端口!');
