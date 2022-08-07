@@ -925,7 +925,7 @@ function Accounts_Control() {
 
         ## 检测全部账号
         function Print_Info_Normal() {
-            local TmpA TmpB pt_pin pt_pin_temp FormatPin EscapePin EscapePinLength State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
+            local TmpA TmpB pt_pin pt_pin_temp FormatPin EscapePin EscapePin_Length_Add State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
 
             ## 统计账号数量
             Count_UserSum
@@ -948,7 +948,7 @@ function Accounts_Control() {
                 ## 转义pt_pin中的汉字
                 EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
                 ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                EscapePin_Length_Add=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
@@ -961,7 +961,7 @@ function Accounts_Control() {
                 sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                 num=$((m + 1))
                 ## 格式化输出
-                printf "%-3s ${BLUE}%-$((18 + ${EscapePinLength}))s${PLAIN} %-s${BLUE}%-s${PLAIN}\n" "$num." "${EscapePin}" " ${State}   上次更新: " "${UpdateTimes}"
+                printf "%-3s ${BLUE}%-$((18 + ${EscapePin_Length_Add}))s${PLAIN} %-s${BLUE}%-s${PLAIN}\n" "$num." "${EscapePin}" " ${State}   上次更新: " "${UpdateTimes}"
             done
 
             ## 检测 wskey
@@ -991,9 +991,9 @@ function Accounts_Control() {
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    EscapePin_Length_Add=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 打印
-                    printf "%-3s ${BLUE}%-$((19 + ${EscapePinLength}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
+                    printf "%-3s ${BLUE}%-$((19 + ${EscapePin_Length_Add}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
                     sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                     let num++
                 done
@@ -1103,7 +1103,7 @@ function Accounts_Control() {
 
         ## 更新全部账号
         function UpdateNormal() {
-            local UserNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin EscapePinLength CookieTmp LogFile
+            local UserNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin EscapePin_Length_Add CookieTmp LogFile
             ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
             local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
             ## 生成 pt_pin 数组
@@ -1131,7 +1131,7 @@ function Accounts_Control() {
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    EscapePin_Length_Add=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == "true" ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1142,9 +1142,9 @@ function Accounts_Control() {
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$num." "${EscapePin}" "${SUCCESS_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePin_Length_Add}))s${PLAIN} ${GREEN}%-s${PLAIN}\n" "$num." "${EscapePin}" "${SUCCESS_ICON}"
                     else
-                        printf "%-3s ${BLUE}%-$((20 + ${EscapePinLength}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$num." "${EscapePin}" "${FAIL_ICON}"
+                        printf "%-3s ${BLUE}%-$((20 + ${EscapePin_Length_Add}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$num." "${EscapePin}" "${FAIL_ICON}"
                         ## 账号更新异常告警与状态检测
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
                         local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
@@ -1312,34 +1312,34 @@ function Accounts_Control() {
     list)
         Import_Config
         Count_UserSum
-        local Tmp1 Tmp2 pt_pin_arr pt_pin_len_add remark phone
+        local Tmp1 Tmp2 num pt_pin_arr pt_pin_len_add remark phone phone_len_add remark_len_add
         for ((n = 1; n <= $UserSum; n++)); do
             Tmp1=Cookie$n
             Tmp2=${!Tmp1}
             num=$(($n - 1))
-            pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g; s|%|\\\x|g;}")
-            pt_pin_len_add[num]=$(($(printf "${pt_pin_arr[i]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(printf "${pt_pin_arr[i]}" | grep -o "-" | grep -c "") - 1))
+            pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")
+            pt_pin_len_add[num]=$(($(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(UrlDecode "${pt_pin_arr[i]}" | grep -o "-" | grep -c "") - 1))
         done
 
         echo ''
         for ((i = 0; i < ${#pt_pin_arr[@]}; i++)); do
-            grep -Eq "^## pt_pin=$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser
+            grep -Eq "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser
             if [ $? -eq 0 ]; then
-                remark=$(grep -E "^## pt_pin=$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | perl -pe "{s|.*备注：([^; ]+)(?=;?).*|\1|g;}")
+                remark=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "备注：.*;" | awk -F ';' '{print$1}' | sed "s/备注：//g")
+
                 if [[ -z ${remark} || ${remark} == "无" ]]; then
                     remark="未登记"
                 fi
-                phone=$(grep -E "^## pt_pin$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | perl -pe "{s|.*手机号：([^; ]+)(?=;?).*|\1|g;}")
+                phone=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "手机号：.*;" | awk -F ';' '{print$1}' | sed "s/手机号：//g")
                 if [[ -z ${phone} || ${phone} == "无" ]]; then
                     phone="未登记"
                 fi
-                phone_len_add=$(($(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo "${phone}" | grep -o "-" | grep -c "") - 1))
-                remark_len_add=$(($(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo "${remark}" | grep -o "-" | grep -c "") - 1))
+                phone_len_add=$(($(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] ]||g;}' | wc -m) - $(echo "${phone}" | grep -o "-" | grep -c "") - 1))
+                remark_len_add=$(($(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] ]||g;}' | wc -m) - $(echo "${remark}" | grep -o "-" | grep -c "") - 1))
 
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-$((30 + ${remark_len_add}))s %-s\n" "$(($i + 1))." "$(printf "${pt_pin_arr[i]}")" "备注：${remark}" "联系方式：${phone}"
-
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-$((30 + ${remark_len_add}))s %-s\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "备注：${remark}" "联系方式：${phone}"
             else
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-1s\n" "$(($i + 1))." "$(printf "${pt_pin_arr[i]}")" "未登记任何信息"
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-1s\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "备注：未登记                联系方式：未登记"
             fi
         done
         echo ''
