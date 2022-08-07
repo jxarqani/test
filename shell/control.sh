@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-10
+## Modified: 2022-08-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -82,11 +82,6 @@ function Hang_Control() {
         done
         ## 删除 PM2 进程日志清单
         [ -f $FilePm2List ] && rm -rf $FilePm2List
-        ;;
-    ## 查看日志
-    logs)
-        echo -e "\n$TIPS 默认查看日志倒数 50 行的内容，日志会持续输出，Ctrl + C 退出查看，若想查看更多请执行 pm2 logs jd_cfd_loop --lines <行数> \n" && sleep 2
-        pm2 logs jd_cfd_loop --lines 50
         ;;
     esac
 }
@@ -235,49 +230,21 @@ function Bot_Control() {
         echo -e "\n$COMPLETE 卸载完成"
     }
 
-    ## 备份用户的diy脚本
+    ## 备份用户的脚本
     function BackUpUserFiles() {
-        if [[ ${EnableDiyBotModule} == "true" ]]; then
-            local UserFiles=($(
-                ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|addrepo\.py|checkcookie\.py|download\.py|example\.py|jCommand\.py|tempblockcookie\.py|wskey\.py|addexport\.py|autoblock\.py|diy\.py|editexport\.py|getbotlog\.py|restart\.py|utils\.py"
-            ))
-            if [ ${#UserFiles[@]} -gt 0 ]; then
-                Make_Dir $RootDir/tmp
-                for ((i = 0; i < ${#UserFiles[*]}; i++)); do
-                    mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
-                done
-            fi
-        else
-            local UserFiles=($(
-                ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
-            ))
-            if [ ${#UserFiles[@]} -gt 0 ]; then
-                Make_Dir $RootDir/tmp
-                for ((i = 0; i < ${#UserFiles[*]}; i++)); do
-                    mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
-                done
-            fi
+        local UserFiles=($(
+            ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
+        ))
+        if [ ${#UserFiles[@]} -gt 0 ]; then
+            Make_Dir $RootDir/tmp
+            for ((i = 0; i < ${#UserFiles[*]}; i++)); do
+                mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
+            done
         fi
     }
 
     ## 安装 Telegram Bot
     function Install_Bot() {
-        ## 解压源码
-        function Decompression() {
-            rm -rf $BotRepoDir
-            if [[ ${EnableDiyBotModule} == "true" ]]; then
-                unzip $FileDiyBotSourceCode -d $UtilsDir
-                mv -f $UtilsDir/JD_Diy-main $BotRepoDir
-                [ ! -f $ConfigDir/botset.json ] && cp -f $BotRepoDir/config/botset.json $ConfigDir
-                [ ! -f $ConfigDir/diybotset.json ] && cp -f $BotRepoDir/config/diybotset.json $ConfigDir
-                sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/__init__.py
-                sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/bot/getfile.py
-                sed -i "s/DIY_DIR/OWN_DIR/g" $BotRepoDir/jbot/diy/diy.py
-            else
-                unzip $FileBotSourceCode -d $UtilsDir
-                mv -f $UtilsDir/bot-main $BotRepoDir
-            fi
-        }
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖...\n"
         apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
@@ -286,32 +253,6 @@ function Bot_Control() {
         else
             echo -e "\n$FAIL 依赖安装失败，请检查原因后重试！\n"
         fi
-        ## 解压源码
-        if [ -d $BotRepoDir ]; then
-            echo -e "$WORKING 开始更新源码...\n"
-            Decompression
-            echo -e "\n$COMPLETE 源码更新完成\n"
-        else
-            echo -e "$WORKING 开始解压源码...\n"
-            Decompression
-            echo -e "\n$COMPLETE 源码安装完成\n"
-        fi
-        ## 处理PM2启动参数
-        if [[ ${EnableDiyBotModule} != "true" ]]; then
-            sed -i "s/script: \"python\"/script: \"python3\"/g" $BotRepoDir/jbot/ecosystem.config.js
-        fi
-        ## 适配添加定时任务
-        sed -i "s/mtask任务区域/用户定时任务区/g" $BotRepoDir/jbot/bot/utils.py
-        sed -i "s/lines\.insert(i+1/lines\.insert(i+4/g" $BotRepoDir/jbot/bot/utils.py
-        sed -i "s/mtask/$TaskCmd/g" $BotRepoDir/jbot/bot/utils.py
-        ## 去除cmd命令返回日志的颜色标记
-        sed -i "s#cmdtext,#cmdtext+\"| sed 's/\\\[3\[0-9\]m//g; s/\\\[4\[0-9\];3\[0-9\]m//g; s/\\\[\[0-1\]m//g'\",#g" $BotRepoDir/jbot/bot/utils.py
-        ## 命令适配
-        cd $BotRepoDir/jbot/bot
-        local TargetFiles="cron.py setshort.py start.py utils.py"
-        for file in $TargetFiles; do
-            sed -i "s/jtask/$TaskCmd/g" $file
-        done
         ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
@@ -319,10 +260,10 @@ function Bot_Control() {
         Make_Dir $BotLogDir
         ## 安装模块
         echo -e "$WORKING 开始安装模块...\n"
-        cp -rf $BotRepoDir/jbot $RootDir
+        cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
         pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-        pip3 --default-timeout=300 install -r requirements.txt
+        pip3 --default-timeout=1800 install -r requirements.txt
         pip3 install aiohttp Telethon==1.24.0
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
@@ -381,13 +322,13 @@ function Bot_Control() {
                             Remove
                             Install_Bot
                             if [[ -d $RootDir/tmp ]]; then
-                                mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
+                                mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
                                 rm -rf $RootDir/tmp
                             fi
                         else
                             Install_Bot
                         fi
-                        cp -rf $BotRepoDir/jbot $RootDir
+                        cp -rf $BotSrcDir/jbot $RootDir
                         ## 启动 bot
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                         PM2_List_All_Services
@@ -406,13 +347,13 @@ function Bot_Control() {
                         Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
-                            mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
+                            mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
                             rm -rf $RootDir/tmp
                         fi
                     else
                         Install_Bot
                     fi
-                    cp -rf $BotRepoDir/jbot $RootDir
+                    cp -rf $BotSrcDir/jbot $RootDir
                     ## 软链接
                     [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                     ## 启动 bot
@@ -440,31 +381,22 @@ function Bot_Control() {
             ## 更新
             update)
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
-                    if [[ ${EnableDiyBotModule} == "true" ]]; then
-                        echo -e "\n$WARN 作者跑路了，暂不支持更新操作...\n"
-                        exit
-                    else
-                        ## 下载最新的 Bot 源码
-                        echo -e "\n$WORKING 开始拉取最新源码...\n"
-                        wget --no-check-certificate "https://hub.fastgit.xyz/SuMaiKaDe/bot/archive/refs/heads/main.zip" -O $FileBotSourceCode -T 20
-                    fi
-                    [ $? -ne 0 ] && echo -e "\n$ERROR 下载最新的 Bot 源码时出现异常（默认使用 fastgit 代理），请检查原因后重试！\n" && exit ## 终止退出
                     pm2 delete jbot >/dev/null 2>&1
                     ## 删除日志
                     rm -rf $BotLogDir/up.log
-                    ## 保存用户的diy脚本
+                    ## 保存用户的脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
                         Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
-                            mv -f $RootDir/tmp/* $BotRepoDir/jbot/diy
+                            mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
                             rm -rf $RootDir/tmp
                         fi
                     else
                         Install_Bot
                     fi
-                    cp -rf $BotRepoDir/jbot $RootDir
+                    cp -rf $BotSrcDir/jbot $RootDir
                     ## 启动 bot
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe jbot | grep status | awk '{print $4}')
@@ -532,7 +464,7 @@ function Server_Status() {
     pm2 list
     echo ''
     PM2_List_All_Services
-    Services="server ttyd jd_cfd_loop jbot"
+    Services="server ttyd jbot"
     for Name in ${Services}; do
         ServiceName=''
         StatusJudge=''
@@ -572,9 +504,6 @@ function Server_Status() {
             ;;
         ttyd)
             ServiceName="[网ㅤ页ㅤ终ㅤ端]"
-            ;;
-        jd_cfd_loop)
-            ServiceName="[挂ㅤ机ㅤ程ㅤ序]"
             ;;
         jbot)
             ServiceName="[ Telegram Bot ]"
@@ -666,9 +595,6 @@ case $# in
         ;;
     logs)
         case $1 in
-        hang)
-            Hang_Control $2
-            ;;
         jbot)
             Bot_Control $2
             ;;

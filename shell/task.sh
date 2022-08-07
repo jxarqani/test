@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-05
+## Modified: 2022-08-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1337,9 +1337,9 @@ function Accounts_Control() {
                 phone_len_add=$(($(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] ]||g;}' | wc -m) - $(echo "${phone}" | grep -o "-" | grep -c "") - 1))
                 remark_len_add=$(($(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] ]||g;}' | wc -m) - $(echo "${remark}" | grep -o "-" | grep -c "") - 1))
 
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-$((30 + ${remark_len_add}))s %-s\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "备注：${remark}" "联系方式：${phone}"
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}%-$((24 + ${remark_len_add}))s${PLAIN} 联系方式：${BLUE}%-s${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "${remark}" "${phone}"
             else
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-1s\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "备注：未登记                联系方式：未登记"
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}未登记${PLAIN}                联系方式：${BLUE}未登记${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")"
             fi
         done
         echo ''
