@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-06-22
+## Modified: 2022-08-05
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -160,8 +160,9 @@ function Find_Script() {
                     break
                 fi
             done
-        ## 模糊查找
+
         else
+            ## 模糊查找
             FileNameTmp1=$(echo ${InputContent} | perl -pe "{s|\.js||; s|\.py||; s|\.ts||; s|\.sh||}")
             FileNameTmp2=$(echo ${FileNameTmp1} | perl -pe "{s|jd_||; s|^|jd_|}")
             FileNameTmp3=$(echo ${FileNameTmp1} | perl -pe "{s|jx_||; s|^|jx_|}")
@@ -246,7 +247,7 @@ function Find_Script() {
             exit ## 终止退出
             ;;
         *)
-            echo -e "\n$ERROR 项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！\n"
+            echo -e "\n$ERROR 本项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！\n"
             exit ## 终止退出
             ;;
         esac
@@ -921,7 +922,6 @@ function Accounts_Control() {
     check)
         ## 导入配置文件
         Import_Config
-        [ -f $FileSendMark ] && rm -rf $FileSendMark
 
         ## 检测全部账号
         function Print_Info_Normal() {
@@ -948,23 +948,15 @@ function Accounts_Control() {
                 ## 转义pt_pin中的汉字
                 EscapePin=$(printf $(echo ${pt_pin[m]} | perl -pe "s|%|\\\x|g;"))
                 ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
                 CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | awk -F '上次更新：' '{print$NF}' | awk -F '  ' '{print$1}' | perl -pe "{s|;||g}")
                 if [[ ${CookieUpdatedDate} ]]; then
                     UpdateTimes="${CookieUpdatedDate}"
-                    Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
-                    Tmp2=$(($Tmp1 / 86400))
-                    Tmp3=$((30 - $Tmp2))
-                    [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                    if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
-                        [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
-                        echo -e "账号$((m + 1)): ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
-                    fi
                 else
-                    UpdateTimes="Unknow"
+                    UpdateTimes="未知"
                 fi
                 sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
                 num=$((m + 1))
@@ -978,8 +970,8 @@ function Accounts_Control() {
             if [[ ${ArrayLength} -ge 1 ]]; then
                 num=1
                 for ((i = 0; i <= ${ArrayLength}; i++)); do
-                    PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
-                    WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     if [ -z ${WS_KEY_TMP} ]; then
@@ -991,15 +983,15 @@ function Accounts_Control() {
                 done
 
                 for ((i = 0; i <= ${ArrayLength}; i++)); do
-                    local PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
-                    local WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 打印
                     printf "%-3s ${BLUE}%-$((19 + ${EscapePinLength}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
                     sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
@@ -1027,16 +1019,8 @@ function Accounts_Control() {
             CookieUpdatedDate=$(grep "\#.*上次更新：" $FileConfUser | grep "${FormatPin}" | head -1 | awk -F '上次更新：' '{print$NF}' | awk -F '  ' '{print$1}' | perl -pe "{s|;||g}")
             if [[ ${CookieUpdatedDate} ]]; then
                 UpdateTimes="${CookieUpdatedDate}"
-                Tmp1=$(($(date -d $(date "+%Y-%m-%d") +%s) - $(date -d "$(echo ${CookieUpdatedDate} | grep -Eo "20[2-9][0-9]-[0-9]{1,2}-[0-9]{1,2}")" +%s)))
-                Tmp2=$(($Tmp1 / 86400))
-                Tmp3=$((30 - $Tmp2))
-                [ -z $CheckCookieDaysAgo ] && TmpDays="2" || TmpDays=$(($CheckCookieDaysAgo - 1))
-                if [ $Tmp3 -ge 0 ] && [ $Tmp3 -le $TmpDays ]; then
-                    [ $Tmp3 = 0 ] && TmpTime="今天" || TmpTime=" $Tmp3 天后"
-                    echo -e "账号${UserNum}: ${EscapePin} 将在${TmpTime}过期" >>$FileSendMark
-                fi
             else
-                UpdateTimes="Unknow"
+                UpdateTimes="未知"
             fi
             ## 输出
             echo -en "Cookie => ${State}"
@@ -1044,12 +1028,12 @@ function Accounts_Control() {
             ## 检测 wskey
             grep -q "${pt_pin}" $FileAccountConf
             if [[ $? -eq 0 ]]; then
-                ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
+                ## 统计 account.json 数组中的元素数量，即最多配置了多少个账号，即使元素为空值
                 local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
 
                 for ((i = 0; i <= ${ArrayLength}; i++)); do
-                    local PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
-                    local WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     if [[ ${PT_PIN_TMP} == ${pt_pin} ]]; then
@@ -1088,15 +1072,6 @@ function Accounts_Control() {
             ;;
         esac
 
-        ## 过期提醒推送通知
-        if [ -f $FileSendMark ]; then
-            echo -e "\n${YELLOW}检测到下面的账号将在近期失效，请注意即时更新！${PLAIN}\n"
-            cat $FileSendMark
-            sed -i 's/$/&\\n/g' $FileSendMark
-            echo ''
-            Notify "账号过期提醒" "$(cat $FileSendMark)"
-            rm -rf $FileSendMark
-        fi
         echo -e "\n$COMPLETE 检测完成\n"
         ;;
 
@@ -1144,8 +1119,8 @@ function Accounts_Control() {
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
 
                 for ((i = 0; i <= ${ArrayLength}; i++)); do
-                    PT_PIN_TMP=$(cat $FileAccountConf | jq ".[$i] | .pt_pin" | sed "s/[\"\']//g; s/null//g; s/ //g")
-                    WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$i] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                    PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
@@ -1156,7 +1131,7 @@ function Accounts_Control() {
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
+                    EscapePinLength=$(($(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo ${EscapePin} | grep -o "-" | grep -c "") - 1))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == "true" ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1236,7 +1211,7 @@ function Accounts_Control() {
             grep "${FormatPin}" -q $FileAccountConf
             if [ $? -eq 0 ]; then
                 ArrayNum=$(($(cat $FileAccountConf | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
-                WS_KEY_TMP=$(cat $FileAccountConf | jq ".[$ArrayNum] | .ws_key" | sed "s/[\"\']//g; s/null//g; s/ //g")
+                WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$ArrayNum] | .ws_key" | sed "s/null//g; s/ //g")
                 ## 没有配置 ws_key 就退出
                 if [ -z ${WS_KEY_TMP} ]; then
                     echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！\n"
@@ -1269,22 +1244,14 @@ function Accounts_Control() {
                         # echo -e "Cookie：$(grep -E "^Cookie[1-9].*pt_pin=${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}')\n"
                     else
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${Invalid}"
-                        ## 账号更新异常告警与状态检测
+                        ## 账号状态检测
                         local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
                         if [[ ${CheckTmp} == "0" ]]; then
-                            echo -e "该账号WSKEY状态 => ${Valid}\n"
+                            echo -e "该账号wskey状态 => ${Valid}\n"
                         elif [[ ${CheckTmp} == "1001" ]]; then
-                            echo -e "该账号WSKEY状态 => ${Invalid}\n"
+                            echo -e "该账号wskey状态 => ${Invalid}\n"
                         else
-                            echo -e "该账号WSKEY状态 => ${RED}未知${PLAIN}\n"
-                        fi
-                        if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
-                            if [[ ${CheckTmp} == "1001" ]]; then
-                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
-                            else
-                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 更新出现异常，请尽快处理"
-                            fi
-                            echo ''
+                            echo -e "该账号wskey状态 => ${RED}未知${PLAIN}\n"
                         fi
                     fi
                     ## 推送通知
@@ -1341,6 +1308,41 @@ function Accounts_Control() {
         else
             echo -e "\n$ERROR 账号更新脚本不存在，请确认是否移动！\n"
         fi
+        ;;
+    list)
+        Import_Config
+        Count_UserSum
+        local Tmp1 Tmp2 pt_pin_arr pt_pin_len_add remark phone
+        for ((n = 1; n <= $UserSum; n++)); do
+            Tmp1=Cookie$n
+            Tmp2=${!Tmp1}
+            num=$(($n - 1))
+            pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g; s|%|\\\x|g;}")
+            pt_pin_len_add[num]=$(($(printf "${pt_pin_arr[i]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(printf "${pt_pin_arr[i]}" | grep -o "-" | grep -c "") - 1))
+        done
+
+        echo ''
+        for ((i = 0; i < ${#pt_pin_arr[@]}; i++)); do
+            grep -Eq "^## pt_pin=$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser
+            if [ $? -eq 0 ]; then
+                remark=$(grep -E "^## pt_pin=$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | perl -pe "{s|.*备注：([^; ]+)(?=;?).*|\1|g;}")
+                if [[ -z ${remark} || ${remark} == "无" ]]; then
+                    remark="未登记"
+                fi
+                phone=$(grep -E "^## pt_pin$(UrlEncode ${pt_pin_arr[i]});  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | perl -pe "{s|.*手机号：([^; ]+)(?=;?).*|\1|g;}")
+                if [[ -z ${phone} || ${phone} == "无" ]]; then
+                    phone="未登记"
+                fi
+                phone_len_add=$(($(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo "${phone}" | grep -o "-" | grep -c "") - 1))
+                remark_len_add=$(($(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\]]||g;}' | wc -m) - $(echo "${remark}" | grep -o "-" | grep -c "") - 1))
+
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-$((30 + ${remark_len_add}))s %-s\n" "$(($i + 1))." "$(printf "${pt_pin_arr[i]}")" "备注：${remark}" "联系方式：${phone}"
+
+            else
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} %-1s\n" "$(($i + 1))." "$(printf "${pt_pin_arr[i]}")" "未登记任何信息"
+            fi
+        done
+        echo ''
         ;;
     esac
 }
@@ -2392,7 +2394,7 @@ function List_Local_Scripts() {
                 if [ -f ${ListFiles[i]} ]; then
                     Query_ScriptName ${ListFiles[i]}
                     let NumTmp++
-                    printf "%-5s %-22s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
+                    printf "%-5s %-30s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
                 fi
             done
         else
@@ -2622,7 +2624,7 @@ case $# in
     pkill)
         Process_Kill $1
         ;;
-    update | check)
+    update | check | list)
         case $1 in
         cookie)
             Accounts_Control $2
@@ -2772,7 +2774,12 @@ case $# in
                 Accounts_Control $2 $3
                 ;;
             *)
-                Output_Command_Error 1 ## 命令错误
+                grep -Eq "Cookie[0-9]{1,3}=.*pt_pin=$3;.*" $FileConfUser
+                if [ $? -eq 0 ]; then
+                    Accounts_Control $2 $(grep -Eq "Cookie[0-9]{1,3}=.*pt_pin=$3;.*" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
+                else
+                    Output_Command_Error 1 ## 命令错误
+                fi
                 ;;
             esac
             ;;

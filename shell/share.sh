@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-06-09
+## Modified: 2022-08-05
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -42,7 +42,6 @@ FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
 FileProcessList=$RootDir/.process_list.log
 FileUpdateCookie=$UtilsDir/UpdateCookies.js
-FileScriptDictionary=$ShellDir/script_name.sh
 FileBotSourceCode=$UtilsDir/bot-main.zip
 FileDiyBotSourceCode=$UtilsDir/JD_Diy-main.zip
 
@@ -261,7 +260,7 @@ function Combin_ShareCodes() {
     if [[ $AutoHelpOther == true ]] && [[ -d $CodeDir ]]; then
         if [[ $(ls $CodeDir) ]]; then
             local LatestLog=$(ls -r $CodeDir | head -1)
-            . $CodeDir/$LatestLog
+            . $CodeDir/$LatestLog 2>/dev/null
         fi
     fi
     export FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
@@ -316,7 +315,7 @@ function Synchronize_Crontab() {
     fi
 }
 
-function b() {
+function base64() {
     echo "$(printf "$1" | base64 -d)"
 }
 
