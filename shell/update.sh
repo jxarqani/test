@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-26
+## Modified: 2022-08-09
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -292,7 +292,9 @@ function Del_Cron() {
         crontab $ListCrontabUser
         Detail2=$(echo $Detail | perl -pe "s| |\\\n|g")
         echo -e "$SUCCESS 成功删除失效的定时任务\n"
-        Notify "失效定时任务通知" "已删除以下失效的定时任务：\n\n$Detail2"
+        if [[ ${EnableDelCronNotify} == true ]]; then
+            Notify "失效定时任务通知" "已删除以下失效的定时任务：\n\n$Detail2"
+        fi
     fi
 }
 
@@ -404,10 +406,14 @@ function Add_Cron_Notify() {
     if [[ $Status_Code -eq 0 ]]; then
         crontab $ListCrontabUser
         echo -e "$SUCCESS 成功添加新的定时任务\n"
-        Notify "新增定时任务通知" "已添加新的定时任务（$Type）：\n\n$Detail"
+        if [[ ${EnableAddCronNotify} == true ]]; then
+            Notify "新增定时任务通知" "已添加新的定时任务（$Type）：\n\n$Detail"
+        fi
     else
         echo -e "添加新的定时任务出错，请手动添加...\n"
-        Notify "新任务添加失败通知" "尝试自动添加以下新的定时任务出错，请尝试手动添加（$Type）：\n\n$Detail"
+        if [[ ${EnableAddCronNotify} == true ]]; then
+            Notify "新任务添加失败通知" "尝试自动添加以下新的定时任务出错，请尝试手动添加（$Type）：\n\n$Detail"
+        fi
     fi
 }
 
