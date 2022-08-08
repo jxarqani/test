@@ -7,6 +7,8 @@ from .utils import load_module
 import os
 import random
 from .bot.update import version, botlog
+from telethon import Button
+
 BOT_UP_LOG = f'{LOG_DIR}/bot/up.log'
 BOT_M_DIR = f'{BOT_DIR}/bot/'
 BOT_D_DIR = f'{BOT_DIR}/diy/'
