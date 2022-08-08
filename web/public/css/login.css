@@ -21,7 +21,7 @@ main {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
+    background-image: linear-gradient(-225deg, #3D4E81 0%, #5753C9 48%, #6E7FF3 100%);
 }
 
 .form {
@@ -35,7 +35,8 @@ main {
     -ms-flex-pack: center;
     justify-content: center;
     position: relative;
-    width: 450px;
+    width: 30em;
+    height: 24em;
     -ms-flex-negative: 0;
     flex-shrink: 0;
     border-radius: 5px;
@@ -201,7 +202,7 @@ h1.title {
     cursor: pointer;
     font-size: 14px;
     width: 100%;
-    padding: 20px;
+    padding: 16px;
     outline: 0;
     background: 0;
     position: relative;
@@ -247,7 +248,7 @@ h1.title {
 }
 
 .styled-button__moving-block {
-    color: #492e72;
+    color: #335496;
     -webkit-transition: all .3s ease;
     transition: all .3s ease;
     position: absolute;
@@ -521,12 +522,12 @@ button#toggle-password {
 
 button#toggle-password.hide-password {
     background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTgnIGhlaWdodD0nMTUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZycgeG1sbnM6eGxpbms9J2h0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsnPjxkZWZzPjxwYXRoIGQ9J00xMi4xNDggNS45NjlhMy41IDMuNSAwIDAgMS00LjY4IDQuNjhsLjc2OC0uNzY4YTIuNSAyLjUgMCAwIDAgMy4xNDUtMy4xNDVsLjc2Ny0uNzY3ek01LjgyIDEyLjI5N2MuOTkzLjQ3IDIuMDUyLjcwMyAzLjE4LjcwMyAzLjEzIDAgNS43MzItMS43ODggNy44NTYtNS41LS44MzctMS40NjMtMS43NDktMi42MjgtMi43MzgtMy41MDFsLjcwOC0uNzA4QzE1Ljk5NCA0LjMzNyAxNy4wNTIgNS43NCAxOCA3LjVjLTIuMzMzIDQuMzMzLTUuMzMzIDYuNS05IDYuNWE4LjI5NCA4LjI5NCAwIDAgMS0zLjkyNi0uOTU3bC43NDYtLjc0NnpNMTUuODkuODEzTDIuMzEzIDE0LjM5YS41LjUgMCAwIDEtLjY2Ny0uNzQ0TDMuMzkzIDExLjlDMi4xMzggMTAuODM3IDEuMDA3IDkuMzcgMCA3LjUgMi4zMzMgMy4xNjcgNS4zMzMgMSA5IDFjMS41MSAwIDIuOTA3LjM2NyA0LjE5IDEuMTAyTDE1LjE0Ny4xNDZhLjUuNSAwIDAgMSAuNzQ0LjY2N3ptLTMuNDM2IDIuMDI2QTcuMzE1IDcuMzE1IDAgMCAwIDkgMkM1Ljg3IDIgMy4yNjggMy43ODggMS4xNDQgNy41Yy45IDEuNTcyIDEuODg0IDIuNzk4IDIuOTU5IDMuNjlsMS44OTMtMS44OTNhMy41IDMuNSAwIDAgMSA0LjgwMS00LjgwMWwxLjY1Ny0xLjY1N3ptLTIuMzk2IDIuMzk1YTIuNSAyLjUgMCAwIDAtMy4zMjQgMy4zMjRsMy4zMjQtMy4zMjR6JyBpZD0nYScvPjwvZGVmcz48ZyBmaWxsPSdub25lJyBmaWxsLXJ1bGU9J2V2ZW5vZGQnPjxtYXNrIGlkPSdiJyBmaWxsPScjZmZmJz48dXNlIHhsaW5rOmhyZWY9JyNhJy8+PC9tYXNrPjx1c2UgZmlsbD0nIzVDNjc3RCcgZmlsbC1ydWxlPSdub256ZXJvJyB4bGluazpocmVmPScjYScvPjxnIG1hc2s9J3VybCgjYiknIGZpbGw9JyM1QzY3N0QnPjxwYXRoIGQ9J00tMS0zaDIwdjIwSC0xeicvPjwvZz48L2c+PC9zdmc+");
-    background-color: #D2E9F0;
+    background-color: #ebebeb;
 }
 
 button#toggle-password:hover {
     background-color: #ebebeb;
-    transition: 0.2s;
+    transition: 0.3s;
 }
 
 button#toggle-password:active,
