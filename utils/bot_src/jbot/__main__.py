@@ -19,7 +19,6 @@ logger.info('loading user module...')
 load_module('user', BOT_U_DIR)
 
 async def new_ver():
-    info = '[项目地址](https://github.com/SuMaiKaDe/) \t| \t[交流频道](https://t.me/tiangongtong) '
     if os.path.exists(BOT_UP_LOG):
         is_new = False
         with open(BOT_UP_LOG, 'r', encoding='utf-8') as f:
@@ -30,11 +29,12 @@ async def new_ver():
         if not is_new:
             with open(BOT_UP_LOG, 'a', encoding='utf-8') as f:
                 f.writelines([version, botlog])
-            await jdbot.send_message(chat_id, f'[机器人上新了](https://github.com/SuMaiKaDe/jddockerbot/tree/master)\n{botlog}\n运行日志为log/bot/run.log\n\n\t{info}', link_preview=False)
+            await jdbot.send_message(chat_id, '机器人已启动\n\n开始使用 /start\n\n查看运行日志 `taskctl jbot logs`', buttons=[Button.url("📖 使用教程", "https%3A%2F%2Fsupermanito.github.io%2FHelloworld%2F%23%2Fuse%2F%E7%94%B5%E6%8A%A5%E6%9C%BA%E5%99%A8%E4%BA%BA")], link_preview=False)
     else:
         with open(BOT_UP_LOG, 'w+', encoding='utf-8') as f:
             f.writelines([version, botlog])
-        await jdbot.send_message(chat_id, f'[机器人上新了](https://github.com/SuMaiKaDe/jddockerbot/tree/master)\n{botlog}\n运行日志为log/bot/run.log\n\n\t{info}', link_preview=False)
+        await jdbot.send_message(chat_id, '机器人已启动\n\n开始使用 /start\n\n查看运行日志 `taskctl jbot logs`', buttons=[Button.url("📖 使用教程", "https%3A%2F%2Fsupermanito.github.io%2FHelloworld%2F%23%2Fuse%2F%E7%94%B5%E6%8A%A5%E6%9C%BA%E5%99%A8%E4%BA%BA")], link_preview=False)
+
 
 
 async def bot_set_init():

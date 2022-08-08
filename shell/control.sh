@@ -413,7 +413,9 @@ function Bot_Control() {
             ## 查看日志
             logs)
                 if [[ -f $BotLogDir/run.log ]]; then
-                    cat $BotLogDir/run.log | tail -n 100
+                    echo ''
+                    cat $BotLogDir/run.log | tail -n 200
+                    echo ''
                 else
                     echo -e "\n$ERROR 日志不存在！\n"
                 fi

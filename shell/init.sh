@@ -38,20 +38,7 @@ ${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 挂机程序开始 -----\n"
-if [[ ${ENABLE_HANGUP} == true ]]; then
-  if [[ $(grep "^Cookie1=" ${WORK_DIR}/config/config.sh | awk -F "[\"\']" '{print$2}') ]]; then
-    $ContrlCmd hang up
-  else
-    echo -e "检测到当前可能是首次部署容器，配置文件中还未填入有效的信息，因此不启动挂机程序"
-  fi
-elif [[ ${ENABLE_HANGUP} == false ]]; then
-  echo -e "已设置为不自动启动挂机程序"
-fi
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 挂机程序结束 -----\n"
-
-# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 三 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 电报机器人开始 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人开始 -----\n"
 if [[ ${ENABLE_TG_BOT} == true ]]; then
   case $(uname -m) in
   armv7l | armv6l)
@@ -68,10 +55,10 @@ if [[ ${ENABLE_TG_BOT} == true ]]; then
 elif [[ ${ENABLE_TG_BOT} == false ]]; then
   echo -e "已设置为不自动启动电报机器人"
 fi
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 电报机器人结束 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人结束 -----\n"
 
-# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页终端开始 -----\n"
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 三 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
   export PS1="\u@\h:\w# "
@@ -90,16 +77,16 @@ if [[ ${ENABLE_WEB_PANEL} == true ]]; then
 elif [[ ${ENABLE_WEB_PANEL} == false ]]; then
   echo -e "已设置为不自动启动控制面板"
 fi
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 控制面板和网页终端结束 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 控制面板和网页终端结束 -----\n"
 
-# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 五 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装运行环境开始 -----\n"
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 预装运行环境开始 -----\n"
 if [[ ${ENABLE_ALL_ENV} == false ]]; then
   echo -e "已设置为不在容器启动时安装环境包"
 else
   $ContrlCmd env install
 fi
-echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➄ 预装运行环境结束 -----\n"
+echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➃ 预装运行环境结束 -----\n"
 
 echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
 

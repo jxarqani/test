@@ -18,11 +18,7 @@ async def my_cmd(event):
             logger.info(text)
         elif START_CMD:
             msg = '''请正确使用/cmd命令，如
-            /cmd jlog    # 删除旧日志
-            /cmd jup     # 更新所有脚本
-            /cmd jcode   # 导出所有互助码
-            /cmd jcsv    # 记录豆豆变化情况
-            不建议直接使用cmd命令执行脚本，请使用/node或/snode
+            /cmd task    # 查看命令帮助
             '''
             await jdbot.send_message(chat_id, msg)
         else:
