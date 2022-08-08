@@ -9,7 +9,7 @@ from .utils import split_list, logger, press_event
 async def bot_set(event):
     SENDER = event.sender_id
     try:
-        msg = await jdbot.send_message(chat_id, '请稍后，正在查询')
+        msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
         with open(BOT_SET_JSON_FILE_USER, 'r', encoding='utf-8') as f:
             myset = json.load(f)
         info = '您目前设置如下：\n'
@@ -65,7 +65,7 @@ async def bot_set(event):
 async def bot_setname(event):
     SENDER = event.sender_id
     try:
-        msg = await jdbot.send_message(chat_id, '请稍后，正在查询')
+        msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
         with open(BOT_SET_JSON_FILE_USER, 'r', encoding='utf-8') as f:
             myset = json.load(f)
         info = '您目前命令别名设置如下：\n'

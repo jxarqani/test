@@ -11,7 +11,7 @@ from io import BytesIO
 from telethon import events
 #从上级目录引入 jdbot,chat_id变量
 from .. import jdbot,chat_id,LOG_DIR,logger,BOT_DIR
-from ..bot.utils import CONFIG_SH_FILE, get_cks, AUTH_FILE, QL
+from ..bot.utils import CONFIG_SH_FILE, get_cks
 from ..bot.quickchart import QuickChart,QuickChartFunction
 
 users = [chat_id]#允许的用户id
@@ -118,10 +118,7 @@ def get_total_beans(ck):
 
 def get_bean_data(i):
     try:
-        if QL:
-            ckfile = AUTH_FILE
-        else:
-            ckfile = CONFIG_SH_FILE
+        ckfile = CONFIG_SH_FILE
         cookies = get_cks(ckfile)
         if cookies:
             ck = cookies[i-1]
@@ -267,7 +264,7 @@ def createChart(income,out,label):
 async def hi(event):
     msg_text = event.raw_text.split(' ')
     chat_id = event.sender_id
-    msg = await jdbot.send_message(chat_id, '正在查询，请稍后...')
+    msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
     try:
         if isinstance(msg_text, list) and len(msg_text) == 2:
             text = msg_text[-1]

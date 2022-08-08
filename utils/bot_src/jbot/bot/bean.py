@@ -1,10 +1,9 @@
 from PIL import Image, ImageFont, ImageDraw
 from telethon import events
-from .. import LOG_DIR, jdbot, chat_id, BOT_SET, BOT_DIR, logger,  ch_name
+from .. import LOG_DIR, jdbot, chat_id, BOT_SET, BOT_DIR, logger, ch_name
 from prettytable import PrettyTable
 import subprocess
 from .beandata import get_bean_data
-from .utils import V4
 
 BEAN_IN_FILE = f'{LOG_DIR}/bean_income.csv'
 BEAN_OUT_FILE = f'{LOG_DIR}/bean_outlay.csv'
@@ -17,18 +16,18 @@ FONT_FILE = f'{BOT_DIR}/font/jet.ttf'
 async def bot_bean(event):
     msg_text = event.raw_text.split(' ')
     try:
-        msg = await jdbot.send_message(chat_id, '正在查询，请稍后')
+        msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
         if isinstance(msg_text, list) and len(msg_text) == 2:
             text = msg_text[-1]
         else:
             text = None
-        if V4 and text == 'in':
+        if text == 'in':
             subprocess.check_output(
                 'jcsv', shell=True, stderr=subprocess.STDOUT)
             creat_bean_counts(BEAN_IN_FILE)
             await jdbot.delete_messages(chat_id, msg)
             await jdbot.send_message(chat_id, '您的近日收入情况', file=BEAN_IMG)
-        elif V4 and text == 'out':
+        elif text == 'out':
             subprocess.check_output(
                 'jcsv', shell=True, stderr=subprocess.STDOUT)
             creat_bean_counts(BEAN_OUT_FILE)
@@ -52,7 +51,7 @@ async def bot_bean(event):
             await jdbot.send_message(chat_id, '您的总京豆情况', file=BEAN_IMG)
         else:
             await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, '青龙暂仅支持/bean n n为账号数字')
+            await jdbot.send_message(chat_id, '暂仅支持/bean n n为账号数字')
     except Exception as e:
         await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry{str(e)}')

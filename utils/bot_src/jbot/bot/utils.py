@@ -1,79 +1,20 @@
-import requests
-import os
+import re,os,datetime,asyncio
 from functools import wraps
 from telethon import events, Button
-import re
-import time
-import json
 from .. import jdbot, chat_id, LOG_DIR, logger, JD_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
-import asyncio
-import datetime
+
 row = int(BOT_SET['每页列数'])
 CRON_FILE = f'{CONFIG_DIR}/crontab.list'
 BEAN_LOG_DIR = f'{LOG_DIR}/jd_bean_change/'
 CONFIG_SH_FILE = f'{CONFIG_DIR}/config.sh'
-V4, QL = False, False
-if os.environ.get('JD_DIR'):
-    V4 = True
-    AUTH_FILE = None
-    if os.path.exists(f'{CONFIG_DIR}/cookie.sh'):
-        CONFIG_SH_FILE = f'{CONFIG_DIR}/cookie.sh'
-    DIY_DIR = OWN_DIR
-    TASK_CMD = 'task'
-elif os.environ.get('QL_DIR'):
-    QL = True
-    AUTH_FILE = f'{CONFIG_DIR}/auth.json'
-    DIY_DIR = None
-    TASK_CMD = 'task'
-    dirs = os.listdir(LOG_DIR)
-    for mydir in dirs:
-        if 'jd_bean_change' in mydir:
-            BEAN_LOG_DIR = f'{LOG_DIR}/{mydir}'
-            break
-else:
-    DIY_DIR = None
-    TASK_CMD = 'node'
-
-
-def Ver_Main(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        res = func(*args, **kwargs)
-        if str(res).find('valid sign') > -1 :
-            msg = ql_login()
-            return {'code': 400, 'data': msg}
-        return res
-    return wrapper
-
-
-def ql_login():
-    url = 'http://127.0.0.1:5600/api/login'
-    with open(AUTH_FILE, 'r', encoding='utf-8') as f:
-        auth = json.load(f)
-    data = {'username': auth['username'], 'password': auth['password']}
-    try:
-        res = requests.post(url, json=data).json()
-        if res['code'] == 200:
-            return '自动登录成功，请重新执行命令'
-        elif res['message'].find('两步验证') > -1:
-            return ' 当前登录已过期，且已开启两步登录验证，请使用命令/auth 六位验证码完成登录'
-    except Exception as e:
-        return '自动登录出错：' + str(e)
+DIY_DIR = OWN_DIR
+TASK_CMD = 'task'
 
 
 def get_cks(ckfile):
     ck_reg = re.compile(r'pt_key=\S*?;.*?pt_pin=\S*?;')
-    cookie_file = r'/ql/db/cookie.db'
-    if QL and not os.path.exists(cookie_file):
-        with open(ckfile, 'r', encoding='utf-8') as f:
-            auth = json.load(f)
-        lines = str(env_manage_QL('search', 'JD_COOKIE', auth['token']))
-    elif QL:
-        with open(f'{CONFIG_DIR}/cookie.sh', 'r', encoding='utf-8') as f:
-            lines = f.read()
-    else:
-        with open(ckfile, 'r', encoding='utf-8') as f:
-            lines = f.read()
+    with open(ckfile, 'r', encoding='utf-8') as f:
+        lines = f.read()
     cookies = ck_reg.findall(lines)
     for ck in cookies:
         if ck == 'pt_key=xxxxxxxxxx;pt_pin=xxxx;':
@@ -123,17 +64,12 @@ async def cmd(cmdtext):
     try:
         msg = await jdbot.send_message(chat_id, '开始执行命令')
         p = await asyncio.create_subprocess_shell(
-            cmdtext+"| sed 's/\[3[0-9]m//g; s/\[4[0-9];3[0-9]m//g; s/\[[0-1]m//g'", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9];3[0-9]m//g; s/\[[0-1]m//g'", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()
         res = res_bytes.decode('utf-8')
-        if res.find('先登录') > -1:
-            await jdbot.delete_messages(chat_id, msg)
-            res, msg = ql_login()
-            await jdbot.send_message(chat_id, msg)
-            return
         res = reContent_INVALID(res)
         if len(res) == 0:
-            await jdbot.edit_message(msg, '已执行，但返回值为空')
+            await jdbot.edit_message(msg, '已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 2000:
             await jdbot.delete_messages(chat_id, msg)
             await jdbot.send_message(chat_id, res)
@@ -142,7 +78,7 @@ async def cmd(cmdtext):
             with open(tmp_log, 'w+', encoding='utf-8') as f:
                 f.write(res)
             await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, '执行结果较长，请查看日志', file=tmp_log)
+            await jdbot.send_message(chat_id, '✅ 执行结果较长，具体请查看日志', file=tmp_log)
             os.remove(tmp_log)
     except Exception as e:
         await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
@@ -264,14 +200,7 @@ async def snode_btn(conv, sender, path, msg, page, files_list):
             if my_btns not in new_markup:
                 new_markup.append(my_btns)
         else:
-            if path == JD_DIR and V4:
-                dir = ['scripts', OWN_DIR.split('/')[-1]]
-            elif path == JD_DIR and QL:
-                dir = ['scripts']
-            else:
-                dir = os.listdir(path)
-                if BOT_SET['中文'].lower() == "true":
-                    dir = get_ch_names(path, dir)
+            dir = ['scripts', OWN_DIR.split('/')[-1]]
             dir.sort()
             markup = [Button.inline(file.split('--->')[0], data=str(file.split('--->')[-1]))
                       for file in dir if os.path.isdir(f'{path}/{file}') or file.endswith('.js')]
@@ -330,33 +259,13 @@ def mycron(lines):
     cronreg = re.compile(r'([0-9\-\*/,]{1,} ){4,5}([0-9\-\*/,]){1,}')
     return cronreg.search(lines).group()
 
-def add_cron_V4(cron):
-    owninfo = '# 用户定时任务区'
-    with open(CRON_FILE, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    for line in lines:
-        if owninfo in line:
-            i = lines.index(line)
-            lines.insert(i+4, cron+'\n')
-            break
-    with open(CRON_FILE, 'w', encoding='utf-8') as f:
-        f.write(''.join(lines))
-
 
 async def add_cron(jdbot, conv, resp, filename, msg, sender, markup, path):
     try:
-        if QL:
-            crondata = {
-                "name": f'{filename.split(".")[0]}', "command": f'task {path}/{filename}', "schedule": f'{mycron(resp)}'}
-        else:
-            crondata = f'{mycron(resp)} task {path}/{filename}'
+        crondata = f'{mycron(resp)} task {path}/{filename}'
         msg = await jdbot.edit_message(msg, f'已识别定时\n```{crondata}```\n是否需要修改', buttons=markup)
     except:
-        if QL:
-            crondata = {
-                "name": f'{filename.split(".")[0]}', "command": f'task {path}/{filename}', "schedule": f'0 0 * * *'}
-        else:
-            crondata = f'0 0 * * * task {path}/{filename}'
+        crondata = f'0 0 * * * task {path}/{filename}'
         msg = await jdbot.edit_message(msg, f'未识别到定时，默认定时\n```{crondata}```\n是否需要修改', buttons=markup)
     convdata3 = await conv.wait_event(press_event(sender))
     res3 = bytes.decode(convdata3.data)
@@ -370,118 +279,66 @@ async def add_cron(jdbot, conv, resp, filename, msg, sender, markup, path):
             return
         await jdbot.delete_messages(chat_id, convmsg)
     await jdbot.delete_messages(chat_id, msg)
-    if QL:
-        with open(AUTH_FILE, 'r', encoding='utf-8') as f:
-            auth = json.load(f)
-        res = cron_manage_QL('add', json.loads(
-            str(crondata).replace('\'', '\"')), auth['token'])
-        if res['code'] == 200:
-            await jdbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
-        else:
-            await jdbot.send_message(chat_id, f'{filename}已保存到{path},定时任务添加失败，{res["data"]}')
-    else:
-        add_cron_V4(crondata)
-        await jdbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
+
+    owninfo = '# 用户定时任务区'
+    with open(CRON_FILE, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    for line in lines:
+        if owninfo in line:
+            i = lines.index(line)
+            lines.insert(i + 4, crondata+'\n')
+            break
+    with open(CRON_FILE, 'w', encoding='utf-8') as f:
+        f.write(''.join(lines))
+
+    await jdbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
 
 
-@Ver_Main
-def cron_manage_QL(fun, crondata, token):
-    url = 'http://127.0.0.1:5600/api/crons'
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    try:
-        if fun == 'search':
-            params = {
-                't': int(round(time.time() * 1000)),
-                'searchValue': crondata
-            }
-            res = requests.get(url, params=params, headers=headers).json()
-        elif fun == 'add':
-            data = {
-                'name': crondata['name'],
-                'command': crondata['command'],
-                'schedule': crondata['schedule']
-            }
-            res = requests.post(url, data=data, headers=headers).json()
-        elif fun == 'run':
-            data = [crondata['id']]
-            res = requests.put(f'{url}/run', json=data, headers=headers).json()
-        elif fun == 'log':
-            data = crondata['id']
-            res = requests.get(f'{url}/{data}/log', headers=headers).json()
-        elif fun == 'edit':
-            data = {
-                'name': crondata['name'],
-                'command': crondata['command'],
-                'schedule': crondata['schedule'],
-                'id': crondata['id']
-            }
-            res = requests.put(url, json=data, headers=headers).json()
-        elif fun == 'disable':
-            data = [crondata['id']]
-            res = requests.put(url+'/disable', json=data,
-                               headers=headers).json()
-        elif fun == 'enable':
-            data = [crondata['id']]
-            res = requests.put(url+'/enable', json=data,
-                               headers=headers).json()
-        elif fun == 'del':
-            data = [crondata['id']]
-            res = requests.delete(url, json=data, headers=headers).json()
-        else:
-            res = {'code': 400, 'data': '未知功能'}
-    except Exception as e:
-        res = {'code': 400, 'data': str(e)}
-    finally:
-        return res
-
-
-def cron_manage_V4(fun, crondata):
+def cron_manage_api(fun, crondata):
     file = f'{CONFIG_DIR}/crontab.list'
     with open(file, 'r', encoding='utf-8') as f:
-        v4crons = f.readlines()
+        crons = f.readlines()
     try:
         if fun == 'search':
             res = {'code': 200, 'data': {}}
-            for cron in v4crons:
+            for cron in crons:
                 if str(crondata) in cron:
                     res['data'][cron.split(
                         'task ')[-1].split(' ')[0].split('/')[-1].replace('\n', '')] = cron
         elif fun == 'add':
-            v4crons.append(crondata)
+            crons.append(crondata)
             res = {'code': 200, 'data': 'success'}
         elif fun == 'run':
             cmd(f'task {crondata.split("task")[-1]}')
             res = {'code': 200, 'data': 'success'}
         elif fun == 'edit':
             ocron, ncron = crondata.split('-->')
-            i = v4crons.index(ocron)
-            v4crons.pop(i)
-            v4crons.insert(i, ncron)
+            i = crons.index(ocron)
+            crons.pop(i)
+            crons.insert(i, ncron)
             res = {'code': 200, 'data': 'success'}
         elif fun == 'disable':
-            i = v4crons.index(crondata)
+            i = crons.index(crondata)
             crondatal = list(crondata)
             crondatal.insert(0, '#')
             ncron = ''.join(crondatal)
-            v4crons.pop(i)
-            v4crons.insert(i, ncron)
+            crons.pop(i)
+            crons.insert(i, ncron)
             res = {'code': 200, 'data': 'success'}
         elif fun == 'enable':
-            i = v4crons.index(crondata)
+            i = crons.index(crondata)
             ncron = crondata.replace('#', '')
-            v4crons.pop(i)
-            v4crons.insert(i, ncron)
+            crons.pop(i)
+            crons.insert(i, ncron)
             res = {'code': 200, 'data': 'success'}
         elif fun == 'del':
-            i = v4crons.index(crondata)
-            v4crons.pop(i)
+            i = crons.index(crondata)
+            crons.pop(i)
             res = {'code': 200, 'data': 'success'}
         else:
             res = {'code': 400, 'data': '未知功能'}
         with open(file, 'w', encoding='utf-8') as f:
-            f.write(''.join(v4crons))
+            f.write(''.join(crons))
     except Exception as e:
         res = {'code': 400, 'data': str(e)}
     finally:
@@ -489,55 +346,6 @@ def cron_manage_V4(fun, crondata):
 
 
 def cron_manage(fun, crondata, token):
-    if QL:
-        res = cron_manage_QL(fun, crondata, token)
-    else:
-        res = cron_manage_V4(fun, crondata)
+    res = cron_manage_api(fun, crondata)
     return res
 
-
-@Ver_Main
-def env_manage_QL(fun, envdata, token):
-    url = 'http://127.0.0.1:5600/api/envs'
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    try:
-        if fun == 'search':
-            params = {
-                't': int(round(time.time() * 1000)),
-                'searchValue': envdata
-            }
-            res = requests.get(url, params=params, headers=headers).json()
-        elif fun == 'add':
-            data = {
-                'name': envdata['name'],
-                'value': envdata['value'],
-                'remarks': envdata['remarks'] if 'remarks' in envdata.keys() else ''
-            }
-            res = requests.post(url, json=[data], headers=headers).json()
-        elif fun == 'edit':
-            data = {
-                'name': envdata['name'],
-                'value': envdata['value'],
-                'id': envdata['id'],
-                'remarks': envdata['remarks'] if 'remarks' in envdata.keys() else ''
-            }
-            res = requests.put(url, json=data, headers=headers).json()
-        elif fun == 'disable':
-            data = [envdata['id']]
-            res = requests.put(url+'/disable', json=data,
-                               headers=headers).json()
-        elif fun == 'enable':
-            data = [envdata['id']]
-            res = requests.put(url+'/enable', json=data,
-                               headers=headers).json()
-        elif fun == 'del':
-            data = [envdata['id']]
-            res = requests.delete(url, json=data, headers=headers).json()
-        else:
-            res = {'code': 400, 'data': '未知功能'}
-    except Exception as e:
-        res = {'code': 400, 'data': str(e)}
-    finally:
-        return res

@@ -8,7 +8,7 @@ from .. import jdbot, chat_id, SHORTCUT_FILE, logger, BOT_SET, ch_name
 async def my_a(event):
     markup = []
     SENDER = event.sender_id
-    msg = await jdbot.send_message(chat_id, '正在查询您的常用命令，请稍后')
+    msg = await jdbot.send_message(chat_id, '🕙 正在查询您的常用命令，请稍后...')
     with open(SHORTCUT_FILE, 'r', encoding='utf-8') as f:
         shortcuts = f.readlines()
     try:
@@ -40,7 +40,7 @@ async def my_a(event):
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/b$'))
 async def my_b(event):
     markup = []
-    msg = await jdbot.send_message(chat_id, '正在查询您的常用命令，请稍后')
+    msg = await jdbot.send_message(chat_id, '🕙 正在查询您的常用命令，请稍后...')
     with open(SHORTCUT_FILE, 'r', encoding='utf-8') as f:
         shortcuts = f.readlines()
     try:

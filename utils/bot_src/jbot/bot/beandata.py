@@ -4,7 +4,7 @@ import time
 import json
 from datetime import timedelta
 from datetime import timezone
-from .utils import CONFIG_SH_FILE, get_cks, AUTH_FILE, QL,logger
+from .utils import CONFIG_SH_FILE, get_cks, logger
 SHA_TZ = timezone(
     timedelta(hours=8),
     name='Asia/Shanghai',
@@ -107,10 +107,7 @@ def get_total_beans(ck):
 
 def get_bean_data(i):
     try:
-        if QL:
-            ckfile = AUTH_FILE
-        else:
-            ckfile = CONFIG_SH_FILE
+        ckfile = CONFIG_SH_FILE
         cookies = get_cks(ckfile)
         if cookies:
             ck = cookies[i-1]

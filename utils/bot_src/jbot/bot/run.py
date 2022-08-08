@@ -3,7 +3,7 @@ from .. import jdbot, chat_id, JD_DIR, BOT_SET, ch_name
 from .utils import cmd, snode_btn
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/snode'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/run'))
 async def my_snode(event):
     '''定义supernode文件命令'''
     SENDER = event.sender_id
@@ -11,7 +11,7 @@ async def my_snode(event):
     page = 0
     filelist = None
     async with jdbot.conversation(SENDER, timeout=60) as conv:
-        msg = await conv.send_message('正在查询，请稍后')
+        msg = await conv.send_message('🕙 正在查询，请稍后...')
         while path:
             path, msg, page, filelist = await snode_btn(conv, SENDER, path, msg, page, filelist)
     if filelist and filelist.startswith('CMD-->'):

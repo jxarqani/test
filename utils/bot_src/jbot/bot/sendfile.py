@@ -12,7 +12,7 @@ async def bot_log(event):
     page = 0
     filelist = None
     async with jdbot.conversation(SENDER, timeout=60) as conv:
-        msg = await conv.send_message('正在查询，请稍后...')
+        msg = await conv.send_message('🕙 正在查询，请稍后...')
         while path:
             path, msg, page, filelist = await log_btn(conv, SENDER, path, msg, page, filelist)
 
@@ -45,7 +45,7 @@ async def bot_getfile(event):
     else:
         filelist = None
     async with jdbot.conversation(SENDER, timeout=60) as conv:
-        msg = await conv.send_message('正在查询，请稍后')
+        msg = await conv.send_message('🕙 正在查询，请稍后...')
         while path:
             path, msg, page, filelist = await log_btn(conv, SENDER, path, msg, page, filelist)
 

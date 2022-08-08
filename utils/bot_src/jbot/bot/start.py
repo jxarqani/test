@@ -15,7 +15,6 @@ async def bot_start(event):
     /cron 进行cron管理。
     /dl 下载文件，例：/dl https://raw.githubusercontent.com/SuMaiKaDe/bot/main/requirements.txt
     /edit 从目录选择文件并编辑，需要将编辑好信息全部发给BOT，BOT会根据你发的信息进行替换。建议仅编辑config或crontab.list，其他文件慎用！！！
-    /env 环境变量管理，仅支持青龙面板。
     /getfile 获取/jd目录下文件。
     /log 查看脚本执行日志。
     /node 执行js脚本，输入/node xxxxx.js。如执行非scripts目录js，需输入绝对路径执行。node命令会等待脚本执行完，期间不能使用BOT，建议使用snode命令。

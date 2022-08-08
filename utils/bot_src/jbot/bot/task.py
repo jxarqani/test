@@ -3,7 +3,7 @@ from .. import jdbot, chat_id, BOT_SET, ch_name
 from .utils import cmd, TASK_CMD
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern='/node'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern='/task'))
 async def bot_node(event):
     '''接收/node命令后执行程序'''
     msg_text = event.raw_text.split(' ')
@@ -12,9 +12,9 @@ async def bot_node(event):
     else:
         text = None
     if not text:
-        res = '''请正确使用/node命令，如
-        /node /abc/123.js 运行abc/123.js脚本
-        /node /own/abc.js 运行own/abc.js脚本
+        res = '''请正确使用 /task 命令，如
+        /task scripts/123.js
+        /task /jd/own/abc.js
         '''
         await jdbot.send_message(chat_id, res)
     else:

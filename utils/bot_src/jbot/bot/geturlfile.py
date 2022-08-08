@@ -2,7 +2,7 @@ from telethon import events, Button
 import requests
 from asyncio import exceptions
 from .. import jdbot, chat_id, logger, SCRIPTS_DIR, CONFIG_DIR, logger, BOT_SET, ch_name
-from .utils import press_event, backup_file, DIY_DIR, TASK_CMD, V4, cmd, add_cron
+from .utils import press_event, backup_file, DIY_DIR, TASK_CMD, cmd, add_cron
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/dl'))
@@ -19,25 +19,20 @@ async def bot_url_file(event):
             await jdbot.send_message(chat_id, '请正确使用dl命令，需加入下载链接')
             return
         else:
-            msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
+            msg = await jdbot.send_message(chat_id, '🕙 正在下载文件，请稍后...')
         if '下载代理' in BOT_SET.keys() and str(BOT_SET['下载代理']).lower() != 'false' and 'github' in url:
             url = f'{str(BOT_SET["下载代理"])}/{url}'
         file_name = url.split('/')[-1]
         resp = requests.get(url).text
-        v4btn = [[Button.inline('放入config', data=CONFIG_DIR), Button.inline('放入scripts', data=SCRIPTS_DIR), Button.inline('放入OWN文件夹', data=DIY_DIR)], [
+        btn = [[Button.inline('放入config', data=CONFIG_DIR), Button.inline('放入scripts', data=SCRIPTS_DIR), Button.inline('放入OWN文件夹', data=DIY_DIR)], [
             Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]]
-        btn = [[Button.inline('放入config', data=CONFIG_DIR), Button.inline('放入scripts', data=SCRIPTS_DIR)], [
-            Button.inline('放入scripts并运行', data='node1'), Button.inline('取消', data='cancel')]]
         if resp:
             cmdtext = None
             markup = []
             async with jdbot.conversation(SENDER, timeout=30) as conv:
                 await jdbot.delete_messages(chat_id, msg)
                 msg = await conv.send_message('请选择您要放入的文件夹或操作：\n')
-                if V4:
-                    markup = v4btn
-                else:
-                    markup = btn
+                markup = btn
                 msg = await jdbot.edit_message(msg, '请选择您要放入的文件夹或操作：', buttons=markup)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)

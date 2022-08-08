@@ -36,7 +36,7 @@ async def my_edit(event):
     else:
         filelist = None
     async with jdbot.conversation(SENDER, timeout=120) as conv:
-        msg = await conv.send_message('正在查询，请稍后')
+        msg = await conv.send_message('🕙 正在查询，请稍后...')
         while path:
             path, msg, page, filelist = await edit_file(conv, SENDER, path, msg, page, filelist)
 
