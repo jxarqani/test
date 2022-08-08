@@ -1,7 +1,7 @@
 import re,os,datetime,asyncio
 from functools import wraps
 from telethon import events, Button
-from .. import jdbot, chat_id, LOG_DIR, logger, JD_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
+from .. import jdbot, chat_id, LOG_DIR, logger, WORK_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
 
 row = int(BOT_SET['每页列数'])
 CRON_FILE = f'{CONFIG_DIR}/crontab.list'
@@ -64,12 +64,12 @@ async def cmd(cmdtext):
     try:
         msg = await jdbot.send_message(chat_id, '开始执行命令')
         p = await asyncio.create_subprocess_shell(
-            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9];3[0-9]m//g; s/\[[0-1]m//g'", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()
         res = res_bytes.decode('utf-8')
         res = reContent_INVALID(res)
         if len(res) == 0:
-            await jdbot.edit_message(msg, '已执行命令但返回值为空，可能遇到了某些错误～')
+            await jdbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 2000:
             await jdbot.delete_messages(chat_id, msg)
             await jdbot.send_message(chat_id, res)
@@ -78,7 +78,7 @@ async def cmd(cmdtext):
             with open(tmp_log, 'w+', encoding='utf-8') as f:
                 f.write(res)
             await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, '✅ 执行结果较长，具体请查看日志', file=tmp_log)
+            await jdbot.send_message(chat_id, '执行结果较长，具体请查看日志文件内容', file=tmp_log)
             os.remove(tmp_log)
     except Exception as e:
         await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
@@ -145,7 +145,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
                 new_markup.append(my_btns)
             else:
                 new_markup = markup
-                if path == JD_DIR:
+                if path == WORK_DIR:
                     new_markup.append([Button.inline('取消', data='cancel')])
                 else:
                     new_markup.append(
@@ -170,7 +170,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
         elif res == 'updir':
             path = '/'.join(path.split('/')[:-1])
             if path == '':
-                path = JD_DIR
+                path = WORK_DIR
             return path, msg, page, None
         elif os.path.isfile(f'{path}/{res}'):
             msg = await jdbot.edit_message(msg, '文件发送中，请注意查收')
@@ -211,7 +211,7 @@ async def snode_btn(conv, sender, path, msg, page, files_list):
                 new_markup.append(my_btns)
             else:
                 new_markup = markup
-                if path == JD_DIR:
+                if path == WORK_DIR:
                     new_markup.append([Button.inline('取消', data='cancel')])
                 else:
                     new_markup.append(
@@ -236,7 +236,7 @@ async def snode_btn(conv, sender, path, msg, page, files_list):
         elif res == 'updir':
             path = '/'.join(path.split('/')[:-1])
             if path == '':
-                path = JD_DIR
+                path = WORK_DIR
             return path, msg, page, None
         elif os.path.isfile(f'{path}/{res}'):
             conv.cancel()

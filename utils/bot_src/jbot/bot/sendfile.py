@@ -1,5 +1,5 @@
 from telethon import events
-from .. import LOG_DIR, jdbot, chat_id, LOG_DIR, JD_DIR, BOT_SET, ch_name
+from .. import LOG_DIR, jdbot, chat_id, LOG_DIR, WORK_DIR, BOT_SET, ch_name
 from .utils import log_btn
 import os
 
@@ -26,7 +26,7 @@ async def bot_run_log(event):
 async def bot_getfile(event):
     '''定义获取文件命令'''
     SENDER = event.sender_id
-    path = JD_DIR
+    path = WORK_DIR
     page = 0
     msg_text = event.raw_text.split(' ')
     if len(msg_text) == 2:

@@ -3,13 +3,13 @@ import json
 import os
 import logging
 
-JD_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-CONFIG_DIR = f'{JD_DIR}/config'
-SCRIPTS_DIR = f'{JD_DIR}/scripts'
-OWN_DIR = f'{JD_DIR}/own'
-BOT_DIR = f'{JD_DIR}/jbot'
-_DiyScripts = f'{JD_DIR}/diyscripts'
-LOG_DIR = f'{JD_DIR}/log'
+WORK_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+CONFIG_DIR = f'{WORK_DIR}/config'
+SCRIPTS_DIR = f'{WORK_DIR}/scripts'
+OWN_DIR = f'{WORK_DIR}/own'
+BOT_DIR = f'{WORK_DIR}/jbot'
+_DiyScripts = f'{WORK_DIR}/diyscripts'
+LOG_DIR = f'{WORK_DIR}/log'
 SHORTCUT_FILE = f'{CONFIG_DIR}/shortcut.list'
 BOT_LOG_FILE = f'{LOG_DIR}/bot/run.log'
 BOT_JSON_FILE = f'{CONFIG_DIR}/bot.json'

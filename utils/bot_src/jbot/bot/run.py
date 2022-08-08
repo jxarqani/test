@@ -1,13 +1,13 @@
 from telethon import events
-from .. import jdbot, chat_id, JD_DIR, BOT_SET, ch_name
+from .. import jdbot, chat_id, WORK_DIR, BOT_SET, ch_name
 from .utils import cmd, snode_btn
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/run'))
 async def my_snode(event):
-    '''定义supernode文件命令'''
+    '''定义run命令'''
     SENDER = event.sender_id
-    path = JD_DIR
+    path = WORK_DIR
     page = 0
     filelist = None
     async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -19,4 +19,4 @@ async def my_snode(event):
 
 if ch_name:
     jdbot.add_event_handler(my_snode, events.NewMessage(
-        from_users=chat_id, pattern=BOT_SET['命令别名']['snode']))
+        from_users=chat_id, pattern=BOT_SET['命令别名']['run']))

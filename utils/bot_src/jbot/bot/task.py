@@ -5,7 +5,7 @@ from .utils import cmd, TASK_CMD
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern='/task'))
 async def bot_node(event):
-    '''接收/node命令后执行程序'''
+    '''接收/task命令后执行程序'''
     msg_text = event.raw_text.split(' ')
     if isinstance(msg_text,list) and len(msg_text) == 2:
         text = ''.join(msg_text[1:])
@@ -13,8 +13,9 @@ async def bot_node(event):
         text = None
     if not text:
         res = '''请正确使用 /task 命令，如
-        /task scripts/123.js
-        /task /jd/own/abc.js
+        /task scripts/example.js now
+        /task /jd/own/author_repo/example.js
+        /task https://raw.githubusercontent.com/author/repo/main/example.js
         '''
         await jdbot.send_message(chat_id, res)
     else:
@@ -22,4 +23,4 @@ async def bot_node(event):
 
 if ch_name:
     jdbot.add_event_handler(bot_node, events.NewMessage(
-        from_users=chat_id, pattern=BOT_SET['命令别名']['node']))
+        from_users=chat_id, pattern=BOT_SET['命令别名']['task']))

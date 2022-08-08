@@ -2,7 +2,7 @@ from telethon import events, Button
 import os
 import shutil
 from asyncio import exceptions
-from .. import jdbot, chat_id, JD_DIR, BOT_SET, ch_name
+from .. import jdbot, chat_id, WORK_DIR, BOT_SET, ch_name
 from .utils import split_list, logger, press_event
 
 
@@ -12,7 +12,7 @@ async def my_edit(event):
     logger.info(f'即将执行{event.raw_text}命令')
     msg_text = event.raw_text.split(' ')
     SENDER = event.sender_id
-    path = JD_DIR
+    path = WORK_DIR
     page = 0
     if isinstance(msg_text,list) and len(msg_text) == 2:
         text = msg_text[-1]
@@ -75,7 +75,7 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
                     newmarkup.append(mybtn)
                 else:
                     newmarkup = markup
-                    if path == JD_DIR:
+                    if path == WORK_DIR:
                         newmarkup.append([Button.inline('取消', data='cancel')])
                     else:
                         newmarkup.append(
@@ -110,7 +110,7 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
         elif res == 'updir':
             path = '/'.join(path.split('/')[:-1])
             if path == '':
-                path = JD_DIR
+                path = WORK_DIR
             return path, msg, page,  None
         elif res == 'edit':
             await jdbot.send_message(chat_id, '请复制并修改以下内容，修改完成后发回机器人，2分钟内有效\n发送`cancel`或`取消`取消对话')
