@@ -4,8 +4,8 @@ scripts/
 own/
 log/
 logs/
-config/
-jbot/
+./config/
+./jbot/
 utils/.sign/
 web/node_modules/
 web/package-lock.json
