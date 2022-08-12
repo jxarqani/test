@@ -10,10 +10,16 @@ session.keep_alive = False
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern='/code'))
 async def code(event):
-    text = re.split(r'\/env |\/env\@ParseJDBot ', event.raw_text, re.S)
+    parameter = re.split(r'\/code ', event.raw_text, re.S)
+    if len(parameter) == 1:
+        ## 消息为空
+        await jdbot.send_message(chat_id, ("请输入需要解析的口令"))
+        return
+    else:
+        msg = await jdbot.send_message(chat_id, ("🕙 正在解析中，请稍后..."))
+        text = parameter[1]
 
     if (re.match(r'.*:/(?!/).*', text, re.S)) or (re.match(r'.*\([0-9a-zA-Z]{1,12}\).*', text, re.S)) or (re.match(r'.*[￥！][0-9a-zA-Z]{1,12}(?!/).*', text, re.S)):
-        msg = await jdbot.send_message(chat_id, ("🕙 正在解析中，请稍后..."))
         try:
             headers = {"Content-Type": "application/json"}
             data = requests.post(url=API, headers=headers, json={"code": text}).json()
@@ -30,6 +36,6 @@ async def code(event):
             push_msg = "❌ 接口回传数据异常"
 
     else:
-        push_msg = "请输入正确的口令"
+        push_msg = "请输入正确的口令！"
 
     await jdbot.edit_message(msg, push_msg, link_preview=False)
