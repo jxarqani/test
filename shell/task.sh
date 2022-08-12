@@ -452,7 +452,7 @@ function Account_ExistenceJudgment() {
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
         echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
-        exit ## 终止退出
+        exit 1 ## 终止退出
     fi
 }
 
@@ -1897,7 +1897,7 @@ function Manage_Env() {
                     ;;
                 disable)
                     echo -e "\n$COMPLETE 该环境变量已经禁用，不执行任何操作\n"
-                    exit ## 终止退出
+                    exit 1 ## 终止退出
                     ;;
                 *)
                     Output_Command_Error 1 ## 命令错误
@@ -1908,7 +1908,7 @@ function Manage_Env() {
                 case ${Mod} in
                 enable)
                     echo -e "\n$COMPLETE 该环境变量已经启用，不执行任何操作\n"
-                    exit ## 终止退出
+                    exit 1 ## 终止退出
                     ;;
                 disable)
                     sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
@@ -2201,7 +2201,7 @@ function Manage_Env() {
                     if [ $ExitStatus -eq 0 ]; then
                         ModifyEnv "${Variable}" "${Value}"
                     else
-                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
+                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动添加"
                         AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
@@ -2209,7 +2209,7 @@ function Manage_Env() {
                     if [ $ExitStatus -eq 0 ]; then
                         ModifyEnv "${Variable}" "${Value}" "$4"
                     else
-                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动为您添加"
+                        echo -e "\n$WARN 由于未检测到该环境变量因此将自动添加"
                         AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
@@ -2239,6 +2239,7 @@ function Manage_Env() {
             echo -e "\n$COMPLETE 查询完毕\n"
         else
             echo -e "\n$ERROR 未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！\n"
+            exit 1
         fi
         ;;
     esac
@@ -2515,7 +2516,7 @@ function List_Local_Scripts() {
             fi
         else
             echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！\n"
-            exit ## 终止退出
+            exit 1 ## 终止退出
         fi
 
         cd $WorkDir

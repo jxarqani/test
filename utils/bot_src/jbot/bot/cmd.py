@@ -18,7 +18,8 @@ async def my_cmd(event):
             logger.info(text)
         elif START_CMD:
             msg = '''请正确使用/cmd命令，如
-            /cmd task    # 查看命令帮助
+            /cmd task                # 查看命令帮助
+            /cmd task cookie list    # 查看本地账号清单
             '''
             await jdbot.send_message(chat_id, msg)
         else:

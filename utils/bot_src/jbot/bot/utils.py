@@ -7,7 +7,6 @@ row = int(BOT_SET['每页列数'])
 CRON_FILE = f'{CONFIG_DIR}/crontab.list'
 BEAN_LOG_DIR = f'{LOG_DIR}/jd_bean_change/'
 CONFIG_SH_FILE = f'{CONFIG_DIR}/config.sh'
-DIY_DIR = OWN_DIR
 TASK_CMD = 'task'
 
 
@@ -64,7 +63,7 @@ async def cmd(cmdtext):
     try:
         msg = await jdbot.send_message(chat_id, '开始执行命令')
         p = await asyncio.create_subprocess_shell(
-            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'" + ' 2>&1', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()
         res = res_bytes.decode('utf-8')
         res = reContent_INVALID(res)
@@ -103,11 +102,11 @@ def get_ch_names(path, dir):
                         res = re.findall(reg, line)
                         if len(res) != 0:
                             res = res[0].split('\'')[-2]
-                            file_ch_names.append(f'{res}--->{file}')
+                            file_ch_names.append(f'{res}-->{file}')
                             ch_name = True
                         break
                 if not ch_name:
-                    file_ch_names.append(f'{file}--->{file}')
+                    file_ch_names.append(f'{file}-->{file}')
                     ch_name = False
             else:
                 continue
@@ -175,7 +174,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
         elif os.path.isfile(f'{path}/{res}'):
             msg = await jdbot.edit_message(msg, '文件发送中，请注意查收')
             await conv.send_file(f'{path}/{res}')
-            msg = await jdbot.edit_message(msg, f'{res}发送成功，请查收')
+            msg = await jdbot.edit_message(msg, f'{res} 发送成功，请查收')
             conv.cancel()
             return None, None, None, None
         else:

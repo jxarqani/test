@@ -2,7 +2,7 @@ from telethon import events, Button
 import requests
 from asyncio import exceptions
 from .. import jdbot, chat_id, logger, SCRIPTS_DIR, CONFIG_DIR, logger, BOT_SET, ch_name
-from .utils import press_event, backup_file, DIY_DIR, TASK_CMD, cmd, add_cron
+from .utils import press_event, backup_file, OWN_DIR, TASK_CMD, cmd, add_cron
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/dl'))
@@ -24,7 +24,7 @@ async def bot_url_file(event):
             url = f'{str(BOT_SET["下载代理"])}/{url}'
         file_name = url.split('/')[-1]
         resp = requests.get(url).text
-        btn = [[Button.inline('放入config', data=CONFIG_DIR), Button.inline('放入scripts', data=SCRIPTS_DIR), Button.inline('放入OWN文件夹', data=DIY_DIR)], [
+        btn = [[Button.inline('放入config', data=CONFIG_DIR), Button.inline('放入scripts', data=SCRIPTS_DIR), Button.inline('放入OWN文件夹', data=OWN_DIR)], [
             Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]]
         if resp:
             cmdtext = None
@@ -46,13 +46,13 @@ async def bot_url_file(event):
                     convdata2 = await conv.wait_event(press_event(SENDER))
                     res2 = bytes.decode(convdata2.data)
                     if res == 'node':
-                        backup_file(f'{DIY_DIR}/{file_name}')
-                        with open(f'{DIY_DIR}/{file_name}', 'w+', encoding='utf-8') as f:
+                        backup_file(f'{OWN_DIR}/{file_name}')
+                        with open(f'{OWN_DIR}/{file_name}', 'w+', encoding='utf-8') as f:
                             f.write(resp)
-                        cmdtext = f'{TASK_CMD} {DIY_DIR}/{file_name} now'
+                        cmdtext = f'{TASK_CMD} {OWN_DIR}/{file_name} now'
                         if res2 == 'yes':
                             await add_cron(jdbot, conv, resp, file_name,
-                                         msg, SENDER, markup, DIY_DIR)
+                                         msg, SENDER, markup, OWN_DIR)
                         else:
                             await jdbot.edit_message(msg, '脚本已保存到DIY文件夹，并成功运行')
                         conv.cancel()

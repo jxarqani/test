@@ -1,11 +1,6 @@
-import time
-import json
-from datetime import timedelta
-from datetime import timezone
-import datetime
+import time, json, requests, datetime
+from datetime import timedelta, timezone
 from PIL import Image, ImageDraw,ImageFont
-import os
-import requests
 from io import BytesIO
 #引入库文件，基于telethon
 from telethon import events
