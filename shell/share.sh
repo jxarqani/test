@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-12
+## Modified: 2022-08-13
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -11,8 +11,6 @@ PanelDir=$RootDir/web
 ConfigDir=$RootDir/config
 SampleDir=$RootDir/sample
 LogDir=$RootDir/log
-logDir=$RootDir/log
-logdir=$RootDir/log
 LogTmpDir=$LogDir/.tmp
 SignDir=$UtilsDir/.sign
 CodeDir=$LogDir/ShareCodes
@@ -42,8 +40,6 @@ FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
 FileProcessList=$RootDir/.process_list.log
 FileUpdateCookie=$UtilsDir/UpdateCookies.js
-FileBotSourceCode=$UtilsDir/bot-main.zip
-FileDiyBotSourceCode=$UtilsDir/JD_Diy-main.zip
 
 ## 清单
 ListCronScripts=$ScriptsDir/docker/crontab_list.sh
@@ -63,7 +59,7 @@ ListOwnRepoDrop=$LogTmpDir/own_repo_drop.list
 ListOwnRawDrop=$LogTmpDir/own_raw_drop.list
 ListOwnAll=$LogTmpDir/own_all.list
 
-## 字符串
+## 字符
 ARCH=$(uname -m)
 TaskCmd="task"
 ContrlCmd="taskctl"
@@ -87,8 +83,8 @@ EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
 COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
-ShieldingScripts="jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_enen\.js|jd_disable\.py|jd_updateCron\.ts|jd_scripts_check_dependence\.py|jd_UpdateUIDtoRemark\.js|magic\.js|magic\.py|test\.js|jd_wskey\.py|h5\.js"
-ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|${ShieldingScripts}"
+ShieldingScripts="jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_CkSeq.js|jd_disable\.py|jd_updateCron\.ts|jd_scripts_check_dependence\.py|jd_UpdateUIDtoRemark\.js|magic\.js|magic\.json|magic\.py|test\.js|wskey\.py|h5\.js|telecom\.py|main\.py|depend\.py"
+ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 RawDirUtils="node_modules|${ShieldingKeywords}"
 CoreFiles="jdCookie.js USER_AGENTS.js"
 ScriptsDirReplaceFiles=""
