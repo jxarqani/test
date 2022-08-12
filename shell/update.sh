@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-09
+## Modified: 2022-08-12
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -312,7 +312,7 @@ function Add_Cron_Scripts() {
         local Detail=$(cat $ListAdd)
         for cron in $Detail; do
             ## 新增定时任务自动禁用
-            if [[ $cron == jd_bean_sign ]]; then
+            if [[ $cron == "jd_bean_sign" ]]; then
                 if [[ ${DisableNewCron} == "true" ]]; then
                     echo "# 4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
                 else
@@ -320,9 +320,9 @@ function Add_Cron_Scripts() {
                 fi
             else
                 if [[ ${DisableNewCron} == "true" ]]; then
-                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
+                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.[jspyth]{2,2}.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
                 else
-                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1$TaskCmd \2|" >>$ListCrontabUser
+                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.[jspyth]{2,2}.+|\1$TaskCmd \2|" >>$ListCrontabUser
                 fi
             fi
         done

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-05
+## Modified: 2022-08-12
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -322,9 +322,9 @@ function base64() {
 ## 查询脚本名，$1 为脚本名
 function Query_ScriptName() {
     local FileName=$1
-    grep "\$ \=" $FileName | grep -Eiq ".*Env"
+    grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
     if [ $? -eq 0 ]; then
-        local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*Env" | head -1 | awk -F "\(" '{print $2}' | awk -F "\)" '{print $1}' | sed 's:^.\(.*\).$:\1:')
+        local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
     else
         local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
     fi
