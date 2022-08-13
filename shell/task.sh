@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-08
+## Modified: 2022-08-13
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -907,7 +907,7 @@ function Accounts_Control() {
     ## 检测
     function CheckCookie() {
         local InputContent=$1
-        local Check="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" | jq '.retcode' | sed "s/\"//g")"
+        local Check="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" | jq -r '.retcode')"
         if [[ ${Check} == "0" ]]; then
             echo -e ${Valid}
         elif [[ ${Check} == "1001" ]]; then
@@ -1147,7 +1147,7 @@ function Accounts_Control() {
                         printf "%-3s ${BLUE}%-$((20 + ${EscapePin_Length_Add}))s${PLAIN} ${RED}%-s${PLAIN}\n" "$num." "${EscapePin}" "${FAIL_ICON}"
                         ## 账号更新异常告警与状态检测
                         local UserNum=$(grep -E "Cookie[0-9]{1,3}=.*pt_pin=${FormatPin}" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
-                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
+                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq -r '.retcode')"
                         if [[ ${CheckTmp} == "0" ]]; then
                             echo -e "    该账号的WSKEY状态 => ${Valid}\n"
                         elif [[ ${CheckTmp} == "1001" ]]; then
@@ -1245,7 +1245,7 @@ function Accounts_Control() {
                     else
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${Invalid}"
                         ## 账号状态检测
-                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq '.retcode' | sed "s/\"//g")"
+                        local CheckTmp="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: wskey=${WS_KEY_TMP}" | jq -r '.retcode')"
                         if [[ ${CheckTmp} == "0" ]]; then
                             echo -e "该账号wskey状态 => ${Valid}\n"
                         elif [[ ${CheckTmp} == "1001" ]]; then

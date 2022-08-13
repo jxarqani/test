@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-08
+## Modified: 2022-08-13
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -315,7 +315,7 @@ function Bot_Control() {
                     errored)
                         echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                         pm2 delete jbot >/dev/null 2>&1
-                        ## 保存用户的diy脚本
+                        ## 恢复用户插件
                         if [ -d $BotDir ]; then
                             BackUpUserFiles
                             Remove
@@ -340,7 +340,7 @@ function Bot_Control() {
                         ;;
                     esac
                 else
-                    ## 保存用户的diy脚本
+                    ## 恢复用户插件
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
                         Remove
