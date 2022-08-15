@@ -27,7 +27,7 @@ function Random_Update_Cron() {
         for ((i = 1; i < ${#RanHourArray[*]}; i++)); do
             RanHour="${RanHour},${RanHourArray[i]}"
         done
-        perl -i -pe "s|.+(update shell.+update.+log.*)|${RanMin} ${RanHour} \* \* \* sleep ${RanSleep} && \1|" ${ListCrontabUser}
+        perl -i -pe "s|.+(update shell.*)|${RanMin} ${RanHour} \* \* \* sleep ${RanSleep} && \1|" ${ListCrontabUser}
         crontab ${ListCrontabUser}
     fi
 }
@@ -551,12 +551,12 @@ function Update_Shell() {
     Random_Update_Cron
     ## 更新仓库
     cd $RootDir
-    echo -e "\n$WORKING 开始更新源码：$RootDir\n"
+    echo -e "\n$WORKING 开始更新项目源码：\n"
     git fetch --all
     git pull
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
     if [[ $ExitStatus -eq 0 ]]; then
-        echo -e "\n$COMPLETE 源码更新完成\n"
+        echo -e "\n$COMPLETE 项目更新完成\n"
     else
         echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
     fi

@@ -1360,7 +1360,7 @@ function Accounts_Control() {
                     return
                 fi
             done
-            if [ ! -s $TMP_LOG]; then
+            if [[ ! -s $TMP_LOG ]]; then
                 echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
                 return
             fi
@@ -1412,7 +1412,7 @@ function Accounts_Control() {
         }
 
         function CheckStatus() {
-            local InputContent=$1
+            local InputContent="$1"
             local CHECK_LOG=".check.log"
             curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" >$CHECK_LOG
             StatusCode="$(cat $CHECK_LOG | jq -r '.retcode')"
@@ -1420,42 +1420,39 @@ function Accounts_Control() {
             rm -rf $CHECK_LOG
         }
 
-        local Cookie_Tmp Cookies nickName StatusCode
+        local Cookie_Tmp CK nickName StatusCode
         ## 汇总
-        echo -e "\n$WORKING 正在请求官方接口获取账号收支数据...\n"
+        echo -e "\n$WORKING 正在请求接口获取账号收支数据...\n"
         case $# in
         1)
             for ((i = 1; i <= ${UserSum}; i++)); do
                 nickName=""
-                StatusCode""
-                Cookies=""
+                StatusCode=""
                 Cookie_Tmp=Cookie$i
-                Cookies=${!Cookie_Tmp}
-                CheckStatus "${Cookies}"
+                CK=${!Cookie_Tmp}
+                CheckStatus "${CK}"
                 if [[ ${StatusCode} == "0" ]]; then
                     echo -e "❖ [ 账号$i ${BLUE}${nickName}${PLAIN} ]\n"
                     QueryBeanInfo
                 else
-                    echo -e "❖ [ 账号$i ${BLUE}$(echo "$Cookies" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
+                    echo -e "❖ [ 账号$i ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
                 fi
-                echo "\n...............\n"
+                echo -e "\n.............................................\n"
                 sleep 1
             done
             ;;
         2)
             nickName=""
-            StatusCode""
-            Cookies=""
+            StatusCode=""
             Cookie_Tmp=Cookie$2
-            Cookies=${!Cookie_Tmp}
-            CheckStatus "${Cookies}"
+            CK=${!Cookie_Tmp}
+            CheckStatus "${CK}"
             if [[ ${StatusCode} == "0" ]]; then
                 echo -e "❖ [ 账号$i ${BLUE}${nickName}${PLAIN} ]\n"
                 QueryBeanInfo
             else
-                echo -e "❖ [ 账号$i ${BLUE}$(echo "$Cookies" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
+                echo -e "❖ [ 账号$i ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
             fi
-            QueryBeanInfo
             ;;
         esac
 
