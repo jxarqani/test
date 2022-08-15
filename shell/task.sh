@@ -1448,10 +1448,10 @@ function Accounts_Control() {
             CK=${!Cookie_Tmp}
             CheckStatus "${CK}"
             if [[ ${StatusCode} == "0" ]]; then
-                echo -e "❖ [ 账号$i ${BLUE}${nickName}${PLAIN} ]\n"
+                echo -e "❖ [ 账号$2 ${BLUE}${nickName}${PLAIN} ]\n"
                 QueryBeanInfo
             else
-                echo -e "❖ [ 账号$i ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
+                echo -e "❖ [ 账号$2 ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
             fi
             ;;
         esac
