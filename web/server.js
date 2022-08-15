@@ -473,7 +473,7 @@ app.post('/api/auth', async function (request, response) {
                 redirect: '/run'
             };
             Object.assign(result.lastLoginInfo, con.lastLoginInfo || {});
-            if (password === "supermanito") {
+            if (password === "passwd") {
                 //如果是默认密码
                 con.password = random(16);
                 console.log(`系统检测到您的密码为初始密码，已修改为随机密码：${con.password}`);

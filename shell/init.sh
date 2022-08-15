@@ -71,7 +71,7 @@ if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   echo -e "\n$SUCCESS 模块安装完成\n"
   pm2 start ecosystem.config.js
   cd ${WORK_DIR}
-  echo -e "\nTips: 如果这是首次安装并启动此面板，则初始用户名为：useradmin，初始密码为：supermanito"
+  echo -e "\nTips: 如果这是首次安装并启动此面板，则初始用户名为：useradmin，初始密码为：passwd"
   echo -e "      请访问 http://<IP>:5678 登陆控制面板并修改配置，注意首次登录会自动强制修改初始密码"
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 控制面板启动成功 $SUCCESS\n"
 elif [[ ${ENABLE_WEB_PANEL} == false ]]; then

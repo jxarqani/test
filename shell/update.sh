@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-12
+## Modified: 2022-08-16
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -27,7 +27,7 @@ function Random_Update_Cron() {
         for ((i = 1; i < ${#RanHourArray[*]}; i++)); do
             RanHour="${RanHour},${RanHourArray[i]}"
         done
-        perl -i -pe "s|.+(update.+update.+log.*)|${RanMin} ${RanHour} \* \* \* sleep ${RanSleep} && \1|" ${ListCrontabUser}
+        perl -i -pe "s|.+(update shell.+update.+log.*)|${RanMin} ${RanHour} \* \* \* sleep ${RanSleep} && \1|" ${ListCrontabUser}
         crontab ${ListCrontabUser}
     fi
 }
@@ -866,84 +866,83 @@ function Notice() {
 +--------------- 请遵循本项目宗旨 - 低调使用 ---------------+\n"
 }
 
-case $# in
-0)
-    Title "all"
-    Update_Shell
-    Update_Scripts
-    Update_Own "all"
-    ExtraShell
-    Processing_Crontab
-    Notice
-    exit ## 终止退出
-    ;;
-1)
-    case $1 in
-    all)
-        Title $1
-        Update_Shell
-        Update_Scripts
-        Update_Own "all"
-        ExtraShell
+function UpdateMain() {
+
+    case $# in
+    0)
+        Output_Command_Error 1 ## 命令错误
+        exit                   ## 终止退出
         ;;
-    shell)
-        Title $1
-        Update_Shell
-        ;;
-    scripts)
-        if [ -d $ScriptsDir/.git ]; then
+    1)
+        case $1 in
+        all)
+            Title $1
+            Update_Shell
+            Update_Scripts
+            Update_Own "all"
+            ExtraShell
+            ;;
+        shell)
+            Title $1
+            Update_Shell
+            ;;
+        scripts)
+            if [ -d $ScriptsDir/.git ]; then
+                Title $1
+                Update_Scripts
+            else
+                echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
+            fi
+            ;;
+        own)
+            Title $1
+            Update_Own "all"
+            ;;
+        repo)
             Title $1
             Update_Scripts
-        else
-            echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
-        fi
-        ;;
-    own)
-        Title $1
-        Update_Own "all"
-        ;;
-    repo)
-        Title $1
-        Update_Scripts
-        Update_Own "repo"
-        ;;
-    raw)
-        Update_Own "raw"
-        ;;
-    extra)
-        if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
-            Title $1
-            ExtraShell
-        else
-            echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
-        fi
+            Update_Own "repo"
+            ;;
+        raw)
+            Update_Own "raw"
+            ;;
+        extra)
+            if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
+                Title $1
+                ExtraShell
+            else
+                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
+            fi
+            ;;
+        *)
+            ## 判断传入参数
+            echo $1 | grep "\/" -q
+            if [ $? -eq 0 ]; then
+                Update_Designated $1
+            else
+                if [ -d "$(pwd)/$1" ]; then
+                    if [[ "$1" = "." ]]; then
+                        Update_Designated "$(pwd)"
+                    elif [[ "$1" = "./" ]]; then
+                        Update_Designated "$(pwd)"
+                    else
+                        Update_Designated "$(pwd)/$1"
+                    fi
+                else
+                    Output_Command_Error 1 ## 命令错误
+                    exit                   ## 终止退出
+                fi
+            fi
+            ;;
+        esac
+        Processing_Crontab
+        Notice
+        exit ## 终止退出
         ;;
     *)
-        ## 判断传入参数
-        echo $1 | grep "\/" -q
-        if [ $? -eq 0 ]; then
-            Update_Designated $1
-        else
-            if [ -d "$(pwd)/$1" ]; then
-                if [[ "$1" = "." ]]; then
-                    Update_Designated "$(pwd)"
-                elif [[ "$1" = "./" ]]; then
-                    Update_Designated "$(pwd)"
-                else
-                    Update_Designated "$(pwd)/$1"
-                fi
-            else
-                Output_Command_Error 1 ## 命令错误
-                exit                   ## 终止退出
-            fi
-        fi
+        Output_Command_Error 2 ## 命令过多
         ;;
     esac
-    Processing_Crontab
-    Notice
-    exit ## 终止退出
-    ;;
-*)
-    Output_Command_Error 2 ## 命令过多
-    ;;
-esac
+}
+
+UpdateMain $@ | tee -a $LogDir/update.log

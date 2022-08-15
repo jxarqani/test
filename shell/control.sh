@@ -59,7 +59,7 @@ function Hang_Control() {
             if [[ $ExitStatus -eq 0 ]]; then
                 echo -e "\n$COMPLETE $ServiceName 已重启\n"
             else
-                echo -e "\n$SUCCESS $ServiceName 启动成功\n"
+                echo -e "\n$SUCCESS $ServiceName 已启动\n"
             fi
         done
         ## 删除 PM2 进程日志清单
@@ -129,9 +129,9 @@ function Panel_Control() {
                 PM2_List_All_Services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
                 if [[ ${ServiceNewStatus} == "online" ]]; then
-                    echo -e "\n$SUCCESS 修复成功！\n"
+                    echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
-                    echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
+                    echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
                 fi
                 ;;
             esac
@@ -143,7 +143,7 @@ function Panel_Control() {
             PM2_List_All_Services
             local ServiceStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
-                echo -e "\n$SUCCESS 控制面板启动成功\n"
+                echo -e "\n$SUCCESS 控制面板已启动\n"
             else
                 echo -e "\n$FAIL 控制面板启动失败，请检查原因后重试！\n"
             fi
@@ -168,9 +168,9 @@ function Panel_Control() {
                 PM2_List_All_Services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
                 if [[ ${ServiceNewStatus} == "online" ]]; then
-                    echo -e "\n$SUCCESS 修复成功！\n"
+                    echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
-                    echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
+                    echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
                 fi
                 ;;
             esac
@@ -181,7 +181,7 @@ function Panel_Control() {
             PM2_List_All_Services
             local ServiceStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
-                echo -e "\n$SUCCESS 网页终端启动成功\n"
+                echo -e "\n$SUCCESS 网页终端已启动\n"
             else
                 echo -e "\n$FAIL 网页终端启动失败，请检查原因后重试！\n"
             fi
@@ -212,7 +212,7 @@ function Panel_Control() {
     ## 重置密码
     respwd)
         cp -f $FileAuthSample $FileAuth
-        echo -e "\n$COMPLETE 已重置控制面板的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： supermanito\n"
+        echo -e "\n$COMPLETE 已重置控制面板的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： passwd\n"
         ;;
     esac
     ## 删除 PM2 进程日志清单
@@ -226,7 +226,7 @@ function Bot_Control() {
     function Remove() {
         echo -e "\n$WORKING 开始卸载...\n"
         pip3 uninstall -y -r $BotDir/requirements.txt
-        rm -rf $BotDir/* $RootDir/bot.session
+        rm -rf $BotDir/* $RootDir/bot.session*
         echo -e "\n$COMPLETE 卸载完成"
     }
 
@@ -297,7 +297,7 @@ function Bot_Control() {
                         PM2_List_All_Services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "jbot" -w | awk -F '|' '{print$10}')
                         if [[ ${ServiceNewStatus} == "online" ]]; then
-                            echo -e "\n$COMPLETE Telegram Bot 已重启\n"
+                            echo -e "\n$COMPLETE 电报机器人已重启\n"
                         else
                             echo -e "\n$FAIL 重启失败，请检查原因后重试！\n"
                         fi
@@ -307,7 +307,7 @@ function Bot_Control() {
                         PM2_List_All_Services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "jbot" -w | awk -F '|' '{print$10}')
                         if [[ ${ServiceNewStatus} == "online" ]]; then
-                            echo -e "\n$COMPLETE Telegram Bot 已重新启动\n"
+                            echo -e "\n$COMPLETE 电报机器人已重新启动\n"
                         else
                             echo -e "\n$FAIL 启动失败，请检查原因后重试！\n"
                         fi
@@ -333,9 +333,9 @@ function Bot_Control() {
                         PM2_List_All_Services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "jbot" -w | awk -F '|' '{print$10}')
                         if [[ ${ServiceNewStatus} == "online" ]]; then
-                            echo -e "\n$SUCCESS 修复成功\n"
+                            echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                         else
-                            echo -e "\n$FAIL 修复失败，请检查原因后重试！\n"
+                            echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
                         fi
                         ;;
                     esac
@@ -359,9 +359,9 @@ function Bot_Control() {
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe jbot | grep status | awk '{print $4}')
                     if [[ ${ServiceStatus} == "online" ]]; then
-                        echo -e "\n$SUCCESS Telegram Bot 启动成功\n"
+                        echo -e "\n$SUCCESS 电报机器人已启动\n"
                     else
-                        echo -e "\n$FAIL Telegram Bot 启动失败，请检查原因后重试！\n"
+                        echo -e "\n$FAIL 电报机器人启动失败，请检查原因后重试！\n"
                     fi
                 fi
                 ;;
@@ -371,7 +371,7 @@ function Bot_Control() {
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
                     pm2 stop jbot >/dev/null 2>&1
                     pm2 list
-                    echo -e "\n$COMPLETE Telegram Bot 已停止\n"
+                    echo -e "\n$COMPLETE 电报机器人已停止\n"
                 else
                     echo -e "\n$ERROR 服务不存在！\n"
                 fi
@@ -400,9 +400,9 @@ function Bot_Control() {
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe jbot | grep status | awk '{print $4}')
                     if [[ ${ServiceStatus} == "online" ]]; then
-                        echo -e "\n$SUCCESS Telegram Bot 更新成功\n"
+                        echo -e "\n$SUCCESS 电报机器人已更新至最新版本\n"
                     else
-                        echo -e "\n$FAIL Telegram Bot 更新后启动异常，请检查原因后重试！\n"
+                        echo -e "\n$FAIL 电报机器人更新后启动异常，请检查原因后重试！\n"
                     fi
                 else
                     echo -e "\n$ERROR 请先启动您的 Bot ！\n"

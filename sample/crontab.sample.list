@@ -1,5 +1,5 @@
 ## 更新所有仓库和脚本
-35 */2 * * * sleep $((${RANDOM} % 56)) && update >> /jd/log/update.log 2>&1
+35 */2 * * * sleep $((${RANDOM} % 56)) && update shell >> /jd/log/update.log 2>&1
 
 ## 更新账号（WSKEY）
 # 15 1,9,17 * * * sleep $((${RANDOM} % 56)) && task cookie update >/dev/null 2>&1

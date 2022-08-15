@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-13
+## Modified: 2022-08-16
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -73,17 +73,17 @@ PURPLE='\033[35m'
 AZURE='\033[36m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
-SUCCESS="[${GREEN}OK${PLAIN}]"
-COMPLETE="[${GREEN}DONE${PLAIN}]"
-WARN="[${YELLOW}WARN${PLAIN}]"
-ERROR="[${RED}ERROR${PLAIN}]"
-FAIL="[${RED}FAIL${PLAIN}]"
+SUCCESS="[${GREEN}成功${PLAIN}]"
+COMPLETE="[${GREEN}完成${PLAIN}]"
+WARN="[${YELLOW}注意${PLAIN}]"
+ERROR="[${RED}错误${PLAIN}]"
+FAIL="[${RED}失败${PLAIN}]"
 WORKING="[${AZURE}*${PLAIN}]"
 EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
-COMMAND_ERROR="$ERROR 命令错误，请确认后重新输入！"
-TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重新输入！"
-ShieldingScripts="jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_CkSeq.js|jd_disable\.py|jd_updateCron\.ts|jd_scripts_check_dependence\.py|jd_UpdateUIDtoRemark\.js|magic\.js|magic\.json|magic\.py|test\.js|wskey\.py|h5\.js|telecom\.py|main\.py|depend\.py"
+COMMAND_ERROR="$ERROR 命令不正确，请确认后重试！"
+TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重试！"
+ShieldingScripts="jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_CkSeq.js|jd_disable\.py|jd_updateCron\.ts|jd_scripts_check_dependence\.py|jd_UpdateUIDtoRemark\.js|magic\.js|magic\.py|test\.js|wskey\.py|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
 ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 RawDirUtils="node_modules|${ShieldingKeywords}"
 CoreFiles="jdCookie.js USER_AGENTS.js"
@@ -181,7 +181,7 @@ function Import_Config_Not_Check() {
 function UrlEncode() {
     local LANG=C
     local length="${#1}"
-    i=0
+    local i=0
     while :; do
         [ $length -gt $i ] && {
             local c="${1:$i:1}"
@@ -196,8 +196,14 @@ function UrlEncode() {
 
 ## URL解码
 function UrlDecode() {
-    u="${1//+/ }"
+    local u="${1//+/ }"
     echo -e "${u//%/\\x}"
+}
+
+## 计算字符串长度
+function StringLength() {
+    local text=$1
+    echo "${#text}"
 }
 
 ## 输出命令错误提示
@@ -406,32 +412,32 @@ function Help() {
 
  ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用wskey更新账号 ${BLUE}update${PLAIN}、查看本地账号清单 ${BLUE}list${PLAIN}
- ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+ ❖  ${BLUE}$TaskCmd cookie <args>${PLAIN}                ✧ 检测账号是否有效 ${BLUE}check${PLAIN}、使用wskey更新账号 ${BLUE}update${PLAIN}、获取账号收支 ${BLUE}beans${PLAIN}、查看本地账号清单 ${BLUE}list${PLAIN}
+ ❖  ${BLUE}$TaskCmd env <args>${PLAIN}                   ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
  ❖  ${BLUE}$TaskCmd notify <title> <content> ${PLAIN}    ✧ 自定义推送通知消息，参数为标题加内容，支持转义字符
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}
- ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}               ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
- ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}                 ✧ 执行环境软件包相关命令(不支持 TypeScript 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd hang <args>${PLAIN}               ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <args>${PLAIN}              ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <args>${PLAIN}                ✧ 执行环境软件包相关命令(不支持 TypeScript 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
  ❖  ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
- ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}               ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
  ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、主要仓库 ${BLUE}scripts${PLAIN}、扩展仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}、扩展脚本 ${BLUE}raw${PLAIN}
                                                   自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
-    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
+    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<args>${PLAIN} 固定可选的子命令
 
  ❋ 用于执行脚本的可选参数：
-    ${BLUE}-l${PLAIN} | ${BLUE}--loop${PLAIN}          循环运行，连续多次的执行脚本，参数后需跟循环次数
-    ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
-    ${BLUE}-w${PLAIN} | ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后需跟时间值
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
-    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
+    ${BLUE}-l${PLAIN} |    ${BLUE}--loop${PLAIN}       循环运行，连续多次的执行脚本，参数后需跟循环次数
+    ${BLUE}-m${PLAIN} |    ${BLUE}--mute${PLAIN}       静默运行，不推送任何通知消息
+    ${BLUE}-w${PLAIN} |    ${BLUE}--wait${PLAIN}       等待执行，等待指定时间后再运行任务，参数后需跟时间值
+    ${BLUE}-d${PLAIN} |   ${BLUE}--delay${PLAIN}       延迟执行，随机倒数一定秒数后再执行脚本
+    ${BLUE}-p${PLAIN} |   ${BLUE}--proxy${PLAIN}       下载代理，仅适用于执行位于 GitHub 仓库的脚本
+    ${BLUE}-r${PLAIN} |   ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-c${PLAIN} |   ${BLUE}--cookie${PLAIN}      指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} |  ${BLUE}--grouping${PLAIN}     账号分组，每组账号单独运行脚本，参数后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;
@@ -451,33 +457,33 @@ function Help() {
 
  ❖  ${BLUE}$TaskCmd list${PLAIN}                         ✧ 列出本地脚本清单
  ❖  ${BLUE}$TaskCmd exsc${PLAIN}                         ✧ 导出互助码变量和助力格式，互助码从最后一个日志提取，受日志内容影响
- ❖  ${BLUE}$TaskCmd cookie <cmd>${PLAIN}                 ✧ 检测本地账号是否有效 ${BLUE}check${PLAIN}、使用wskey更新账号 ${BLUE}update${PLAIN}、查看本地账号清单 ${BLUE}list${PLAIN}
- ❖  ${BLUE}$TaskCmd env <cmd>${PLAIN}                    ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
+ ❖  ${BLUE}$TaskCmd cookie <args>${PLAIN}                ✧ 检测账号是否有效 ${BLUE}check${PLAIN}、使用wskey更新账号 ${BLUE}update${PLAIN}、获取账号收支 ${BLUE}beans${PLAIN}、查看本地账号清单 ${BLUE}list${PLAIN}
+ ❖  ${BLUE}$TaskCmd env <args>${PLAIN}                   ✧ 管理全局环境变量功能(交互)，添加 ${BLUE}add${PLAIN}、删除 ${BLUE}del${PLAIN}、修改 ${BLUE}edit${PLAIN}、查询 ${BLUE}search${PLAIN}，支持快捷命令
  ❖  ${BLUE}$TaskCmd notify <title> <content> ${PLAIN}    ✧ 自定义推送通知消息，参数为标题加内容，支持转义字符
 
  ❖  ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态、创建时间、处理器占用、内存占用、运行时长
- ❖  ${BLUE}$ContrlCmd hang <cmd>${PLAIN}                ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}
- ❖  ${BLUE}$ContrlCmd panel <cmd>${PLAIN}               ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
- ❖  ${BLUE}$ContrlCmd jbot <cmd>${PLAIN}                ✧ 电报机器人功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}、更新升级 ${BLUE}update${PLAIN}
- ❖  ${BLUE}$ContrlCmd env <cmd>${PLAIN}                 ✧ 执行环境软件包相关命令(支持 TypeScript 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
+ ❖  ${BLUE}$ContrlCmd hang <args>${PLAIN}               ✧ 后台挂机程序(后台循环执行活动脚本)功能控制，启动或重启 ${BLUE}up${PLAIN}、停止 ${BLUE}down${PLAIN}
+ ❖  ${BLUE}$ContrlCmd panel <args>${PLAIN}              ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}、关闭 ${BLUE}off${PLAIN}、登录信息 ${BLUE}info${PLAIN}、重置密码 ${BLUE}respwd${PLAIN}
+ ❖  ${BLUE}$ContrlCmd jbot <args>${PLAIN}               ✧ 电报机器人功能控制，启动或重启 ${BLUE}start${PLAIN}、停止 ${BLUE}stop${PLAIN}、查看日志 ${BLUE}logs${PLAIN}、更新升级 ${BLUE}update${PLAIN}
+ ❖  ${BLUE}$ContrlCmd env <args>${PLAIN}                ✧ 执行环境软件包相关命令(支持 TypeScript 和 Python )，安装 ${BLUE}install${PLAIN}、修复 ${BLUE}repairs${PLAIN}
  ❖  ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
- ❖  ${BLUE}$UpdateCmd${PLAIN} | ${BLUE}$UpdateCmd all${PLAIN}               ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
+ ❖  ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码、所有仓库和脚本、自定义脚本等
  ❖  ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 单独更新，项目源码 ${BLUE}shell${PLAIN}、主要仓库 ${BLUE}scripts${PLAIN}、扩展仓库 ${BLUE}own${PLAIN}、所有仓库 ${BLUE}repo${PLAIN}、扩展脚本 ${BLUE}raw${PLAIN}
                                                   自定义脚本 ${BLUE}extra${PLAIN}、指定仓库 ${BLUE}<path>${PLAIN}
 
  ❋ 基本命令注释：
-    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<cmd>${PLAIN} 固定可选的子命令
+    ${BLUE}<name>${PLAIN} 脚本名（仅限scripts目录）;  ${BLUE}<path>${PLAIN} 相对路径或绝对路径;  ${BLUE}<url>${PLAIN} 脚本链接地址;  ${BLUE}<args>${PLAIN} 固定可选的子命令
 
  ❋ 用于执行脚本的可选参数：
-    ${BLUE}-l${PLAIN} | ${BLUE}--loop${PLAIN}          循环运行，连续多次的执行脚本，参数后需跟循环次数
-    ${BLUE}-m${PLAIN} | ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
-    ${BLUE}-w${PLAIN} | ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后需跟时间值
-    ${BLUE}-d${PLAIN} | ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
-    ${BLUE}-p${PLAIN} | ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
-    ${BLUE}-r${PLAIN} | ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
-    ${BLUE}-c${PLAIN} | ${BLUE}--cookie${PLAIN}        指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
-    ${BLUE}-g${PLAIN} | ${BLUE}--grouping${PLAIN}      账号分组，每组账号单独运行脚本，参数后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
+    ${BLUE}-l${PLAIN} |    ${BLUE}--loop${PLAIN}       循环运行，连续多次的执行脚本，参数后需跟循环次数
+    ${BLUE}-m${PLAIN} |    ${BLUE}--mute${PLAIN}       静默运行，不推送任何通知消息
+    ${BLUE}-w${PLAIN} |    ${BLUE}--wait${PLAIN}       等待执行，等待指定时间后再运行任务，参数后需跟时间值
+    ${BLUE}-d${PLAIN} |   ${BLUE}--delay${PLAIN}       延迟执行，随机倒数一定秒数后再执行脚本
+    ${BLUE}-p${PLAIN} |   ${BLUE}--proxy${PLAIN}       下载代理，仅适用于执行位于 GitHub 仓库的脚本
+    ${BLUE}-r${PLAIN} |   ${BLUE}--rapid${PLAIN}       迅速模式，不组合互助码等步骤降低脚本执行前耗时
+    ${BLUE}-c${PLAIN} |   ${BLUE}--cookie${PLAIN}      指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN} |  ${BLUE}--grouping${PLAIN}     账号分组，每组账号单独运行脚本，参数后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN} | ${BLUE}--background${PLAIN}    后台运行，不在前台输出脚本执行进度
 "
         ;;

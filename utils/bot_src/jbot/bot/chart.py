@@ -259,13 +259,13 @@ def createChart(income,out,label):
 async def hi(event):
     msg_text = event.raw_text.split(' ')
     chat_id = event.sender_id
-    msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
     try:
         if isinstance(msg_text, list) and len(msg_text) == 2:
             text = msg_text[-1]
         else:
             text = None
         if text and int(text):
+            msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
             res = get_bean_data(int(text))
             if res['code'] != 200:
                 logger.error("data error")
@@ -284,7 +284,7 @@ async def hi(event):
                 #time.sleep(period)
                 #await result.delete()
         else:
-            await jdbot.send_message(chat_id, '请正确使用命令\n/dou n n为第n个账号')
+            await jdbot.send_message(chat_id, '请通过 /chart <账号序号> 使用~')
     except Exception as e:
         logger.error(str(e))
         line = e.__traceback__.tb_lineno 
