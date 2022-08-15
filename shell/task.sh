@@ -1370,7 +1370,7 @@ function Accounts_Control() {
             rm -rf $TMP_LOG $DATA_LOG
 
             ## 根据时间排序定义名称数组
-            cat $DATA_FILE
+            # cat $DATA_FILE
             Name_Array=(
                 $(cat $DATA_FILE | jq -r '.[] | {eventMassage:.eventMassage,} | .eventMassage' | awk '!a[$0]++')
             )
