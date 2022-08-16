@@ -1387,7 +1387,7 @@ function Accounts_Control() {
                 ## 遍历数组，打印数据
                 for i in ${Name_Array[@]}; do
                     Name=$(printf "%ls\n" "$i")
-                    Beans_Array=$(cat $DATA_FILE | jq -c '.[]' | grep -F "$i" | jq -r .amount | tr "\n" " ")
+                    Beans_Array=$(cat $DATA_FILE | jq -c '.[]' | grep -F "\"$i\"" | jq -r .amount | tr "\n" " ")
                     Time=$(date -d @$(cat $DATA_FILE | jq -c '.[]' | grep -F "$i" | head -n 1 | jq -r .date) +"%H:%M:%S")
                     Time=$(echo $Time | sed "s/^0/ /g")
                     Beans=0
@@ -1455,7 +1455,7 @@ function Accounts_Control() {
             CK=${!Cookie_Tmp}
             CheckStatus "${CK}"
             if [[ ${StatusCode} == "0" ]]; then
-                echo -e "❖ [${BLUE}${nickName}${PLAIN}]\n"
+                echo -e "❖ ${BLUE}${nickName}${PLAIN}\n"
                 QueryBeanInfo
             else
                 echo -e "$WARN ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} 无效！"
