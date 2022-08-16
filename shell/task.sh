@@ -1395,11 +1395,12 @@ function Accounts_Control() {
                         let Beans+=$i
                     done
                     ## 格式化名称
-                    echo $Name | grep -q "参加\[.*\].*-奖励"
+                    Nmae=$(echo "${Name}" | sed "s/（商品:.*）//g")
+                    echo "${Name}" | grep -q "参加\[.*\].*-奖励"
                     if [ $? -eq 0 ]; then
-                        Name=$(echo $Name | perl -pe "{s|参加\[||g; s|\].*||g}")
+                        Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g}")
                     fi
-                    LengthTmp=$(StringLength $(echo ${Name} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
+                    LengthTmp=$(StringLength $(echo "${Name}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
                     spacesNums=$(($((32 - ${LengthTmp} - ${#Name})) / 2))
                     for ((i = 1; i <= ${spacesNums}; i++)); do
                         Name=" ${Name}"
