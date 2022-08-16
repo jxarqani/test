@@ -45,7 +45,7 @@ function Find_Script() {
             else
                 local TmpDirName=$(echo ${InputContent} | awk -F '/' '{printf$1}')
                 if [ -d "$OwnDir/$TmpDirName" ]; then
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|^|${RootDir}/|;}")
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|^|$OwnDir/|;}")
                 else
                     ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
                     if [[ $(pwd) == "/root" ]]; then
