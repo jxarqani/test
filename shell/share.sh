@@ -320,12 +320,24 @@ function Synchronize_Crontab() {
 ## 查询脚本名，$1 为脚本名
 function Query_ScriptName() {
     local FileName=$1
-    grep "new Env(" $FileName | grep -Eiq ".*new Env\(.*\)"
-    if [ $? -eq 0 ]; then
-        local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
-    else
-        local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
-    fi
+    case ${FileName##*.} in
+    js)
+        grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
+        if [ $? -eq 0 ]; then
+            local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+        else
+            local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
+        fi
+        ;;
+    *)
+        cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
+        if [ $? -eq 0 ]; then
+            local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+        else
+            local Tmp=$(grep -E "^活动名称|^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
+        fi
+        ;;
+    esac
     if [[ ${Tmp} ]]; then
         ScriptName=${Tmp}
     else

@@ -1383,7 +1383,7 @@ function Accounts_Control() {
             if [[ ${#Name_Array[@]} -gt 0 ]]; then
                 Income=0
                 Expense=0
-                echo -e " [最新时间]               [变动渠道]                 [京豆]"
+                echo -e " [最新时间]               [变动渠道]                 [明细]"
                 ## 遍历数组，打印数据
                 for i in ${Name_Array[@]}; do
                     Name=$(printf "%ls\n" "$i")
@@ -1428,7 +1428,7 @@ function Accounts_Control() {
 
         local Cookie_Tmp CK nickName StatusCode
         ## 汇总
-        echo -e "\n$WORKING 正在请求接口获取账号收支数据...\n"
+        echo -e "\n$WORKING 正在请求接口获取账号今日收支数据...\n"
         case $# in
         1)
             for ((i = 1; i <= ${UserSum}; i++)); do
