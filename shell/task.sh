@@ -2687,7 +2687,6 @@ function List_Local_Scripts() {
         local ListFiles=(
             $(ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}")
         )
-        echo ${ShieldingKeywords}
         [ ${#ListFiles[*]} = 0 ] && exit ## 终止退出
         if [[ ${#ListFiles[*]} -ge "10" ]]; then
             if [[ ${#ListFiles[*]} -ge "100" ]]; then
