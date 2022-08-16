@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-03-05
+## Modified: 2022-08-16
 
 set -e
 RED='\033[31m'
@@ -53,7 +53,7 @@ if [[ ${ENABLE_TG_BOT} == true ]]; then
     ;;
   esac
 elif [[ ${ENABLE_TG_BOT} == false ]]; then
-  echo -e "已设置为不自动启动电报机器人"
+  echo -e "已设置为不自启电报机器人"
 fi
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人结束 -----\n"
 
@@ -61,7 +61,7 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人结束 -
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
-  export PS1="\u@\h:\w# "
+  export PS1="\033[32m@Helloworld Cli\033[0m ➜  \033[34m\w\033[0m $ "
   pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t lineHeight=1.3 -t fontSize=16 -t disableLeaveAlert=true bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 

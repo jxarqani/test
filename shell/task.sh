@@ -43,13 +43,19 @@ function Find_Script() {
                 PwdTmp=$(pwd | perl -pe "{s|/$(pwd | awk -F '/' '{printf$NF}')||g;}")
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
-                ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
-                if [[ $(pwd) == "/root" ]]; then
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
+                local TmpDirName=$(echo ${InputContent} | awk -F '/' '{printf$1}')
+                if [ -d "$OwnDir/$TmpDirName" ]; then
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|^|${RootDir}/|;}")
                 else
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
+                    ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
+                    if [[ $(pwd) == "/root" ]]; then
+                        AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$RootDir/|;}")
+                    else
+                        AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\/||; s|^*|$(pwd)/|;}")
+                    fi
                 fi
             fi
+            echo ${InputContent} | grep "\.\./" -q
         fi
         ## 判定传入是否含有后缀格式
         FileNameTmp=${AbsolutePath##*/}
@@ -1322,7 +1328,7 @@ function Accounts_Control() {
             body="body=$(UrlEncode "{\"pageSize\": \"20\",\"page\": \"${pageNum}\"}")&appid=ld"
             curl -s -X POST "https://api.m.jd.com/client.action?functionId=getJingBeanBalanceDetail" \
             -H "Host: api.m.jd.com" \
-            -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8;" \
+            -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" \
             -H "User-Agent: jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1" \
             -H "Cookie: ${CK}" \
             --data-raw "$body" | jq .detailList | jq -c '.[]'
@@ -1332,7 +1338,7 @@ function Accounts_Control() {
             local TMP_LOG=".tmp.log"
             local DATA_LOG=".data.log"
             local DATA_FILE=".data.json"
-            local todayStr data date dateStr amount eventMassage Name_Array Beans_Array Name LengthTmp Time Beans Income Expense
+            local page lines todayStr data date dateStr amount eventMassage Name_Array Beans_Array Name LengthTmp Time Beans Income Expense
 
             todayStr=$(date +%s -d "$(date "+%Y-%m-%d")")
             for ((page = 1; page <= 100; page++)); do
@@ -1350,13 +1356,15 @@ function Accounts_Control() {
                         if [[ ${dateStr} -lt ${todayStr} ]]; then
                             break 2
                         fi
-                        if [[ $page -eq 1 ]] && [[ $lines -eq 0 ]]; then
-                            printf "$data" >>$TMP_LOG
+                        if [[ $page == "1" ]] && [[ $lines == "0" ]]; then
+                            echo "$data" | jq >>$TMP_LOG
                         else
-                            printf ", $data" >>$TMP_LOG
+                            echo -e "," >>$TMP_LOG
+                            echo "$data" | jq >>$TMP_LOG
                         fi
                     done
                 else
+                    echo -e "$FAIL 当前账号已被接口限制或网络环境异常！"
                     return
                 fi
             done
@@ -1364,11 +1372,9 @@ function Accounts_Control() {
                 echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
                 return
             fi
-            echo "[$(cat $TMP_LOG)]" >$TMP_LOG
-            ## 转换为UTF-8编码
+            echo -e "[\n$(cat $TMP_LOG)\n]" >$TMP_LOG
             cat $TMP_LOG | jq >$DATA_FILE
             rm -rf $TMP_LOG $DATA_LOG
-
             ## 根据时间排序定义名称数组
             # cat $DATA_FILE
             Name_Array=(
@@ -1432,10 +1438,10 @@ function Accounts_Control() {
                 CK=${!Cookie_Tmp}
                 CheckStatus "${CK}"
                 if [[ ${StatusCode} == "0" ]]; then
-                    echo -e "❖ [ 账号$i ${BLUE}${nickName}${PLAIN} ]\n"
+                    echo -e "❖ 账号$i · [${BLUE}${nickName}${PLAIN}]\n"
                     QueryBeanInfo
                 else
-                    echo -e "❖ [ 账号$i ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
+                    echo -e "$WARN 账号$i · [${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN}] 无效，跳过查询..."
                 fi
                 echo -e "\n.............................................\n"
                 sleep 1
@@ -1448,10 +1454,10 @@ function Accounts_Control() {
             CK=${!Cookie_Tmp}
             CheckStatus "${CK}"
             if [[ ${StatusCode} == "0" ]]; then
-                echo -e "❖ [ 账号$2 ${BLUE}${nickName}${PLAIN} ]\n"
+                echo -e "❖ [${BLUE}${nickName}${PLAIN}]\n"
                 QueryBeanInfo
             else
-                echo -e "❖ [ 账号$2 ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} ] 无效，跳过查询..."
+                echo -e "$WARN ${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN} 无效！"
             fi
             ;;
         esac
@@ -2472,6 +2478,7 @@ function Remove_LogFiles() {
         Rm_UpdateLog
         Rm_BotLog
         Rm_EmptyDir
+        [ -f $RootDir/core ] && rm -rf $RootDir/core
         echo -e "\n$COMPLETE 运行结束\n"
     fi
 }
@@ -2544,7 +2551,7 @@ function List_Local_Scripts() {
                 if [ -f ${ListFiles[i]} ]; then
                     Query_ScriptName ${ListFiles[i]}
                     let NumTmp++
-                    printf "%-5s %-30s %s\n" "[$NumTmp]" "${ListFiles[i]}" "${ScriptName}"
+                    printf "%3s  %-30s %s\n" "$NumTmp" "${ListFiles[i]}" "${ScriptName}"
                 fi
             done
         else
@@ -2595,7 +2602,7 @@ function List_Local_Scripts() {
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
                 cd $FileDir
                 Query_ScriptName $FileName
-                printf "%-6s %-50s %s\n" "[$(($i + 1))]" "${ListFiles[i]:8}" "${ScriptName}"
+                printf "%4s  %-50s %s\n" "$(($i + 1))" "${ListFiles[i]:8}" "${ScriptName}"
             done
         fi
     }
@@ -2611,7 +2618,7 @@ function List_Local_Scripts() {
                 echo -e "\n❖ 第三方脚本："
                 for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                     Query_ScriptName ${ListFiles[i]}
-                    printf "%-5s %-28s   %s\n" "[$(($i + 1))]" "${ListFiles[i]}" "${ScriptName}"
+                    printf "%3s  %-36s   %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptName}"
                 done
             fi
         fi
@@ -2619,7 +2626,7 @@ function List_Local_Scripts() {
 
     ## 列出指定目录下的脚本
     function List_Designated() {
-        local InputContent WorkDir PwdTmp
+        local InputContent WorkDir PwdTmp LengthTmp spacesNums
         ## 去掉传入参数中的最后一个/
         echo $1 | grep "/$" -q
         if [ $? -eq 0 ]; then
@@ -2677,9 +2684,10 @@ function List_Local_Scripts() {
                 echo -e "\n❖ 远程仓库地址: ${BLUE}${RemoteUrl%\.*}${PLAIN}"
             fi
         fi
-        local ListFiles=($(
-            ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
-        ))
+        local ListFiles=(
+            $(ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}")
+        )
+        echo ${ShieldingKeywords}
         [ ${#ListFiles[*]} = 0 ] && exit ## 终止退出
         if [[ ${#ListFiles[*]} -ge "10" ]]; then
             if [[ ${#ListFiles[*]} -ge "100" ]]; then
@@ -2690,18 +2698,29 @@ function List_Local_Scripts() {
         else
             TmpNum="1"
         fi
-        printf "\n${BLUE}%$((13 + ${TmpNum}))s${PLAIN} ${BLUE}%40s${PLAIN} ${BLUE}%s${PLAIN} ${BLUE}%s${PLAIN}\n" "[脚本名]" "[修改时间]" " [大小]" "[活动名称]"
+        printf "\n${BLUE}%$((28 + ${TmpNum}))s${PLAIN} ${BLUE}%29s${PLAIN}  ${BLUE}%6s${PLAIN}             ${BLUE}%s${PLAIN}\n" "[文件名称]" "[修改时间]" " [大小]" "[脚本名称]"
+
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+            echo ''
             Query_ScriptName ${ListFiles[i]}
             Query_ScriptSize ${ListFiles[i]}
             Query_ScriptEditTimes ${ListFiles[i]}
-            printf "%${TmpNum}s  %-34s %s %5s  %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
+            LengthTmp1=$(StringLength $(echo ${ListFiles[i]} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
+            spacesNums1=$(($((34 - ${LengthTmp1} - ${#ListFiles[i]})) / 2))
+            for ((a = 1; a <= ${spacesNums1}; a++)); do
+                ListFiles[i]=" ${ListFiles[i]}"
+            done
+            LengthTmp2=$(StringLength $(echo ${ScriptName} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
+            spacesNums2=$(($((34 - ${LengthTmp2} - ${#ScriptName})) / 2))
+            for ((a = 1; a <= ${spacesNums2}; a++)); do
+                ScriptName=" ${ScriptName}"
+            done
+            printf "%${TmpNum}s  %-$((34 + ${LengthTmp1}))s %14s %6s  %-$((34 + ${LengthTmp2}))s\n" "$(($i + 1))" "${ListFiles[i]}" "$(echo ${ScriptEditTimes} | sed "s/ /  /g")" "${ScriptSize}" "${ScriptName}"
         done
     }
 
     case $# in
     0)
-        echo -e "#############################  本  地  脚  本  清  单  #############################"
         List_Scripts
         List_Own
         List_Other

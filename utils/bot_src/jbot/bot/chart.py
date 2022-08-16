@@ -1,16 +1,15 @@
 import time, json, requests, datetime
 from datetime import timedelta, timezone
-from PIL import Image, ImageDraw,ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-#引入库文件，基于telethon
+# 引入库文件，基于telethon
 from telethon import events
-#从上级目录引入 jdbot,chat_id变量
-from .. import jdbot,chat_id,LOG_DIR,logger,BOT_DIR
+# 从上级目录引入 jdbot,chat_id变量
+from .. import jdbot, chat_id, LOG_DIR, logger, BOT_DIR, ch_name, BOT_SET
 from ..bot.utils import CONFIG_SH_FILE, get_cks
-from ..bot.quickchart import QuickChart,QuickChartFunction
+from ..bot.quickchart import QuickChart, QuickChartFunction
 
-users = [chat_id]#允许的用户id
-period=10 #消息自动删除的时间 单位：秒
+period = 10  # 消息自动删除的时间 单位：秒
 
 SHA_TZ = timezone(
     timedelta(hours=8),
@@ -21,6 +20,7 @@ session = requests.session()
 session.keep_alive = False
 
 url = "https://api.m.jd.com/api"
+
 def gen_body(page):
     body = {
         "beginDate": datetime.datetime.utcnow().replace(tzinfo=timezone.utc).astimezone(SHA_TZ).strftime("%Y-%m-%d %H:%M:%S"),
@@ -86,7 +86,7 @@ def get_beans_7days(ck):
                         day_7 = False
             else:
                 return {'code': 400, 'data': res}
-        days = list(map(lambda x: x[5:] , days))
+        days = list(map(lambda x: x[5:], days))
         return {'code': 200, 'data': [beans_in, beans_out, days]}
     except Exception as e:
         logger.error(str(e))
@@ -107,9 +107,10 @@ def get_total_beans(ck):
         jurl = "https://wxapp.m.jd.com/kwxhome/myJd/home.json"
         resp = session.get(jurl, headers=headers, timeout=100).text
         res = json.loads(resp)
-        return res['user']['jingBean'],res['user']['petName'],res['user']['imgUrl']
+        return res['user']['jingBean'], res['user']['petName'], res['user']['imgUrl']
     except Exception as e:
         logger.error(str(e))
+
 
 def get_bean_data(i):
     try:
@@ -118,7 +119,7 @@ def get_bean_data(i):
         if cookies:
             ck = cookies[i-1]
             beans_res = get_beans_7days(ck)
-            beantotal,nickname,pic = get_total_beans(ck)
+            beantotal, nickname, pic = get_total_beans(ck)
             if beans_res['code'] != 200:
                 return beans_res
             else:
@@ -128,135 +129,142 @@ def get_bean_data(i):
                     beantotal = int(
                         beantotal) - int(beans_res['data'][0][i]) - int(beans_res['data'][1][i])
                     beans_in.append(int(beans_res['data'][0][i]))
-                    beans_out.append(int(str(beans_res['data'][1][i]).replace('-', '')))
+                    beans_out.append(
+                        int(str(beans_res['data'][1][i]).replace('-', '')))
                     beanstotal.append(beantotal)
-            return {'code': 200, 'data': [beans_in[::-1], beans_out[::-1], beanstotal[::-1], beans_res['data'][2][::-1],nickname,pic]}
+            return {'code': 200, 'data': [beans_in[::-1], beans_out[::-1], beanstotal[::-1], beans_res['data'][2][::-1], nickname, pic]}
     except Exception as e:
         logger.error(str(e))
-        return {"code":400}
-        
+        return {"code": 400}
+
 
 BEAN_IMG = f'{LOG_DIR}/bot/bean.png'
 
-def createpic(text,totalbean,avatar_url="https://img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png"):
+
+def createpic(text, totalbean, avatar_url="https://img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png"):
     fontSize = 60
-    avatar = Image.open(BytesIO(requests.get(avatar_url,headers={"User-Agent":""}).content))
-    avatar_size=(110,110)
+    avatar = Image.open(BytesIO(requests.get(
+        avatar_url, headers={"User-Agent": ""}).content))
+    avatar_size = (110, 110)
     avatar = avatar.resize(avatar_size)
-    mask = Image.new('RGBA', avatar_size, color=(0,0,0,0))
+    mask = Image.new('RGBA', avatar_size, color=(0, 0, 0, 0))
     mask_draw = ImageDraw.Draw(mask)
-    mask_draw.ellipse((0,0, avatar_size[0], avatar_size[1]), fill=(0,0,0,255))
-    x,y=50,25
-    box =(x,y,x+avatar_size[0],y+avatar_size[1])
+    mask_draw.ellipse(
+        (0, 0, avatar_size[0], avatar_size[1]), fill=(0, 0, 0, 255))
+    x, y = 50, 25
+    box = (x, y, x+avatar_size[0], y+avatar_size[1])
     ttf_path = f'{BOT_DIR}/font/simkai.ttf'
     ttf = ImageFont.truetype(ttf_path, fontSize)
     image = Image.new(mode="RGB", size=(1200, 150), color="#22252a")
-    image.paste(avatar,box,mask)
+    image.paste(avatar, box, mask)
     img_draw = ImageDraw.Draw(image)
-    text = text + "·京豆："+ str(totalbean)+"豆"
+    text = text + "·京豆：" + str(totalbean)+"豆"
     img_draw.text((200, 40), text, font=ttf, fill="#9a9b9f")
     bg = Image.open(BEAN_IMG)
-    bg.paste(image,(50,650))
+    bg.paste(image, (50, 650))
     bg.convert('RGB')
     bg.save(BEAN_IMG)
 
-def createChart(income,out,label):
+
+def createChart(income, out, label):
     qc = QuickChart()
-    qc.width=1600
-    qc.height=800
-    qc.background_color="#22252a"
+    qc.width = 1600
+    qc.height = 800
+    qc.background_color = "#22252a"
     qc.config = {
- "data": {
-  "datasets": [{
-    "backgroundColor": QuickChartFunction('getGradientFillHelper(\'vertical\', ["#2cb9fa", "#598bf8", "#7d5def"])'),
-    "data": income,
-    "label": "收入",
-    "type": "bar"
-   },
-   {
-    "backgroundColor": QuickChartFunction('getGradientFillHelper(\'vertical\', ["#36a2eb", "#a336eb", "#eb3639"])'),
-    "data": out,
-    "label": "支出",
-    "type": "bar"
-   }
-  ],
-  "labels": label
- },
- "options": {
-  "plugins": {
-   "datalabels": {
-    "display": True,
-    "color": "#eee",
-    "align": "top",
-    "offset": -4,
-    "anchor": "end",
-    "font": {
-     "family": "Helvetica Neue",
-     "size": 30
+        "data": {
+            "datasets": [{
+                "backgroundColor": QuickChartFunction('getGradientFillHelper(\'vertical\', ["#2cb9fa", "#598bf8", "#7d5def"])'),
+                "data": income,
+                "label": "收入",
+                "type": "bar"
+            },
+                {
+                "backgroundColor": QuickChartFunction('getGradientFillHelper(\'vertical\', ["#36a2eb", "#a336eb", "#eb3639"])'),
+                "data": out,
+                "label": "支出",
+                "type": "bar"
+            }
+            ],
+            "labels": label
+        },
+        "options": {
+            "plugins": {
+                "datalabels": {
+                    "display": True,
+                    "color": "#eee",
+                    "align": "top",
+                    "offset": -4,
+                    "anchor": "end",
+                    "font": {
+                        "family": "Helvetica Neue",
+                        "size": 30
+                    }
+                },
+                "roundedBars": True
+            },
+            "legend": {
+                "position": "bottom",
+                "align": "end",
+                "display": True,
+                "labels": {
+                    "fontSize": 25
+                }
+            },
+            "layout": {
+                "padding": {
+                    "left": 10,
+                    "right": 20,
+                    "top": 50,
+                    "bottom": 100
+                }
+            },
+            "responsive": True,
+            "title": {
+                "display": False,
+                "position": "bottom",
+                "text": '',
+                "fontSize": 25,
+                "fontColor": "#aaa"
+            },
+            "tooltips": {
+                "intersect": True,
+                "mode": "index"
+            },
+            "scales": {
+                "xAxes": [{
+                    "gridLines": {
+                        "display": True,
+                        "color": ""
+                    },
+                    "ticks": {
+                        "display": True,
+                        "fontSize": 25,
+                        "fontColor": "#999"
+                    }
+                }],
+                "yAxes": [{
+                    "gridLines": {
+                        "display": True,
+                        "color": ""
+                    },
+                    "ticks": {
+                        "display": True,
+                        "fontSize": 25,
+                        "fontColor": "#999"
+                    }
+                }]
+            }
+        },
+        "type": "bar"
     }
-   },
-   "roundedBars": True
-  },
-  "legend": {
-   "position": "bottom",
-   "align": "end",
-   "display": True,
-   "labels":{
-     "fontSize":25
-     }
-  },
-  "layout": {
-   "padding": {
-    "left": 10,
-    "right": 20,
-    "top": 50,
-    "bottom": 100
-   }
-  },
-  "responsive": True,
-  "title": {
-   "display": False,
-   "position": "bottom",
-   "text": '',
-   "fontSize": 25,
-   "fontColor": "#aaa"
-  },
-  "tooltips": {
-   "intersect": True,
-   "mode": "index"
-  },
-  "scales": {
-   "xAxes": [{
-    "gridLines": {
-     "display": True,
-     "color": ""
-    },
-    "ticks": {
-     "display": True,
-     "fontSize": 25,
-     "fontColor": "#999"
-    }
-   }],
-   "yAxes": [{
-    "gridLines": {
-     "display": True,
-     "color": ""
-    },
-    "ticks": {
-     "display": True,
-     "fontSize": 25,
-     "fontColor": "#999"
-    }
-   }]
-  }
- },
- "type": "bar"
-}
     qc.to_file(BEAN_IMG)
-#格式基本固定，本例子表示从chat_id处接收到包含hello消息后，要做的事情
-@jdbot.on(events.NewMessage(from_users=users,pattern=(r'^/chart')))
-#定义自己的函数名称
-async def hi(event):
+# 格式基本固定，本例子表示从chat_id处接收到包含hello消息后，要做的事情
+
+
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=(r'^/chart')))
+# 定义自己的函数名称
+async def chart(event):
     msg_text = event.raw_text.split(' ')
     chat_id = event.sender_id
     try:
@@ -264,29 +272,35 @@ async def hi(event):
             text = msg_text[-1]
         else:
             text = None
-        if text and int(text):
+        if text and int(text) and (int(text) > 0):
             msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
             res = get_bean_data(int(text))
             if res['code'] != 200:
                 logger.error("data error")
-                await jdbot.send_message(chat_id,"序号不存在或单次请求过多")
+                await jdbot.send_message(chat_id, "序号不存在或单次请求过多")
             else:
-                aver = round((res["data"][0][0]+res["data"][0][1]+res["data"][0][2]+res["data"][0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7,2)
-                createChart(res['data'][0],res['data'][1],res['data'][3])
+                aver = round((res["data"][0][0]+res["data"][0][1]+res["data"][0][2]+res["data"]
+                             [0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7, 2)
+                createChart(res['data'][0], res['data'][1], res['data'][3])
                 logger.info("Start create image")
-                if(res['data'][5]!='/images/html5/newDefaul.png'):
-                    createpic(res['data'][4],res['data'][2][-1],res['data'][5])
+                if (res['data'][5] != '/images/html5/newDefaul.png'):
+                    createpic(res['data'][4], res['data']
+                              [2][-1], res['data'][5])
                 else:
-                    createpic(res['data'][4],res['data'][2][-1])
+                    createpic(res['data'][4], res['data'][2][-1])
                 logger.info("ok")
                 await msg.delete()
-                result = await jdbot.send_message(chat_id,f'近七天平均收入{aver}豆⚡',file=BEAN_IMG)
-                #time.sleep(period)
-                #await result.delete()
+                result = await jdbot.send_message(chat_id, f'近七天平均收入{aver}豆⚡', file=BEAN_IMG)
+                # time.sleep(period)
+                # await result.delete()
         else:
-            await jdbot.send_message(chat_id, '请通过 /chart <账号序号> 使用~')
+            await jdbot.send_message(chat_id, '请在 /chart 后面加上账号序号使用哦~')
     except Exception as e:
         logger.error(str(e))
-        line = e.__traceback__.tb_lineno 
-        await jdbot.send_message(chat_id,"错误类型：" + str(e)+f'\n错误发生在第{line}行')
+        line = e.__traceback__.tb_lineno
+        await jdbot.send_message(chat_id, "错误类型：" + str(e)+f'\n错误发生在第{line}行')
         logger.error(f'错误发生在第{line}行')
+
+if ch_name:
+    jdbot.add_event_handler(chart, events.NewMessage(
+        from_users=chat_id, pattern=BOT_SET['命令别名']['chart']))

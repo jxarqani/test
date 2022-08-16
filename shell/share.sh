@@ -83,7 +83,7 @@ EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
 COMMAND_ERROR="$ERROR 命令不正确，请确认后重试！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重试！"
-ShieldingScripts="jd_update\.js|jd_env_copy\.js|index\.js|ql\.js|jd_CkSeq.js|jd_disable\.py|jd_updateCron\.ts|jd_scripts_check_dependence\.py|jd_UpdateUIDtoRemark\.js|magic\.js|magic\.py|test\.js|wskey\.py|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
+ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
 ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 RawDirUtils="node_modules|${ShieldingKeywords}"
 CoreFiles="jdCookie.js USER_AGENTS.js"
@@ -333,7 +333,7 @@ function Query_ScriptName() {
     if [[ ${Tmp} ]]; then
         ScriptName=${Tmp}
     else
-        ScriptName="<未知>"
+        ScriptName="<未命名>"
     fi
 }
 

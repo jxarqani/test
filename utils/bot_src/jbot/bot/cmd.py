@@ -24,7 +24,7 @@ async def my_cmd(event):
             await jdbot.send_message(chat_id, msg)
         else:
             await jdbot.send_message(chat_id, '未开启CMD命令，如需使用请修改配置文件')
-        logger.info(f'✅ 执行{event.raw_text}命令完毕')
+        logger.info(f'[OK] 执行{event.raw_text}命令完毕')
     except Exception as e:
         await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'发生了某些错误\n{str(e)}')

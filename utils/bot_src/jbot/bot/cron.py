@@ -138,6 +138,7 @@ async def my_addcron(event):
     except Exception as e:
         msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+
 if ch_name:
     jdbot.add_event_handler(my_addcron, events.NewMessage(
         from_users=chat_id, pattern=BOT_SET['命令别名']['addcron']))

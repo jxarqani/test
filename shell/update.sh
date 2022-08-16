@@ -556,7 +556,7 @@ function Update_Shell() {
     git pull
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
     if [[ $ExitStatus -eq 0 ]]; then
-        echo -e "\n$COMPLETE 项目更新完成\n"
+        echo -e "\n$COMPLETE 源码更新完成\n"
     else
         echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
     fi
@@ -817,41 +817,38 @@ function Title() {
     local RunMod
     case $1 in
     all)
-        RunMod="    全 部    "
+        RunMod=" 全 部 内 容 "
         ;;
     shell)
-        RunMod="    源 码    "
+        RunMod=" 项 目 源 码 "
         ;;
     scripts)
-        RunMod=" Scripts 仓库"
+        RunMod=" 主 要 仓 库"
         ;;
     own)
-        RunMod=" 仅 Own 仓库 "
+        RunMod=" 扩 展 仓 库 "
         ;;
     repo)
         RunMod=" 所 有 仓 库 "
         ;;
     raw)
-        RunMod=" 仅 Raw 脚本 "
+        RunMod=" 扩 展 脚 本 "
         ;;
     extra)
-        RunMod="仅 Extra 脚本"
+        RunMod="  自定义脚本 "
         ;;
     designated)
         RunMod=" 指 定 仓 库 "
         ;;
     esac
-    echo -e "\n+----------------- 开 始 执 行 更 新 脚 本 -----------------+"
+    echo -e "\n+-------------------- 执 行 更 新 程 序 --------------------+"
     echo -e ''
     echo -e "                   更新模式：${BLUE}${RunMod}${PLAIN}  "
     echo -e ''
     echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
     echo -e ''
-    echo -e "         脚本根目录：${BLUE}$RootDir${PLAIN}   主要仓库目录：${BLUE}$ScriptsDir${PLAIN}"
-    echo -e ''
-    echo -e "      扩展仓库目录：${BLUE}$OwnDir${PLAIN}   扩展脚本目录：${BLUE}$RawDir${PLAIN}"
-    echo -e ''
 }
+
 function Notice() {
     echo -e "+----------------------- 郑 重 提 醒 -----------------------+
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-13
+## Modified: 2022-08-16
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -93,7 +93,7 @@ function Panel_Control() {
     function Install_TTYD() {
         [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
         ## 增加环境变量
-        export PS1="\u@\h:\w# "
+        export PS1="\033[32m@Helloworld Cli\033[0m ➜  \033[34m\w\033[0m $ "
         pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t lineHeight=1.3 -t fontSize=16 -t disableLeaveAlert=true bash
     }
 
@@ -540,7 +540,7 @@ function Environment_Deployment() {
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64
+            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache
             ;;
         esac
         echo -e "\n$SUCCESS 安装完成\n"
