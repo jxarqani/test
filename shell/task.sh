@@ -1395,7 +1395,7 @@ function Accounts_Control() {
                         let Beans+=$i
                     done
                     ## 格式化名称
-                    Nmae=$(echo "${Name}" | sed "s/（商品:.*）//g")
+                    Name=$(echo "${Name}" | sed "s/（商品:.*）//g; s/订单.*使用京豆.*个/订单使用京豆/g")
                     echo "${Name}" | grep -q "参加\[.*\].*-奖励"
                     if [ $? -eq 0 ]; then
                         Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g}")
