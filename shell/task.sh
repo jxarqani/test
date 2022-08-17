@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-16
+## Modified: 2022-08-17
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -1401,7 +1401,7 @@ function Accounts_Control() {
                     if [ $? -eq 0 ]; then
                         Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g;}")
                     fi
-                    LengthTmp=$(StringLength $(echo "${Name}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
+                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
                     spacesNums=$(($((50 - ${LengthTmp} - ${#Name})) / 2))
                     for ((i = 1; i <= ${spacesNums}; i++)); do
                         Name=" ${Name}"
