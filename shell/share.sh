@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-16
+## Modified: 2022-08-17
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -78,7 +78,7 @@ COMPLETE="[${GREEN}完成${PLAIN}]"
 WARN="[${YELLOW}注意${PLAIN}]"
 ERROR="[${RED}错误${PLAIN}]"
 FAIL="[${RED}失败${PLAIN}]"
-WORKING="[${AZURE}*${PLAIN}]"
+WORKING="[${AZURE} >_ ${PLAIN}]"
 EXAMPLE="[${GREEN}参考命令${PLAIN}]"
 TIPS="[${GREEN}友情提示${PLAIN}]"
 COMMAND_ERROR="$ERROR 命令不正确，请确认后重试！"
