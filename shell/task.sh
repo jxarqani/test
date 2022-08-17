@@ -1375,17 +1375,18 @@ function Accounts_Control() {
             echo -e "[\n$(cat $TMP_LOG)\n]" >$TMP_LOG
             cat $TMP_LOG | jq >$DATA_FILE
             rm -rf $TMP_LOG $DATA_LOG
-            ## 根据时间排序定义名称数组
+            ## 根据时间排序定义名称数组（空格临时换成了下划线）
             # cat $DATA_FILE
             Name_Array=(
-                $(cat $DATA_FILE | jq -r '.[] | {eventMassage:.eventMassage,} | .eventMassage' | awk '!a[$0]++')
+                $(cat $DATA_FILE | jq -r '.[] | {eventMassage:.eventMassage,} | .eventMassage' | sed "s/ /_/g" | awk '!a[$0]++')
             )
             if [[ ${#Name_Array[@]} -gt 0 ]]; then
                 Income=0
                 Expense=0
-                echo -e " [最新时间]               [变动渠道]                 [明细]"
+                echo -e "[最新时间]                         [变动渠道]                          [明细]\n"
                 ## 遍历数组，打印数据
                 for i in ${Name_Array[@]}; do
+                    i=$(echo "$i" | sed "s/_/ /g")
                     Name=$(printf "%ls\n" "$i")
                     Beans_Array=$(cat $DATA_FILE | jq -c '.[]' | grep -F "\"$i\"" | jq -r .amount | tr "\n" " ")
                     Time=$(date -d @$(cat $DATA_FILE | jq -c '.[]' | grep -F "$i" | head -n 1 | jq -r .date) +"%H:%M:%S")
@@ -1398,19 +1399,19 @@ function Accounts_Control() {
                     Name=$(echo "${Name}" | sed "s/（商品:.*）//g; s/订单.*使用京豆.*个/订单使用京豆/g")
                     echo "${Name}" | grep -q "参加\[.*\].*-奖励"
                     if [ $? -eq 0 ]; then
-                        Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g}")
+                        Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g;}")
                     fi
                     LengthTmp=$(StringLength $(echo "${Name}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
-                    spacesNums=$(($((32 - ${LengthTmp} - ${#Name})) / 2))
+                    spacesNums=$(($((50 - ${LengthTmp} - ${#Name})) / 2))
                     for ((i = 1; i <= ${spacesNums}; i++)); do
                         Name=" ${Name}"
                     done
                     if [[ $Beans -gt 0 ]]; then
                         Income=$(($Income + $Beans))
-                        printf "· %-12s ${BLUE}%-$((32 + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
+                        printf "· %-12s ${BLUE}%-$((50 + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
                     else
                         Expense=$(($Expense + $Beans))
-                        printf "· %-12s ${BLUE}%-$((32 + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
+                        printf "· %-12s ${BLUE}%-$((50 + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
                     fi
                 done
                 echo -e "\n        [${BLUE}今日收入${PLAIN}] ${Income}🐶             [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
