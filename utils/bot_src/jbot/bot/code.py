@@ -27,7 +27,7 @@ async def code(event):
     try:
         res = json.loads(data)
 
-        if (res["code"] == "0"):
+        if (res["code"] == 0):
             data = res["data"]
 
             if (re.match(r'.*:/(?!/).*', text, re.S)) or (re.match(r'.*\([0-9a-zA-Z]{1,12}\).*', text, re.S)) or (re.match(r'.*[￥！][0-9a-zA-Z]{1,12}(?!/).*', text, re.S)):

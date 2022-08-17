@@ -1414,7 +1414,7 @@ function Accounts_Control() {
                         printf "· %-12s ${BLUE}%-$((50 + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
                     fi
                 done
-                echo -e "\n        [${BLUE}今日收入${PLAIN}] ${Income}🐶             [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
+                echo -e "\n                [${BLUE}今日收入${PLAIN}] ${Income}🐶                    [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
             fi
             rm -rf $DATA_FILE
         }
@@ -1430,9 +1430,9 @@ function Accounts_Control() {
 
         local Cookie_Tmp CK nickName StatusCode
         ## 汇总
-        echo -e "\n$WORKING 正在请求接口获取账号今日收支数据...\n"
         case $# in
         1)
+            echo -e "\n$WORKING 正在请求接口获取全部账号今日收支数据...\n"
             for ((i = 1; i <= ${UserSum}; i++)); do
                 nickName=""
                 StatusCode=""
@@ -1450,6 +1450,7 @@ function Accounts_Control() {
             done
             ;;
         2)
+            echo -e "\n$WORKING 正在请求接口获取账号1今日收支数据...\n"
             nickName=""
             StatusCode=""
             Cookie_Tmp=Cookie$2
@@ -2946,7 +2947,7 @@ case $# in
             *)
                 grep -Eq "Cookie[0-9]{1,3}=.*pt_pin=$3;.*" $FileConfUser
                 if [ $? -eq 0 ]; then
-                    Accounts_Control $2 $(grep -Eq "Cookie[0-9]{1,3}=.*pt_pin=$3;.*" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
+                    Accounts_Control $2 $(grep -E "Cookie[0-9]{1,3}=.*pt_pin=$3;.*" $FileConfUser | awk -F '=' '{print$1}' | awk -F 'Cookie' '{print$2}')
                 else
                     Output_Command_Error 1 ## 命令错误
                 fi
