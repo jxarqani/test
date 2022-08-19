@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-17
+## Modified: 2022-08-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -580,13 +580,13 @@ function Run_Normal() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 ## 格式检测
-                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -gt 2 ]]; then
+                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -ge 2 ]]; then
                     Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个连接符(${BLUE}-${PLAIN})！\n"
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个连接符 ${BLUE}-${PLAIN} ，账号区间语法有误 ！\n"
                     exit ## 终止退出
-                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -gt 2 ]]; then
+                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -ge 2 ]]; then
                     Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个账号总数代符(${BLUE}%${PLAIN})！\n"
+                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个账号总数代符 ${BLUE}%${PLAIN} ，账号区间语法有误！\n"
                     exit ## 终止退出
                 fi
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
@@ -608,6 +608,40 @@ function Run_Normal() {
         done
         ## 声明变量
         export JD_COOKIE=${COOKIE_TMP}
+    }
+
+    ## 后台挂起（守护进程）
+    function Daemon_Process() {
+        pm2 list | sed "/─/d" | perl -pe "{s| ||g; s#│#|#g}" | sed "1d" >$FilePm2List
+        cat $FilePm2List | awk -F '|' '{print$3}' | grep $FileName -wq
+        ExitStatus=$?
+        ## 删除原有
+        pm2 stop $FileName >/dev/null 2>&1
+        pm2 flush >/dev/null 2>&1
+        pm2 delete $FileName >/dev/null 2>&1
+        ## 启用
+        echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 守护进程启动\n" >>${LogFile}
+        case ${FileFormat} in
+        JavaScript)
+            pm2 start "${$FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
+            ;;
+        Python)
+            pm2 start "${$FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --watch --log ${LogFile}  -- -u
+            ;;
+        TypeScript)
+            pm2 start "${$FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --watch --log ${LogFile}
+            ;;
+        Shell)
+            pm2 start "${$FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --watch --log ${LogFile}
+            ;;
+        esac
+        if [[ $ExitStatus -eq 0 ]]; then
+            echo -e "\n$COMPLETE $FileName 已重启守护进程，日志位于\n"
+        else
+            echo -e "\n$SUCCESS $FileName 已启动守护进程\n"
+        fi
+        ## 删除 PM2 进程日志清单
+        [ -f $FilePm2List ] && rm -rf $FilePm2List
     }
 
     ## 迅速模式
@@ -643,7 +677,12 @@ function Run_Normal() {
                 ## 等待执行
                 RunWait
                 ## 运行
-                Main
+                if [[ ${RUN_DAEMON} == "true" ]]; then
+                    ## 后台挂起（守护进程）
+                    Daemon_Process
+                else
+                    Main
+                fi
             done
 
             ## 重新组合变量
@@ -672,7 +711,12 @@ function Run_Normal() {
             ## 等待执行
             RunWait
             ## 运行
-            Main
+            if [[ ${RUN_DAEMON} == "true" ]]; then
+                ## 后台挂起（守护进程）
+                Daemon_Process
+            else
+                Main
+            fi
         done
 
     fi
@@ -1432,8 +1476,8 @@ function Accounts_Control() {
         ## 汇总
         case $# in
         1)
-            echo -e "\n$WORKING 正在请求接口获取全部账号今日收支数据...\n"
             for ((i = 1; i <= ${UserSum}; i++)); do
+                echo -e "\n$WORKING 正在请求接口获取账号 $i 的今日收支数据...\n"
                 nickName=""
                 StatusCode=""
                 Cookie_Tmp=Cookie$i
@@ -1445,12 +1489,12 @@ function Accounts_Control() {
                 else
                     echo -e "$WARN 账号$i · [${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN}] 无效，跳过查询..."
                 fi
-                echo -e "\n.............................................\n"
+                echo -e "\n............................................."
                 sleep 1
             done
             ;;
         2)
-            echo -e "\n$WORKING 正在请求接口获取账号1今日收支数据...\n"
+            echo -e "\n$WORKING 正在请求接口获取账号 $2 的今日收支数据...\n"
             nickName=""
             StatusCode=""
             Cookie_Tmp=Cookie$2
@@ -2890,6 +2934,18 @@ case $# in
             -r | --rapid)
                 RUN_RAPID="true"
                 ;;
+            -h | --hang)
+                case ${RUN_MODE} in
+                normal)
+                    RUN_DAEMON="true"
+                    ;;
+                concurrent)
+                    Help
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    exit ## 终止退出
+                    ;;
+                esac
+                ;;
             -c | --cookie)
                 Help
                 echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
@@ -2996,7 +3052,7 @@ case $# in
     ;;
 
 ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
-4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)
+4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16)
     case $2 in
     now | conc)
         ## 定义执行内容，下面的判断会把参数打乱
@@ -3075,6 +3131,18 @@ case $# in
                 ;;
             -r | --rapid)
                 RUN_RAPID="true"
+                ;;
+            -h | --hang)
+                case ${RUN_MODE} in
+                normal)
+                    RUN_DAEMON="true"
+                    ;;
+                concurrent)
+                    Help
+                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    exit ## 终止退出
+                    ;;
+                esac
                 ;;
             -c | --cookie)
                 if [[ $4 ]]; then

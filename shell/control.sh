@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-16
+## Modified: 2022-08-18
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -50,10 +50,10 @@ function Hang_Control() {
             ## 启用
             case $ScriptFormt in
             js)
-                pm2 start -a $ScriptFiles --watch "$ScriptFiles" --name="$ServiceName"
+                pm2 start -a $ScriptFiles --name "$ServiceName" --watch
                 ;;
             ts)
-                pm2 start -a $ScriptFiles --interpreter /usr/bin/ts-node --watch "$ScriptFiles" --name="$ServiceName"
+                pm2 start -a $ScriptFiles --interpreter /usr/bin/ts-node --name "$ServiceName" --watch
                 ;;
             esac
             if [[ $ExitStatus -eq 0 ]]; then
@@ -94,40 +94,40 @@ function Panel_Control() {
         [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
         ## 增加环境变量
         export PS1="\033[32m@Helloworld Cli\033[0m ➜  \033[34m\w\033[0m $ "
-        pm2 start ttyd --name="ttyd" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t lineHeight=1.3 -t fontSize=16 -t disableLeaveAlert=true bash
+        pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t lineHeight=1.3 -t fontSize=16 -t disableLeaveAlert=true bash
     }
 
     local ServiceStatus
     PM2_List_All_Services
-    cat $FilePm2List | awk -F '|' '{print$3}' | grep "server" -wq
+    cat $FilePm2List | awk -F '|' '{print$3}' | grep "web_server" -wq
     local ExitStatusSERVER=$?
-    cat $FilePm2List | awk -F '|' '{print$3}' | grep "ttyd" -wq
+    cat $FilePm2List | awk -F '|' '{print$3}' | grep "web_terminal" -wq
     local ExitStatusTTYD=$?
     case $1 in
     ## 开启/重启服务
     on)
         ## 删除日志
-        rm -rf /root/.pm2/logs/server-*.log /root/.pm2/logs/ttyd-*.log
+        rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/web_terminal-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
-            local ServiceStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
+            local ServiceStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
             case ${ServiceStatus} in
             online)
-                pm2 restart server
+                pm2 restart web_server
                 echo -e "\n$COMPLETE 控制面板已重启\n"
                 ;;
             stopped)
-                pm2 start server
+                pm2 start web_server
                 echo -e "\n$COMPLETE 控制面板已重新启动\n"
                 ;;
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
-                pm2 delete server
+                pm2 delete web_server
                 Update_Shell
                 cd $PanelDir
                 npm install
                 pm2 start ecosystem.config.js && sleep 3
                 PM2_List_All_Services
-                local ServiceNewStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
+                local ServiceNewStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
                 if [[ ${ServiceNewStatus} == "online" ]]; then
                     echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
@@ -141,7 +141,7 @@ function Panel_Control() {
             npm install
             pm2 start ecosystem.config.js && sleep 1
             PM2_List_All_Services
-            local ServiceStatus=$(cat $FilePm2List | grep "server" -w | awk -F '|' '{print$10}')
+            local ServiceStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
                 echo -e "\n$SUCCESS 控制面板已启动\n"
             else
@@ -149,24 +149,24 @@ function Panel_Control() {
             fi
         fi
         if [[ ${ExitStatusTTYD} -eq 0 ]]; then
-            ServiceStatus=$(pm2 describe ttyd | grep status | awk '{print $4}')
+            ServiceStatus=$(pm2 describe web_terminal | grep status | awk '{print $4}')
             case ${ServiceStatus} in
             online)
-                pm2 restart ttyd
+                pm2 restart web_terminal
                 echo -e "\n$COMPLETE 网页终端已重启\n"
                 ;;
             stopped)
-                pm2 start ttyd
+                pm2 start web_terminal
                 echo -e "\n$COMPLETE 网页终端已重新启动\n"
                 ;;
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
-                pm2 delete ttyd
+                pm2 delete web_terminal
                 Update_Shell
                 cd $RootDir
                 Install_TTYD && sleep 3
                 PM2_List_All_Services
-                local ServiceNewStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
+                local ServiceNewStatus=$(cat $FilePm2List | grep "web_terminal" -w | awk -F '|' '{print$10}')
                 if [[ ${ServiceNewStatus} == "online" ]]; then
                     echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
@@ -179,7 +179,7 @@ function Panel_Control() {
             cd $RootDir
             Install_TTYD && sleep 1
             PM2_List_All_Services
-            local ServiceStatus=$(cat $FilePm2List | grep "ttyd" -w | awk -F '|' '{print$10}')
+            local ServiceStatus=$(cat $FilePm2List | grep "web_terminal" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
                 echo -e "\n$SUCCESS 网页终端已启动\n"
             else
@@ -190,9 +190,9 @@ function Panel_Control() {
     ## 关闭服务
     off)
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
-            pm2 stop server >/dev/null 2>&1
+            pm2 stop web_server >/dev/null 2>&1
             if [[ ${ExitStatusTTYD} -eq 0 ]]; then
-                pm2 stop ttyd >/dev/null 2>&1
+                pm2 stop web_terminal >/dev/null 2>&1
             fi
             pm2 list
             echo -e "\n$COMPLETE 控制面板和网页终端已关闭\n"
@@ -465,7 +465,7 @@ function Server_Status() {
     pm2 list
     echo ''
     PM2_List_All_Services
-    Services="server ttyd jbot"
+    Services="web_server web_terminal jbot"
     for Name in ${Services}; do
         ServiceName=''
         StatusJudge=''
@@ -500,10 +500,10 @@ function Server_Status() {
             RunTime="${BLUE}No Data${PLAIN}"
         fi
         case ${Name} in
-        server)
+        web_server)
             ServiceName="[控ㅤ制ㅤ面ㅤ板]"
             ;;
-        ttyd)
+        web_terminal)
             ServiceName="[网ㅤ页ㅤ终ㅤ端]"
             ;;
         jbot)
@@ -540,7 +540,7 @@ function Environment_Deployment() {
             pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
             pip3 install --upgrade pip
             pip3 install requests
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache
+            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js tunnel ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache ds
             ;;
         esac
         echo -e "\n$SUCCESS 安装完成\n"
@@ -568,16 +568,6 @@ case $# in
         case $1 in
         panel)
             Panel_Control $2
-            ;;
-        *)
-            Output_Command_Error 1 ## 命令错误
-            ;;
-        esac
-        ;;
-    up | down)
-        case $1 in
-        hang)
-            Hang_Control $2
             ;;
         *)
             Output_Command_Error 1 ## 命令错误
