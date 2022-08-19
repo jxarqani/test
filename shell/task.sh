@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-18
+## Modified: 2022-08-19
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -623,22 +623,22 @@ function Run_Normal() {
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 守护进程启动\n" >>${LogFile}
         case ${FileFormat} in
         JavaScript)
-            pm2 start "${$FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
+            pm2 start "${FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
             ;;
         Python)
-            pm2 start "${$FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --watch --log ${LogFile}  -- -u
+            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --watch --log ${LogFile}  -- -u
             ;;
         TypeScript)
-            pm2 start "${$FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --watch --log ${LogFile}
+            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --watch --log ${LogFile}
             ;;
         Shell)
-            pm2 start "${$FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --watch --log ${LogFile}
+            pm2 start "${FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --watch --log ${LogFile}
             ;;
         esac
         if [[ $ExitStatus -eq 0 ]]; then
-            echo -e "\n$COMPLETE $FileName 已重启守护进程，日志位于\n"
+            echo -e "\n$COMPLETE 已重启 ${BLUE}$FileName${PLAIN} 守护进程，日志位于 ${BLUE}${LogFile}${PLAIN}\n"
         else
-            echo -e "\n$SUCCESS $FileName 已启动守护进程\n"
+            echo -e "\n$SUCCESS 已启动 ${BLUE}$FileName${PLAIN} 守护进程，日志位于 ${BLUE}${LogFile}${PLAIN}\n"
         fi
         ## 删除 PM2 进程日志清单
         [ -f $FilePm2List ] && rm -rf $FilePm2List
