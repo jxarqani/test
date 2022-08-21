@@ -159,7 +159,7 @@ function Bot_Control() {
     ## 卸载
     function Remove() {
         echo -e "\n$WORKING 开始卸载...\n"
-        pip3 uninstall -y -r $BotDir/requirements.txt
+        [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
         rm -rf $BotDir/* $RootDir/bot.session*
         echo -e "\n$COMPLETE 卸载完成"
     }
