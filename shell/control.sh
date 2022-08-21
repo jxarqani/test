@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-18
+## Modified: 2022-08-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -18,72 +18,6 @@ function Update_Shell() {
     git pull >/dev/null 2>&1
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}') >/dev/null 2>&1
     cd $CurrentDir
-}
-
-## 后台挂机功能
-function Hang_Control() {
-    local HangUpScripts=""
-    local ScriptFiles ServiceName ScriptFormt LastRunTime ExitStatus
-    [[ -z ${HangUpScripts} ]] && echo -e "\n$TIPS 目前没有挂机类的活动脚本，不启动挂机程序\n" && exit 0
-    case $1 in
-    ## 开启/重启服务
-    up)
-        for ScriptFiles in ${HangUpScripts}; do
-            ServiceName=$(echo $ScriptFiles | perl -pe "{s|\.js||; s|\.py||; s|\.ts||}")
-            ScriptFormt=$(echo $ScriptFiles | awk -F '\.' '{print$NF}')
-            Import_Config $ServiceName
-            Count_UserSum
-            Combin_All
-            PM2_List_All_Services
-            cat $FilePm2List | awk -F '|' '{print$3}' | grep $ServiceName -wq
-            ExitStatus=$?
-            cd $ScriptsDir
-            ## 判断脚本是否存在
-            if [ ! -f "$ScriptsDir/$ScriptFiles" ]; then
-                echo -e "\n$ERROR $ScriptFiles 脚本不存在！\n"
-                exit ## 终止退出
-            fi
-            ## 删除原有
-            pm2 stop $ServiceName >/dev/null 2>&1
-            pm2 flush >/dev/null 2>&1
-            pm2 delete $ScriptFiles >/dev/null 2>&1
-            ## 启用
-            case $ScriptFormt in
-            js)
-                pm2 start -a $ScriptFiles --name "$ServiceName" --watch
-                ;;
-            ts)
-                pm2 start -a $ScriptFiles --interpreter /usr/bin/ts-node --name "$ServiceName" --watch
-                ;;
-            esac
-            if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n$COMPLETE $ServiceName 已重启\n"
-            else
-                echo -e "\n$SUCCESS $ServiceName 已启动\n"
-            fi
-        done
-        ## 删除 PM2 进程日志清单
-        [ -f $FilePm2List ] && rm -rf $FilePm2List
-        ;;
-    ## 关闭服务
-    down)
-        for ScriptFiles in ${HangUpScripts}; do
-            ServiceName=$(echo $ScriptFiles | perl -pe "{s|\.js||; s|\.py||; s|\.ts||}")
-            PM2_List_All_Services
-            cat $FilePm2List | awk -F '|' '{print$3}' | grep $ServiceName -wq
-            ExitStatus=$?
-            if [[ $ExitStatus -eq 0 ]]; then
-                pm2 stop $ServiceName
-                LastRunTime=$(date --date "$(pm2 describe $ServiceName | grep "created at" | awk '{print $5}')")
-                echo -e "\n$COMPLETE $ServiceName 已终止\n${BLUE}[上次启动]${PLAIN}: ${LastRunTime}\n"
-            else
-                echo -e "\n$ERROR $ServiceName 不存在！\n"
-            fi
-        done
-        ## 删除 PM2 进程日志清单
-        [ -f $FilePm2List ] && rm -rf $FilePm2List
-        ;;
-    esac
 }
 
 ## 控制面板和网页终端功能

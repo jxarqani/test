@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-19
+## Modified: 2022-08-21
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -626,13 +626,13 @@ function Run_Normal() {
             pm2 start "${FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
             ;;
         Python)
-            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --watch --log ${LogFile}  -- -u
+            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --log ${LogFile}  -- -u
             ;;
         TypeScript)
-            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --watch --log ${LogFile}
+            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --log ${LogFile}
             ;;
         Shell)
-            pm2 start "${FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --watch --log ${LogFile}
+            pm2 start "${FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --log ${LogFile}
             ;;
         esac
         if [[ $ExitStatus -eq 0 ]]; then
