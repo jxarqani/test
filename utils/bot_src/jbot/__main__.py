@@ -9,8 +9,8 @@ import random
 from .bot.update import version, botlog
 from telethon import Button
 
-BOT_UP_LOG = f'{LOG_DIR}/bot/up.log'
-BOT_M_DIR = f'{BOT_DIR}/bot/'
+BOT_UP_LOG = f'{LOG_DIR}/TelegramBot/up.log'
+BOT_M_DIR = f'{BOT_DIR}/TelegramBot/'
 BOT_D_DIR = f'{BOT_DIR}/diy/'
 BOT_U_DIR = f'{BOT_DIR}/user/'
 logger.info('loading bot module...')

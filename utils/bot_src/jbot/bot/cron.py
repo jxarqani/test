@@ -81,7 +81,7 @@ async def my_cron(event):
                         if len(cronres['data']) <= 2000:
                             msg = await jdbot.send_message(chat_id, f"指令发送成功，结果如下：\n{cronres['data']}")
                         elif len(cronres['data']) > 2000:
-                            _log = f'{LOG_DIR}/bot/cron.log'
+                            _log = f'{LOG_DIR}/TelegramBot/cron.log'
                             with open(_log, 'w+', encoding='utf-8') as f:
                                 f.write(cronres['data'])
                             msg = await jdbot.send_message(chat_id, '日志结果较长，请查看文件', file=_log)

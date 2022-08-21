@@ -1445,7 +1445,12 @@ function Accounts_Control() {
                     if [ $? -eq 0 ]; then
                         Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g;}")
                     fi
-                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-“”]||g;}'))
+                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
+                    ## 中文的引号在等宽字体中占1格而非2格
+                    [[ $(echo "${Name}" | grep -c "“") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "“")
+                    [[ $(echo "${Name}" | grep -c "”") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "”")
+                    [[ $(echo "${Name}" | grep -c "‘") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "‘")
+                    [[ $(echo "${Name}" | grep -c "’") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "’")
                     spacesNums=$(($((50 - ${LengthTmp} - ${#Name})) / 2))
                     for ((i = 1; i <= ${spacesNums}; i++)); do
                         Name=" ${Name}"
@@ -1477,7 +1482,7 @@ function Accounts_Control() {
         case $# in
         1)
             for ((i = 1; i <= ${UserSum}; i++)); do
-                echo -e "\n$WORKING 正在请求接口获取账号 $i 的今日收支数据...\n"
+                echo -e "\n$WORKING 正在请求接口获取账号 ${BLUE}$i${PLAIN} 的今日收支数据...\n"
                 nickName=""
                 StatusCode=""
                 Cookie_Tmp=Cookie$i
@@ -1494,7 +1499,7 @@ function Accounts_Control() {
             done
             ;;
         2)
-            echo -e "\n$WORKING 正在请求接口获取账号 $2 的今日收支数据...\n"
+            echo -e "\n$WORKING 正在请求接口获取账号 ${BLUE}$2${PLAIN} 的今日收支数据...\n"
             nickName=""
             StatusCode=""
             Cookie_Tmp=Cookie$2
