@@ -96,7 +96,7 @@ def get_beans_7days(ck):
 def get_total_beans(ck):
     try:
         headers = {
-            "Host": "wxapp.m.jd.com",
+            "Host": "me-api.jd.com",
             "Connection": "keep-alive",
             "charset": "utf-8",
             "User-Agent": "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/78.0.3904.62 XWEB/2797 MMWEBSDK/201201 Mobile Safari/537.36 MMWEBID/7986 MicroMessenger/8.0.1840(0x2800003B) Process/appbrand4 WeChat/arm64 Weixin NetType/4G Language/zh_CN ABI/arm64 MiniProgramEnv/android",
@@ -104,10 +104,10 @@ def get_total_beans(ck):
             "Accept-Encoding": "gzip, compress, deflate, br",
             "Cookie": ck,
         }
-        jurl = "https://wxapp.m.jd.com/kwxhome/myJd/home.json"
+        jurl = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
         resp = session.get(jurl, headers=headers, timeout=100).text
         res = json.loads(resp)
-        return res['user']['jingBean'], res['user']['petName'], res['user']['imgUrl']
+        return res['data']['assetInfo']['beanNum'], res['data']['userInfo']['baseInfo']['nickname'], res['data']['userInfo']['baseInfo']['headImageUrl']
     except Exception as e:
         logger.error(str(e))
 
@@ -277,7 +277,8 @@ async def chart(event):
             res = get_bean_data(int(text))
             if res['code'] != 200:
                 logger.error("data error")
-                await jdbot.send_message(chat_id, "序号不存在或单次请求过多")
+                await msg.delete()
+                await jdbot.send_message(chat_id, "❌ 序号不存在或单次请求过多")
             else:
                 aver = round((res["data"][0][0]+res["data"][0][1]+res["data"][0][2]+res["data"]
                              [0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7, 2)
