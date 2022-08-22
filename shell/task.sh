@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-21
+## Modified: 2022-08-22
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -337,12 +337,14 @@ function Find_Script() {
             ## 等待动画
             local spin=('.   ' '..  ' '... ' '....')
             local n=0
+            tput civis
             while (true); do
                 ((n++))
-                echo -en "\033[?25l$COMPLETE 下载完毕，倒计时 3 秒后开始${RunModJudge}执行${spin[$((n % 4))]}${PLAIN}" "\r"
+                echo -en "$COMPLETE 下载完毕，倒计时 3 秒后开始${RunModJudge}执行${spin[$((n % 4))]}${PLAIN}" "\r"
                 sleep 0.3
                 [ $n = 10 ] && echo -e "\033[?25h\n${PLAIN}" && break
             done
+            tput cnorm
             FileName=${FileNameTmp%.*}
             FileDir=$ScriptsDir
             ## 添加依赖文件
