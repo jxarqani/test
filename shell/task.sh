@@ -1382,7 +1382,8 @@ function Accounts_Control() {
             local TMP_LOG=".tmp.log"
             local DATA_LOG=".data.log"
             local DATA_FILE=".data.json"
-            local page lines todayStr data date dateStr amount eventMassage Name_Array Beans_Array Name LengthTmp Time Beans Income Expense
+            rm -rf $TMP_LOG $DATA_LOG $DATA_FILE
+            local page lines todayStr data date dateStr amount eventMassage Name_Array Beans_Array Name LengthTmp Time Beans Income Expense defaultLength
 
             todayStr=$(date +%s -d "$(date "+%Y-%m-%d")")
             for ((page = 1; page <= 100; page++)); do
@@ -1418,11 +1419,15 @@ function Accounts_Control() {
             fi
             echo -e "[\n$(cat $TMP_LOG)\n]" >$TMP_LOG
             cat $TMP_LOG | jq >$DATA_FILE
-            rm -rf $TMP_LOG $DATA_LOG
+            # cat $DATA_FILE
+
             ## 根据时间排序定义名称数组（空格临时换成了下划线）
+            ## 减少使用管道出现的异常
+            cat $DATA_FILE | jq .[] | jq '{eventMassage: .eventMassage}' >$TMP_LOG
+            cat $TMP_LOG | jq -r '.eventMassage' >$DATA_LOG
             # cat $DATA_FILE
             Name_Array=(
-                $(cat $DATA_FILE | jq -r '.[] | {eventMassage:.eventMassage,} | .eventMassage' | sed "s/ /_/g" | awk '!a[$0]++')
+                $(cat $DATA_LOG | sed "s/ /_/g" | awk '!a[$0]++')
             )
             if [[ ${#Name_Array[@]} -gt 0 ]]; then
                 Income=0
@@ -1430,6 +1435,7 @@ function Accounts_Control() {
                 echo -e "[最新时间]                         [变动渠道]                          [明细]\n"
                 ## 遍历数组，打印数据
                 for i in ${Name_Array[@]}; do
+                    defaultLength=50
                     i=$(echo "$i" | sed "s/_/ /g")
                     Name=$(printf "%ls\n" "$i")
                     Beans_Array=$(cat $DATA_FILE | jq -c '.[]' | grep -F "\"$i\"" | jq -r .amount | tr "\n" " ")
@@ -1447,25 +1453,28 @@ function Accounts_Control() {
                     fi
                     LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)-]||g;}'))
                     ## 中文的引号在等宽字体中占1格而非2格
-                    [[ $(echo "${Name}" | grep -c "“") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "“")
-                    [[ $(echo "${Name}" | grep -c "”") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "”")
-                    [[ $(echo "${Name}" | grep -c "‘") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "‘")
-                    [[ $(echo "${Name}" | grep -c "’") -gt 0 ]] && let LengthTmp+=$(echo "${Name}" | grep -c "’")
-                    spacesNums=$(($((50 - ${LengthTmp} - ${#Name})) / 2))
+                    [[ $(echo "${Name}" | grep -c "“") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "“")
+                    [[ $(echo "${Name}" | grep -c "”") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "”")
+                    [[ $(echo "${Name}" | grep -c "‘") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "‘")
+                    [[ $(echo "${Name}" | grep -c "’") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "’")
+                    spacesNums=$(($(($defaultLength - ${LengthTmp} - ${#Name})) / 2))
                     for ((i = 1; i <= ${spacesNums}; i++)); do
                         Name=" ${Name}"
                     done
+                    Name=$(echo "${Name}" | sed "s/“/ “/g; s/”/” /g; s/‘/ ‘/g; s/’/’ /g")
                     if [[ $Beans -gt 0 ]]; then
                         Income=$(($Income + $Beans))
-                        printf "· %-12s ${BLUE}%-$((50 + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
+                        printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
                     else
                         Expense=$(($Expense + $Beans))
-                        printf "· %-12s ${BLUE}%-$((50 + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
+                        printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
                     fi
                 done
                 echo -e "\n                [${BLUE}今日收入${PLAIN}] ${Income}🐶                    [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
+            else
+                echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
             fi
-            rm -rf $DATA_FILE
+            rm -rf $DATA_FILE $TMP_LOG $DATA_LOG
         }
 
         function CheckStatus() {
