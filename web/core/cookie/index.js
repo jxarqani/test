@@ -24,7 +24,7 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin};  手机号：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
+        return `## pt_pin=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
     };
 
     this.convert = (cookie, tips, phone = '无') => {
@@ -40,7 +40,7 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
             if(this.lastUpdateTime.length > 19){
                 this.lastUpdateTime =  this.lastUpdateTime.substring(0,19);
             }
-            this.phone = util.regExecFirst(tips, /(?<=手机号：)([^;]+)/);
+            this.phone = util.regExecFirst(tips, /(?<=联系方式：)([^;]+)/);
             this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
         } else {
             this.lastUpdateTime = util.dateFormat("YYYY-mm-dd HH:MM:SS", new Date());
@@ -186,7 +186,7 @@ function removeCookie(ptPins) {
  * 更新ck
  * @param ck pt_key=xxx;pt_pin=xxx;
  * @param remarks 备注
- * @param phone 手机号
+ * @param phone 联系方式
  * @return {number} ck数量
  */
 function updateCookie({ck, remarks = '无', phone}) {

@@ -67,7 +67,7 @@ $(document).ready(function () {
             accountArr.push({
                 "pt_pin": "ptpin的值",
                 "ws_key": "wskey的值",
-                "phone": "手机号",
+                "phone": "联系方式",
                 "remarks": "备注内容",
                 "config": {
                     "ep": {}

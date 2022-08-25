@@ -153,7 +153,7 @@ $(document).ready(function () {
         } = await Swal.fire({
             title: '短信验证码登录',
             html: '<div class="sms-login">' +
-                '   <div><input id="smsLoginPhone" maxlength="11" autofocus="true" placeholder="请输入11位手机号" class="swal2-input"></div>' +
+                '   <div><input id="smsLoginPhone" maxlength="11" autofocus="true" placeholder="请输入11位联系方式" class="swal2-input"></div>' +
                 '   <div class="swal2-html-container red-font" id="tips-mobile"></div>' +
                 '   <div><input id="smsLoginCode" maxlength="6" placeholder="6位验证码" class="swal2-input check-code"><button class="swal2-confirm swal2-styled send-sms-btn" id="sendSmsBtn">发送验证码</button></div>' +
                 '   <div class="swal2-html-container red-font" id="tips-check"></div>' +
@@ -172,7 +172,7 @@ $(document).ready(function () {
                 sendSmsBtnEle.addEventListener('click', function () {
                     let phone = smsLoginPhoneEle.value;
                     if (!new RegExp('\\d{11}').test(phone)) {
-                        tipsMobileEle.innerText = "手机号码格式不正确"
+                        tipsMobileEle.innerText = "联系方式码格式不正确"
                     } else {
                         tipsMobileEle.innerText = "";
                         //发送验证码
@@ -197,7 +197,7 @@ $(document).ready(function () {
                 let tipsMobileEle = document.getElementById('tips-mobile');
                 let tipsCheckEle = document.getElementById('tips-check');
                 if (!new RegExp('\\d{11}').test(phone)) {
-                    tipsMobileEle.innerText = "手机号码格式不正确"
+                    tipsMobileEle.innerText = "联系方式码格式不正确"
                     return false;
                 } else {
                     tipsMobileEle.innerText = "";

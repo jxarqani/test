@@ -1541,14 +1541,14 @@ function Accounts_Control() {
 
         echo ''
         for ((i = 0; i < ${#pt_pin_arr[@]}; i++)); do
-            grep -Eq "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser
+            grep -Eq "^## pt_pin=${pt_pin_arr[i]};  联系方式：.*;  上次更新：.*;  备注：.*;" $FileConfUser
             if [ $? -eq 0 ]; then
-                remark=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "备注：.*;" | awk -F ';' '{print$1}' | sed "s/备注：//g")
+                remark=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  联系方式：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "备注：.*;" | awk -F ';' '{print$1}' | sed "s/备注：//g")
 
                 if [[ -z ${remark} || ${remark} == "无" ]]; then
                     remark="未登记"
                 fi
-                phone=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  手机号：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "手机号：.*;" | awk -F ';' '{print$1}' | sed "s/手机号：//g")
+                phone=$(grep -E "^## pt_pin=${pt_pin_arr[i]};  联系方式：.*;  上次更新：.*;  备注：.*;" $FileConfUser | grep -Eo "联系方式：.*;" | awk -F ';' '{print$1}' | sed "s/联系方式：//g")
                 if [[ -z ${phone} || ${phone} == "无" ]]; then
                     phone="未登记"
                 fi

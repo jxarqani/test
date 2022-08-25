@@ -660,7 +660,7 @@ app.get('/api/sms/send', async function (request, response) {
     try {
         const phone = request.query.phone;
         if (!new RegExp('\\d{11}').test(phone)) {
-            response.send(API_STATUS_CODE.fail("手机号格式错误"));
+            response.send(API_STATUS_CODE.fail("联系方式格式错误"));
             return;
         }
         const data = await sendSms(phone);
@@ -684,7 +684,7 @@ app.post('/api/sms/checkCode', async function (request, response) {
             code
         } = request.body;
         if (!new RegExp('\\d{11}').test(phone)) {
-            response.send(API_STATUS_CODE.fail("手机号格式错误"));
+            response.send(API_STATUS_CODE.fail("联系方式格式错误"));
             return;
         }
         if (!new RegExp('\\d{6}').test(code)) {
