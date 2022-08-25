@@ -92,6 +92,7 @@ h4 {
 .diffs .wrapper {
     flex: 1 1 auto;
     position: relative;
+    overflow: hidden;
 }
 
 .diffs .compare-wrapper #compare {
