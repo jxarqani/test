@@ -13,7 +13,7 @@ async def beaninfo(event):
             text = None
         if text and int(text) and (int(text) > 0):
             text_cmd = "task cookie beans " + text
-            await cmd(text)
+            await cmd(text_cmd)
             logger.info(text)
         else:
             await jdbot.send_message(chat_id, '请在 /beaninfo 后面加上账号序号使用哦~')
