@@ -12,7 +12,7 @@ BEAN_IMG = f'{LOG_DIR}/bean.jpg'
 FONT_FILE = f'{BOT_DIR}/font/jet.ttf'
 
 
-@jdbot.on(events.NewMessage(chats=chat_id, pattern=r'^/bean'))
+@jdbot.on(events.NewMessage(chats=chat_id, pattern=r'^/bean(?!.*info)'))
 async def bot_bean(event):
     msg_text = event.raw_text.split(' ')
     try:
