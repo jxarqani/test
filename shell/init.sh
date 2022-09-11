@@ -61,7 +61,7 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人结束 -
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
-  export PS1="\033[32m@Helloworld Cli\033[0m ➜  \033[34m\w\033[0m $ "
+  export PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
   pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t fontSize=16 -t disableLeaveAlert=true bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
