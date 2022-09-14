@@ -189,7 +189,7 @@ function removeCookie(ptPins) {
  * @param phone 联系方式
  * @return {number} ck数量
  */
-function updateCookie({ck, remarks = '无', phone}) {
+function updateCookie({ck, remarks, phone}) {
     let cookieList = readCookies();
     let cookieObj = new CookieObj().convert(ck, remarks, phone);
     let isUpdate = false;
@@ -211,6 +211,7 @@ function updateCookie({ck, remarks = '无', phone}) {
         if (!ckAutoAddOpen()) {
             throw new Error(`添加 Cookie 失败，当前服务器已关闭自动添加`);
         } else {
+            !remarks && (cookieObj.remark = '无');
             //新增CK
             cookieList.push(cookieObj)
         }
