@@ -61,6 +61,7 @@ const {
 const {
     getLocalIp
 } = require("./core");
+const fs = require("fs");
 
 let authError = '错误的用户名密码，请重试',
     errorCount = 1;
