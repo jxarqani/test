@@ -70,6 +70,7 @@ async def cmd(cmdtext):
         if len(res) == 0:
             await jdbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 4000:
+            res = reContent_INVALID(res)
             await jdbot.delete_messages(chat_id, msg)
             await jdbot.send_message(chat_id, res)
         elif len(res) > 4000:
@@ -82,6 +83,16 @@ async def cmd(cmdtext):
     except Exception as e:
         await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+
+def reContent_INVALID(text):
+    '''特殊字符报错修复'''
+    replaceArr = ['_', '*', '~']
+    for i in replaceArr:
+        t = ''
+        for a in range(5):
+            t += i
+        text = re.sub('\%s{6,}' % i, t, text)
+    return text
 
 
 def get_ch_names(path, dir):
