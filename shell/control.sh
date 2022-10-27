@@ -157,7 +157,7 @@ function Panel_Control() {
 function Bot_Control() {
 
     ## 卸载
-    function Remove() {
+    function [ ! -x /usr/bin/python3 ] && Remove() {
         echo -e "\n$WORKING 开始卸载...\n"
         [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
         rm -rf $BotDir/* $RootDir/bot.session*
@@ -196,7 +196,7 @@ function Bot_Control() {
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
-        pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+        pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
         pip3 --default-timeout=1800 install -r requirements.txt
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
@@ -252,7 +252,7 @@ function Bot_Control() {
                         ## 恢复用户插件
                         if [ -d $BotDir ]; then
                             BackUpUserFiles
-                            Remove
+                            [ ! -x /usr/bin/python3 ] && Remove
                             Install_Bot
                             if [[ -d $RootDir/tmp ]]; then
                                 mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
@@ -277,7 +277,7 @@ function Bot_Control() {
                     ## 恢复用户插件
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        Remove
+                        [ ! -x /usr/bin/python3 ] && Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
@@ -320,7 +320,7 @@ function Bot_Control() {
                     ## 保存用户的脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        Remove
+                        [ ! -x /usr/bin/python3 ] && Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
@@ -471,7 +471,7 @@ function Environment_Deployment() {
             ;;
         *)
             apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
-            pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+            pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
             pip3 install --upgrade pip
             pip3 install requests
             npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js tunnel ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache ds
