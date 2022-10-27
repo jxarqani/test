@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-22
+## Modified: 2022-10-27
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -277,7 +277,7 @@ function Find_Script() {
                 exit ## 终止退出
             fi
             ## 判定是否使用下载代理参数
-            if [[ ${DOWNLOAD_PROXY} == "true" ]]; then
+            if [[ ${DOWNLOAD_PROXY} == true ]]; then
                 local Branch=$(echo "${Tmp}" | sed "s/https:\/\/raw\.githubusercontent\.com\///g" | awk -F '/' '{print$3}')
                 FormatInputContent=$(echo "${Tmp}" | perl -pe "{s|raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|g; s|\/${Branch}\/|\@${Branch}\/|g}")
                 ProxyJudge="使用代理"
@@ -404,7 +404,7 @@ function Find_Script() {
 
 ## 随机延迟
 function Random_Delay() {
-    if [[ ${RUN_DELAY} == "true" ]]; then
+    if [[ ${RUN_DELAY} == true ]]; then
         if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
             local CurMin=$(date "+%-M")
             local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
@@ -427,7 +427,7 @@ function Random_Delay() {
 ## 等待执行
 function RunWait() {
     local FormatPrint
-    if [[ ${RUN_WAIT} == "true" ]]; then
+    if [[ ${RUN_WAIT} == true ]]; then
         echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
         if [ $? -eq 0 ]; then
             echo -e "\n$ERROR 等待时间值格式有误！\n"
@@ -467,40 +467,40 @@ function Account_ExistenceJudgment() {
 ## 静默执行，不推送通知消息
 function NoPushNotify() {
     ## Server酱
-    export PUSH_KEY=""
-    export SCKEY_WECOM=""
-    export SCKEY_WECOM_URL=""
+    declare -x PUSH_KEY=""
+    declare -x SCKEY_WECOM=""
+    declare -x SCKEY_WECOM_URL=""
     ## Bark
-    export BARK_PUSH=""
-    export BARK_SOUND=""
-    export BARK_GROUP=""
+    declare -x BARK_PUSH=""
+    declare -x BARK_SOUND=""
+    declare -x BARK_GROUP=""
     ## Telegram
-    export TG_BOT_TOKEN=""
-    export TG_USER_ID=""
+    declare -x TG_BOT_TOKEN=""
+    declare -x TG_USER_ID=""
     ## 钉钉
-    export DD_BOT_TOKEN=""
-    export DD_BOT_SECRET=""
+    declare -x DD_BOT_TOKEN=""
+    declare -x DD_BOT_SECRET=""
     ## 企业微信
-    export QYWX_KEY=""
-    export QYWX_AM=""
+    declare -x QYWX_KEY=""
+    declare -x QYWX_AM=""
     ## iGot聚合
-    export IGOT_PUSH_KEY=""
+    declare -x IGOT_PUSH_KEY=""
     ## pushplus
-    export PUSH_PLUS_TOKEN=""
-    export PUSH_PLUS_USER=""
+    declare -x PUSH_PLUS_TOKEN=""
+    declare -x PUSH_PLUS_USER=""
     ## go-cqhttp
-    export GO_CQHTTP_URL=""
-    export GO_CQHTTP_QQ=""
-    export GO_CQHTTP_METHOD=""
-    export GO_CQHTTP_SCRIPTS=""
-    export GO_CQHTTP_LINK=""
-    export GO_CQHTTP_MSG_SIZE=""
-    export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+    declare -x GO_CQHTTP_URL=""
+    declare -x GO_CQHTTP_QQ=""
+    declare -x GO_CQHTTP_METHOD=""
+    declare -x GO_CQHTTP_SCRIPTS=""
+    declare -x GO_CQHTTP_LINK=""
+    declare -x GO_CQHTTP_MSG_SIZE=""
+    declare -x GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
     ## WxPusher
-    export WP_APP_TOKEN=""
-    export WP_UIDS=""
-    export WP_TOPICIDS=""
-    export WP_URL=""
+    declare -x WP_APP_TOKEN=""
+    declare -x WP_UIDS=""
+    declare -x WP_TOPICIDS=""
+    declare -x WP_URL=""
 }
 
 ## 普通执行
@@ -514,16 +514,16 @@ function Run_Normal() {
     ## 统计账号数量
     Count_UserSum
     ## 静默运行
-    [[ ${RUN_MUTE} == "true" ]] && NoPushNotify
+    [[ ${RUN_MUTE} == true ]] && NoPushNotify
 
     ## 运行主命令
     function Main() {
-        if [[ ${RUN_BACKGROUND} == "true" ]]; then
+        if [[ ${RUN_BACKGROUND} == true ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
             case ${FileFormat} in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == "true" ]]; then
+                if [[ ${EnableGlobalProxy} == true ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
                 else
                     node ${FileName}.js 2>&1 &>>${LogFile} &
@@ -545,7 +545,7 @@ function Run_Normal() {
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
             case ${FileFormat} in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == "true" ]]; then
+                if [[ ${EnableGlobalProxy} == true ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
                 else
                     node ${FileName}.js 2>&1 | tee -a ${LogFile}
@@ -609,7 +609,7 @@ function Run_Normal() {
             fi
         done
         ## 声明变量
-        export JD_COOKIE=${COOKIE_TMP}
+        declare -x JD_COOKIE=${COOKIE_TMP}
     }
 
     ## 后台挂起（守护进程）
@@ -659,7 +659,7 @@ function Run_Normal() {
     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S").log"
 
     ## 账号分组
-    if [[ ${RUN_GROUPING} == "true" ]]; then
+    if [[ ${RUN_GROUPING} == true ]]; then
         ## 定义分组
         local Groups=$(echo ${GROUPING_VALUE} | perl -pe "{s|@| |g}")
         for g in ${Groups}; do
@@ -667,7 +667,7 @@ function Run_Normal() {
             Designated_Account "${Accounts}"
 
             ## 执行脚本
-            if [[ ${RUN_LOOP} == "true" ]]; then
+            if [[ ${RUN_LOOP} == true ]]; then
                 ## 循环运行
                 Run_Times=$(($RUN_LOOP_TIMES + 1))
             else
@@ -679,7 +679,7 @@ function Run_Normal() {
                 ## 等待执行
                 RunWait
                 ## 运行
-                if [[ ${RUN_DAEMON} == "true" ]]; then
+                if [[ ${RUN_DAEMON} == true ]]; then
                     ## 后台挂起（守护进程）
                     Daemon_Process
                 else
@@ -692,7 +692,7 @@ function Run_Normal() {
         done
     else
         ## 指定账号
-        if [[ ${RUN_DESIGNATED} == "true" ]]; then
+        if [[ ${RUN_DESIGNATED} == true ]]; then
             local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account "${Accounts}"
         else
@@ -701,7 +701,7 @@ function Run_Normal() {
         fi
 
         ## 执行脚本
-        if [[ ${RUN_LOOP} == "true" ]]; then
+        if [[ ${RUN_LOOP} == true ]]; then
             ## 循环运行
             Run_Times=$(($RUN_LOOP_TIMES + 1))
         else
@@ -713,7 +713,7 @@ function Run_Normal() {
             ## 等待执行
             RunWait
             ## 运行
-            if [[ ${RUN_DAEMON} == "true" ]]; then
+            if [[ ${RUN_DAEMON} == true ]]; then
                 ## 后台挂起（守护进程）
                 Daemon_Process
             else
@@ -724,7 +724,7 @@ function Run_Normal() {
     fi
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == "true" && ${AutoDelRawFiles} == "true" ]]; then
+    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
         rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
@@ -740,7 +740,7 @@ function Run_Concurrent() {
     ## 统计账号数量
     Count_UserSum
     ## 静默运行参数
-    [[ ${RUN_MUTE} == "true" ]] && NoPushNotify
+    [[ ${RUN_MUTE} == true ]] && NoPushNotify
 
     ## 运行主命令
     function Main() {
@@ -754,7 +754,7 @@ function Run_Concurrent() {
         ## 执行脚本
         case ${FileFormat} in
         JavaScript)
-            if [[ ${EnableGlobalProxy} == "true" ]]; then
+            if [[ ${EnableGlobalProxy} == true ]]; then
                 node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
             else
                 node ${FileName}.js 2>&1 &>>${LogFile} &
@@ -788,7 +788,7 @@ function Run_Concurrent() {
     ## 等待执行
     RunWait
     ## 加载账号并执行
-    if [[ ${RUN_DESIGNATED} == "true" ]]; then
+    if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
         local Accounts=$(echo ${DESIGNATED_VALUE} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
         for UserNum in ${Accounts}; do
@@ -856,7 +856,7 @@ function Run_Concurrent() {
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
-    if [[ ${RUN_REMOTE} == "true" && ${AutoDelRawFiles} == "true" ]]; then
+    if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
         rm -rf "${FileDir}/${FileName}.${FileSuffix}"
     fi
 }
@@ -1164,7 +1164,7 @@ function Accounts_Control() {
             local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(cat $FileAccountConf | jq -r '.[] | {pt_pin:.pt_pin,} | .pt_pin' | grep -Ev "ptpin的值|null|^$")
+                $(cat $FileAccountConf | jq -r '.[] | {pt_pin:.pt_pin,} | .pt_pin' | grep -Ev "pt_pin的值|null|^$")
             )
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
                 local num=1
@@ -1181,7 +1181,7 @@ function Accounts_Control() {
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
                     ## 声明变量
-                    export JD_PT_PIN=${PT_PIN_TMP}
+                    declare -x JD_PT_PIN=${PT_PIN_TMP}
                     ## 定义格式化后的pt_pin
                     FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                     ## 转义pt_pin中的汉字
@@ -1189,7 +1189,7 @@ function Accounts_Control() {
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
                     EscapePin_Length_Add=$(StringLength $(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
                     ## 执行脚本
-                    if [[ ${EnableGlobalProxy} == "true" ]]; then
+                    if [[ ${EnableGlobalProxy} == true ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1211,7 +1211,7 @@ function Accounts_Control() {
                         else
                             echo -e "    该账号的WSKEY状态 => ${RED}未知${PLAIN}\n"
                         fi
-                        if [[ ${EnableCookieUpdateFailureNotify} == "true" ]]; then
+                        if [[ ${EnableCookieUpdateFailureNotify} == true ]]; then
                             if [[ ${CheckTmp} == "1001" ]]; then
                                 Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
                             else
@@ -1277,13 +1277,13 @@ function Accounts_Control() {
                     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
                     echo -e "\n$WORKING 开始更新第 ${BLUE}$UserNum${PLAIN} 个账号...\n"
                     ## 声明变量
-                    export JD_PT_PIN=${PT_PIN_TMP}
+                    declare -x JD_PT_PIN=${PT_PIN_TMP}
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 记录执行开始时间
                     echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                     ## 执行脚本
-                    if [[ ${EnableGlobalProxy} == "true" ]]; then
+                    if [[ ${EnableGlobalProxy} == true ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -1352,7 +1352,7 @@ function Accounts_Control() {
                     ## 推送通知
                     [ -f $FileSendMark ] && sed -i "/未设置ws_key跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
-                        [[ ${EnableCookieUpdateNotify} == "true" ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
+                        [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
                     [ -f $FileSendMark ] && rm -rf $FileSendMark
                 else
@@ -1453,7 +1453,7 @@ function Accounts_Control() {
                     if [ $? -eq 0 ]; then
                         Name=$(echo "${Name}" | perl -pe "{s|参加\[||g; s|\].*||g;}")
                     fi
-                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe "{s|[0-9a-zA-Z\.\=\:\_\(\)\'\"-\/\!\@/]||g;}"))
+                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe "{s|[0-9a-zA-Z\.\=\:\_\(\)\'\"-\/\!]||g;}"))
                     ## 中文的引号在等宽字体中占1格而非2格
                     [[ $(echo "${Name}" | grep -c "“") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "“")
                     [[ $(echo "${Name}" | grep -c "”") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "”")
@@ -1527,6 +1527,7 @@ function Accounts_Control() {
 
         echo -e "\n$COMPLETE 查询完毕\n"
         ;;
+
     list)
         Import_Config
         Count_UserSum
@@ -1552,8 +1553,8 @@ function Accounts_Control() {
                 if [[ -z ${phone} || ${phone} == "无" ]]; then
                     phone="未登记"
                 fi
-                phone_len_add=$(StringLength $(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] -]||g;}'))
-                remark_len_add=$(StringLength $(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] -]||g;}'))
+                phone_len_add=$(StringLength $(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
+                remark_len_add=$(StringLength $(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
 
                 printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}%-$((24 + ${remark_len_add}))s${PLAIN} 联系方式：${BLUE}%-s${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "${remark}" "${phone}"
             else
@@ -1817,7 +1818,7 @@ function Add_OwnRepo() {
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
         if [ -s $ListOwnRepoAdd ]; then
-            if [[ ${AutoAddOwnRepoCron} == "true" ]]; then
+            if [[ ${AutoAddOwnRepoCron} == true ]]; then
                 echo ''
                 if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
                     local Detail=$(cat $ListOwnRepoAdd)
@@ -1826,13 +1827,13 @@ function Add_OwnRepo() {
                         if [ -f ${FilePath} ]; then
                             local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | head -1)
                             ## 新增定时任务自动禁用
-                            if [[ ${DisableNewOwnRepoCron} == "true" ]]; then
+                            if [[ ${DisableNewOwnRepoCron} == true ]]; then
                                 echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                             else
                                 grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
                                 if [ $? -eq 0 ]; then
                                     ## 重复定时任务自动禁用
-                                    if [[ ${DisableDuplicateOwnRepoCron} == "true" ]]; then
+                                    if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
                                         echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                                     else
                                         echo "${Cron}" >>$ListCrontabOwnTmp
@@ -2000,7 +2001,7 @@ function Add_RawFile() {
         Import_Config_Not_Check
 
         ## 添加定时任务
-        if [[ ${AutoAddOwnRawCron} == "true" ]]; then
+        if [[ ${AutoAddOwnRawCron} == true ]]; then
             FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
                 perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
@@ -3168,7 +3169,7 @@ case $# in
                         echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                         exit ## 终止退出
                     else
-                        if [[ ${RUN_GROUPING} == "true" ]]; then
+                        if [[ ${RUN_GROUPING} == true ]]; then
                             Help
                             echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
                             exit ## 终止退出
@@ -3194,7 +3195,7 @@ case $# in
                             echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                             exit ## 终止退出
                         else
-                            if [[ ${RUN_DESIGNATED} == "true" ]]; then
+                            if [[ ${RUN_DESIGNATED} == true ]]; then
                                 Help
                                 echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
                                 exit ## 终止退出
