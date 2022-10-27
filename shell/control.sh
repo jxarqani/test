@@ -157,7 +157,7 @@ function Panel_Control() {
 function Bot_Control() {
 
     ## 卸载
-    function [ ! -x /usr/bin/python3 ] && Remove() {
+    function Remove() {
         echo -e "\n$WORKING 开始卸载...\n"
         [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
         rm -rf $BotDir/* $RootDir/bot.session*

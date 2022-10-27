@@ -37,7 +37,7 @@ git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
 [ ! -x /usr/bin/npm ] && apk add -f nodejs-lts npm >/dev/null 2>&1
 sleep 2
 ## 检测配置文件
-${ContrlCmd} check files
+${ContrlCmd} check files >/dev/null 2>&1
 ${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
