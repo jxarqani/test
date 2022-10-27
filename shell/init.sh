@@ -34,7 +34,6 @@ cd ${WORK_DIR}
 sleep 2
 git fetch --all
 git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
-[ ! -x /usr/bin/npm ] && apk add -f nodejs-lts npm
 sleep 2
 ## 检测配置文件
 ${ContrlCmd} check files >/dev/null 2>&1
