@@ -160,8 +160,21 @@ function Bot_Control() {
     function Remove() {
         echo -e "\n$WORKING 开始卸载...\n"
         [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
-        rm -rf $RootDir/bot.session*
+        rm -rf $BotDir/* $RootDir/bot.session*
         echo -e "\n$COMPLETE 卸载完成"
+    }
+
+    ## 备份用户的脚本
+    function BackUpUserFiles() {
+        local UserFiles=($(
+            ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
+        ))
+        if [ ${#UserFiles[@]} -gt 0 ]; then
+            Make_Dir $RootDir/tmp
+            for ((i = 0; i < ${#UserFiles[*]}; i++)); do
+                mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
+            done
+        fi
     }
 
     ## 安装 Telegram Bot
@@ -178,13 +191,10 @@ function Bot_Control() {
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
         fi
-        ## 检测bot的diy配置是否存在
-        if [[ ! -d $ConfigDir/jbot_diy ]] && [[ ! -s $ConfigDir/jbot_diy/example.py ]]; then
-            cp -fvr $BotDir/diy $ConfigDir/jbot_diy
-        fi
         Make_Dir $BotLogDir
         ## 安装模块
         echo -e "$WORKING 开始安装模块...\n"
+        cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
         pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
         pip3 --default-timeout=1800 install -r requirements.txt
@@ -239,8 +249,19 @@ function Bot_Control() {
                     errored)
                         echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                         pm2 delete jbot >/dev/null 2>&1
-                        Remove
-                        Install_Bot
+                        ## 恢复用户插件
+                        if [ -d $BotDir ]; then
+                            BackUpUserFiles
+                            Remove
+                            Install_Bot
+                            if [[ -d $RootDir/tmp ]]; then
+                                mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
+                                rm -rf $RootDir/tmp
+                            fi
+                        else
+                            Install_Bot
+                        fi
+                        cp -rf $BotSrcDir/jbot $RootDir
                         ## 启动 bot
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                         PM2_List_All_Services
@@ -253,8 +274,19 @@ function Bot_Control() {
                         ;;
                     esac
                 else
-                    Remove
-                    Install_Bot
+                    ## 恢复用户插件
+                    if [ -d $BotDir ]; then
+                        BackUpUserFiles
+                        Remove
+                        Install_Bot
+                        if [[ -d $RootDir/tmp ]]; then
+                            mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
+                            rm -rf $RootDir/tmp
+                        fi
+                    else
+                        Install_Bot
+                    fi
+                    cp -rf $BotSrcDir/jbot $RootDir
                     ## 软链接
                     [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                     ## 启动 bot
@@ -285,8 +317,19 @@ function Bot_Control() {
                     pm2 delete jbot >/dev/null 2>&1
                     ## 删除日志
                     rm -rf $BotLogDir/up.log
-                    Remove
-                    Install_Bot
+                    ## 保存用户的脚本
+                    if [ -d $BotDir ]; then
+                        BackUpUserFiles
+                        Remove
+                        Install_Bot
+                        if [[ -d $RootDir/tmp ]]; then
+                            mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
+                            rm -rf $RootDir/tmp
+                        fi
+                    else
+                        Install_Bot
+                    fi
+                    cp -rf $BotSrcDir/jbot $RootDir
                     ## 启动 bot
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe jbot | grep status | awk '{print $4}')

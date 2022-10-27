@@ -17,7 +17,8 @@ CodeDir=$LogDir/ShareCodes
 OwnDir=$RootDir/own
 RawDir=$OwnDir/raw
 BotDir=$RootDir/jbot
-BotLogDir=$LogDir/TelegramBot
+BotLogDir=$LogDir/bot
+BotSrcDir=$UtilsDir/bot_src
 RootDir_NodeModules=$RootDir/node_modules
 ScriptsDir_NodeModules=$ScriptsDir/node_modules
 

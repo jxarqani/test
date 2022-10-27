@@ -2,7 +2,7 @@
 # _*_ coding:utf-8 _*_
 
 import json
-from . import jdbot, chat_id, logger, LOG_DIR, BOT_SET_JSON_FILE_USER, BOT_SET_JSON_FILE, BOT_SET, BOT_DIR, BOT_D_DIR
+from . import jdbot, chat_id, logger, LOG_DIR, BOT_SET_JSON_FILE_USER, BOT_SET_JSON_FILE, BOT_SET, BOT_DIR
 from .utils import load_module
 import os
 import random
@@ -11,7 +11,7 @@ from telethon import Button
 
 BOT_UP_LOG = f'{LOG_DIR}/TelegramBot/up.log'
 BOT_M_DIR = f'{BOT_DIR}/bot/'
-# BOT_D_DIR = f'{BOT_DIR}/diy/'
+BOT_D_DIR = f'{BOT_DIR}/diy/'
 BOT_U_DIR = f'{BOT_DIR}/user/'
 logger.info('loading bot module...')
 load_module('bot', BOT_M_DIR)
