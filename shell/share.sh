@@ -221,6 +221,10 @@ function Output_Command_Error() {
     esac
 }
 
+function b() {
+    echo "$(printf "$1" | base64 -d)"
+}
+
 ## 统计账号数量
 function Count_UserSum() {
     for ((i = 1; i <= 0x3e8; i++)); do
