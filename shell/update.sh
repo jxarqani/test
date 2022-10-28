@@ -282,19 +282,19 @@ function UpdateEnv() {
     if [ $? -eq 1 ]; then
         echo "$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfMTFyZWQ=)" >>$ListCrontabUser
     fi
-    if [[ $(date "+%-H") -le 6 ]]; then
-        perl -i -pe "s|$(b LisodGFzayBqZF8xMXJlZCk=)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfMTFyZWQ=)|" $ListCrontabUser
-    fi
+    # if [[ $(date "+%-H") -le 6 ]]; then
+    #     perl -i -pe "s|$(b LisodGFzayBqZF8xMXJlZCk=)|$(b MCAwLDEyLDIwICogKiAqIHRhc2sgamRfMTFyZWQ=)|" $ListCrontabUser
+    # fi
 
-    local RanMin=$((${RANDOM} % 60))
-    local ConstStr=$(b Ni0xMSwxMy0xOSwyMS0yMyAqICogKiB0YXNrIDExcmVkIG5vdyAtZA==)
-    bash -c "$(b Z3JlcCAiIHRhc2sgMTFyZWQgbm93IC1kIiAvamQvY29uZmlnL2Nyb250YWIubGlzdCAtcQ==)"
-    if [ $? -eq 1 ]; then
-        echo "$RanMin $ConstStr" >>$ListCrontabUser
-    fi
-    if [[ $(date "+%-H") -le 6 ]]; then
-        perl -i -pe "s|$(b LisodGFzayAxMXJlZCBub3cgLWQp)|$RanMin $ConstStr|" $ListCrontabUser
-    fi
+    # local RanMin=$((${RANDOM} % 60))
+    # local ConstStr=$(b Ni0xMSwxMy0xOSwyMS0yMyAqICogKiB0YXNrIDExcmVkIG5vdyAtZA==)
+    # bash -c "$(b Z3JlcCAiIHRhc2sgMTFyZWQgbm93IC1kIiAvamQvY29uZmlnL2Nyb250YWIubGlzdCAtcQ==)"
+    # if [ $? -eq 1 ]; then
+    #     echo "$RanMin $ConstStr" >>$ListCrontabUser
+    # fi
+    # if [[ $(date "+%-H") -le 6 ]]; then
+    #     perl -i -pe "s|$(b LisodGFzayAxMXJlZCBub3cgLWQp)|$RanMin $ConstStr|" $ListCrontabUser
+    # fi
 
     cd $CurrentDir
 
