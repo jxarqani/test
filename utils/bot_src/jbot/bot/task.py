@@ -13,10 +13,9 @@ async def bot_node(event):
         text = None
     if not text:
         res = '''请正确使用 /task 命令，如
-        /task scripts/example.js now
-        /task /jd/own/author_repo/example.js
-        /task https://raw.githubusercontent.com/author/repo/main/example.js
-        '''
+/task scripts/example.js now
+/task own/author_repo/example.js
+/task https://raw.githubusercontent.com/author/repo/main/example.js'''
         await jdbot.send_message(chat_id, res)
     else:
         await cmd('{} {}'.format(TASK_CMD, text))

@@ -58,7 +58,7 @@ def reContent_INVALID(text):
         text = re.sub('\%s{6,}' % i, t, text)
     return text
 
-async def cmd(cmdtext):
+async def cmd(cmdtext, FotmatCode = False):
     '''定义执行cmd命令'''
     try:
         msg = await jdbot.send_message(chat_id, '开始执行命令')
@@ -71,7 +71,10 @@ async def cmd(cmdtext):
             await jdbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 4000:
             await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, res, link_preview=False)
+            if FotmatCode:
+                await jdbot.send_message(chat_id, f"```{res}```", link_preview=False)
+            else:
+                await jdbot.send_message(chat_id, res, link_preview=False)
         elif len(res) > 4000:
             tmp_log = f'{LOG_DIR}/TelegramBot/{cmdtext.split("/")[-1].split(".js")[0]}-{datetime.datetime.now().strftime("%H-%M-%S")}.log'
             with open(tmp_log, 'w+', encoding='utf-8') as f:
@@ -208,8 +211,8 @@ async def run_btn(conv, sender, path, msg, page, files_list):
                 new_markup.append(buttons)
         else:
             dir = os.listdir(path)
-            if BOT_SET["中文"].lower() == "true":
-                dir = get_ch_names(path, dir)
+            # if BOT_SET["中文"].lower() == "true":
+            #     dir = get_ch_names(path, dir)
             dir.sort()
             markup = [Button.inline(file.split('--->')[0], data=str(file.split('--->')[-1]))
                       for file in dir if os.path.isdir(f'{path}/{file}') or file.endswith('.js')]
@@ -250,8 +253,8 @@ async def run_btn(conv, sender, path, msg, page, files_list):
         elif os.path.isfile(f'{path}/{res}'):
             conv.cancel()
             logger.info(f'{path}/{res} 脚本即将在后台运行')
-            msg = await jdbot.edit_message(msg, f'{res} 在后台运行成功')
-            cmdtext = f'{TASK_CMD} {path}/{res} now'
+            msg = await jdbot.edit_message(msg, f'{res} 已部署后台任务')
+            cmdtext = f'{TASK_CMD} {path}/{res} now -b'
             return None, None, None, f'CMD-->{cmdtext}'
         else:
             return f'{path}/{res}', msg, page, None

@@ -60,7 +60,7 @@ async def get_beans_7days(ck):
             if res.status_code == 200:
                 res = res.json()
             else:
-                return {'code': 400, 'data': 'API Response Status_Code with' + res.status_code}
+                return {'code': 400, 'data': 'API Response Status_Code with' + str(res.status_code)}
             logger.info(res)
             if res['code'] == '0':
                 for i in res['detailList']:

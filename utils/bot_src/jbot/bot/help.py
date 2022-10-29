@@ -14,6 +14,7 @@ async def bot_help(event):
 a-自定义快捷按钮
 addcron-增加定时
 bean-获取收支
+beaninfo-获取今日豆子详细收支
 clearboard-删除快捷按钮
 chart-统计收支变化
 cron-管理定时设定
@@ -25,11 +26,14 @@ dl-下载文件
 getfile-获取目录下文件
 log-选择日志
 task-执行脚本，绝对路径
-set-BOT设置
+set-设置Bot部分功能
 setname-设置命令别名
 setshort-设置自定义按钮
 run-选择脚本后台运行
-start-开始使用本程序'''
+start-开始使用本程序
+reboot-重启Bot
+update-更新/重装Bot'''
+
     bean = '/bean 加数字，获取该账户近期收支情况\n/bean in\out获取所有账户近期收或支情况\n/bean 获取账户总豆数量'
     cmd = '/cmd用于执行cmd命令，如果命令持续10分钟仍未结束，将强行终止，以保障机器人响应'
     edit = '/edit 进入/jd目录选择文件进行编辑，仅限简易编辑\n/edit /xx/config进入config目录选择文件编辑\n/edit /xx/config/config.sh 直接编辑config.sh文件'
@@ -48,6 +52,5 @@ start-开始使用本程序'''
             - 加入机器人黑名单后，使用 | 区隔设置垃圾话，会随机挑选垃圾话回复该用户'''
     cron = '''    - /cron 命令
         - /cron 加关键字 可进行cron管理'''
-    help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node,
-              'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
+    help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node, 'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
     await jdbot.send_message(chat_id, help_me[text])
