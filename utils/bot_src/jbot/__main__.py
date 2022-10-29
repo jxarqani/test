@@ -21,7 +21,7 @@ logger.info('loading user module...')
 load_module('user', BOT_U_DIR)
 
 async def new_ver():
-    text = "机器人已启动\n\n开始使用 /start\n\n服务控制指令（在终端执行）：\n启动/重启： `taskctl jbot start`\n关闭/停止： `taskctl jbot stop`\n更新/重装： `taskctl jbot update`"
+    text = "🔔 叮咚~  机器人上线了✅\n\n获取帮助以快速开始使用 /start\n\n服务控制指令（在终端执行）\n启动/重启： `taskctl jbot start`\n关闭/停止： `taskctl jbot stop`\n更新/重装： `taskctl jbot update`\n\n🐶 [Powered by Helloworld](https://t.me/jdhelloworld)"
     document_url = 'https://supermanito.github.io/Helloworld/#/use/%E7%94%B5%E6%8A%A5%E6%9C%BA%E5%99%A8%E4%BA%BA'
     if os.path.exists(BOT_UP_LOG):
         is_new = False
