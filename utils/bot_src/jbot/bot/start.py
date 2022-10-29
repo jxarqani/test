@@ -25,8 +25,8 @@ async def bot_start(event):
     /set 设置Bot部分功能。
     /setname 设置命令别名。
     /setshort 设置自定义按钮，每次设置会覆盖原设置。
-    /run 选择脚本执行，仅支持scripts和own目录下的脚本，选择完后直接后台运行，不影响BOT响应其他命令。
-    
+    /run 选择脚本运行，支持所有路径，选择完后直接后台运行，不影响BOT响应其他命令。
+
     直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。'''
     await jdbot.send_message(chat_id, msg)
 
