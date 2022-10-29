@@ -14,6 +14,7 @@ session = requests.session()
 session.keep_alive = False
 
 url = "https://api.m.jd.com/client.action"
+SIGN_API = "https://api.nolanstore.top/sign"
 
 def gen_body(page):
     body = {
@@ -36,6 +37,7 @@ def gen_params(page):
 def get_beans_7days(ck):
     try:
         day_7 = True
+        functionId = "getJingBeanBalanceDetail"
         page = 0
         headers = {
             "Host": "api.m.jd.com",
@@ -53,7 +55,11 @@ def get_beans_7days(ck):
         beans_out = {key: 0 for key in days}
         while day_7:
             page = page + 1
-            res = session.post(url=url, headers=headers, data=gen_params(page)).json()
+            signBody = get_sign(functionId, gen_body(page))
+            logger.info(signBody)
+            resStr = session.post(url=url + '?functionId=getJingBeanBalanceDetail', headers=headers, data=signBody)
+            logger.info(resStr)
+            res = resStr.json()
             if res['code'] == '0':
                 for i in res['detailList']:
                     for date in days:
@@ -117,3 +123,18 @@ def get_bean_data(i):
     except Exception as e:
         logger.error(str(e))
         return {"code": 400}
+
+def get_sign(fn, body):
+    try:
+        data = {
+            "fn": fn,
+            "body": body
+        }
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = session.post(url=SIGN_API, headers=headers, json=data, timeout=30000).json()
+        logger.info(res)
+        return res['body']
+    except Exception as e:
+        logger.error(str(e))

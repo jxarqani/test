@@ -165,7 +165,7 @@ async def chart(event):
                              [0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7, 2)
                 createChart(res['data'][0], res['data'][1], res['data'][3])
                 logger.info("Start create image")
-                createpic(res['data'][4], res['data'][2][-1])
+                createpic(res['data'][4], res['data'][2][-1], res['pic'])
                 logger.info("ok")
                 await msg.delete()
                 result = await jdbot.send_message(chat_id, f'近七天平均收入{aver}豆⚡', file=BEAN_IMG)
