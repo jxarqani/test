@@ -30,9 +30,7 @@ set-设置Bot部分功能
 setname-设置命令别名
 setshort-设置自定义按钮
 run-选择脚本后台运行
-start-开始使用本程序
-reboot-重启Bot
-update-更新/重装Bot'''
+start-开始使用本程序'''
 
     bean = '/bean 加数字，获取该账户近期收支情况\n/bean in\out获取所有账户近期收或支情况\n/bean 获取账户总豆数量'
     cmd = '/cmd用于执行cmd命令，如果命令持续10分钟仍未结束，将强行终止，以保障机器人响应'
