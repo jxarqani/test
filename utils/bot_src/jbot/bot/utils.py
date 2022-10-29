@@ -71,7 +71,7 @@ async def cmd(cmdtext):
             await jdbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 4000:
             await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, res)
+            await jdbot.send_message(chat_id, res, link_preview=False)
         elif len(res) > 4000:
             tmp_log = f'{LOG_DIR}/TelegramBot/{cmdtext.split("/")[-1].split(".js")[0]}-{datetime.datetime.now().strftime("%H-%M-%S")}.log'
             with open(tmp_log, 'w+', encoding='utf-8') as f:
