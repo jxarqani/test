@@ -10,7 +10,10 @@ async def bot_start(event):
     /start 开始使用本程序。
     /a 使用你的自定义快捷按钮。
     /addcron 增加cron，例：0 0 * * * task example。
+    /bean 统计一周的收支变化。
+    /beaninfo 获取今日豆子详细收支。
     /clearboard 删除快捷输入按钮。
+    /chart-统计一周的收支变化并生成图片。
     /cmd 在系统命令行执行指令，例：/cmd task 查看命令帮助。
     /cron 进行cron管理。
     /code 解析京东APP口令。
