@@ -5,7 +5,7 @@ own/
 log/
 logs/
 config/
-jbot/
+./jbot/
 utils/.sign/
 web/node_modules/
 web/package-lock.json

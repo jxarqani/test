@@ -155,17 +155,17 @@ async def chart(event):
             text = None
         if text and int(text) and (int(text) > 0):
             msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
-            res = get_bean_data(int(text))
+            res = await get_bean_data(int(text))
             if res['code'] != 200:
                 logger.error("data error")
                 await msg.delete()
-                await jdbot.send_message(chat_id, "❌ 序号不存在或单次请求过多")
+                await jdbot.send_message(chat_id, "❌ 序号不存在或单次请求过多\n\n" + res['data'])
             else:
                 aver = round((res["data"][0][0]+res["data"][0][1]+res["data"][0][2]+res["data"]
                              [0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7, 2)
                 createChart(res['data'][0], res['data'][1], res['data'][3])
                 logger.info("Start create image")
-                createpic(res['data'][4], res['data'][2][-1], res['pic'])
+                createpic(res['data'][4], res['data'][2][-1])
                 logger.info("ok")
                 await msg.delete()
                 result = await jdbot.send_message(chat_id, f'近七天平均收入{aver}豆⚡', file=BEAN_IMG)
@@ -176,7 +176,7 @@ async def chart(event):
     except Exception as e:
         logger.error(str(e))
         line = e.__traceback__.tb_lineno
-        await jdbot.send_message(chat_id, "错误类型：" + str(e)+f'\n错误发生在第{line}行')
+        await jdbot.send_message(chat_id, "错误类型：" + str(e)+f'\n错误发生在第{line}行\n\n' + str(e))
         logger.error(f'错误发生在第{line}行')
 
 if ch_name:

@@ -1,9 +1,7 @@
-import requests
-import datetime
-import time
-import json
-from datetime import timedelta
-from datetime import timezone
+import requests, datetime, time, json
+from datetime import timedelta, timezone
+from asyncio import sleep
+from .. import jdbot, chat_id
 from .utils import CONFIG_SH_FILE, get_cks, logger
 SHA_TZ = timezone(
     timedelta(hours=8),
@@ -11,7 +9,6 @@ SHA_TZ = timezone(
 )
 requests.adapters.DEFAULT_RETRIES = 5
 session = requests.session()
-session.keep_alive = False
 
 url = "https://api.m.jd.com/client.action"
 SIGN_API = "https://api.nolanstore.top/sign"
@@ -34,7 +31,7 @@ def gen_params(page):
     return params
 
 
-def get_beans_7days(ck):
+async def get_beans_7days(ck):
     try:
         day_7 = True
         functionId = "getJingBeanBalanceDetail"
@@ -45,6 +42,7 @@ def get_beans_7days(ck):
             "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept-Encoding": "gzip,deflate",
+            'Accept-Charset': 'UTF-8',
             "Cookie": ck,
         }
         days = []
@@ -57,9 +55,13 @@ def get_beans_7days(ck):
             page = page + 1
             signBody = get_sign(functionId, gen_body(page))
             logger.info(signBody)
-            resStr = session.post(url=url + '?functionId=getJingBeanBalanceDetail', headers=headers, data=signBody)
-            logger.info(resStr)
-            res = resStr.json()
+            res = requests.post(url=url + '?functionId=getJingBeanBalanceDetail&' + signBody, headers=headers)
+            await sleep(1)
+            if res.status_code == 200:
+                res = res.json()
+            else:
+                return {'code': 400, 'data': 'API Response Status_Code with' + res.status_code}
+            logger.info(res)
             if res['code'] == '0':
                 for i in res['detailList']:
                     for date in days:
@@ -78,8 +80,9 @@ def get_beans_7days(ck):
         days = list(map(lambda x: x[5:], days))
         return {'code': 200, 'data': [beans_in, beans_out, days]}
     except Exception as e:
-        logger.error(str(e))
-        return {'code': 400, 'data': str(e)}
+        errorMsg = f"❌ 第{e.__traceback__.tb_lineno}行：{e}"
+        logger.error(errorMsg)
+        return {'code': 400, 'data': str(errorMsg)}
 
 def get_total_beans(ck):
     try:
@@ -99,13 +102,13 @@ def get_total_beans(ck):
         logger.error(str(e))
 
 
-def get_bean_data(i):
+async def get_bean_data(i):
     try:
         ckfile = CONFIG_SH_FILE
         cookies = get_cks(ckfile)
         if cookies:
             ck = cookies[i-1]
-            beans_res = get_beans_7days(ck)
+            beans_res = await get_beans_7days(ck)
             beantotal, nickname, pic = get_total_beans(ck)
             if beans_res['code'] != 200:
                 return beans_res

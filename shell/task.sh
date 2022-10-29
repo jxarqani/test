@@ -1374,7 +1374,8 @@ function Accounts_Control() {
             body="body=$(UrlEncode "{\"pageSize\": \"20\",\"page\": \"${pageNum}\"}")&appid=ld"
             curl -s -X POST "https://api.m.jd.com/client.action?functionId=getJingBeanBalanceDetail" \
             -H "Host: api.m.jd.com" \
-            -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -H "Accept-Charset: UTF-8" \
             -H "User-Agent: jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1" \
             -H "Cookie: ${CK}" \
             --data-raw "$body" | jq .detailList | jq -c '.[]'
@@ -1411,9 +1412,10 @@ function Accounts_Control() {
                         fi
                     done
                 else
-                    echo -e "$FAIL 当前账号已被接口限制或网络环境异常！"
+                    echo -e "$FAIL 查询接口请求异常，目标账号已被官方接口限制或当前网络环境异常！"
                     return
                 fi
+                sleep 1
             done
             if [[ ! -s $TMP_LOG ]]; then
                 echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
