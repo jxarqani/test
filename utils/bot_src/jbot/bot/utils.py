@@ -188,7 +188,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
         return None, None, None, None
 
 
-async def snode_btn(conv, sender, path, msg, page, files_list):
+async def run_btn(conv, sender, path, msg, page, files_list):
     '''定义scripts脚本按钮'''
     my_btns = [Button.inline('上一页', data='up'), Button.inline(
         '下一页', data='next'), Button.inline('上级', data='updir'), Button.inline('取消', data='cancel')]

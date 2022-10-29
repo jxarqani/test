@@ -22,7 +22,7 @@
     "reply": "回复",
     "dl": "下载",
     "node": "运行脚本",
-    "snode": "执行",
+    "run": "执行",
     "getfile": "文件",
     "log": "日志",
     "setshort": "快捷设定",

@@ -27,13 +27,12 @@ async def code(event):
     try:
         res = json.loads(data)
 
-        if (res["code"] == 0):
+        if (res["code"] == '0'):
             data = res["data"]
 
             if (re.match(r'.*:/(?!/).*', text, re.S)) or (re.match(r'.*\([0-9a-zA-Z]{1,12}\).*', text, re.S)) or (re.match(r'.*[￥！][0-9a-zA-Z]{1,12}(?!/).*', text, re.S)):
 
-                push_msg = f"**【活动标题】** {data['title']}\n**【用户昵称】** {data['userName']}\n**【用户头像】** {data['headImg']}\n**【跳转链接】** {data['jumpUrl']}"
-
+                push_msg = f"**【活动标题】** {data['title']}\n**【用户昵称】** {data['userName']}\n**【用户头像】** [点此查看]({data['headImg']})\n**【活动链接】** __{data['jumpUrl']}__"
             else:
                 push_msg = str(json.dumps(res, indent=4, ensure_ascii=False))
 

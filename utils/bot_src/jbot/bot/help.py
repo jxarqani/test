@@ -17,6 +17,7 @@ bean-获取收支
 clearboard-删除快捷按钮
 chart-统计收支变化
 cron-管理定时设定
+code-解析京东APP口令
 cmd-执行cmd命令
 edit-编辑文件
 env-管理环境变量
@@ -35,10 +36,10 @@ start-开始使用本程序'''
     node = '/node 用于执行js脚本 用法：\n/node /jd/own/abc/def.js'
     getfile = '/getfile 进入/jd目录选择文件进行获取\n/getfile /xx/config进入config目录选择文件获取\n/getfile /xx/config/config.sh 直接获取config.sh文件'
     setshort = '/setshort 用于设置快捷方式，格式如下：\n更新-->jup\nAAA-->BBB这种格式使用/a选择\n/bean 1\n/edit /xx/config/config.sh\n以“/”开头的为机器人命令快捷，使用/b选择'
-    snode = '/snode 选择脚本并运行'
+    run = '/run 选择脚本并运行'
     chart = '/chart 加数字，统计该账户近期收支情况'
     botset = '''/set 
-        - snode时中英文切换
+        - run时中英文切换
         - 每列几个按钮
         - 是否开启机器人转发
         - 机器人聊天黑名单
@@ -48,5 +49,5 @@ start-开始使用本程序'''
     cron = '''    - /cron 命令
         - /cron 加关键字 可进行cron管理'''
     help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node,
-              'getfile': getfile, 'setshort': setshort, 'snode': snode, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
+              'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
     await jdbot.send_message(chat_id, help_me[text])
