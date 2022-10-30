@@ -14,3 +14,5 @@ web/sessions/*.json
 send_mark
 bot.session
 .pm2_list.log
+
+/jbot
