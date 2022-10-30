@@ -1,7 +1,9 @@
-import requests, datetime, time, json
-from datetime import timedelta, timezone
-from asyncio import sleep
-from .. import jdbot, chat_id
+import requests
+import datetime
+import time
+import json
+from datetime import timedelta
+from datetime import timezone
 from .utils import CONFIG_SH_FILE, get_cks, logger
 SHA_TZ = timezone(
     timedelta(hours=8),
@@ -9,40 +11,38 @@ SHA_TZ = timezone(
 )
 requests.adapters.DEFAULT_RETRIES = 5
 session = requests.session()
+session.keep_alive = False
 
-url = "https://api.m.jd.com/client.action"
-SIGN_API = "https://api.nolanstore.top/sign"
+url = "https://bean.m.jd.com/beanDetail/detail.json"
 
-def gen_body(page):
-    body = {
-        "page": str(page),
-        "pageSize": "20",
-    }
-    return body
-
-
-def gen_params(page):
-    body = gen_body(page)
-    params = {
-        "functionId": "getJingBeanBalanceDetail",
-        "appid": "ld",
-        "body": json.dumps(body)
-    }
-    return params
+# def gen_body(page):
+#     body = {
+#         "page": str(page),
+#         "pageSize": "20",
+#     }
+#     return body
 
 
-async def get_beans_7days(ck):
+# def gen_params(page):
+#     body = gen_body(page)
+#     params = {
+#         "functionId": "getJingBeanBalanceDetail",
+#         "appid": "ld",
+#         "body": json.dumps(body)
+#     }
+#     return params
+
+
+def get_beans_7days(ck):
     try:
         day_7 = True
-        functionId = "getJingBeanBalanceDetail"
         page = 0
         headers = {
-            "Host": "api.m.jd.com",
-            "Connection": "keep-alive",
-            "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-            "Content-Type": "application/x-www-form-urlencoded",
+            # "Host": "api.m.jd.com",
+            # "Connection": "keep-alive",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 12; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36 EdgA/106.0.1370.47",
+            # "Content-Type": "application/x-www-form-urlencoded",
             "Accept-Encoding": "gzip,deflate",
-            'Accept-Charset': 'UTF-8',
             "Cookie": ck,
         }
         days = []
@@ -53,17 +53,10 @@ async def get_beans_7days(ck):
         beans_out = {key: 0 for key in days}
         while day_7:
             page = page + 1
-            signBody = get_sign(functionId, gen_body(page))
-            logger.info(signBody)
-            res = requests.post(url=url + '?functionId=getJingBeanBalanceDetail&' + signBody, headers=headers)
-            await sleep(1)
-            if res.status_code == 200:
-                res = res.json()
-            else:
-                return {'code': 400, 'data': 'API Response Status_Code with ' + str(res.status_code)}
-            logger.info(res)
+            res = session.get(url=url + '?page=' + str(page), headers=headers).json()
+            # logger.info(res)
             if res['code'] == '0':
-                for i in res['detailList']:
+                for i in res['jingDetailList']:
                     for date in days:
                         if str(date) in i['date'] and int(i['amount']) > 0:
                             beans_in[str(date)] = beans_in[str(
@@ -80,9 +73,8 @@ async def get_beans_7days(ck):
         days = list(map(lambda x: x[5:], days))
         return {'code': 200, 'data': [beans_in, beans_out, days]}
     except Exception as e:
-        errorMsg = f"❌ 第{e.__traceback__.tb_lineno}行：{e}"
-        logger.error(errorMsg)
-        return {'code': 400, 'data': str(errorMsg)}
+        logger.error(str(e))
+        return {'code': 400, 'data': str(e)}
 
 def get_total_beans(ck):
     try:
@@ -102,13 +94,13 @@ def get_total_beans(ck):
         logger.error(str(e))
 
 
-async def get_bean_data(i):
+def get_bean_data(i):
     try:
         ckfile = CONFIG_SH_FILE
         cookies = get_cks(ckfile)
         if cookies:
             ck = cookies[i-1]
-            beans_res = await get_beans_7days(ck)
+            beans_res = get_beans_7days(ck)
             beantotal, nickname, pic = get_total_beans(ck)
             if beans_res['code'] != 200:
                 return beans_res
@@ -126,18 +118,3 @@ async def get_bean_data(i):
     except Exception as e:
         logger.error(str(e))
         return {"code": 400}
-
-def get_sign(fn, body):
-    try:
-        data = {
-            "fn": fn,
-            "body": body
-        }
-        headers = {
-            "Content-Type": "application/json",
-        }
-        res = session.post(url=SIGN_API, headers=headers, json=data, timeout=30000).json()
-        logger.info(res)
-        return res['body']
-    except Exception as e:
-        logger.error(str(e))
