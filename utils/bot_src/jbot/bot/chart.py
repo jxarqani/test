@@ -39,7 +39,7 @@ def createpic(text, totalbean, avatar_url="https://img11.360buyimg.com/jdphoto/s
     image = Image.new(mode="RGB", size=(1200, 150), color="#22252a")
     image.paste(avatar, box, mask)
     img_draw = ImageDraw.Draw(image)
-    text = text + "·京豆：" + str(totalbean)+"豆"
+    text = text + " · " + str(totalbean) + "豆"
     img_draw.text((200, 40), text, font=ttf, fill="#9a9b9f")
     bg = Image.open(BEAN_IMG)
     bg.paste(image, (50, 650))
