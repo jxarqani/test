@@ -20,12 +20,15 @@ async def code(event):
         text = parameter[1]
 
     try:
-        data = requests.post(url=API, headers={'Content-Type': 'application/json'}, json={"code": text}).json()
+        data = requests.post(url=API, headers={'Content-Type': 'application/json'}, json={"code": text})
 
     except:
         push_msg = "❌ 接口状态异常，请检查网络连接"
+
     try:
+        data = data.json()
         if (data["code"] == '0'):
+            data = data["data"]
 
             push_msg = f"**【活动标题】** {data['title']}\n**【用户昵称】** {data['userName']}\n**【用户头像】** [点此查看]({data['headImg']})\n**【活动链接】** __{data['jumpUrl']}__"
 
