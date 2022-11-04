@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-10-27
+## Modified: 2022-11-04
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -2842,7 +2842,7 @@ case $# in
         RUN_MODE=concurrent
         Run_Concurrent $1
         ;;
-    [1-9] | [1-9][0-9] | [1-9][0-9][0-9])
+    [1-9] | [1-9][0-9] | [1-9][0-9][0-9] | [1-9][0-9][0-9][0-9])
         case $1 in
         rmlog)
             Remove_LogFiles $2
@@ -3016,7 +3016,7 @@ case $# in
         case $1 in
         cookie)
             case $3 in
-            [1-9] | [1-9][0-9] | [1-9][0-9][0-9])
+            [1-9] | [1-9][0-9] | [1-9][0-9][0-9] | [1-9][0-9][0-9][0-9])
                 Accounts_Control $2 $3
                 ;;
             *)
