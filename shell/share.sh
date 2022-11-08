@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-10-27
+## Modified: 2022-11-08
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -73,14 +73,14 @@ PURPLE='\033[35m'
 AZURE='\033[36m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
-SUCCESS="[${GREEN}成功${PLAIN}]"
-COMPLETE="[${GREEN}完成${PLAIN}]"
-WARN="[${YELLOW}注意${PLAIN}]"
-ERROR="[${RED}错误${PLAIN}]"
-FAIL="[${RED}失败${PLAIN}]"
-WORKING="[${AZURE} >_ ${PLAIN}]"
-EXAMPLE="[${GREEN}参考命令${PLAIN}]"
-TIPS="[${GREEN}友情提示${PLAIN}]"
+SUCCESS="[\033[1;32m成功${PLAIN}]"
+COMPLETE="[\033[1;32m完成${PLAIN}]"
+WARN="[\033[1;5;33m注意${PLAIN}]"
+ERROR="[\033[1;31m错误${PLAIN}]"
+FAIL="[\033[1;31m失败${PLAIN}]"
+WORKING="[\033[1;36m >_ ${PLAIN}]"
+EXAMPLE="[\033[1;35m参考命令${PLAIN}]"
+TIPS="[\033[1;32m提示${PLAIN}]"
 COMMAND_ERROR="$ERROR 命令不正确，请确认后重试！"
 TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重试！"
 ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
@@ -98,7 +98,6 @@ name_script=(
     jd_fruit
     jd_pet
     jd_plantBean
-    jd_dreamFactory
     jd_jdfactory
     jd_sgmh
     jd_cfd
@@ -114,7 +113,6 @@ name_config=(
     Fruit
     Pet
     Bean
-    DreamFactory
     JdFactory
     Sgmh
     Cfd
@@ -130,7 +128,6 @@ name_chinese=(
     东东农场
     东东萌宠
     京东种豆得豆
-    京喜工厂
     东东工厂
     闪购盲盒
     京喜财富岛
@@ -146,7 +143,6 @@ bot_command=(
     farm
     pet
     bean
-    jxfactory
     ddfactory
     sgmh
     cfd
@@ -227,7 +223,7 @@ function b() {
 
 ## 统计账号数量
 function Count_UserSum() {
-    for ((i = 1; i <= 0x3e8; i++)); do
+    for ((i = 1; i <= 0x2710; i++)); do
         local Tmp=Cookie$i
         local CookieTmp=${!Tmp}
         [[ ${CookieTmp} ]] && UserSum=$i || break
@@ -270,7 +266,6 @@ function Combin_ShareCodes() {
     export PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
     export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
     export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
-    export DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
     export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
     export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
     export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
@@ -292,6 +287,7 @@ function Combin_AllCookie() {
             local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
         fi
         for ((i = 0x1; i <= ${UserSum}; i++)); do
+            ## 跳过全局屏蔽的账号
             if [[ ${GlobalBlockCookie} ]]; then
                 for num1 in ${GlobalBlockCookie}; do
                     if [[ $i -eq $num1 ]]; then
@@ -302,6 +298,7 @@ function Combin_AllCookie() {
                     fi
                 done
             fi
+            ## 跳过临时屏蔽的账号
             for num2 in ${TempBlockCookie}; do
                 if [[ $i -eq $num2 ]]; then
                     continue 2

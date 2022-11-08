@@ -197,7 +197,7 @@ function Bot_Control() {
         cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
         pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        pip3 --default-timeout=1800 install -r requirements.txt
+        pip3 --default-timeout=3600 install -r requirements.txt
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
         else
@@ -455,28 +455,29 @@ function Server_Status() {
 function Environment_Deployment() {
     case $1 in
     install)
+        npm install -g npm npm-install-peers >/dev/null 2>&1
         case ${ARCH} in
         armv7l | armv6l)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
+            echo -e "\n$WORKING 开始安装常用模块...\n"
+            npm install -g date-fns fs crypto dotenv png-js ws@7.4.3
             ;;
         *)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
+            if [ ! -x /usr/bin/python3 ]; then
+                echo -e "\n$WORKING 开始安装 ${BLUE}Python3${PLAIN} 运行环境...\n"
+                apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
+                pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+                pip3 install --upgrade pip
+                pip3 install requests
+            fi
+            if [ ! -x /usr/bin/ts-node ]; then
+                echo -e "\n$WORKING 开始安装 ${BLUE}TypeScript${PLAIN} 运行环境...\n"
+                npm install -g ts-node typescript @types/node ts-md5 tslib
+            fi
+            echo -e "\n$WORKING 开始安装常用模块...\n"
+            npm install -g date-fns file-system-cache fs crypto dotenv png-js ws@7.4.3 tunnel prettytable js-base64 ds
             ;;
         esac
-        echo -e "$TIPS 忽略 ${YELLOW}WARN${PLAIN} 警告类输出内容，如有 ${RED}ERR!${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
-        npm install -g npm npm-install-peers
-        case ${ARCH} in
-        armv7l | armv6l)
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
-            ;;
-        *)
-            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
-            pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-            pip3 install --upgrade pip
-            pip3 install requests
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js tunnel ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache ds
-            ;;
-        esac
+        echo -e "\n$TIPS 忽略 ${YELLOW}WARN${PLAIN} 警告类输出内容，如有 ${RED}ERR!${PLAIN} 类报错，自行解读日志。"
         echo -e "\n$SUCCESS 安装完成\n"
         ;;
     repairs)
