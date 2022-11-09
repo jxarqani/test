@@ -196,7 +196,6 @@ function Bot_Control() {
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
-        pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
         pip3 --default-timeout=3600 install -r requirements.txt
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
