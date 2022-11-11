@@ -130,7 +130,7 @@ function Gen_Own_Dir_And_Path() {
 ## 生成 Scripts仓库的定时任务清单，内容为去掉后缀的脚本名
 function Gen_ListTask() {
     Make_Dir $LogTmpDir
-    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" sort -u >$ListTaskScripts
+    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort -u >$ListTaskScripts
     grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | sort -u >$ListTaskUser
 }
 
