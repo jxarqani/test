@@ -465,7 +465,7 @@ function Help() {
    ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
    ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+   ${BLUE}$UpdateCmd <args/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
                                                  自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 ❋ 基本命令注释：
@@ -515,7 +515,7 @@ function Help() {
    ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
    ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+   ${BLUE}$UpdateCmd <args/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
                                                  自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 ❋ 基本命令注释：
