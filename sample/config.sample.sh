@@ -1,6 +1,6 @@
-## Version: v1.14.0
-## Date: 2022-10-27
-## Update Content: 1. 移除了部分变量 2. 新增定时任务变动通知控制变量 3. 账号屏蔽功能新增支持填入用户名
+## Version: v1.15.0
+## Date: 2022-11-24
+## Update Content: 1. 脚本全局代理功能新增 "代理白名单" 控制环境变量并完善了相关注释内容
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -202,34 +202,35 @@ EnableCookieUpdateFailureNotify=""
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 8. 脚本全局代理
+## ❖ 8. 脚本 HTTP/HTTPS 全局代理
 # Powered by global-agent (仅支持 js 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent
-# 全局代理，如想全局启用代理请赋值为 "true"
+# 如想启用该功能请赋值为 "true"，也可以在执行脚本时通过 --agent 可选参数按需启用
 EnableGlobalProxy=""
-
-# 如果只是想在执行部分脚本时使用代理，可以参考下方 case 语句的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
+# 如果只是想在执行部分脚本时启用全局代理，可以参考下方 case 语句的例子来控制，脚本名称请去掉后缀格式，同时注意代码缩进
 # case $1 in
 # test)
-#   EnableGlobalProxy="true"    ## 在执行 test 脚本时启用代理
+#   EnableGlobalProxy="true"    # 在执行 test 脚本时启用全局代理
 #   ;;
 # utils | warp)
-#   EnableGlobalProxy="true"    ## 在执行 utils 和 warp 脚本时启用代理
+#   EnableGlobalProxy="true"    # 在执行 utils 和 warp 脚本时启用全局代理
 #   ;;
 # *)
 #   EnableGlobalProxy="false"
 #   ;;
 # esac
-
-## 定义 HTTP 代理地址（必填）
+## 定义 HTTP 请求代理地址（必填）
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTP_PROXY=""
-
-## 定义 HTTPS 代理地址，为 HTTPS 请求指定单独的代理（选填）
-# 如果未设置此变量那么两种协议的请求均通过 HTTP 代理地址变量设定的地址
+## 定义 HTTPS 请求代理地址，为 HTTPS 请求指定单独的代理（选填）
+# 如果未定义此变量，那么两种协议的请求均通过上方 HTTP 代理地址变量设定的地址
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTPS_PROXY=""
+## 定义代理白名单，指定不通过代理的域名（选填）
+# 变量值为域名，多个以逗号分隔，支持通配符，例如 "*.foo.com,baz.com"
+# 如需使用，请自行解除下一行的注释并赋值并赋值
+# export GLOBAL_AGENT_NO_PROXY=""
 
 ## ❖ 9. 自定义推送通知模块功能
 # 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/config/推送通知

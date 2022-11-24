@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-11-04
+## Modified: 2022-11-24
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -517,7 +517,7 @@ function Run_Normal() {
     [[ ${RUN_MUTE} == true ]] && NoPushNotify
 
     ## 运行主命令
-    function Main() {
+    function Run_Normal_Main() {
         if [[ ${RUN_BACKGROUND} == true ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
@@ -583,12 +583,10 @@ function Run_Normal() {
             if [ $? -eq 0 ]; then
                 ## 格式检测
                 if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -ge 2 ]]; then
-                    Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个连接符 ${BLUE}-${PLAIN} ，账号区间语法有误 ！\n"
+                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个连接符 ${BLUE}-${PLAIN} ，账号区间语法有误 ！\n"
                     exit ## 终止退出
                 elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -ge 2 ]]; then
-                    Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个账号总数代符 ${BLUE}%${PLAIN} ，账号区间语法有误！\n"
+                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个账号总数代符 ${BLUE}%${PLAIN} ，账号区间语法有误！\n"
                     exit ## 终止退出
                 fi
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
@@ -598,8 +596,7 @@ function Run_Normal() {
                         Combin_Designated_Cookie $i
                     done
                 else
-                    Help
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
+                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
                     exit ## 终止退出
                 fi
             else
@@ -628,7 +625,7 @@ function Run_Normal() {
             pm2 start "${FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
             ;;
         Python)
-            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --log ${LogFile}  -- -u
+            pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/python3 --log ${LogFile} -- -u
             ;;
         TypeScript)
             pm2 start "${FileName}.${FileSuffix}" --interpreter /usr/bin/ts-node-transpile-only --name "$FileName" --log ${LogFile}
@@ -646,13 +643,23 @@ function Run_Normal() {
         [ -f $FilePm2List ] && rm -rf $FilePm2List
     }
 
+    ## 脚本代理
+    if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
+        if [[ ${FileFormat} == "JavaScript" ]]; then
+            EnableGlobalProxy="true"
+        else
+            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 类型的脚本！\n"
+            exit ## 终止退出
+        fi
+    fi
     ## 迅速模式
-    if [[ ${RUN_RAPID} != "true" ]]; then
+    if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
         Combin_ShareCodes
     fi
+
     ## 进入脚本所在目录
     cd ${FileDir}
     ## 定义日志文件路径
@@ -666,13 +673,13 @@ function Run_Normal() {
             local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account "${Accounts}"
 
-            ## 执行脚本
+            ## 判断循环运行次数
             if [[ ${RUN_LOOP} == true ]]; then
-                ## 循环运行
                 Run_Times=$(($RUN_LOOP_TIMES + 1))
             else
                 Run_Times=1
             fi
+            ## 执行脚本
             for ((i = 1; i <= ${Run_Times}; i++)); do
                 ## 随机延迟
                 Random_Delay
@@ -683,11 +690,11 @@ function Run_Normal() {
                     ## 后台挂起（守护进程）
                     Daemon_Process
                 else
-                    Main
+                    Run_Normal_Main
                 fi
             done
 
-            ## 重新组合变量
+            ## 账号分组清空变量重新组合
             COOKIE_TMP=""
         done
     else
@@ -700,13 +707,13 @@ function Run_Normal() {
             Combin_AllCookie
         fi
 
-        ## 执行脚本
+        ## 判断循环运行次数
         if [[ ${RUN_LOOP} == true ]]; then
-            ## 循环运行
             Run_Times=$(($RUN_LOOP_TIMES + 1))
         else
             Run_Times=1
         fi
+        ## 执行脚本
         for ((i = 1; i <= ${Run_Times}; i++)); do
             ## 随机延迟
             Random_Delay
@@ -717,7 +724,7 @@ function Run_Normal() {
                 ## 后台挂起（守护进程）
                 Daemon_Process
             else
-                Main
+                Run_Normal_Main
             fi
         done
 
@@ -743,7 +750,7 @@ function Run_Concurrent() {
     [[ ${RUN_MUTE} == true ]] && NoPushNotify
 
     ## 运行主命令
-    function Main() {
+    function Run_Concurrent_Main() {
         local Num=$1
         local Tmp=Cookie${Num}
         export JD_COOKIE=${!Tmp}
@@ -772,9 +779,17 @@ function Run_Concurrent() {
         esac
     }
 
-    ## 处理其它参数：
+    ## 脚本代理
+    if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
+        if [[ ${FileFormat} == "JavaScript" ]]; then
+            EnableGlobalProxy="true"
+        else
+            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 类型的脚本！\n"
+            exit ## 终止退出
+        fi
+    fi
     ## 迅速模式
-    if [[ ${RUN_RAPID} != "true" ]]; then
+    if [[ ${RUN_RAPID} != true ]]; then
         ## 同步定时清单
         Synchronize_Crontab
         ## 组合互助码
@@ -787,6 +802,7 @@ function Run_Concurrent() {
     Random_Delay
     ## 等待执行
     RunWait
+
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
@@ -796,11 +812,9 @@ function Run_Concurrent() {
             if [ $? -eq 0 ]; then
                 ## 格式检测
                 if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -gt 2 ]]; then
-                    Help
                     echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个连接符(${BLUE}-${PLAIN})！\n"
                     exit ## 终止退出
                 elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -gt 2 ]]; then
-                    Help
                     echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个账号总数代符(${BLUE}%${PLAIN})！\n"
                     exit ## 终止退出
                 fi
@@ -810,7 +824,6 @@ function Run_Concurrent() {
                         Account_ExistenceJudgment $i
                     done
                 else
-                    Help
                     echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
                     exit ## 终止退出
                 fi
@@ -826,11 +839,11 @@ function Run_Concurrent() {
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                     ## 执行脚本
-                    Main $i
+                    Run_Concurrent_Main $i
                 done
             else
                 ## 执行脚本
-                Main ${UserNum}
+                Run_Concurrent_Main ${UserNum}
             fi
         done
     else
@@ -850,7 +863,7 @@ function Run_Concurrent() {
                 [[ $UserNum -eq $num ]] && continue 2
             done
             ## 执行脚本
-            Main ${UserNum}
+            Run_Concurrent_Main ${UserNum}
         done
     fi
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
@@ -1194,7 +1207,7 @@ function Accounts_Control() {
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
-                    wait
+                    wait $!
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
@@ -1288,7 +1301,7 @@ function Accounts_Control() {
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
-                    wait
+                    wait $!
                     ## 优化日志排版
                     sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                     ## 记录执行结束时间
@@ -2918,13 +2931,12 @@ case $# in
         while [ $# -gt 2 ]; do
             case $3 in
             -l | --loop)
-                Help
                 case ${RUN_MODE} in
                 normal)
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
                     ;;
                 concurrent)
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     ;;
                 esac
                 exit ## 终止退出
@@ -2933,9 +2945,11 @@ case $# in
                 RUN_MUTE="true"
                 ;;
             -w | --wait)
-                Help
-                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
+                echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                 exit ## 终止退出
+                ;;
+            -a | --agent)
+                RUN_GLOBAL_AGENT="true"
                 ;;
             -d | --delay)
                 RUN_DELAY="true"
@@ -2945,7 +2959,6 @@ case $# in
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    Help
                     echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
@@ -2959,25 +2972,22 @@ case $# in
                     RUN_DAEMON="true"
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
                 ;;
             -c | --cookie)
-                Help
-                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
+                echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
                 exit ## 终止退出
                 ;;
             -g | --grouping)
-                Help
                 case ${RUN_MODE} in
                 normal)
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
                     ;;
                 concurrent)
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     ;;
                 esac
                 exit ## 终止退出
@@ -2988,15 +2998,13 @@ case $# in
                     RUN_BACKGROUND="true"
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
                 ;;
             *)
-                Help
-                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
+                echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
                 exit ## 终止退出
                 ;;
             esac
@@ -3071,7 +3079,7 @@ case $# in
     ;;
 
 ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
-4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16)
+[4-9] | [1][0-7])
     case $2 in
     now | conc)
         ## 定义执行内容，下面的判断会把参数打乱
@@ -3093,8 +3101,7 @@ case $# in
                     if [[ $4 ]]; then
                         echo "$4" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            Help
-                            echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                            echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                             exit ## 终止退出
                         else
                             RUN_LOOP="true"
@@ -3102,14 +3109,12 @@ case $# in
                             shift
                         fi
                     else
-                        Help
-                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
                         exit ## 终止退出
                     fi
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
@@ -3121,8 +3126,7 @@ case $# in
                 if [[ $4 ]]; then
                     echo "$4" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
-                        Help
-                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                        echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                         exit ## 终止退出
                     else
                         RUN_WAIT="true"
@@ -3130,10 +3134,12 @@ case $# in
                         shift
                     fi
                 else
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
                     exit ## 终止退出
                 fi
+                ;;
+            -a | --agent)
+                RUN_GLOBAL_AGENT="true"
                 ;;
             -d | --delay)
                 RUN_DELAY="true"
@@ -3143,8 +3149,7 @@ case $# in
                 if [ $? -eq 0 ]; then
                     DOWNLOAD_PROXY="true"
                 else
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -3157,8 +3162,7 @@ case $# in
                     RUN_DAEMON="true"
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
@@ -3167,13 +3171,11 @@ case $# in
                 if [[ $4 ]]; then
                     echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                     if [ $? -eq 0 ]; then
-                        Help
-                        echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                        echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                         exit ## 终止退出
                     else
                         if [[ ${RUN_GROUPING} == true ]]; then
-                            Help
-                            echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
+                            echo -e "\n$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
                             exit ## 终止退出
                         else
                             RUN_DESIGNATED="true"
@@ -3182,8 +3184,7 @@ case $# in
                         fi
                     fi
                 else
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
                     exit ## 终止退出
                 fi
                 ;;
@@ -3193,13 +3194,11 @@ case $# in
                     if [[ $4 ]]; then
                         echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            Help
-                            echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
+                            echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
                             exit ## 终止退出
                         else
                             if [[ ${RUN_DESIGNATED} == true ]]; then
-                                Help
-                                echo -e "$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
+                                echo -e "\n$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
                                 exit ## 终止退出
                             else
                                 ## 判断是否已分组
@@ -3209,21 +3208,18 @@ case $# in
                                     GROUPING_VALUE="$4"
                                     shift
                                 else
-                                    Help
-                                    echo -e "$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，请定义账号分组否则请使用指定账号参数！\n"
+                                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，请定义账号分组否则请使用指定账号参数！\n"
                                     exit ## 终止退出
                                 fi
                             fi
                         fi
                     else
-                        Help
-                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
+                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
                         exit ## 终止退出
                     fi
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
@@ -3234,15 +3230,13 @@ case $# in
                     RUN_BACKGROUND="true"
                     ;;
                 concurrent)
-                    Help
-                    echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
                     exit ## 终止退出
                     ;;
                 esac
                 ;;
             *)
-                Help
-                echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
+                echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
                 exit ## 终止退出
                 ;;
             esac

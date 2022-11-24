@@ -230,7 +230,7 @@ let MenuTools = {
             customClass: 'gb l',
             path: "/changePwd"
         }, {
-            title: "退出登陆",
+            title: "退出登录",
             faIcon: "fa-sign-out",
             titleFaIcon: "fa-hand-o-right",
             subText: "Sign Out",
