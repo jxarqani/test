@@ -181,7 +181,7 @@ function Bot_Control() {
     function Install_Bot() {
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖...\n"
-        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
+        apk --no-cache add -f python3-dev zlib-dev gcc jpeg-dev musl-dev freetype-dev
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 依赖安装完成\n"
         else
@@ -463,8 +463,8 @@ function Environment_Deployment() {
         *)
             if [ ! -x /usr/bin/python3 ]; then
                 echo -e "\n$WORKING 开始安装 ${BLUE}Python3${PLAIN} 运行环境...\n"
-                apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
-                pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+                apk --no-cache add -f python3 py3-pip
+                pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple
                 pip3 install --upgrade pip
                 pip3 install requests
             fi
