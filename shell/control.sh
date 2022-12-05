@@ -181,7 +181,7 @@ function Bot_Control() {
     function Install_Bot() {
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖...\n"
-        apk --no-cache add -f python3-dev zlib-dev gcc jpeg-dev musl-dev freetype-dev
+        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 依赖安装完成\n"
         else
