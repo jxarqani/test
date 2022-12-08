@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-11-24
+## Modified: 2022-12-08
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -972,7 +972,7 @@ function Accounts_Control() {
     ## 检测
     function CheckCookie() {
         local InputContent=$1
-        local Check="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" | jq -r '.retcode')"
+        local Check="$(curl -s --noproxy "*" "${INTERFACE_URL}" -H "cookie: ${InputContent}" | jq -r '.retcode' 2>/dev/nul)"
         case $Check in
         0)
             echo -e "${Valid}"
@@ -1115,8 +1115,7 @@ function Accounts_Control() {
                     [ -z ${WS_KEY_TMP} ] && continue
                 done
             fi
-            echo ''
-            echo -e "上次更新: ${BLUE}${UpdateTimes}${PLAIN}"
+            echo -e "\n上次更新: ${BLUE}${UpdateTimes}${PLAIN}"
         }
 
         ## 先检测网络环境
@@ -1207,7 +1206,7 @@ function Accounts_Control() {
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
-                    wait $!
+                    wait $! 2>/dev/null
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         ## 格式化输出
@@ -1301,7 +1300,7 @@ function Accounts_Control() {
                     else
                         node ${FileUpdateCookie##*/} &>>${LogFile} &
                     fi
-                    wait $!
+                    wait $! 2>/dev/null
                     ## 优化日志排版
                     sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                     ## 记录执行结束时间
