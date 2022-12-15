@@ -142,11 +142,11 @@ panda-syntax：暗黑主题
 }
 
 /*变量*/
-.cm-s-panda-syntax .cm-def {
+.cm-s-panda-syntax span.cm-def {
     color: #dac96f;
 }
 
-.cm-s-juejin .cm-def {
+.cm-s-juejin span.cm-def {
     color: #1ba2f0;
 }
 
