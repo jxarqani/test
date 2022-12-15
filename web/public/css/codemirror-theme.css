@@ -3,44 +3,38 @@ juejin：浅色主题
 panda-syntax：暗黑主题
 */
 
+@font-face {
+    font-family: "SF-Mono";
+    src: url("../font/SF-Mono-Regular.otf") format("truetype");
+}
+
 .cm-s-panda-syntax {
-    background: #292A2B;
+    background: #292a2b;
     color: #ffffff;
     font-size: 14px;
-    font-family: Consolas, 'Courier New', monospace;
+    font-family: "SF-Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
     line-height: 150%;
 }
 
 @media screen and (max-width: 640px) {
-
     .cm-s-panda-syntax {
-        background: #292A2B;
-        color: #ffffff;
         font-size: 11px;
-        font-family: Consolas, 'Courier New', monospace;
     }
-
 }
 
 .cm-s-juejin {
     background: #f7f7f7;
     color: #000000;
     font-size: 14px;
-    font-family: Consolas, 'Courier New', monospace;
+    font-family: "SF-Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
     line-height: 150%;
 }
 
 @media screen and (max-width: 640px) {
-
     .cm-s-juejin {
-        background: #f7f7f7;
-        color: #000000;
         font-size: 11px;
-        font-family: Consolas, 'Courier New', monospace;
     }
-
 }
-
 
 /*光标*/
 .cm-s-panda-syntax .CodeMirror-cursor {
@@ -51,16 +45,14 @@ panda-syntax：暗黑主题
     border-color: #000000;
 }
 
-
 /*选中行背景*/
 .cm-s-panda-syntax .CodeMirror-activeline-background {
-    background: rgba(73, 73, 73, 0.6);
+    background: #9999991f;
 }
 
 .cm-s-juejin .CodeMirror-activeline-background {
-    background: rgba(235, 235, 235, 0.6);
+    background: #8383831f;
 }
-
 
 /*选中内容背景*/
 .cm-s-panda-syntax .CodeMirror-selected {
@@ -80,10 +72,9 @@ panda-syntax：暗黑主题
     background: rgb(197, 197, 5);
 }
 
-
 /*行号边栏*/
 .cm-s-panda-syntax .CodeMirror-gutters {
-    background: #292A2B;
+    background: #292a2b;
     border-right-color: transparent;
 }
 
@@ -91,7 +82,6 @@ panda-syntax：暗黑主题
     background: #f7f7f7;
     border-right-color: transparent;
 }
-
 
 /*行号*/
 .cm-s-panda-syntax .CodeMirror-linenumber {
@@ -104,7 +94,6 @@ panda-syntax：暗黑主题
     opacity: 0.6;
 }
 
-
 /*选中行行号*/
 .cm-s-panda-syntax .CodeMirror-activeline .CodeMirror-linenumber {
     color: #ffffff;
@@ -116,7 +105,6 @@ panda-syntax：暗黑主题
     opacity: 1;
 }
 
-
 /*注释内容*/
 .cm-s-panda-syntax .cm-comment {
     color: #a5a5a5;
@@ -125,7 +113,6 @@ panda-syntax：暗黑主题
 .cm-s-juejin .cm-comment {
     color: #474747;
 }
-
 
 /*Linux命令*/
 .cm-s-panda-syntax .cm-keyword {
@@ -136,7 +123,6 @@ panda-syntax：暗黑主题
     color: #bb51b8;
 }
 
-
 /*符号*/
 .cm-s-panda-syntax .cm-operator {
     color: #ffffff;
@@ -146,40 +132,43 @@ panda-syntax：暗黑主题
     color: #000000;
 }
 
-
 /*数字*/
 .cm-s-panda-syntax .cm-number {
-    color: #FFB86C;
+    color: #ffb86c;
 }
 
 .cm-s-juejin .cm-number {
     color: #62b613;
 }
 
-
 /*变量*/
-.cm-s-panda-syntax span.cm-def {
+.cm-s-panda-syntax .cm-def {
     color: #dac96f;
 }
 
-.cm-s-juejin span.cm-def {
+.cm-s-juejin .cm-def {
     color: #1ba2f0;
 }
 
-
 /*变量的值*/
 .cm-s-panda-syntax .cm-string,
-.cm-s-panda-syntax span.cm-string,
-.cm-s-panda-syntax span.cm-string-2 {
+.cm-s-panda-syntax .cm-string-2 {
     color: #91ca70;
 }
 
 .cm-s-juejin .cm-string,
-.cm-s-juejin span.cm-string,
-.cm-s-juejin span.cm-string-2 {
+.cm-s-juejin .cm-string-2 {
     color: #267474;
 }
 
+/*键*/
+.cm-s-panda-syntax .cm-property {
+    color: #dac96f;
+}
+
+.cm-s-juejin .cm-property {
+    color: #1ba2f0;
+}
 
 /*标签*/
 .cm-s-panda-syntax .cm-tag {
@@ -190,7 +179,6 @@ panda-syntax：暗黑主题
     color: #ff2c6d;
 }
 
-
 /**/
 .cm-s-panda-syntax .cm-meta {
     color: #8c70b3;
@@ -200,7 +188,6 @@ panda-syntax：暗黑主题
     color: #8c70b3;
 }
 
-
 /**/
 .cm-s-panda-syntax .cm-atom {
     color: #ff2c6d;
@@ -209,7 +196,6 @@ panda-syntax：暗黑主题
 .cm-s-juejin .cm-atom {
     color: #ff2c6d;
 }
-
 
 /*数据*/
 /*属性*/
@@ -233,7 +219,6 @@ panda-syntax：暗黑主题
     color: #ffb86c;
 }
 
-
 /**/
 .cm-s-panda-syntax .cm-def {
     color: #e6e6e6;
@@ -243,33 +228,18 @@ panda-syntax：暗黑主题
     color: #e6e6e6;
 }
 
-
-/**/
-.cm-s-panda-syntax .cm-property {
-    color: #f3f3f3;
-}
-
-.cm-s-juejin .cm-property {
-    color: #f3f3f3;
-}
-
-.light .cm-s-juejin .cm-property {
-    color: #f27474;
-}
-
 /*匹配括号*/
 .cm-s-panda-syntax .CodeMirror-matchingbracket {
-    border-bottom: 1px dotted #19F9D8;
+    border-bottom: 1px dotted #19f9d8;
     padding-bottom: 2px;
     color: #e6e6e6;
 }
 
 .cm-s-juejin .CodeMirror-matchingbracket {
-    border-bottom: 1px dotted #19F9D8;
+    border-bottom: 1px dotted #19f9d8;
     padding-bottom: 2px;
     color: #e6e6e6;
 }
-
 
 /*
 
@@ -308,23 +278,23 @@ diff页面
 
 /* 对比工具差异处颜色 */
 .dark .CodeMirror-merge-gap {
-    background-color: #292A2B;
+    background-color: #292a2b;
 }
 
 .cm-s-juejin .CodeMirror-merge-r-chunk {
-    background: #ffffe0
+    background: #ffffe0;
 }
 
 .cm-s-panda-syntax .CodeMirror-merge-r-chunk {
-    background: #9d2933e5
+    background: #9d2933e5;
 }
 
 .CodeMirror-merge-r-chunk-start {
-    border-top: 1px solid #9D2932;
+    border-top: 1px solid #9d2932;
 }
 
 .CodeMirror-merge-r-chunk-end {
-    border-bottom: 1px solid #9D2932;
+    border-bottom: 1px solid #9d2932;
 }
 
 .CodeMirror-merge-r-connect {
@@ -343,14 +313,14 @@ diff页面
 }
 
 .cm-s-twilight .CodeMirror-line::selection,
-.cm-s-twilight .CodeMirror-line>span::selection,
-.cm-s-twilight .CodeMirror-line>span>span::selection {
+.cm-s-twilight .CodeMirror-line > span::selection,
+.cm-s-twilight .CodeMirror-line > span > span::selection {
     background: rgba(50, 50, 50, 0.99);
 }
 
 .cm-s-twilight .CodeMirror-line::-moz-selection,
-.cm-s-twilight .CodeMirror-line>span::-moz-selection,
-.cm-s-twilight .CodeMirror-line>span>span::-moz-selection {
+.cm-s-twilight .CodeMirror-line > span::-moz-selection,
+.cm-s-twilight .CodeMirror-line > span > span::-moz-selection {
     background: rgba(50, 50, 50, 0.99);
 }
 
@@ -380,7 +350,7 @@ diff页面
 }
 
 .cm-s-twilight .cm-atom {
-    color: #FC0;
+    color: #fc0;
 }
 
 .cm-s-twilight .cm-number {
@@ -388,7 +358,7 @@ diff页面
 }
 
 .cm-s-twilight .cm-def {
-    color: #8DA6CE;
+    color: #8da6ce;
 }
 
 .cm-s-twilight span.cm-variable-2,
@@ -439,11 +409,11 @@ diff页面
 }
 
 .cm-s-twilight .cm-header {
-    color: #FF6400;
+    color: #ff6400;
 }
 
 .cm-s-twilight .cm-hr {
-    color: #AEAEAE;
+    color: #aeaeae;
 }
 
 .cm-s-twilight .cm-link {
@@ -457,7 +427,7 @@ diff页面
 }
 
 .cm-s-twilight .CodeMirror-activeline-background {
-    background: #27282E;
+    background: #27282e;
 }
 
 .cm-s-twilight .CodeMirror-matchingbracket {
@@ -472,8 +442,8 @@ diff页面
     border-right: 30px solid transparent !important;
 }
 
-.cm-s-panda-syntax .CodeMirror pre {}
-
+.cm-s-panda-syntax .CodeMirror pre {
+}
 
 /*查找替换*/
 .ace_search {
@@ -536,7 +506,7 @@ diff页面
 }
 
 .ace_replacebtn.btn-disabled {
-    opacity: .3;
+    opacity: 0.3;
 }
 
 .light .ace_search.button .btn-disabled i {
@@ -688,7 +658,6 @@ diff页面
 .ace_search_field:focus {
     border: 1px solid rgba(48, 176, 226, 0.8);
 }
-
 
 .ace_replacebtn.single {
     background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PGcgZmlsbD0iI0M1QzVDNSI+PHBhdGggZD0iTTExIDNWMWgtMXY2aDRWM2gtM3ptMiAzaC0yVjRoMnYyek0yIDE1aDdWOUgydjZ6bTItNWgzdjFINXYyaDJ2MUg0di00eiIvPjwvZz48cGF0aCBmaWxsPSIjNzVCRUZGIiBkPSJNMy45NzkgMy41TDQgNiAzIDV2MS41TDQuNSA4IDYgNi41VjVMNSA2bC0uMDIxLTIuNWMwLS4yNzUuMjI1LS41LjUtLjVIOVYySDUuNDc5Yy0uODI4IDAtMS41LjY3My0xLjUgMS41eiIvPjwvc3ZnPg==");

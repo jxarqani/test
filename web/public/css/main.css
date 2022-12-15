@@ -2,6 +2,7 @@ body,
 html {
     margin: 0;
     height: 0;
+    font-family: "-apple-system", "SF Pro", "Microsoft YaHei", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
 }
 
 h1 {
@@ -15,7 +16,7 @@ h4 {
     margin-top: 0.5em;
     margin-left: 0.8em;
     margin-bottom: 0.5em;
-    color: #F0EFF4;
+    color: #f0eff4;
     z-index: 10;
 }
 
@@ -40,7 +41,7 @@ h4 {
     top: 0px;
     left: 0px;
     position: absolute;
-    background-image: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%);
+    background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
 }
 
 .container p {
@@ -64,7 +65,7 @@ h4 {
     float: left;
     width: 250px;
     height: 50px;
-    border: 1px solid #F00;
+    border: 1px solid #f00;
 }
 
 .diffs {
@@ -110,7 +111,7 @@ h4 {
 .wrapper .CodeMirror {
     position: absolute;
     height: calc(100%);
-    width: 100%
+    width: 100%;
 }
 
 .mergely-column .CodeMirror {
@@ -148,7 +149,7 @@ h4 {
     background-color: #ffffff;
     padding: 1rem;
     border-radius: 0.5rem;
-    border: #6D8A88 1px solid;
+    border: #6d8a88 1px solid;
     -webkit-box-shadow: 0px 0px 7px 3px rgba(0, 0, 0, 0.2);
     box-shadow: 0px 0px 7px 3px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -204,7 +205,7 @@ h4 {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    margin: 0 .5em;
+    margin: 0 0.5em;
 }
 
 @media (min-width: 992px) {
@@ -232,7 +233,7 @@ h4 {
 }
 
 .elk-side-search {
-    padding: .5rem;
+    padding: 0.5rem;
     border-bottom: 1px solid #85858554;
     text-align: center;
     display: flex;
@@ -241,7 +242,7 @@ h4 {
 }
 
 .elk-side-search .coco-input {
-    width: 75%;
+    width: 100%;
     margin-right: 5px;
 }
 
@@ -269,7 +270,7 @@ h4 {
 }
 
 .elk-side-nav .metismenu a {
-    padding: .5rem 1rem .5rem 2rem;
+    padding: 0.5rem 1rem 0.5rem 2rem;
 }
 
 .elk-side-nav .metismenu {
@@ -277,7 +278,7 @@ h4 {
 }
 
 .metismenu .has-arrow::after {
-    left: .5rem;
+    left: 0.5rem;
     right: auto;
     transform: rotate(135deg) translate(0, -50%);
 }
@@ -286,7 +287,8 @@ h4 {
     left: 1.5rem;
 }
 
-.metismenu .mm-active > .has-arrow::after, .metismenu .has-arrow[aria-expanded=true]::after {
+.metismenu .mm-active > .has-arrow::after,
+.metismenu .has-arrow[aria-expanded="true"]::after {
     transform: rotate(225deg) translate(0, -50%);
 }
 
@@ -323,7 +325,7 @@ h4 {
     margin: 0;
     width: 180px;
     height: 22px;
-    border-radius: 6px;
+    border-radius: 3px;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -332,8 +334,8 @@ h4 {
     outline: 0;
     border: 1px solid transparent;
     font-size: 14px;
-    box-shadow: 0 0 0 0 rgba(53, 120, 229, .1);
-    transition: all .16s ease-out;
+    box-shadow: 0 0 0 0 rgba(53, 120, 229, 0.1);
+    transition: all 0.16s ease-out;
     line-height: 20px;
     text-indent: 5px;
 }
@@ -342,46 +344,45 @@ h4 {
     width: 160px;
 }
 
-
 .coco-input::-webkit-input-placeholder {
     line-height: 24px;
-    color: #a2a2a3
+    color: #a2a2a3;
 }
 
 .coco-input::-moz-placeholder {
     line-height: 24px;
-    color: #a2a2a3
+    color: #a2a2a3;
 }
 
 .coco-input:-ms-input-placeholder,
 .coco-input::-ms-input-placeholder {
     line-height: 24px;
-    color: #a2a2a3
+    color: #a2a2a3;
 }
 
 .coco-input::placeholder {
     line-height: 24px;
-    color: #a2a2a3
+    color: #a2a2a3;
 }
 
 .coco-input:hover {
-    transition: all .1s ease-out;
+    transition: all 0.1s ease-out;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(31, 153, 31, .25);
-    border-color: rgba(31, 153, 31, 0.5)
+    box-shadow: 0 0 0 3px rgba(31, 153, 31, 0.25);
+    border-color: rgba(31, 153, 31, 0.5);
 }
 
 .coco-input:focus {
     background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(48, 176, 226, .5);
-    border-color: rgba(48, 176, 226, 0.8)
+    box-shadow: 0 0 0 2px rgba(48, 176, 226, 0.5);
+    border-color: rgba(48, 176, 226, 0.8);
 }
 
 .coco-input:active {
-    transition: all .08s ease-out;
+    transition: all 0.08s ease-out;
     background-color: #fff;
     border-color: #cbcbcc;
-    box-shadow: 0 0 0 0 rgba(66, 133, 255, .125)
+    box-shadow: 0 0 0 0 rgba(66, 133, 255, 0.125);
 }
 
 /* 按钮 */
@@ -502,7 +503,6 @@ h4 {
 
 .run-mobile .fast-run {
     margin: 0px;
-
 }
 
 .run.run-mobile > div {
@@ -548,7 +548,7 @@ h4 {
 }
 
 .new.header header .more-list {
-    margin-right: 0.8em
+    margin-right: 0.8em;
 }
 
 /* 白色按钮 */
@@ -610,7 +610,7 @@ h4 {
     background: rgba(20, 25, 36, 0.7);
     border-radius: 16px;
     line-height: 30px;
-    font-family: 'Raleway', Arial, sans-serif;
+    font-family: "-apple-system", "SF Pro", "Microsoft YaHei", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
     text-align: center;
     font-weight: 500;
     letter-spacing: 1px;
@@ -709,7 +709,7 @@ h4 {
 
 .cbx span {
     font-size: 14px;
-    color: #F0EFF4;
+    color: #f0eff4;
     float: left;
     vertical-align: middle;
     transform: translate3d(0, 0, 0);
@@ -769,7 +769,6 @@ h4 {
 }
 
 @media screen and (max-width: 640px) {
-
     .cbx {
         width: 90%;
         margin-bottom: 4px;
@@ -843,7 +842,7 @@ h4 {
 .toggle--checkbox:after,
 .toggle--feature:before,
 .toggle--feature:after {
-    content: '';
+    content: "";
     display: block;
 }
 
@@ -945,7 +944,6 @@ h4 {
     background-color: transparent !important;
 }
 
-
 ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb:hover {
     border-radius: 10px;
@@ -956,7 +954,6 @@ h4 {
 ::-webkit-scrollbar-track {
     background: rgba(197, 197, 197, 0.3);
 }
-
 
 .login-toast {
     text-align: left;
@@ -978,7 +975,6 @@ h4 {
     font-size: 1.2em;
     left: 0.6em;
 }
-
 
 /*搜索*/
 .selectSearchArea {
@@ -1074,12 +1070,10 @@ h4 {
     color: #fb5d5d;
 }
 
-
 .mini-tool .swal2-textarea {
     font-size: 16px;
     height: 20em;
 }
-
 
 .sms-login > div {
     display: flex;
@@ -1089,8 +1083,8 @@ h4 {
     margin: 0.5em 0;
 }
 
-.sms-login .send-sms-btn[disabled]{
-    opacity: .4
+.sms-login .send-sms-btn[disabled] {
+    opacity: 0.4;
 }
 
 .sms-login .check-code {
@@ -1112,6 +1106,5 @@ h4 {
     }
 }
 
-.sms-login #tips{
-
+.sms-login #tips {
 }
