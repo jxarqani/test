@@ -46,37 +46,51 @@
                                 <i class="fa fa-arrow-circle-o-down"></i>
                                 <span class="animate-normal">跳转底部</span>
                             </button>
-                            <button style="border-radius: 3px" class="cmd-btn" data-cmd="task list 2>&1 | tee log/tasklist.log" data-name="tasklist">
+                            <button style="border-radius: 3px" style="border-radius: 3px" class="cmd-btn"
+                                style="border-radius: 3px" data-cmd="task list 2>&1 | tee log/tasklist.log"
+                                data-name="tasklist">
                                 <i class="fa fa-list-alt"></i>
                                 <span class="animate-normal">列出脚本</span>
                             </button>
-                            <button class="cmd-btn" data-cmd="update all 2>&1" data-name="update">
+                            <button class="cmd-btn" style="border-radius: 3px" data-cmd="update all 2>&1"
+                                data-name="update">
                                 <i class="fa fa-rotate-left"></i>
-                                <span class="animate-normal">更新脚本</span>
+                                <span class="animate-normal">更新</span>
+                            </button>
+                            <button class="cmd-btn" style="border-radius: 3px;"
+                                data-cmd="task rmlog | tee log/rmlog.log" data-name="rmlog" title="task rmlog">
+                                <i class="fa fa-trash-o"></i>
+                                <span class="animate-normal">删除日志</span>
                             </button>
                         </div>
                     </header>
                 </div>
                 <div class="run run-mobile">
-                        <div class="selectSearchArea">
-                            <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本"
-                                   required/>
-                        </div>
-                        <div class="run-cmd-btn">
-                            <button id="runCmd" class="btn btn-primary btn-ghost btn-shine submit" type="submit"><i class="fa fa-rocket"></i> 普通执行</button>
-                            <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine submit" type="submit"><i class="fa fa-random"></i> 并发执行</button>
-                        </div>
+                    <div class="selectSearchArea">
+                        <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本" required />
+                    </div>
+                    <div class="run-cmd-btn">
+                        <button id="runCmd" class="btn btn-primary btn-ghost btn-shine submit" type="submit"><i
+                                class="fa fa-rocket"></i> 普通执行</button>
+                        <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine submit" type="submit"><i
+                                class="fa fa-random"></i> 并发执行</button>
+                    </div>
                     <div class="fast-run">
-                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="bash task jd_bean_change now" data-name="jd_bean_change" title="task jd_bean_change now">
+                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine"
+                            data-cmd="bash task jd_bean_change now" data-name="jd_bean_change"
+                            title="task jd_bean_change now">
                             <i class="fa fa-bell"></i> 京豆变动
                         </button>
-                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task cookie check" data-name="cookiecheck" title="task cookie check">
+                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task cookie check"
+                            data-name="cookiecheck" title="task cookie check">
                             <i class="fa fa-calendar-check-o"></i> 检测账号
                         </button>
-                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task ps" data-name="ps" data-refresh-log="false" title="task ps">
+                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task ps" data-name="ps"
+                            data-refresh-log="false" title="task ps">
                             <i class="fa fa-tasks"></i> 查看进程
                         </button>
-                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl jbot start" data-name="jbot" title="task jbot start">
+                        <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl jbot start"
+                            data-name="jbot" title="task jbot start">
                             <i class="fa fa-play-circle"></i> 重启BOT
                         </button>
                     </div>

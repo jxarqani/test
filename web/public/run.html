@@ -47,67 +47,50 @@
                                 <span class="animate-normal">跳转底部</span>
                             </button>
                             <button class="cmd-btn" style="border-radius: 3px"
+                                data-cmd="update all 2>&1" data-name="update">
+                                <i class="fa fa-rotate-left"></i>
+                                <span class="animate-normal"> 更 新 </span>
+                            </button>
+                            <button class="cmd-btn" style="border-radius: 3px"
                                 data-cmd="task list 2>&1 | tee log/tasklist.log" data-name="tasklist">
                                 <i class="fa fa-list-alt"></i>
                                 <span class="animate-normal">脚本清单</span>
                             </button>
-                            <button class="cmd-btn" data-cmd="update all 2>&1" data-name="update">
-                                <i class="fa fa-rotate-left"></i>
-                                <span class="animate-normal"> 更 新 </span>
+                            <button class="cmd-btn" style="border-radius: 3px;"
+                                data-cmd="task ps" data-name="ps" data-refresh-log="false">
+                                <i class="fa fa-list-ol"></i>
+                                <span class="animate-normal">查看进程</span>
                             </button>
-                        </div>
-                        <div class="run">
-                            <div class="run-select">
-                                <div class="selectSearchArea">
-                                    <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本" required />
-                                </div>
-                            </div>
-                            <button id="runCmd" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 6px 0 0 6px;" type="submit">
-                                <i class="fa fa-rocket"></i> 普通执行
+                            <button class="cmd-btn" style="border-radius: 3px;"
+                                data-cmd="task rmlog | tee log/rmlog.log" data-name="rmlog" title="task rmlog">
+                                <i class="fa fa-trash-o"></i>
+                                <span class="animate-normal">删除日志</span>
                             </button>
-                            <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 0 6px 6px 0;" type="submit">
-                                <i class="fa fa-random"></i> 并发执行
+                            <button class="cmd-btn" style="border-radius: 3px;"
+                                ata-cmd="task cookie check" data-name="cookiecheck">
+                                <i class="fa fa-calendar-check-o"></i>
+                                <span class="animate-normal">检测账号</span>
+                            </button>
+                            <button class="cmd-btn"
+                                data-cmd="taskctl jbot start" data-name="jbot">
+                                <i class="fa fa-play-circle"></i>
+                                <span class="animate-normal">重启机器人</span>
                             </button>
                         </div>
                     </header>
                 </div>
                 <div class="fast-run">
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_bean_change now"
-                        data-name="jd_bean_change" title="task jd_bean_change now">
-                        <i class="fa fa-bell"></i> 京豆变动
+                    <div class="run-select">
+                        <div class="selectSearchArea">
+                            <input class="jdScript coco-input" type="text" placeholder="请选择需要执行的脚本" required />
+                        </div>
+                    </div>
+                    <button id="runCmd" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 6px 0 0 6px;" type="submit">
+                        <i class="fa fa-rocket"></i> 普通执行
                     </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task jd_get_share_code now"
-                        data-name="jd_getShareCodes" title="task jd_get_share_code now">
-                        <i class="fa fa-share-alt-square"></i> 获取互助码
+                    <button id="runCmdConc" class="btn btn-primary btn-ghost btn-shine" style="border-radius: 0 6px 6px 0;" type="submit">
+                        <i class="fa fa-random"></i> 并发执行
                     </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task exsc" data-name="exsc"
-                        title="task exsc">
-                        <i class="fa fa-code"></i> 导出互助码
-                    </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task cookie check"
-                        data-name="cookiecheck" title="task cookie check">
-                        <i class="fa fa-calendar-check-o"></i> 检测账号
-                    </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine"
-                        data-cmd="task rmlog | tee log/rmlog.log" data-name="rmlog" title="task rmlog">
-                        <i class="fa fa-trash"></i> 删除日志
-                    </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="task ps" data-name="ps"
-                        data-refresh-log="false" title="task ps">
-                        <i class="fa fa-tasks"></i> 查看进程
-                    </button>
-                    <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl jbot start"
-                        data-name="jbot" title="task jbot start">
-                        <i class="fa fa-play-circle"></i> 重启机器人
-                    </button>
-                    <!--
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl hang up" data-name="hang_up" data-refresh-log="false" title="taskctl hang up">
-                    <i class="fa fa-play-circle"></i> 重启挂机程序
-                </button>
-                <button class="cmd-btn btn btn-primary btn-ghost btn-shine" data-cmd="taskctl hang down" data-name="hang_down" data-refresh-log="false" title="taskctl hang down">
-                    <i class="fa fa-power-off"></i> 停止挂机程序
-                </button>
-                -->
                 </div>
             </div>
 
