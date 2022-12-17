@@ -296,6 +296,14 @@ h4 {
     padding-left: 3rem !important;
 }
 
+.elk-side-nav .metismenu a:hover {
+    background-color: #8383831f;
+}
+
+.dark .elk-side-nav .metismenu a:hover {
+    background-color: #8d8d8d1f;
+}
+
 /*.bg-light {*/
 /*    background-color: #f8f9fa !important;*/
 /*}*/
