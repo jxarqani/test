@@ -471,9 +471,6 @@ h4 {
     align-items: center;
     display: flex;
 }
-.xterm .xterm-viewport {
-    overflow-y: auto;
-}
 /*.run-cmd-btn .btn[type=submit]{*/
 /*    margin-right: 0px;*/
 /*}*/
