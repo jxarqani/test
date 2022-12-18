@@ -381,6 +381,7 @@ h4 {
 }
 
 .coco-input:active {
+    cursor: default;
     transition: all 0.08s ease-out;
     background-color: #fff;
     border-color: #cbcbcc;
@@ -1032,6 +1033,7 @@ h4 {
     box-sizing: border-box;
     height: 28px;
     text-indent: 0;
+    cursor: pointer;
 }
 
 .selectSearchArea > .multiFunctionSelectList > li {
