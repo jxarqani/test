@@ -192,12 +192,14 @@ body.document-loaded .form__cover:before {
 
 h1.title {
     font-size: 25px;
-    margin: 0 0 2rem 0;
+    margin: 0 auto;
+    margin-bottom: 2rem;
     color: transparent;
     font-weight: 700;
     padding: 0;
     background-image: linear-gradient(90deg, #7209d4, #2832d4 33%, #00a5b2);
     -webkit-background-clip: text;
+    width: fit-content;
 }
 
 .styled-button {
