@@ -5,7 +5,7 @@ panda-syntax：暗黑主题
 
 @font-face {
     font-family: "SF-Mono";
-    src: url("../font/SF-Mono-Regular.otf") format("truetype");
+    src: url("./font/SF-Mono-Regular.otf") format("truetype");
 }
 
 .cm-s-panda-syntax {
