@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-12-08
+## Modified: 2022-12-19
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -404,54 +404,50 @@ function Find_Script() {
 
 ## 随机延迟
 function Random_Delay() {
-    if [[ ${RUN_DELAY} == true ]]; then
-        if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
-            local CurMin=$(date "+%-M")
-            local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
-            ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
-            case ${CRON_TASK} in
-            true)
-                if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
-                    sleep ${CurDelay}
-                fi
-                ;;
-            *)
-                echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
+    if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
+        local CurMin=$(date "+%-M")
+        local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
+        ## 当时间处于每小时的 0~3,30,58~59 分时不延迟
+        case ${CRON_TASK} in
+        true)
+            if [[ ${CurMin} -gt 3 && ${CurMin} -lt 30 ]] || [[ ${CurMin} -gt 31 && ${CurMin} -lt 58 ]]; then
                 sleep ${CurDelay}
-                ;;
-            esac
-        fi
+            fi
+            ;;
+        *)
+            echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
+            sleep ${CurDelay}
+            ;;
+        esac
     fi
 }
 
 ## 等待执行
 function RunWait() {
     local FormatPrint
-    if [[ ${RUN_WAIT} == true ]]; then
-        echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
-        if [ $? -eq 0 ]; then
-            echo -e "\n$ERROR 等待时间值格式有误！\n"
-            exit ## 终止退出
-        fi
-        Tmp=$(echo ${RUN_WAIT_TIMES} | perl -pe '{s|[smd]||g}')
-        case ${RUN_WAIT_TIMES:0-1} in
-        s)
-            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
-            ;;
-        m)
-            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 分"
-            ;;
-        d)
-            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 天"
-            ;;
-        *)
-            FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
-            ;;
-        esac
-        echo -en "\n$WORKING 此任务将在${FormatPrint}后开始运行..."
-        sleep ${RUN_WAIT_TIMES}
-        echo ''
+    echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
+    if [ $? -eq 0 ]; then
+        echo -e "\n$ERROR 等待时间值格式有误！\n"
+        exit ## 终止退出
     fi
+    Tmp=$(echo ${RUN_WAIT_TIMES} | perl -pe '{s|[smd]||g}')
+    case ${RUN_WAIT_TIMES:0-1} in
+    s)
+        FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
+        ;;
+    m)
+        FormatPrint=" ${BLUE}${Tmp}${PLAIN} 分"
+        ;;
+    d)
+        FormatPrint=" ${BLUE}${Tmp}${PLAIN} 天"
+        ;;
+    *)
+        FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
+        ;;
+    esac
+    echo -en "\n$WORKING 此任务将在${FormatPrint}后开始运行..."
+    sleep ${RUN_WAIT_TIMES}
+    echo ''
 }
 
 ## 判定账号是否存在
@@ -461,6 +457,18 @@ function Account_ExistenceJudgment() {
     if [[ -z ${!Tmp} ]]; then
         echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
         exit 1 ## 终止退出
+    fi
+}
+
+## 判断账号区间语法合法性
+function CheckAccountsRangeFormat() {
+    local String=$1
+    if [[ $(echo "${String}" | grep -o "-" | wc -l) -ge 2 ]]; then
+        echo -e "\n$ERROR 账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}-${PLAIN} 连接符！\n"
+        exit ## 终止退出
+    elif [[ $(echo "${String}" | grep -o "%" | wc -l) -ge 2 ]]; then
+        echo -e "\n$ERROR 账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}%${PLAIN} 账号总数代符！\n"
+        exit ## 终止退出
     fi
 }
 
@@ -582,13 +590,7 @@ function Run_Normal() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 ## 格式检测
-                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -ge 2 ]]; then
-                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个连接符 ${BLUE}-${PLAIN} ，账号区间语法有误 ！\n"
-                    exit ## 终止退出
-                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -ge 2 ]]; then
-                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，存在多个账号总数代符 ${BLUE}%${PLAIN} ，账号区间语法有误！\n"
-                    exit ## 终止退出
-                fi
+                CheckAccountsRangeFormat "${UserNum}"
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
@@ -669,22 +671,18 @@ function Run_Normal() {
     if [[ ${RUN_GROUPING} == true ]]; then
         ## 定义分组
         local Groups=$(echo ${GROUPING_VALUE} | perl -pe "{s|@| |g}")
-        for g in ${Groups}; do
-            local Accounts=$(echo ${g} | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
+        for group in ${Groups}; do
+            local Accounts=$(echo "${group}" | perl -pe "{s|%|${UserSum}|g, s|,| |g}")
             Designated_Account "${Accounts}"
 
             ## 判断循环运行次数
-            if [[ ${RUN_LOOP} == true ]]; then
-                Run_Times=$(($RUN_LOOP_TIMES + 1))
-            else
-                Run_Times=1
-            fi
+            [[ ${RUN_LOOP} == true ]] && RunTimes=$(($RUN_LOOP_TIMES + 1))
             ## 执行脚本
-            for ((i = 1; i <= ${Run_Times}; i++)); do
+            for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
                 ## 随机延迟
-                Random_Delay
+                [[ ${RUN_DELAY} == true ]] && Random_Delay
                 ## 等待执行
-                RunWait
+                [[ ${RUN_WAIT} == true ]] && RunWait
                 ## 运行
                 if [[ ${RUN_DAEMON} == true ]]; then
                     ## 后台挂起（守护进程）
@@ -708,17 +706,13 @@ function Run_Normal() {
         fi
 
         ## 判断循环运行次数
-        if [[ ${RUN_LOOP} == true ]]; then
-            Run_Times=$(($RUN_LOOP_TIMES + 1))
-        else
-            Run_Times=1
-        fi
+        [[ ${RUN_LOOP} == true ]] && RunTimes=$(($RUN_LOOP_TIMES + 1))
         ## 执行脚本
-        for ((i = 1; i <= ${Run_Times}; i++)); do
+        for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
             ## 随机延迟
-            Random_Delay
+            [[ ${RUN_DELAY} == true ]] && Random_Delay
             ## 等待执行
-            RunWait
+            [[ ${RUN_WAIT} == true ]] && RunWait
             ## 运行
             if [[ ${RUN_DAEMON} == true ]]; then
                 ## 后台挂起（守护进程）
@@ -799,9 +793,9 @@ function Run_Concurrent() {
     ## 进入脚本所在目录
     cd ${FileDir}
     ## 随机延迟
-    Random_Delay
+    [[ ${RUN_DELAY} == true ]] && Random_Delay
     ## 等待执行
-    RunWait
+    [[ ${RUN_WAIT} == true ]] && RunWait
 
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
@@ -811,13 +805,7 @@ function Run_Concurrent() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 ## 格式检测
-                if [[ $(echo "${UserNum}" | perl -pe "{s|-|-\\n|g}" | grep "-" -c) -gt 2 ]]; then
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个连接符(${BLUE}-${PLAIN})！\n"
-                    exit ## 终止退出
-                elif [[ $(echo "${UserNum}" | perl -pe "{s|\%|\%\\n|g}" | grep "%" -c) -gt 2 ]]; then
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，存在多个账号总数代符(${BLUE}%${PLAIN})！\n"
-                    exit ## 终止退出
-                fi
+                CheckAccountsRangeFormat "${UserNum}"
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
