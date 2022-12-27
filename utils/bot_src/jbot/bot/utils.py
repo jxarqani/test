@@ -213,9 +213,10 @@ async def run_btn(conv, sender, path, msg, page, files_list):
             dir = os.listdir(path)
             # if BOT_SET["中文"].lower() == "true":
             #     dir = get_ch_names(path, dir)
+
             dir.sort()
             markup = [Button.inline(file.split('--->')[0], data=str(file.split('--->')[-1]))
-                      for file in dir if os.path.isdir(f'{path}/{file}') or file.endswith('.js')]
+                      for file in dir if os.path.isdir(f'{path}/{file}') or file.endswith(('.js', '.py', '.ts', '.sh')) and not re.match(r'AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jdCookie\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|^magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py', file, re.S) ]
             markup = split_list(markup, row)
             if len(markup) > 30:
                 markup = split_list(markup, 30)
