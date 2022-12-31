@@ -273,7 +273,7 @@ function UpdateEnv() {
             fi
         fi
     done
-
+    Make_Dir $ScriptsDir
     cp -rf $tmp_file "$ScriptsDir/$(b $target_file)" >/dev/null 2>&1
     bash -c "$(b Z3JlcCAtRSAiIHRhc2tcYiAuKmpkXy4qXGIiIC9qZC9jb25maWcvY3JvbnRhYi5saXN0IHwgZ3JlcCAtdiAidGFzayBlbnYgZWRpdCIgfCBncmVwIC1FICJqZF9yZWRoZWxwfGpkX25oanJlZHxqZF9yZWRuaGp8amRfbmhqaGIiIC1xCg==)"
     if [ $? -eq 1 ]; then
