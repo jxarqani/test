@@ -96,61 +96,45 @@ SignsRepoGitUrl="git@jd_base_gitee:supermanito/panel_sign_json.git"
 ## 脚本日志所在的文件夹名称
 name_script=(
     jd_fruit
-    jd_pet
     jd_plantBean
     jd_jdfactory
     jd_sgmh
     jd_cfd
     jd_health
-    jd_cash
     jd_city
-    jd_bookshop
-    jd_global
     jd_carnivalcity
 )
 ## 助力码变量名 My<xxx>
 name_config=(
     Fruit
-    Pet
     Bean
     JdFactory
     Sgmh
     Cfd
     Health
-    Cash
     City
-    BookShop
-    Global
     Carni
 )
 ## 脚本输出内容中互助码所在行的中文标识
 name_chinese=(
     东东农场
-    东东萌宠
     京东种豆得豆
     东东工厂
     闪购盲盒
     京喜财富岛
     东东健康社区
-    签到领现金
     城城领现金
-    口袋书店
-    环球挑战赛
     京东手机狂欢城
 )
 ## 用于 Bot 提交的命令前缀
 bot_command=(
     farm
-    pet
     bean
     ddfactory
     sgmh
     cfd
     health
-    sign
     city
-    bookshop
-    global
     carnivalcity
 )
 

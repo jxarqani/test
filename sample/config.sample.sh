@@ -1,6 +1,6 @@
-## Version: v1.15.0
-## Date: 2022-11-24
-## Update Content: 1. 脚本全局代理功能新增 "代理白名单" 控制环境变量并完善了相关注释内容
+## Version: v1.15.1
+## Date: 2023-01-06
+## Update Content: 1. 移除无效变量配置 2. 更新备注中的文档路径
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写您需要用到的额外环境变量，格式：export 变量名="变量值"
@@ -52,7 +52,7 @@ export CK_AUTO_ADD="true"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 主 要 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
-# 项目文档：https://supermanito.github.io/Helloworld/#/config/主要仓库
+# 项目文档：https://supermanito.github.io/Helloworld/#/pages/config/主要仓库
 
 ## ❖ Scripts 主要仓库脚本定时任务开关（自动增加/自动删除）
 # 当启用自动增加时，如果从检测文件中检测到有新的定时任务会自动在本地增加，定时时间为检测文件中定义的时间
@@ -73,7 +73,7 @@ DisableNewCron=""
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
 ## ❖ Own Repo 扩展仓库
-# 项目文档：https://supermanito.github.io/Helloworld/#/config/扩展仓库
+# 项目文档：https://supermanito.github.io/Helloworld/#/pages/config/扩展仓库
 # 除 Scripts 主库外用户还可以通过定义下方的变量添加更多的仓库到本地
 
 # 如果启用了 "自动增加定时" 那么通过此方式导入的脚本会按照标准格式导入定时任务，不符合的脚本会被略过，仅支持导入 js 类型的脚本
@@ -131,7 +131,7 @@ OwnRepoCronShielding=""
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 扩 展 脚 本 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
 ## ❖ Own RawFile 扩展脚本
-# 项目文档：https://supermanito.github.io/Helloworld/#/config/扩展脚本
+# 项目文档：https://supermanito.github.io/Helloworld/#/pages/config/扩展脚本
 # 用户可以通过定义下方的变量单独添加更多的脚本到本地
 
 # 请先确认您能正常下载目标脚本后再列在下方，位于托管仓库的脚本支持地址纠正功能可不填入 raw 原始文件地址，也支持一般网站
@@ -233,7 +233,7 @@ EnableGlobalProxy=""
 # export GLOBAL_AGENT_NO_PROXY=""
 
 ## ❖ 9. 自定义推送通知模块功能
-# 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/config/推送通知
+# 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://supermanito.github.io/Helloworld/#/pages/config/推送通知
 # 如想使用第三方推送通知模块请将下方变量赋值为 "true" ，并在 config 目录下存放您的 sendNotify.js 脚本
 # 注意如若使用第三方通知模块可能会出现兼容性问题导致项目部分功能不可用
 EnableCustomNotify=""
@@ -245,7 +245,7 @@ EnableCustomNotify=""
 
 # 在下方定义推送通知方式，想通过什么渠道收取通知，就填入对应渠道的值，您也可以同时使用多个渠道获取通知
 # 目前提供：Server酱、Bark、Telegram、钉钉、企业微信、iGot、pushplus、go-cqhttp、WxPusher
-# 项目文档：https://supermanito.github.io/Helloworld/#/config/推送通知
+# 项目文档：https://supermanito.github.io/Helloworld/#/pages/config/推送通知
 
 ## ❖ 定义通知尾
 export NOTIFY_TAIL="❖ 本通知 By：https://supermanito.github.io/Helloworld"
@@ -434,15 +434,7 @@ BotSubmit=(
 # ForOtherFruit1=""
 # ForOtherFruit2=""
 
-## 2. 东东萌宠
-# MyPet1=""
-# MyPet2=""
-# MyPetA=""
-# MyPetB=""
-# ForOtherPet1=""
-# ForOtherPet2=""
-
-## 3. 种豆得豆
+## 2. 种豆得豆
 # MyBean1=""
 # MyBean2=""
 # MyBeanA=""
@@ -450,7 +442,7 @@ BotSubmit=(
 # ForOtherBean1=""
 # ForOtherBean2=""
 
-## 4. 东东工厂
+## 3. 东东工厂
 # MyJdFactory1=""
 # MyJdFactory2=""
 # MyJdFactoryA=""
@@ -458,31 +450,7 @@ BotSubmit=(
 # ForOtherJdFactory1=""
 # ForOtherJdFactory2=""
 
-## 5. 京喜工厂
-# MyDreamFactory1=""
-# MyDreamFactory2=""
-# MyDreamFactoryA=""
-# MyDreamFactoryB=""
-# ForOtherDreamFactory1=""
-# ForOtherDreamFactory2=""
-
-## 6. 口袋书店
-# MyBookShop1=""
-# MyBookShop2=""
-# MyBookShopA=""
-# MyBookShopB=""
-# ForOtherBookShop1=""
-# ForOtherBookShop2=""
-
-## 7. 签到领现金
-# MyCash1=""
-# MyCash2=""
-# MyCashA=""
-# MyCashB=""
-# ForOtherCash1=""
-# ForOtherCash2=""
-
-## 8. 闪购盲盒
+## 4. 闪购盲盒
 # MySgmh1=""
 # MySgmh2=""
 # MySgmhA=""
@@ -490,7 +458,7 @@ BotSubmit=(
 # ForOtherSgmh1=""
 # ForOtherSgmh2=""
 
-## 9. 东东健康社区
+## 5. 东东健康社区
 # MyHealth1=""
 # MyHealth2=""
 # MyHealthA=""
@@ -498,15 +466,7 @@ BotSubmit=(
 # ForOtherHealth1=""
 # ForOtherHealth2=""
 
-## 10. 环球挑战赛(限时活动)
-# MyGlobal1=""
-# MyGlobal2=""
-# MyGlobalA=""
-# MyGlobalB=""
-# ForOtherGlobal1=""
-# ForOtherGlobal2=""
-
-## 11. 京东手机狂欢城(限时活动)
+## 6. 手机狂欢城(限时活动)
 # MyCarni1=""
 # MyCarni2=""
 # MyCarniA=""
@@ -514,7 +474,7 @@ BotSubmit=(
 # ForOtherCarni1=""
 # ForOtherCarni2=""
 
-## 12. 城城分现金(限时活动)
+## 7. 城城分现金(限时活动)
 # MyCity1=""
 # MyCity2=""
 # MyCityA=""
