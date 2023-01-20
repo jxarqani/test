@@ -1023,10 +1023,10 @@ function Accounts_Control() {
 
             ## 检测 wskey
             ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
-            local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
+            local ArrayLength=$(cat $FileAccountConf | jq 'length')
             if [[ ${ArrayLength} -ge 1 ]]; then
                 num=1
-                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                for ((i = 0; i < ${ArrayLength}; i++)); do
                     PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
                     WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
@@ -1039,7 +1039,7 @@ function Accounts_Control() {
                     fi
                 done
 
-                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                for ((i = 0; i < ${ArrayLength}; i++)); do
                     local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
                     local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
@@ -1086,9 +1086,9 @@ function Accounts_Control() {
             grep -q "${pt_pin}" $FileAccountConf
             if [[ $? -eq 0 ]]; then
                 ## 统计 account.json 数组中的元素数量，即最多配置了多少个账号，即使元素为空值
-                local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
+                local ArrayLength=$(cat $FileAccountConf | jq 'length')
 
-                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                for ((i = 0; i < ${ArrayLength}; i++)); do
                     local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
                     local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
@@ -1161,7 +1161,7 @@ function Accounts_Control() {
         function UpdateCookie_All() {
             local UserNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin EscapePin_Length_Add CookieTmp LogFile
             ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
-            local ArrayLength=$(cat $FileAccountConf | jq 'keys' | tail -n 2 | head -n 1 | grep -Eo "[0-9]{1,3}")
+            local ArrayLength=$(cat $FileAccountConf | jq 'length')
             ## 生成 pt_pin 数组
             local pt_pin_array=(
                 $(cat $FileAccountConf | jq -r '.[] | {pt_pin:.pt_pin,} | .pt_pin' | grep -Ev "pt_pin的值|null|^$")
@@ -1174,7 +1174,7 @@ function Accounts_Control() {
                 ## 记录执行开始时间
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
 
-                for ((i = 0; i <= ${ArrayLength}; i++)); do
+                for ((i = 0; i < ${ArrayLength}; i++)); do
                     PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
                     WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环

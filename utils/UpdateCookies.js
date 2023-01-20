@@ -134,7 +134,7 @@ const updateCookies = async (pt_pin) => {
                         globalOptions.message += `${headerMsg} 生成的cookie已失效\n`;
                     }
                 } else {
-                    globalOptions.message += `${headerMsg} 更新失败,请检查ws_key是否正确}\n`;
+                    globalOptions.message += `${headerMsg} 更新失败，请检查ws_key是否正确\n`;
                 }
             } else {
                 globalOptions.message += `${headerMsg} 未设置ws_key不更新\n`;
