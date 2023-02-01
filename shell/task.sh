@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-12-19
+## Modified: 2023-02-02
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -912,7 +912,7 @@ function Process_CleanUp() {
         ;;
     esac
     ## 生成进程清单
-    ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "00:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
+    ps -axo pid,time,user,start,command | egrep "\.js$|\.py$|\.ts$" | egrep -v "server\.js|pm2|egrep|perl|sed|bash" | grep -E "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] root" >${FileProcessList}
     if [[ "$(cat ${FileProcessList})" != "" ]]; then
         echo -e "\n$WORKING 开始匹配并清理启动超过 ${BLUE}${CheckHour}${PLAIN} 小时的卡死进程...\n"
         ## 生成进程 PID 数组
