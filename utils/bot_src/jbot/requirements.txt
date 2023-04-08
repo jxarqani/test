@@ -1,8 +1,9 @@
 qrcode==6.1
-Telethon==1.26.0
+Telethon==1.28.0
 requests==2.25.1
 Pillow==8.1.2
 python-socks==1.2.4
-async_timeout==3.0.1
+async_timeout==4.0.2
 prettytable>=2.1.0
 httpx>=0.21.3
+asyncio>=3.4.3
