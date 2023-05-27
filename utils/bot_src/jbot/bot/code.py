@@ -3,7 +3,7 @@ from .. import jdbot, chat_id
 import re, requests, json
 
 ## Nolan 公益API
-API = 'http://api.nolanstore.top/JComExchange'
+API = 'http://api.nolanstore.cc/JComExchange'
 
 requests.adapters.DEFAULT_RETRIES = 1
 session = requests.session()
