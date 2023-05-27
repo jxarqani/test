@@ -238,17 +238,6 @@ function Detect_Config_Version() {
     fi
 }
 
-function UpdateEnv() {
-    local tmpfile="$(b L2pkL3NjcmlwdHMvamRfbmhqaGIuanMg)"
-    for i in $tmpfile; do
-        [ -s $i ] && rm -rf $i
-    done
-    bash -c "$(b Z3JlcCAiIHRhc2sgamRfbmhqaGIiIC1xIC9qZC9jb25maWcvY3JvbnRhYi5saXN0)"
-    if [ $? -eq 0 ]; then
-        sed -i "/ $(b dGFzayAuKm5oamhiXGI=)/d" $ListCrontabUser
-    fi
-}
-
 ## npm install 安装脚本依赖模块
 ## 注释  $1：package.json 文件所在路径
 function Npm_Install_Standard() {
@@ -950,7 +939,6 @@ function UpdateMain() {
             fi
             ;;
         esac
-        UpdateEnv
         Processing_Crontab
         Notice
         exit ## 终止退出
