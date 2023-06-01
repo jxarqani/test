@@ -122,7 +122,7 @@ const updateCookies = async (pt_pin) => {
             if (account.ws_key && account.ws_key !== "") {
                 let success = false;
                 let ck = await getCkByWsKey(account);
-                if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("pt_key=;") === -1) {
+                if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("undefined") === -1 && ck.indexOf("pt_key=;") === -1) {
                     // let checkResult = await checkCookie(ck);
                     let checkResult = true;
                     if (checkResult) {
