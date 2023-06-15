@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-10-27
+## Modified: 2023-06-15
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -40,6 +40,7 @@ function Git_Clone() {
     local Branch=$3
     [[ $Branch ]] && local Command="-b $Branch "
     echo -e "\n$WORKING 开始克隆仓库 ${BLUE}$Url${PLAIN} 到 ${BLUE}$Dir${PLAIN}\n"
+    export GIT_TERMINAL_PROMPT=0
     git clone $Command $Url $Dir
     ExitStatus=$?
 }
@@ -52,6 +53,7 @@ function Git_Pull() {
     local Branch=$2
     cd $WorkDir
     echo -e "\n$WORKING 开始更新仓库：${BLUE}$WorkDir${PLAIN}\n"
+    export GIT_TERMINAL_PROMPT=0
     git fetch --all
     ExitStatus=$?
     git pull
@@ -68,9 +70,8 @@ function Reset_Romote_Url() {
     local Branch=$3
     if [ -d "$WorkDir/.git" ]; then
         cd $WorkDir
-        git remote set-url origin $Url >/dev/null 2>&1
-        git fetch --all >/dev/null 2>&1
-        git reset --hard origin/$Branch >/dev/null 2>&1
+        export GIT_TERMINAL_PROMPT=0
+        git remote set-url origin $url >/dev/null 2>&1
         cd $CurrentDir
     fi
 }
