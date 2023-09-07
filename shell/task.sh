@@ -1342,7 +1342,7 @@ function Accounts_Control() {
                     Make_Dir ${LogPath}
                     ## 获取最新签名的更新日期
                     cd $UtilsDir/.sign
-                    SIGN_LAST_UPDATED="$(git show -s --format="%cd" --date="format:%Y-%m-%d" | head -n 1)"
+                    SIGN_LAST_UPDATED="$(git show -s --grep="更新签名" --format="%cd" --date="format:%Y-%m-%d" | head -n 1)"
                     cd $UtilsDir
                     ## 禁用 Core Dump
                     ulimit -c 0 >/dev/null 2>&1
