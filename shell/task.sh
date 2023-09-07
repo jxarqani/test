@@ -1190,9 +1190,9 @@ function Accounts_Control() {
                     EscapePin_Length_Add=$(StringLength $(echo ${EscapePin} | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == true ]]; then
-                        node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
+                        node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} "${SIGN_LAST_UPDATED}" &>>${LogFile} &
                     else
-                        node ${FileUpdateCookie##*/} &>>${LogFile} &
+                        node ${FileUpdateCookie##*/} "${SIGN_LAST_UPDATED}" &>>${LogFile} &
                     fi
                     wait $! 2>/dev/null
                     ## 判断结果
@@ -1284,9 +1284,9 @@ function Accounts_Control() {
                     echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == true ]]; then
-                        node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
+                        node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} "${SIGN_LAST_UPDATED}" &>>${LogFile} &
                     else
-                        node ${FileUpdateCookie##*/} &>>${LogFile} &
+                        node ${FileUpdateCookie##*/} "${SIGN_LAST_UPDATED}" &>>${LogFile} &
                     fi
                     wait $! 2>/dev/null
                     ## 优化日志排版
@@ -1340,7 +1340,13 @@ function Accounts_Control() {
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
                     Make_Dir ${LogPath}
+                    ## 获取最新签名的更新日期
+                    cd $UtilsDir/.sign
+                    SIGN_LAST_UPDATED="$(git show -s --format="%cd" --date="format:%Y-%m-%d" | head -n 1)"
                     cd $UtilsDir
+                    ## 禁用 Core Dump
+                    ulimit -c 0 >/dev/null 2>&1
+                    ## 调用更新脚本
                     case $# in
                     1)
                         UpdateCookie_All
